@@ -4,6 +4,8 @@ import com.locadora_rdt_backend.dto.UserDTO;
 import com.locadora_rdt_backend.entities.User;
 import com.locadora_rdt_backend.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,9 +18,9 @@ public class UserService {
     private UserRepository repository;
 
     @Transactional(readOnly = true)
-    public List<UserDTO> findAll() {
-        List<User> list = repository.findAll();
-        return list.stream().map(UserDTO::new).collect(Collectors.toList());
+    public Page<UserDTO> findAllPaged(PageRequest pageRequest) {
+        Page<User> list = repository.findAll(pageRequest);
+        return list.map(UserDTO::new);
     }
 
 }
