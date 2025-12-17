@@ -18,9 +18,11 @@ public class UserService {
     private UserRepository repository;
 
     @Transactional(readOnly = true)
-    public Page<UserDTO> findAllPaged(PageRequest pageRequest) {
-        Page<User> list = repository.findAll(pageRequest);
-        return list.map(UserDTO::new);
+    public Page<UserDTO> findAllPaged(String name, PageRequest pageRequest) {
+        Page<User> list = repository.find(name, pageRequest);
+        Page<UserDTO> listDto = list.map(user -> new UserDTO(user));
+
+        return listDto;
     }
 
 }
