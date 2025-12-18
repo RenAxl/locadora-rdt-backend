@@ -25,4 +25,25 @@ public class UserService {
         return listDto;
     }
 
+    @Transactional
+    public UserDTO insert(UserDTO dto) {
+        User entity = new User();
+        copyDtoToEntity(dto, entity);
+        entity = repository.save(entity);
+
+        return new UserDTO(entity);
+    }
+
+    private void copyDtoToEntity(UserDTO dto, User entity) {
+        entity.setName(dto.getName());
+        entity.setPassword(dto.getPassword());
+        entity.setEmail(dto.getEmail());
+        entity.setProfile(dto.getProfile());
+        entity.setActive(dto.getActive());
+        entity.setTelephone(dto.getTelephone());
+        entity.setAddress(dto.getAddress());
+        entity.setPhoto(dto.getPhoto());
+        entity.setDate(dto.getDate());
+    }
+
 }

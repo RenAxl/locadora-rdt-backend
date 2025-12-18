@@ -8,7 +8,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.validation.Valid;
+import java.net.URI;
 import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:4200")
@@ -32,6 +35,14 @@ public class UserController {
         Page<UserDTO> list = service.findAllPaged(name.trim(), pageRequest);
 
         return ResponseEntity.ok().body(list);
+    }
+
+    @PostMapping
+    public ResponseEntity<UserDTO> insert(@Valid @RequestBody UserDTO dto) {
+        UserDTO userDto = service.insert(dto);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(userDto.getId())
+                .toUri();
+        return ResponseEntity.created(uri).body(userDto);
     }
 
 }

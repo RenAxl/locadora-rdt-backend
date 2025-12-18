@@ -2,19 +2,37 @@ package com.locadora_rdt_backend.dto;
 
 import com.locadora_rdt_backend.entities.User;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
 public class UserDTO {
 
     private Long id;
+
+    @Size(min = 5, max = 60, message = "O nome deve ter entre 5 a 60 caracteres")
+    @NotBlank(message = "Campo requerido")
     private String name;
+
+    @NotBlank(message = "Campo requerido")
+    @Email(message = "favor entrar um email válido")
     private String email;
+
+    @NotBlank(message = "Campo requerido")
     private String password;
+
+    @NotBlank(message = "Campo requerido")
     private String profile;
     private String active;
+
+    @NotBlank(message = "Campo requerido")
     private String telephone;
     private String address;
     private String photo;
+
+    @NotNull(message = "Campo requerido")
     private LocalDate date;
 
     public UserDTO() {
