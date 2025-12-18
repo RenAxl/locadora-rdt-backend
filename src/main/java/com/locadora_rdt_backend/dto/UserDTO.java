@@ -21,9 +21,6 @@ public class UserDTO {
     private String email;
 
     @NotBlank(message = "Campo requerido")
-    private String password;
-
-    @NotBlank(message = "Campo requerido")
     private String profile;
     private String active;
 
@@ -44,7 +41,6 @@ public class UserDTO {
         this.id = id;
         this.name = name;
         this.email = email;
-        this.password = password;
         this.profile = profile;
         this.active = active;
         this.telephone = telephone;
@@ -57,7 +53,6 @@ public class UserDTO {
         this.id = entity.getId();
         this.name = entity.getName();
         this.email = entity.getEmail();
-        this.password = entity.getPassword();
         this.profile = entity.getProfile();
         this.active = entity.getActive();
         this.telephone = entity.getTelephone();
@@ -88,14 +83,6 @@ public class UserDTO {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getProfile() {

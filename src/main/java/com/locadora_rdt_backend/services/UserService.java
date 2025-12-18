@@ -1,6 +1,7 @@
 package com.locadora_rdt_backend.services;
 
 import com.locadora_rdt_backend.dto.UserDTO;
+import com.locadora_rdt_backend.dto.UserInsertDTO;
 import com.locadora_rdt_backend.entities.User;
 import com.locadora_rdt_backend.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,11 +10,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Service
 public class UserService {
+
     @Autowired
     private UserRepository repository;
 
@@ -26,15 +25,15 @@ public class UserService {
     }
 
     @Transactional
-    public UserDTO insert(UserDTO dto) {
+    public UserDTO insert(UserInsertDTO dto) {
         User entity = new User();
-        copyDtoToEntity(dto, entity);
+        copyDtoInsertToEntity(dto, entity);
         entity = repository.save(entity);
 
         return new UserDTO(entity);
     }
 
-    private void copyDtoToEntity(UserDTO dto, User entity) {
+    private void copyDtoInsertToEntity(UserInsertDTO dto, User entity) {
         entity.setName(dto.getName());
         entity.setPassword(dto.getPassword());
         entity.setEmail(dto.getEmail());

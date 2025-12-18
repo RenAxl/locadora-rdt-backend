@@ -13,4 +13,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("select use from User use where use.name like %?1%")
     Page<User> find(String name, Pageable pageable);
 
+    User findByEmail(String email);
+
 }

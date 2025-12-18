@@ -1,6 +1,7 @@
 package com.locadora_rdt_backend.controllers;
 
 import com.locadora_rdt_backend.dto.UserDTO;
+import com.locadora_rdt_backend.dto.UserInsertDTO;
 import com.locadora_rdt_backend.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -38,7 +39,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserDTO> insert(@Valid @RequestBody UserDTO dto) {
+    public ResponseEntity<UserDTO> insert(@Valid @RequestBody UserInsertDTO dto) {
         UserDTO userDto = service.insert(dto);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(userDto.getId())
                 .toUri();
