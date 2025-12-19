@@ -2,7 +2,7 @@ package com.locadora_rdt_backend.entities;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.time.LocalDate;
+import java.time.Instant;
 import java.util.Objects;
 
 @Entity
@@ -23,14 +23,17 @@ public class User implements Serializable {
     private String telephone;
     private String address;
     private String photo;
-    private LocalDate date;
+
+    @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
+    private Instant date;
+
 
     public User() {
     }
 
     public User(Long id, String name, String email, String password,
                 String profile, String active, String telephone,
-                String address, String photo, LocalDate date) {
+                String address, String photo, Instant date) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -115,11 +118,11 @@ public class User implements Serializable {
         this.photo = photo;
     }
 
-    public LocalDate getDate() {
+    public Instant getDate() {
         return date;
     }
 
-    public void setDate(LocalDate date) {
+    public void setDate(Instant date) {
         this.date = date;
     }
 

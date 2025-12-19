@@ -1,11 +1,22 @@
-INSERT INTO tb_user (name, email, password, profile, active, telephone, address, photo, date) VALUES
-('João Silva', 'joao.silva@example.com', '123456', 'ADMIN', 'Y', '31988880001', 'Rua A, 100 - Centro', 'joao.jpg', '2025-12-10'),
-('Maria Oliveira', 'maria.oliveira@example.com', '123456', 'USER', 'Y', '31988880002', 'Rua B, 200 - Centro', 'maria.jpg', '2025-12-11'),
-('Carlos Pereira', 'carlos.pereira@example.com', '123456', 'USER', 'N', '31988880003', 'Rua C, 300 - Centro', 'carlos.jpg', '2025-12-12'),
-('Ana Souza', 'ana.souza@example.com', '123456', 'ADMIN', 'Y', '31988880004', 'Rua D, 400 - Centro', 'ana.jpg', '2025-12-13'),
-('Ricardo Lima', 'ricardo.lima@example.com', '123456', 'USER', 'Y', '31988880005', 'Rua E, 500 - Centro', 'ricardo.jpg', '2025-12-14'),
-('Juliana Santos', 'juliana.santos@example.com', '123456', 'USER', 'Y', '31988880006', 'Rua F, 600 - Centro', 'juliana.jpg', '2025-12-15'),
-('Fernando Rocha', 'fernando.rocha@example.com', '123456', 'ADMIN', 'N', '31988880007', 'Rua G, 700 - Centro', 'fernando.jpg', '2025-12-16'),
-('Patrícia Mendes', 'patricia.mendes@example.com', '123456', 'USER', 'Y', '31988880008', 'Rua H, 800 - Centro', 'patricia.jpg', '2025-12-17'),
-('Lucas Gomes', 'lucas.gomes@example.com', '123456', 'USER', 'Y', '31988880009', 'Rua I, 900 - Centro', 'lucas.jpg', '2025-12-18'),
-('Amanda Ferreira', 'amanda.ferreira@example.com', '123456', 'ADMIN', 'Y', '31988880010', 'Rua J, 1000 - Centro', 'amanda.jpg', '2025-12-19');
+INSERT INTO tb_user
+(name, email, password, profile, active, telephone, address, photo, date)
+VALUES
+    ('Ana Silva', 'ana.silva@email.com', '123456', 'ADMIN', 'true', '31999990001', 'Rua das Flores, 100 - BH', 'assets/images/ana.jpg', '2025-01-10 10:15:00'),
+
+    ('Bruno Costa', 'bruno.costa@email.com', '123456', 'USER', 'true', '31999990002', 'Av. Amazonas, 200 - BH', 'assets/images/bruno.jpg', '2025-01-11 09:30:00'),
+
+    ('Carla Mendes', 'carla.mendes@email.com', '123456', 'USER', 'true', '31999990003', 'Rua Afonso Pena, 300 - BH', 'assets/images/carla.jpg', '2025-01-12 14:45:00'),
+
+    ('Daniel Rocha', 'daniel.rocha@email.com', '123456', 'USER', 'false', '31999990004', 'Rua dos Andradas, 400 - BH', 'assets/images/daniel.jpg', '2025-01-13 08:20:00'),
+
+    ('Eduarda Lima', 'eduarda.lima@email.com', '123456', 'ADMIN', 'true', '31999990005', 'Av. Brasil, 500 - BH', 'assets/images/eduarda.jpg', '2025-01-14 16:10:00'),
+
+    ('Felipe Nogueira', 'felipe.nogueira@email.com', '123456', 'USER', 'true', '31999990006', 'Rua Goiás, 600 - BH', 'assets/images/felipe.jpg', '2025-01-15 11:05:00'),
+
+    ('Gabriela Torres', 'gabriela.torres@email.com', '123456', 'USER', 'true', '31999990007', 'Av. Contorno, 700 - BH', 'assets/images/gabriela.jpg', '2025-01-16 13:40:00'),
+
+    ('Henrique Alves', 'henrique.alves@email.com', '123456', 'USER', 'false', '31999990008', 'Rua da Bahia, 800 - BH', 'assets/images/henrique.jpg', '2025-01-17 17:25:00'),
+
+    ('Isabela Pires', 'isabela.pires@email.com', '123456', 'ADMIN', 'true', '31999990009', 'Av. Cristiano Machado, 900 - BH', 'assets/images/isabela.jpg', '2025-01-18 09:50:00'),
+
+    ('João Ferreira', 'joao.ferreira@email.com', '123456', 'USER', 'true', '31999990010', 'Rua Padre Eustáquio, 1000 - BH', 'assets/images/joao.jpg', '2025-01-19 18:00:00');

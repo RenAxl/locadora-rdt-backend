@@ -6,7 +6,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.time.LocalDate;
+import java.time.Instant;
 
 public class UserDTO {
 
@@ -30,14 +30,14 @@ public class UserDTO {
     private String photo;
 
     @NotNull(message = "Campo requerido")
-    private LocalDate date;
+    private Instant date;
 
     public UserDTO() {
     }
 
     public UserDTO(Long id, String name, String email, String password, String profile,
                    String active, String telephone, String address,
-                   String photo, LocalDate date) {
+                   String photo, Instant date) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -125,11 +125,11 @@ public class UserDTO {
         this.photo = photo;
     }
 
-    public LocalDate getDate() {
+    public Instant getDate() {
         return date;
     }
 
-    public void setDate(LocalDate date) {
+    public void setDate(Instant date) {
         this.date = date;
     }
 
