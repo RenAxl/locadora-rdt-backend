@@ -30,23 +30,30 @@ public class UserUpdateValidator implements ConstraintValidator<UserUpdateValid,
     @Override
     public boolean isValid(UserUpdateDTO dto, ConstraintValidatorContext context) {
 
-        @SuppressWarnings("unchecked") // Sai o warning que estava no Map<> abaixo
-        var uriVars = (Map<String, String>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
+        @SuppressWarnings("unchecked")
+        var uriVars = (Map<String, String>) request
+                .getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
+
         long userId = Long.parseLong(uriVars.get("id"));
 
         List<FieldMessage> list = new ArrayList<>();
 
-        User user = repository.findByEmail(dto.getEmail());
-
-        if (user != null && userId != user.getId()) {
+        if (repository.findByEmail(dto.getEmail()) != null && repository.findByEmail(dto.getEmail()).getId() != userId) {
             list.add(new FieldMessage("email", "Email já existe"));
+        }
+
+        if (repository.findByTelephone(dto.getTelephone()) != null && repository.findByTelephone(dto.getTelephone()).getId() != userId) {
+            list.add(new FieldMessage("telephone", "Telefone já existe"));
         }
 
         for (FieldMessage e : list) {
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate(e.getMessage()).addPropertyNode(e.getFieldName())
+            context.buildConstraintViolationWithTemplate(e.getMessage())
+                    .addPropertyNode(e.getFieldName())
                     .addConstraintViolation();
         }
+
         return list.isEmpty();
     }
+
 }
