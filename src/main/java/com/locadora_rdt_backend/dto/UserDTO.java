@@ -1,6 +1,7 @@
 package com.locadora_rdt_backend.dto;
 
 import com.locadora_rdt_backend.entities.User;
+import com.locadora_rdt_backend.entities.enums.UserProfile;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -20,8 +21,8 @@ public class UserDTO {
     @Email(message = "favor entrar um email válido")
     private String email;
 
-    @NotBlank(message = "Campo requerido")
-    private String profile;
+    @NotNull
+    private UserProfile profile;
     private String active;
 
     @NotBlank(message = "Campo requerido")
@@ -35,7 +36,7 @@ public class UserDTO {
     public UserDTO() {
     }
 
-    public UserDTO(Long id, String name, String email, String password, String profile,
+    public UserDTO(Long id, String name, String email, String password, UserProfile profile,
                    String active, String telephone, String address,
                    String photo, Instant date) {
         this.id = id;
@@ -85,11 +86,11 @@ public class UserDTO {
         this.email = email;
     }
 
-    public String getProfile() {
+    public UserProfile getProfile() {
         return profile;
     }
 
-    public void setProfile(String profile) {
+    public void setProfile(UserProfile profile) {
         this.profile = profile;
     }
 

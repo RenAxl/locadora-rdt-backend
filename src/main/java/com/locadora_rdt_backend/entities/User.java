@@ -1,5 +1,7 @@
 package com.locadora_rdt_backend.entities;
 
+import com.locadora_rdt_backend.entities.enums.UserProfile;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.Instant;
@@ -18,7 +20,10 @@ public class User implements Serializable {
     @Column(unique = true)
     private String email;
     private String password;
-    private String profile;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserProfile profile;
     private String active;
     private String telephone;
     private String address;
@@ -32,7 +37,7 @@ public class User implements Serializable {
     }
 
     public User(Long id, String name, String email, String password,
-                String profile, String active, String telephone,
+                UserProfile profile, String active, String telephone,
                 String address, String photo, Instant date) {
         this.id = id;
         this.name = name;
@@ -78,11 +83,11 @@ public class User implements Serializable {
         this.password = password;
     }
 
-    public String getProfile() {
+    public UserProfile getProfile() {
         return profile;
     }
 
-    public void setProfile(String profile) {
+    public void setProfile(UserProfile profile) {
         this.profile = profile;
     }
 
