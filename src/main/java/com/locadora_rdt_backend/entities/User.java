@@ -1,6 +1,7 @@
 package com.locadora_rdt_backend.entities;
 
 import com.locadora_rdt_backend.entities.enums.UserProfile;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -29,6 +30,8 @@ public class User implements Serializable {
     private String address;
     private String photo;
 
+
+    @CreationTimestamp
     @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
     private Instant date;
 

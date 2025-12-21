@@ -29,8 +29,6 @@ public class UserDTO {
     private String telephone;
     private String address;
     private String photo;
-
-    @NotNull(message = "Campo requerido")
     private Instant date;
 
     public UserDTO() {
