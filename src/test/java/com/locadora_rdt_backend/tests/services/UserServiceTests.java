@@ -158,5 +158,34 @@ public class UserServiceTests {
         Mockito.verify(repository, Mockito.never()).save(ArgumentMatchers.any(User.class));
     }
 
+    @Test
+    public void deleteShouldDoNothingWhenIdExists() {
+
+        Long existingId = 1L;
+
+        Mockito.doNothing().when(repository).deleteById(existingId);
+
+        Assertions.assertDoesNotThrow(() -> {
+            service.delete(existingId);
+        });
+
+        Mockito.verify(repository, Mockito.times(1)).deleteById(existingId);
+    }
+
+    @Test
+    public void deleteShouldThrowResourceNotFoundExceptionWhenIdDoesNotExist() {
+
+        Long nonExistingId = 1000L;
+
+        Mockito.doThrow(new org.springframework.dao.EmptyResultDataAccessException(1))
+                .when(repository).deleteById(nonExistingId);
+
+        Assertions.assertThrows(com.locadora_rdt_backend.services.exceptions.ResourceNotFoundException.class, () -> {
+            service.delete(nonExistingId);
+        });
+
+        Mockito.verify(repository, Mockito.times(1)).deleteById(nonExistingId);
+    }
+
 
 }

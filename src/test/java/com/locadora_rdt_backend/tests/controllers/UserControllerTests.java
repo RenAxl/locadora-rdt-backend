@@ -166,5 +166,36 @@ public class UserControllerTests {
         Mockito.verify(service, Mockito.times(1)).update(nonExistingId, dto);
     }
 
+    @Test
+    public void deleteShouldReturnNoContentWhenIdExists() {
+
+        Long existingId = 1L;
+
+        Mockito.doNothing().when(service).delete(existingId);
+
+        ResponseEntity<UserDTO> response = controller.delete(existingId);
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(204, response.getStatusCodeValue());
+        Assertions.assertNull(response.getBody());
+
+        Mockito.verify(service, Mockito.times(1)).delete(existingId);
+    }
+
+    @Test
+    public void deleteShouldThrowResourceNotFoundExceptionWhenIdDoesNotExist() {
+
+        Long nonExistingId = 1000L;
+
+        Mockito.doThrow(new com.locadora_rdt_backend.services.exceptions.ResourceNotFoundException("Id not found " + nonExistingId))
+                .when(service).delete(nonExistingId);
+
+        Assertions.assertThrows(com.locadora_rdt_backend.services.exceptions.ResourceNotFoundException.class, () -> {
+            controller.delete(nonExistingId);
+        });
+
+        Mockito.verify(service, Mockito.times(1)).delete(nonExistingId);
+    }
+
 
 }
