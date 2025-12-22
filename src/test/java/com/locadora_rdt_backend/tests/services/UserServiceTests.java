@@ -121,4 +121,42 @@ public class UserServiceTests {
         Mockito.verify(repository, Mockito.times(1)).findById(nonExistingId);
     }
 
+    @Test
+    public void updateShouldReturnUserDTOWhenIdExists() {
+
+        Long existingId = 1L;
+
+        com.locadora_rdt_backend.dto.UserUpdateDTO dto = new com.locadora_rdt_backend.dto.UserUpdateDTO();
+
+        Mockito.when(repository.getOne(existingId)).thenReturn(user);
+        Mockito.when(repository.save(ArgumentMatchers.any(User.class))).thenReturn(user);
+
+        UserDTO result = service.update(existingId, dto);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(user.getId(), result.getId());
+
+        Mockito.verify(repository, Mockito.times(1)).getOne(existingId);
+        Mockito.verify(repository, Mockito.times(1)).save(ArgumentMatchers.any(User.class));
+    }
+
+    @Test
+    public void updateShouldThrowResourceNotFoundExceptionWhenIdDoesNotExist() {
+
+        Long nonExistingId = 1000L;
+
+        com.locadora_rdt_backend.dto.UserUpdateDTO dto = new com.locadora_rdt_backend.dto.UserUpdateDTO();
+
+        Mockito.when(repository.getOne(nonExistingId))
+                .thenThrow(new javax.persistence.EntityNotFoundException());
+
+        Assertions.assertThrows(com.locadora_rdt_backend.services.exceptions.ResourceNotFoundException.class, () -> {
+            service.update(nonExistingId, dto);
+        });
+
+        Mockito.verify(repository, Mockito.times(1)).getOne(nonExistingId);
+        Mockito.verify(repository, Mockito.never()).save(ArgumentMatchers.any(User.class));
+    }
+
+
 }

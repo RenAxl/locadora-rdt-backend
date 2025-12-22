@@ -2,6 +2,7 @@ package com.locadora_rdt_backend.controllers;
 
 import com.locadora_rdt_backend.dto.UserDTO;
 import com.locadora_rdt_backend.dto.UserInsertDTO;
+import com.locadora_rdt_backend.dto.UserUpdateDTO;
 import com.locadora_rdt_backend.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -38,6 +39,12 @@ public class UserController {
         return ResponseEntity.ok().body(list);
     }
 
+    @GetMapping(value = "/{id}")
+    public ResponseEntity<UserDTO> findById(@PathVariable Long id) {
+        UserDTO userDto = service.findById(id);
+        return ResponseEntity.ok().body(userDto);
+    }
+
     @PostMapping
     public ResponseEntity<UserDTO> insert(@Valid @RequestBody UserInsertDTO dto) {
         UserDTO userDto = service.insert(dto);
@@ -46,10 +53,11 @@ public class UserController {
         return ResponseEntity.created(uri).body(userDto);
     }
 
-    @GetMapping(value = "/{id}")
-    public ResponseEntity<UserDTO> findById(@PathVariable Long id) {
-        UserDTO userDto = service.findById(id);
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<UserDTO> update(@PathVariable Long id, @Valid @RequestBody UserUpdateDTO dto) {
+        UserDTO userDto = service.update(id, dto);
         return ResponseEntity.ok().body(userDto);
     }
+
 
 }
