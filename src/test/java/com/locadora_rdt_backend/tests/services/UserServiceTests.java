@@ -91,4 +91,34 @@ public class UserServiceTests {
             Assertions.assertEquals(dto.getDate(), savedEntity.getDate());
         }
     }
+
+    @Test
+    public void findByIdShouldReturnUserDTOWhenIdExists() {
+
+        Long existingId = 1L;
+
+        Mockito.when(repository.findById(existingId)).thenReturn(java.util.Optional.of(user));
+
+        UserDTO result = service.findById(existingId);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(user.getId(), result.getId());
+
+        Mockito.verify(repository, Mockito.times(1)).findById(existingId);
+    }
+
+    @Test
+    public void findByIdShouldThrowResourceNotFoundExceptionWhenIdDoesNotExist() {
+
+        Long nonExistingId = 1000L;
+
+        Mockito.when(repository.findById(nonExistingId)).thenReturn(java.util.Optional.empty());
+
+        Assertions.assertThrows(com.locadora_rdt_backend.services.exceptions.ResourceNotFoundException.class, () -> {
+            service.findById(nonExistingId);
+        });
+
+        Mockito.verify(repository, Mockito.times(1)).findById(nonExistingId);
+    }
+
 }

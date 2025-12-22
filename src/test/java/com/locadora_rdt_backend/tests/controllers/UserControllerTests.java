@@ -97,4 +97,37 @@ public class UserControllerTests {
 
         Mockito.verify(service, Mockito.times(1)).insert(dto);
     }
+
+    @Test
+    public void findByIdShouldReturnResponseEntityWithUserDTOWhenIdExists() {
+
+        Long existingId = 1L;
+
+        Mockito.when(service.findById(existingId)).thenReturn(userDTO);
+
+        ResponseEntity<UserDTO> response = controller.findById(existingId);
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(200, response.getStatusCodeValue());
+        Assertions.assertNotNull(response.getBody());
+        Assertions.assertEquals(userDTO.getId(), response.getBody().getId());
+
+        Mockito.verify(service, Mockito.times(1)).findById(existingId);
+    }
+
+    @Test
+    public void findByIdShouldThrowResourceNotFoundExceptionWhenIdDoesNotExist() {
+
+        Long nonExistingId = 1000L;
+
+        Mockito.when(service.findById(nonExistingId))
+                .thenThrow(new com.locadora_rdt_backend.services.exceptions.ResourceNotFoundException("Entity not found"));
+
+        Assertions.assertThrows(com.locadora_rdt_backend.services.exceptions.ResourceNotFoundException.class, () -> {
+            controller.findById(nonExistingId);
+        });
+
+        Mockito.verify(service, Mockito.times(1)).findById(nonExistingId);
+    }
+
 }

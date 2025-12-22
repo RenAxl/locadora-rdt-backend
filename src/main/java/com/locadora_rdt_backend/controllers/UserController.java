@@ -46,4 +46,10 @@ public class UserController {
         return ResponseEntity.created(uri).body(userDto);
     }
 
+    @GetMapping(value = "/{id}")
+    public ResponseEntity<UserDTO> findById(@PathVariable Long id) {
+        UserDTO userDto = service.findById(id);
+        return ResponseEntity.ok().body(userDto);
+    }
+
 }
