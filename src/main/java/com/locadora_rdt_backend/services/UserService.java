@@ -73,7 +73,6 @@ public class UserService {
 
     private void copyDtoUpdateToEntity(UserUpdateDTO dto, User entity) {
         entity.setName(dto.getName());
-        entity.setPassword(dto.getPassword());
         entity.setEmail(dto.getEmail());
         entity.setProfile(dto.getProfile());
         entity.setActive(dto.getActive());
