@@ -65,5 +65,12 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-
+    @DeleteMapping("/all")
+    public ResponseEntity<Void> deleteAll(@RequestBody List<Long> ids) {
+        service.deleteAll(ids);
+        return ResponseEntity.noContent().build();
+    }
 }
+
+
+

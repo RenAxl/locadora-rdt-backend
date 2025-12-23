@@ -14,7 +14,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -67,6 +70,27 @@ public class UserService {
             throw new ResourceNotFoundException("Id not found " + id);
         }
     }
+
+    @Transactional
+    public void deleteAll(List<Long> ids) {
+
+        if (ids == null || ids.isEmpty()) {
+            throw new IllegalArgumentException("Lista de ids vazia");
+        }
+
+        List<Long> existingIds = repository.findAllById(ids)
+                .stream()
+                .map(User::getId)
+                .collect(Collectors.toList());
+
+
+        if (existingIds.size() != ids.size()) {
+            throw new ResourceNotFoundException("Um ou mais IDs não existem");
+        }
+
+        repository.deleteAllByIds(ids);
+    }
+
 
     private void copyDtoInsertToEntity(UserInsertDTO dto, User entity) {
         entity.setName(dto.getName());

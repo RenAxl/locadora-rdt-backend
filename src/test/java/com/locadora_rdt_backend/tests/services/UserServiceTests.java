@@ -2,6 +2,7 @@ package com.locadora_rdt_backend.tests.services;
 
 import java.util.List;
 
+import com.locadora_rdt_backend.services.exceptions.ResourceNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -187,5 +188,61 @@ public class UserServiceTests {
         Mockito.verify(repository, Mockito.times(1)).deleteById(nonExistingId);
     }
 
+    @Test
+    public void deleteAllShouldDoNothingAndCallRepositoryDeleteWhenAllIdsExist() {
+
+        List<Long> ids = List.of(1L, 2L, 3L);
+
+        User u1 = UserFactory.createUser();
+        u1.setId(1L);
+        User u2 = UserFactory.createUser();
+        u2.setId(2L);
+        User u3 = UserFactory.createUser();
+        u3.setId(3L);
+
+        Mockito.when(repository.findAllById(ids)).thenReturn(List.of(u1, u2, u3));
+        Mockito.doNothing().when(repository).deleteAllByIds(ids);
+
+        Assertions.assertDoesNotThrow(() -> service.deleteAll(ids));
+
+        Mockito.verify(repository, Mockito.times(1)).findAllById(ids);
+        Mockito.verify(repository, Mockito.times(1)).deleteAllByIds(ids);
+    }
+
+    @Test
+    public void deleteAllShouldThrowIllegalArgumentExceptionWhenIdsIsNull() {
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> service.deleteAll(null));
+
+        Mockito.verify(repository, Mockito.never()).findAllById(ArgumentMatchers.anyList());
+        Mockito.verify(repository, Mockito.never()).deleteAllByIds(ArgumentMatchers.anyList());
+    }
+
+    @Test
+    public void deleteAllShouldThrowIllegalArgumentExceptionWhenIdsIsEmpty() {
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> service.deleteAll(List.of()));
+
+        Mockito.verify(repository, Mockito.never()).findAllById(ArgumentMatchers.anyList());
+        Mockito.verify(repository, Mockito.never()).deleteAllByIds(ArgumentMatchers.anyList());
+    }
+
+    @Test
+    public void deleteAllShouldThrowResourceNotFoundExceptionWhenAnyIdDoesNotExist() {
+
+        List<Long> ids = List.of(1L, 2L, 3L);
+
+        User u1 = UserFactory.createUser();
+        u1.setId(1L);
+        User u2 = UserFactory.createUser();
+        u2.setId(2L);
+
+        Mockito.when(repository.findAllById(ids)).thenReturn(List.of(u1, u2));
+
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> service.deleteAll(ids));
+
+        Mockito.verify(repository, Mockito.times(1)).findAllById(ids);
+        Mockito.verify(repository, Mockito.never()).deleteAllByIds(ArgumentMatchers.anyList());
+    }
 
 }

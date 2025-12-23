@@ -197,5 +197,58 @@ public class UserControllerTests {
         Mockito.verify(service, Mockito.times(1)).delete(nonExistingId);
     }
 
+    @Test
+    public void deleteAllShouldReturnNoContentAndCallServiceDeleteAll() {
+
+        List<Long> ids = List.of(1L, 2L, 3L);
+
+        Mockito.doNothing().when(service).deleteAll(ids);
+
+        ResponseEntity<Void> response = controller.deleteAll(ids);
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(204, response.getStatusCodeValue());
+        Assertions.assertNull(response.getBody());
+
+        Mockito.verify(service, Mockito.times(1)).deleteAll(ids);
+    }
+
+    @Test
+    public void deleteAllShouldThrowIllegalArgumentExceptionWhenIdsIsNull() {
+
+        Mockito.doThrow(new IllegalArgumentException("Lista de ids vazia"))
+                .when(service).deleteAll(null);
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> controller.deleteAll(null));
+
+        Mockito.verify(service, Mockito.times(1)).deleteAll(null);
+    }
+
+    @Test
+    public void deleteAllShouldThrowIllegalArgumentExceptionWhenIdsIsEmpty() {
+
+        List<Long> ids = List.of();
+
+        Mockito.doThrow(new IllegalArgumentException("Lista de ids vazia"))
+                .when(service).deleteAll(ids);
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> controller.deleteAll(ids));
+
+        Mockito.verify(service, Mockito.times(1)).deleteAll(ids);
+    }
+
+    @Test
+    public void deleteAllShouldThrowResourceNotFoundExceptionWhenAnyIdDoesNotExist() {
+
+        List<Long> ids = List.of(1L, 2L, 3L);
+
+        Mockito.doThrow(new com.locadora_rdt_backend.services.exceptions.ResourceNotFoundException("Um ou mais IDs não existem"))
+                .when(service).deleteAll(ids);
+
+        Assertions.assertThrows(com.locadora_rdt_backend.services.exceptions.ResourceNotFoundException.class, () -> controller.deleteAll(ids));
+
+        Mockito.verify(service, Mockito.times(1)).deleteAll(ids);
+    }
+
 
 }
