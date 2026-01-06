@@ -23,7 +23,7 @@ public class UserDTO {
 
     @NotNull
     private UserProfile profile;
-    private String active;
+    private boolean active;
 
     @NotBlank(message = "Campo requerido")
     private String telephone;
@@ -35,7 +35,7 @@ public class UserDTO {
     }
 
     public UserDTO(Long id, String name, String email, String password, UserProfile profile,
-                   String active, String telephone, String address,
+                   boolean active, String telephone, String address,
                    String photo, Instant date) {
         this.id = id;
         this.name = name;
@@ -53,7 +53,7 @@ public class UserDTO {
         this.name = entity.getName();
         this.email = entity.getEmail();
         this.profile = entity.getProfile();
-        this.active = entity.getActive();
+        this.active = entity.isActive();
         this.telephone = entity.getTelephone();
         this.address = entity.getAddress();
         this.photo = entity.getPhoto();
@@ -92,11 +92,11 @@ public class UserDTO {
         this.profile = profile;
     }
 
-    public String getActive() {
+    public boolean isActive() {
         return active;
     }
 
-    public void setActive(String active) {
+    public void setActive(boolean active) {
         this.active = active;
     }
 

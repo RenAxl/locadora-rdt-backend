@@ -25,7 +25,7 @@ public class User implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserProfile profile;
-    private String active;
+    private boolean active;
     private String telephone;
     private String address;
     private String photo;
@@ -40,7 +40,7 @@ public class User implements Serializable {
     }
 
     public User(Long id, String name, String email, String password,
-                UserProfile profile, String active, String telephone,
+                UserProfile profile, boolean active, String telephone,
                 String address, String photo, Instant date) {
         this.id = id;
         this.name = name;
@@ -94,11 +94,11 @@ public class User implements Serializable {
         this.profile = profile;
     }
 
-    public String getActive() {
+    public boolean isActive() {
         return active;
     }
 
-    public void setActive(String active) {
+    public void setActive(boolean active) {
         this.active = active;
     }
 

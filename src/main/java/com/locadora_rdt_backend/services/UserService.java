@@ -97,7 +97,7 @@ public class UserService {
         entity.setPassword(dto.getPassword());
         entity.setEmail(dto.getEmail());
         entity.setProfile(dto.getProfile());
-        entity.setActive(dto.getActive());
+        entity.setActive(dto.isActive());
         entity.setTelephone(dto.getTelephone());
         entity.setAddress(dto.getAddress());
         entity.setPhoto(dto.getPhoto());
@@ -108,7 +108,7 @@ public class UserService {
         entity.setName(dto.getName());
         entity.setEmail(dto.getEmail());
         entity.setProfile(dto.getProfile());
-        entity.setActive(dto.getActive());
+        entity.setActive(dto.isActive());
         entity.setTelephone(dto.getTelephone());
         entity.setAddress(dto.getAddress());
         entity.setPhoto(dto.getPhoto());
