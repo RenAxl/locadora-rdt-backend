@@ -250,5 +250,72 @@ public class UserControllerTests {
         Mockito.verify(service, Mockito.times(1)).deleteAll(ids);
     }
 
+    @Test
+    public void changeActiveShouldReturnNoContentWhenIdExists() {
+
+        Long existingId = 1L;
+        boolean active = true;
+
+        Mockito.doNothing().when(service).changeActiveStatus(existingId, active);
+
+        ResponseEntity<UserDTO> response = controller.changeActive(existingId, active);
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(204, response.getStatusCodeValue());
+        Assertions.assertNull(response.getBody());
+
+        Mockito.verify(service, Mockito.times(1)).changeActiveStatus(existingId, active);
+    }
+
+    @Test
+    public void changeActiveShouldThrowResourceNotFoundExceptionWhenIdDoesNotExist() {
+
+        Long nonExistingId = 1000L;
+        boolean active = false;
+
+        Mockito.doThrow(new com.locadora_rdt_backend.services.exceptions.ResourceNotFoundException("Id not found " + nonExistingId))
+                .when(service).changeActiveStatus(nonExistingId, active);
+
+        Assertions.assertThrows(
+                com.locadora_rdt_backend.services.exceptions.ResourceNotFoundException.class,
+                () -> controller.changeActive(nonExistingId, active)
+        );
+
+        Mockito.verify(service, Mockito.times(1)).changeActiveStatus(nonExistingId, active);
+    }
+
+    @Test
+    public void changeActiveShouldThrowRuntimeExceptionWhenServiceThrowsRuntimeException() {
+
+        Long existingId = 1L;
+        boolean active = true;
+
+        Mockito.doThrow(new RuntimeException("Error changing user status."))
+                .when(service).changeActiveStatus(existingId, active);
+
+        RuntimeException ex = Assertions.assertThrows(
+                RuntimeException.class,
+                () -> controller.changeActive(existingId, active)
+        );
+
+        Assertions.assertEquals("Error changing user status.", ex.getMessage());
+
+        Mockito.verify(service, Mockito.times(1)).changeActiveStatus(existingId, active);
+    }
+
+    @Test
+    public void changeActiveShouldCallServiceWithCorrectArguments() {
+
+        Long existingId = 1L;
+        boolean active = false;
+
+        Mockito.doNothing().when(service).changeActiveStatus(ArgumentMatchers.anyLong(), ArgumentMatchers.anyBoolean());
+
+        controller.changeActive(existingId, active);
+
+        Mockito.verify(service, Mockito.times(1)).changeActiveStatus(existingId, active);
+    }
+
+
 
 }

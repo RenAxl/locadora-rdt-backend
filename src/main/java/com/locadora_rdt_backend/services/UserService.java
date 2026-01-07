@@ -7,6 +7,7 @@ import com.locadora_rdt_backend.entities.User;
 import com.locadora_rdt_backend.repositories.UserRepository;
 import com.locadora_rdt_backend.services.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -90,6 +91,23 @@ public class UserService {
 
         repository.deleteAllByIds(ids);
     }
+
+
+    @Transactional
+    public void changeActiveStatus(Long id, boolean active) {
+        try {
+                int updated = repository.updateActiveById(id, active);
+
+                if (updated == 0) {
+                    throw new ResourceNotFoundException("Id not found " + id);
+                }
+
+        } catch (DataAccessException e) {
+                throw new RuntimeException("Error changing user status.", e);
+        }
+    }
+
+
 
 
     private void copyDtoInsertToEntity(UserInsertDTO dto, User entity) {

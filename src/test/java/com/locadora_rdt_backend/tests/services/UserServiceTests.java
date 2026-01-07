@@ -83,7 +83,7 @@ public class UserServiceTests {
         Assertions.assertEquals(dto.getEmail(), savedEntity.getEmail());
         Assertions.assertEquals(dto.getPassword(), savedEntity.getPassword());
         Assertions.assertEquals(dto.getProfile(), savedEntity.getProfile());
-        Assertions.assertEquals(dto.getActive(), savedEntity.getActive());
+        Assertions.assertEquals(dto.isActive(), savedEntity.isActive());
         Assertions.assertEquals(dto.getTelephone(), savedEntity.getTelephone());
         Assertions.assertEquals(dto.getAddress(), savedEntity.getAddress());
         Assertions.assertEquals(dto.getPhoto(), savedEntity.getPhoto());
@@ -244,5 +244,79 @@ public class UserServiceTests {
         Mockito.verify(repository, Mockito.times(1)).findAllById(ids);
         Mockito.verify(repository, Mockito.never()).deleteAllByIds(ArgumentMatchers.anyList());
     }
+
+    @Test
+    public void changeActiveStatusShouldDoNothingWhenIdExistsAndUpdateReturnsOne() {
+
+        Long existingId = 1L;
+        boolean active = true;
+
+        Mockito.when(repository.updateActiveById(existingId, active)).thenReturn(1);
+
+        Assertions.assertDoesNotThrow(() -> service.changeActiveStatus(existingId, active));
+
+        Mockito.verify(repository, Mockito.times(1)).updateActiveById(existingId, active);
+    }
+
+    @Test
+    public void changeActiveStatusShouldThrowResourceNotFoundExceptionWhenUpdateReturnsZero() {
+
+        Long nonExistingId = 1000L;
+        boolean active = false;
+
+        Mockito.when(repository.updateActiveById(nonExistingId, active)).thenReturn(0);
+
+        ResourceNotFoundException ex = Assertions.assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.changeActiveStatus(nonExistingId, active)
+        );
+
+        Assertions.assertTrue(ex.getMessage().contains("Id not found " + nonExistingId));
+
+        Mockito.verify(repository, Mockito.times(1)).updateActiveById(nonExistingId, active);
+    }
+
+    @Test
+    public void changeActiveStatusShouldThrowRuntimeExceptionWhenRepositoryThrowsDataAccessException() {
+
+        Long existingId = 1L;
+        boolean active = true;
+
+        org.springframework.dao.DataIntegrityViolationException dbException =
+                new org.springframework.dao.DataIntegrityViolationException("DB error");
+
+        Mockito.when(repository.updateActiveById(existingId, active)).thenThrow(dbException);
+
+        RuntimeException ex = Assertions.assertThrows(
+                RuntimeException.class,
+                () -> service.changeActiveStatus(existingId, active)
+        );
+
+        Assertions.assertEquals("Error changing user status.", ex.getMessage());
+        Assertions.assertEquals(dbException, ex.getCause());
+
+        Mockito.verify(repository, Mockito.times(1)).updateActiveById(existingId, active);
+    }
+
+    @Test
+    public void changeActiveStatusShouldCallRepositoryWithCorrectArguments() {
+
+        Long existingId = 1L;
+        boolean active = false;
+
+        Mockito.when(repository.updateActiveById(ArgumentMatchers.anyLong(), ArgumentMatchers.anyBoolean()))
+                .thenReturn(1);
+
+        service.changeActiveStatus(existingId, active);
+
+        ArgumentCaptor<Long> idCaptor = ArgumentCaptor.forClass(Long.class);
+        ArgumentCaptor<Boolean> activeCaptor = ArgumentCaptor.forClass(Boolean.class);
+
+        Mockito.verify(repository).updateActiveById(idCaptor.capture(), activeCaptor.capture());
+
+        Assertions.assertEquals(existingId, idCaptor.getValue());
+        Assertions.assertEquals(active, activeCaptor.getValue());
+    }
+
 
 }

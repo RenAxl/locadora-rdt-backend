@@ -17,7 +17,7 @@ public class UserFactory {
                 "renan@email.com",
                 "123456",
                 UserProfile.ADMINISTRADOR,
-                "true",
+                true,
                 "31999999999",
                 "Rua A, 123",
                 "sem-foto.jpg",
@@ -36,7 +36,7 @@ public class UserFactory {
         dto.setEmail("renan@email.com");
         dto.setPassword("123456");
         dto.setProfile(UserProfile.ADMINISTRADOR);
-        dto.setActive("true");
+        dto.setActive(true);
         dto.setTelephone("31999999999");
         dto.setAddress("Rua A, 123");
         dto.setPhoto("sem-foto.jpg");
