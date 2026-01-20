@@ -1,13 +1,15 @@
 package com.locadora_rdt_backend.dto;
 
+import com.locadora_rdt_backend.entities.Role;
 import com.locadora_rdt_backend.entities.User;
-import com.locadora_rdt_backend.entities.enums.UserProfile;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserDTO {
 
@@ -22,7 +24,6 @@ public class UserDTO {
     private String email;
 
     @NotNull
-    private UserProfile profile;
     private boolean active;
 
     @NotBlank(message = "Campo requerido")
@@ -31,16 +32,17 @@ public class UserDTO {
     private String photo;
     private Instant date;
 
+    private List<RoleDTO> roles = new ArrayList<>();
+
     public UserDTO() {
     }
 
-    public UserDTO(Long id, String name, String email, String password, UserProfile profile,
-                   boolean active, String telephone, String address,
-                   String photo, Instant date) {
+    public UserDTO(Long id, String name, String email, boolean active,
+                   String telephone, String address, String photo,
+                   Instant date) {
         this.id = id;
         this.name = name;
         this.email = email;
-        this.profile = profile;
         this.active = active;
         this.telephone = telephone;
         this.address = address;
@@ -52,12 +54,15 @@ public class UserDTO {
         this.id = entity.getId();
         this.name = entity.getName();
         this.email = entity.getEmail();
-        this.profile = entity.getProfile();
         this.active = entity.isActive();
         this.telephone = entity.getTelephone();
         this.address = entity.getAddress();
         this.photo = entity.getPhoto();
         this.date = entity.getDate();
+
+        for (Role role : entity.getRoles()) {
+            this.roles.add(new RoleDTO(role));
+        }
     }
 
     public Long getId() {
@@ -82,14 +87,6 @@ public class UserDTO {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public UserProfile getProfile() {
-        return profile;
-    }
-
-    public void setProfile(UserProfile profile) {
-        this.profile = profile;
     }
 
     public boolean isActive() {
@@ -132,4 +129,11 @@ public class UserDTO {
         this.date = date;
     }
 
+    public List<RoleDTO> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<RoleDTO> roles) {
+        this.roles = roles;
+    }
 }

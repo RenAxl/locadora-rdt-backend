@@ -1,9 +1,12 @@
 package com.locadora_rdt_backend.services;
 
+import com.locadora_rdt_backend.dto.RoleDTO;
 import com.locadora_rdt_backend.dto.UserDTO;
 import com.locadora_rdt_backend.dto.UserInsertDTO;
 import com.locadora_rdt_backend.dto.UserUpdateDTO;
+import com.locadora_rdt_backend.entities.Role;
 import com.locadora_rdt_backend.entities.User;
+import com.locadora_rdt_backend.repositories.RoleRepository;
 import com.locadora_rdt_backend.repositories.UserRepository;
 import com.locadora_rdt_backend.services.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +28,9 @@ public class UserService {
 
     @Autowired
     private UserRepository repository;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Transactional(readOnly = true)
     public Page<UserDTO> findAllPaged(String name, PageRequest pageRequest) {
@@ -112,25 +118,33 @@ public class UserService {
 
     private void copyDtoInsertToEntity(UserInsertDTO dto, User entity) {
         entity.setName(dto.getName());
-        entity.setPassword(dto.getPassword());
         entity.setEmail(dto.getEmail());
-        entity.setProfile(dto.getProfile());
         entity.setActive(dto.isActive());
         entity.setTelephone(dto.getTelephone());
         entity.setAddress(dto.getAddress());
         entity.setPhoto(dto.getPhoto());
-        entity.setDate(dto.getDate());
+
+        entity.getRoles().clear();
+        for (RoleDTO roleDto : dto.getRoles()) {
+            Role role = roleRepository.getOne(roleDto.getId());
+            entity.getRoles().add(role);
+        }
     }
 
     private void copyDtoUpdateToEntity(UserUpdateDTO dto, User entity) {
         entity.setName(dto.getName());
         entity.setEmail(dto.getEmail());
-        entity.setProfile(dto.getProfile());
         entity.setActive(dto.isActive());
         entity.setTelephone(dto.getTelephone());
         entity.setAddress(dto.getAddress());
         entity.setPhoto(dto.getPhoto());
-        entity.setDate(dto.getDate());
+
+        entity.getRoles().clear();
+        for (RoleDTO roleDto : dto.getRoles()) {
+            Role role = roleRepository.getOne(roleDto.getId());
+            entity.getRoles().add(role);
+        }
     }
+
 
 }

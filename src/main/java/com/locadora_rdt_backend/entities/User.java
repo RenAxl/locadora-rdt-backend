@@ -1,16 +1,22 @@
 package com.locadora_rdt_backend.entities;
 
-import com.locadora_rdt_backend.entities.enums.UserProfile;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "tb_user")
-public class User implements Serializable {
+public class User implements UserDetails, Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -22,9 +28,7 @@ public class User implements Serializable {
     private String email;
     private String password;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private UserProfile profile;
     private boolean active;
     private String telephone;
     private String address;
@@ -35,18 +39,24 @@ public class User implements Serializable {
     @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
     private Instant date;
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "tb_user_role",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles = new HashSet<>();
 
     public User() {
     }
 
     public User(Long id, String name, String email, String password,
-                UserProfile profile, boolean active, String telephone,
+                 boolean active, String telephone,
                 String address, String photo, Instant date) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.password = password;
-        this.profile = profile;
         this.active = active;
         this.telephone = telephone;
         this.address = address;
@@ -84,14 +94,6 @@ public class User implements Serializable {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public UserProfile getProfile() {
-        return profile;
-    }
-
-    public void setProfile(UserProfile profile) {
-        this.profile = profile;
     }
 
     public boolean isActive() {
@@ -132,6 +134,50 @@ public class User implements Serializable {
 
     public void setDate(Instant date) {
         this.date = date;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        Set<String> authorities = roles.stream()
+                .map(Role::getAuthority)
+                .collect(Collectors.toSet());
+
+        roles.forEach(r ->
+                r.getPermissions().forEach(p -> authorities.add(p.getName()))
+        );
+
+        return authorities.stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 
     @Override
