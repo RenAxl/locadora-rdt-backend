@@ -1,7 +1,11 @@
 package com.locadora_rdt_backend.tests.services;
 
 import java.util.List;
+import java.util.Optional;
 
+import com.locadora_rdt_backend.dto.UserUpdateDTO;
+import com.locadora_rdt_backend.entities.Role;
+import com.locadora_rdt_backend.repositories.RoleRepository;
 import com.locadora_rdt_backend.services.exceptions.ResourceNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,6 +16,7 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -33,20 +38,28 @@ public class UserServiceTests {
     @Mock
     private UserRepository repository;
 
+    @Mock
+    private RoleRepository roleRepository;
+
     private User user;
     private PageImpl<User> page;
+    private Role role;
 
     @BeforeEach
     void setUp() throws Exception {
 
         user = UserFactory.createUser();
         page = new PageImpl<>(List.of(user));
+        role = UserFactory.createRole();
 
         Mockito.when(repository.find(ArgumentMatchers.anyString(), ArgumentMatchers.any()))
                 .thenReturn(page);
 
         Mockito.when(repository.save(ArgumentMatchers.any(User.class)))
                 .thenReturn(user);
+
+        Mockito.when(roleRepository.getOne(ArgumentMatchers.anyLong()))
+                .thenReturn(role);
     }
 
     @Test
@@ -79,18 +92,19 @@ public class UserServiceTests {
         Mockito.verify(repository, Mockito.times(1)).save(captor.capture());
 
         User savedEntity = captor.getValue();
+
         Assertions.assertEquals(dto.getName(), savedEntity.getName());
         Assertions.assertEquals(dto.getEmail(), savedEntity.getEmail());
-        Assertions.assertEquals(dto.getPassword(), savedEntity.getPassword());
-        Assertions.assertEquals(dto.getProfile(), savedEntity.getProfile());
         Assertions.assertEquals(dto.isActive(), savedEntity.isActive());
         Assertions.assertEquals(dto.getTelephone(), savedEntity.getTelephone());
         Assertions.assertEquals(dto.getAddress(), savedEntity.getAddress());
         Assertions.assertEquals(dto.getPhoto(), savedEntity.getPhoto());
 
-        if (dto.getDate() != null) {
-            Assertions.assertEquals(dto.getDate(), savedEntity.getDate());
-        }
+        Assertions.assertNotNull(savedEntity.getRoles());
+        Assertions.assertEquals(dto.getRoles().size(), savedEntity.getRoles().size());
+        Assertions.assertTrue(savedEntity.getRoles().stream().anyMatch(r -> r.getId().equals(1L)));
+
+        Mockito.verify(roleRepository, Mockito.atLeastOnce()).getOne(1L);
     }
 
     @Test
@@ -98,7 +112,7 @@ public class UserServiceTests {
 
         Long existingId = 1L;
 
-        Mockito.when(repository.findById(existingId)).thenReturn(java.util.Optional.of(user));
+        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(user));
 
         UserDTO result = service.findById(existingId);
 
@@ -113,11 +127,9 @@ public class UserServiceTests {
 
         Long nonExistingId = 1000L;
 
-        Mockito.when(repository.findById(nonExistingId)).thenReturn(java.util.Optional.empty());
+        Mockito.when(repository.findById(nonExistingId)).thenReturn(Optional.empty());
 
-        Assertions.assertThrows(com.locadora_rdt_backend.services.exceptions.ResourceNotFoundException.class, () -> {
-            service.findById(nonExistingId);
-        });
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> service.findById(nonExistingId));
 
         Mockito.verify(repository, Mockito.times(1)).findById(nonExistingId);
     }
@@ -127,7 +139,14 @@ public class UserServiceTests {
 
         Long existingId = 1L;
 
-        com.locadora_rdt_backend.dto.UserUpdateDTO dto = new com.locadora_rdt_backend.dto.UserUpdateDTO();
+        UserUpdateDTO dto = new UserUpdateDTO();
+        dto.setName("Novo Nome");
+        dto.setEmail("novo@email.com");
+        dto.setActive(false);
+        dto.setTelephone("31988887777");
+        dto.setAddress("Rua B, 456");
+        dto.setPhoto("foto.jpg");
+        dto.setRoles(List.of(UserFactory.createRoleDTO())); // ESSENCIAL
 
         Mockito.when(repository.getOne(existingId)).thenReturn(user);
         Mockito.when(repository.save(ArgumentMatchers.any(User.class))).thenReturn(user);
@@ -139,6 +158,7 @@ public class UserServiceTests {
 
         Mockito.verify(repository, Mockito.times(1)).getOne(existingId);
         Mockito.verify(repository, Mockito.times(1)).save(ArgumentMatchers.any(User.class));
+        Mockito.verify(roleRepository, Mockito.atLeastOnce()).getOne(1L);
     }
 
     @Test
@@ -146,14 +166,13 @@ public class UserServiceTests {
 
         Long nonExistingId = 1000L;
 
-        com.locadora_rdt_backend.dto.UserUpdateDTO dto = new com.locadora_rdt_backend.dto.UserUpdateDTO();
+        UserUpdateDTO dto = new UserUpdateDTO();
+        dto.setRoles(List.of(UserFactory.createRoleDTO()));
 
         Mockito.when(repository.getOne(nonExistingId))
                 .thenThrow(new javax.persistence.EntityNotFoundException());
 
-        Assertions.assertThrows(com.locadora_rdt_backend.services.exceptions.ResourceNotFoundException.class, () -> {
-            service.update(nonExistingId, dto);
-        });
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> service.update(nonExistingId, dto));
 
         Mockito.verify(repository, Mockito.times(1)).getOne(nonExistingId);
         Mockito.verify(repository, Mockito.never()).save(ArgumentMatchers.any(User.class));
@@ -166,9 +185,7 @@ public class UserServiceTests {
 
         Mockito.doNothing().when(repository).deleteById(existingId);
 
-        Assertions.assertDoesNotThrow(() -> {
-            service.delete(existingId);
-        });
+        Assertions.assertDoesNotThrow(() -> service.delete(existingId));
 
         Mockito.verify(repository, Mockito.times(1)).deleteById(existingId);
     }
@@ -181,9 +198,7 @@ public class UserServiceTests {
         Mockito.doThrow(new org.springframework.dao.EmptyResultDataAccessException(1))
                 .when(repository).deleteById(nonExistingId);
 
-        Assertions.assertThrows(com.locadora_rdt_backend.services.exceptions.ResourceNotFoundException.class, () -> {
-            service.delete(nonExistingId);
-        });
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> service.delete(nonExistingId));
 
         Mockito.verify(repository, Mockito.times(1)).deleteById(nonExistingId);
     }
@@ -282,8 +297,8 @@ public class UserServiceTests {
         Long existingId = 1L;
         boolean active = true;
 
-        org.springframework.dao.DataIntegrityViolationException dbException =
-                new org.springframework.dao.DataIntegrityViolationException("DB error");
+        DataIntegrityViolationException dbException =
+                new DataIntegrityViolationException("DB error");
 
         Mockito.when(repository.updateActiveById(existingId, active)).thenThrow(dbException);
 
@@ -317,6 +332,4 @@ public class UserServiceTests {
         Assertions.assertEquals(existingId, idCaptor.getValue());
         Assertions.assertEquals(active, activeCaptor.getValue());
     }
-
-
 }

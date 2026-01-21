@@ -1,47 +1,62 @@
 package com.locadora_rdt_backend.tests.factory;
 
-import java.time.Instant;
+import java.util.List;
 
+import com.locadora_rdt_backend.dto.RoleDTO;
 import com.locadora_rdt_backend.dto.UserDTO;
-
 import com.locadora_rdt_backend.dto.UserInsertDTO;
+import com.locadora_rdt_backend.entities.Role;
 import com.locadora_rdt_backend.entities.User;
-import com.locadora_rdt_backend.entities.enums.UserProfile;
 
 public class UserFactory {
 
     public static User createUser() {
-        return new User(
-                1L,
-                "Renan Duarte",
-                "renan@email.com",
-                "123456",
-                UserProfile.ADMINISTRADOR,
-                true,
-                "31999999999",
-                "Rua A, 123",
-                "sem-foto.jpg",
-                Instant.parse("2025-12-22T10:15:30Z")
-        );
+        User user = new User();
+        user.setId(1L);
+        user.setName("Renan Duarte");
+        user.setEmail("renan@email.com");
+        user.setActive(true);
+        user.setTelephone("31999999999");
+        user.setAddress("Rua A, 123");
+        user.setPhoto("sem-foto.jpg");
+
+        Role role = new Role();
+        role.setId(1L);
+        role.setAuthority("ROLE_ADMIN");
+        user.getRoles().add(role);
+
+        return user;
     }
 
     public static UserDTO createUserDTO() {
-        User user = createUser();
-        return new UserDTO(user);
+        return new UserDTO(createUser());
+    }
+
+    public static Role createRole() {
+        Role role = new Role();
+        role.setId(1L);
+        role.setAuthority("ROLE_ADMIN");
+        return role;
+    }
+
+    public static RoleDTO createRoleDTO() {
+        RoleDTO dto = new RoleDTO();
+        dto.setId(1L);
+        dto.setAuthority("ROLE_ADMIN");
+        return dto;
     }
 
     public static UserInsertDTO createUserInsertDTO() {
         UserInsertDTO dto = new UserInsertDTO();
         dto.setName("Renan Duarte");
         dto.setEmail("renan@email.com");
-        dto.setPassword("123456");
-        dto.setProfile(UserProfile.ADMINISTRADOR);
         dto.setActive(true);
         dto.setTelephone("31999999999");
         dto.setAddress("Rua A, 123");
         dto.setPhoto("sem-foto.jpg");
-        dto.setDate(Instant.parse("2025-12-22T10:15:30Z")); // se existir no DTO
+
+        dto.setRoles(List.of(createRoleDTO()));
+
         return dto;
     }
 }
-
