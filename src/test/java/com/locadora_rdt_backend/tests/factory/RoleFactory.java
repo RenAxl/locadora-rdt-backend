@@ -3,6 +3,7 @@ package com.locadora_rdt_backend.tests.factory;
 import java.util.List;
 
 import com.locadora_rdt_backend.dto.RoleDTO;
+import com.locadora_rdt_backend.dto.RoleListDTO;
 import com.locadora_rdt_backend.dto.RolePermissionsUpdateDTO;
 import com.locadora_rdt_backend.entities.Permission;
 import com.locadora_rdt_backend.entities.Role;
@@ -53,5 +54,21 @@ public class RoleFactory {
         RolePermissionsUpdateDTO dto = new RolePermissionsUpdateDTO();
         dto.setPermissionIds(ids);
         return dto;
+    }
+
+    public static RoleListDTO createRoleListDTO() {
+        return new RoleListDTO(
+                1L,
+                "ROLE_ADMIN",
+                2L
+        );
+    }
+
+    public static RoleListDTO createRoleListDTO(Long id, String authority, Long permissionsCount) {
+        return new RoleListDTO(
+                id,
+                authority,
+                permissionsCount
+        );
     }
 }

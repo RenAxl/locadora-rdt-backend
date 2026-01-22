@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.locadora_rdt_backend.dto.RoleDTO;
+import com.locadora_rdt_backend.dto.RoleListDTO;
 import com.locadora_rdt_backend.dto.RolePermissionsUpdateDTO;
 import com.locadora_rdt_backend.entities.Permission;
 import com.locadora_rdt_backend.entities.Role;
@@ -48,34 +49,40 @@ public class RoleServiceTests {
     }
 
     @Test
-    public void findAllShouldReturnListOfRoleDTO() {
+    public void findAllShouldReturnListOfRoleListDTO() {
 
-        Role r1 = RoleFactory.createRole(1L, "ROLE_ADMIN");
-        Role r2 = RoleFactory.createRole(2L, "ROLE_GERENTE");
+        RoleListDTO dto1 = RoleFactory.createRoleListDTO(1L, "ROLE_ADMIN", 2L);
+        RoleListDTO dto2 = RoleFactory.createRoleListDTO(2L, "ROLE_GERENTE", 0L);
 
-        Mockito.when(roleRepository.findAll()).thenReturn(List.of(r1, r2));
+        Mockito.when(roleRepository.findAllWithPermissionsCount())
+                .thenReturn(List.of(dto1, dto2));
 
-        List<RoleDTO> result = service.findAll();
+        List<RoleListDTO> result = service.findAll();
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals(2, result.size());
         Assertions.assertEquals("ROLE_ADMIN", result.get(0).getAuthority());
         Assertions.assertEquals("ROLE_GERENTE", result.get(1).getAuthority());
+        Assertions.assertEquals(2L, result.get(0).getPermissionsCount());
+        Assertions.assertEquals(0L, result.get(1).getPermissionsCount());
 
-        Mockito.verify(roleRepository, Mockito.times(1)).findAll();
+        Mockito.verify(roleRepository, Mockito.times(1)).findAllWithPermissionsCount();
+        Mockito.verify(roleRepository, Mockito.never()).findAll();
     }
 
     @Test
     public void findAllShouldReturnEmptyListWhenNoRoles() {
 
-        Mockito.when(roleRepository.findAll()).thenReturn(List.of());
+        Mockito.when(roleRepository.findAllWithPermissionsCount())
+                .thenReturn(List.of());
 
-        List<RoleDTO> result = service.findAll();
+        List<RoleListDTO> result = service.findAll();
 
         Assertions.assertNotNull(result);
         Assertions.assertTrue(result.isEmpty());
 
-        Mockito.verify(roleRepository, Mockito.times(1)).findAll();
+        Mockito.verify(roleRepository, Mockito.times(1)).findAllWithPermissionsCount();
+        Mockito.verify(roleRepository, Mockito.never()).findAll();
     }
 
 

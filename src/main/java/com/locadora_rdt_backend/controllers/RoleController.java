@@ -1,6 +1,7 @@
 package com.locadora_rdt_backend.controllers;
 
 import com.locadora_rdt_backend.dto.RoleDTO;
+import com.locadora_rdt_backend.dto.RoleListDTO;
 import com.locadora_rdt_backend.dto.RolePermissionsUpdateDTO;
 import com.locadora_rdt_backend.services.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping(value = "/roles")
 public class RoleController {
@@ -20,8 +22,8 @@ public class RoleController {
     private RoleService service;
 
     @GetMapping
-    public ResponseEntity<List<RoleDTO>> findAll() {
-        List<RoleDTO> list = service.findAll();
+    public ResponseEntity<List<RoleListDTO>> findAll() {
+        List<RoleListDTO> list = service.findAll();
         return ResponseEntity.ok().body(list);
     }
 

@@ -3,6 +3,7 @@ package com.locadora_rdt_backend.tests.controllers;
 import com.locadora_rdt_backend.controllers.RoleController;
 import com.locadora_rdt_backend.dto.RoleDTO;
 import com.locadora_rdt_backend.dto.RolePermissionsUpdateDTO;
+import com.locadora_rdt_backend.dto.RoleListDTO;
 import com.locadora_rdt_backend.services.RoleService;
 import com.locadora_rdt_backend.services.exceptions.ResourceNotFoundException;
 import com.locadora_rdt_backend.tests.factory.RoleFactory;
@@ -34,21 +35,26 @@ public class RoleControllerTests {
 
     private RoleDTO roleDTO;
 
+    private RoleListDTO roleListDTO;
+
+
     @BeforeEach
     void setUp() throws Exception {
         roleDTO = RoleFactory.createRoleDTO();
+        roleListDTO = RoleFactory.createRoleListDTO(1L, "ROLE_ADMIN", 2L);
 
         Mockito.when(service.findAll())
-                .thenReturn(List.of(roleDTO));
+                .thenReturn(List.of(roleListDTO));
 
         Mockito.when(service.insert(ArgumentMatchers.any(RoleDTO.class)))
                 .thenReturn(roleDTO);
     }
 
+
     @Test
     public void findAllShouldReturnResponseEntityWithList() {
 
-        ResponseEntity<List<RoleDTO>> response = controller.findAll();
+        ResponseEntity<List<RoleListDTO>> response = controller.findAll();
 
         Assertions.assertNotNull(response);
         Assertions.assertEquals(200, response.getStatusCodeValue());
@@ -58,12 +64,13 @@ public class RoleControllerTests {
         Mockito.verify(service, Mockito.times(1)).findAll();
     }
 
+
     @Test
     public void findAllShouldReturnEmptyListWhenServiceReturnsEmpty() {
 
         Mockito.when(service.findAll()).thenReturn(List.of());
 
-        ResponseEntity<List<RoleDTO>> response = controller.findAll();
+        ResponseEntity<List<RoleListDTO>> response = controller.findAll();
 
         Assertions.assertNotNull(response);
         Assertions.assertEquals(200, response.getStatusCodeValue());
@@ -72,6 +79,7 @@ public class RoleControllerTests {
 
         Mockito.verify(service, Mockito.times(1)).findAll();
     }
+
 
     @Test
     public void findAllShouldThrowRuntimeExceptionWhenServiceThrowsRuntimeException() {
@@ -83,6 +91,7 @@ public class RoleControllerTests {
 
         Mockito.verify(service, Mockito.times(1)).findAll();
     }
+
 
     @Test
     public void findByIdShouldReturnResponseEntityWithRoleDTOWhenIdExists() {

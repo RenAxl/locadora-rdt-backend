@@ -1,6 +1,7 @@
 package com.locadora_rdt_backend.services;
 
 import com.locadora_rdt_backend.dto.RoleDTO;
+import com.locadora_rdt_backend.dto.RoleListDTO;
 import com.locadora_rdt_backend.dto.RolePermissionsUpdateDTO;
 import com.locadora_rdt_backend.entities.Permission;
 import com.locadora_rdt_backend.entities.Role;
@@ -27,12 +28,10 @@ public class RoleService {
     private PermissionRepository permissionRepository;
 
     @Transactional(readOnly = true)
-    public List<RoleDTO> findAll() {
-        return roleRepository.findAll()
-                .stream()
-                .map(RoleDTO::new)
-                .collect(Collectors.toList());
+    public List<RoleListDTO> findAll() {
+        return roleRepository.findAllWithPermissionsCount();
     }
+
 
     @Transactional(readOnly = true)
     public RoleDTO findById(Long id) {
