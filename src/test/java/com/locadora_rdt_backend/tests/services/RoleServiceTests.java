@@ -49,40 +49,73 @@ public class RoleServiceTests {
     }
 
     @Test
-    public void findAllShouldReturnListOfRoleListDTO() {
+    public void findAllPagedShouldReturnPageOfRoleListDTOWithPermissionsCount() {
 
-        RoleListDTO dto1 = RoleFactory.createRoleListDTO(1L, "ROLE_ADMIN", 2L);
-        RoleListDTO dto2 = RoleFactory.createRoleListDTO(2L, "ROLE_GERENTE", 0L);
+        String authority = "";
+        var pageRequest = org.springframework.data.domain.PageRequest.of(0, 10);
 
-        Mockito.when(roleRepository.findAllWithPermissionsCount())
-                .thenReturn(List.of(dto1, dto2));
+        Role r1 = RoleFactory.createRole(1L, "ROLE_ADMIN");
+        Role r2 = RoleFactory.createRole(2L, "ROLE_GERENTE");
 
-        List<RoleListDTO> result = service.findAll();
+        var rolePage = new org.springframework.data.domain.PageImpl<>(List.of(r1, r2), pageRequest, 2);
+
+        Mockito.when(roleRepository.findByAuthorityLikeIgnoreCase(
+                ArgumentMatchers.eq(authority),
+                ArgumentMatchers.eq(pageRequest)
+        )).thenReturn(rolePage);
+
+        // rows: (roleId, count)
+        List<Object[]> rows = List.of(
+                new Object[]{1L, 2L},
+                new Object[]{2L, 0L}
+        );
+
+        Mockito.when(roleRepository.countPermissionsByRoleIds(
+                ArgumentMatchers.eq(List.of(1L, 2L))
+        )).thenReturn(rows);
+
+        var result = service.findAllPaged(authority, pageRequest);
 
         Assertions.assertNotNull(result);
-        Assertions.assertEquals(2, result.size());
-        Assertions.assertEquals("ROLE_ADMIN", result.get(0).getAuthority());
-        Assertions.assertEquals("ROLE_GERENTE", result.get(1).getAuthority());
-        Assertions.assertEquals(2L, result.get(0).getPermissionsCount());
-        Assertions.assertEquals(0L, result.get(1).getPermissionsCount());
+        Assertions.assertEquals(2, result.getContent().size());
 
-        Mockito.verify(roleRepository, Mockito.times(1)).findAllWithPermissionsCount();
-        Mockito.verify(roleRepository, Mockito.never()).findAll();
+        Assertions.assertEquals(1L, result.getContent().get(0).getId());
+        Assertions.assertEquals("ROLE_ADMIN", result.getContent().get(0).getAuthority());
+        Assertions.assertEquals(2L, result.getContent().get(0).getPermissionsCount());
+
+        Assertions.assertEquals(2L, result.getContent().get(1).getId());
+        Assertions.assertEquals("ROLE_GERENTE", result.getContent().get(1).getAuthority());
+        Assertions.assertEquals(0L, result.getContent().get(1).getPermissionsCount());
+
+        Mockito.verify(roleRepository, Mockito.times(1))
+                .findByAuthorityLikeIgnoreCase(authority, pageRequest);
+        Mockito.verify(roleRepository, Mockito.times(1))
+                .countPermissionsByRoleIds(List.of(1L, 2L));
     }
 
     @Test
-    public void findAllShouldReturnEmptyListWhenNoRoles() {
+    public void findAllPagedShouldReturnEmptyPageAndNotCallCountWhenNoRoles() {
 
-        Mockito.when(roleRepository.findAllWithPermissionsCount())
-                .thenReturn(List.of());
+        String authority = "";
+        var pageRequest = org.springframework.data.domain.PageRequest.of(0, 10);
 
-        List<RoleListDTO> result = service.findAll();
+        var emptyRolePage = new org.springframework.data.domain.PageImpl<Role>(List.of(), pageRequest, 0);
+
+        Mockito.when(roleRepository.findByAuthorityLikeIgnoreCase(
+                ArgumentMatchers.eq(authority),
+                ArgumentMatchers.eq(pageRequest)
+        )).thenReturn(emptyRolePage);
+
+        var result = service.findAllPaged(authority, pageRequest);
 
         Assertions.assertNotNull(result);
-        Assertions.assertTrue(result.isEmpty());
+        Assertions.assertTrue(result.getContent().isEmpty());
+        Assertions.assertEquals(0, result.getTotalElements());
 
-        Mockito.verify(roleRepository, Mockito.times(1)).findAllWithPermissionsCount();
-        Mockito.verify(roleRepository, Mockito.never()).findAll();
+        Mockito.verify(roleRepository, Mockito.times(1))
+                .findByAuthorityLikeIgnoreCase(authority, pageRequest);
+        Mockito.verify(roleRepository, Mockito.never())
+                .countPermissionsByRoleIds(ArgumentMatchers.anyList());
     }
 
 

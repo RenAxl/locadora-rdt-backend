@@ -10,6 +10,8 @@ import com.locadora_rdt_backend.repositories.RoleRepository;
 import com.locadora_rdt_backend.services.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,8 +30,31 @@ public class RoleService {
     private PermissionRepository permissionRepository;
 
     @Transactional(readOnly = true)
-    public List<RoleListDTO> findAll() {
-        return roleRepository.findAllWithPermissionsCount();
+    public Page<RoleListDTO> findAllPaged(String authority, PageRequest pageRequest) {
+
+        Page<Role> page = roleRepository.findByAuthorityLikeIgnoreCase(authority, pageRequest);
+
+        List<Long> roleIds = page.getContent()
+                .stream()
+                .map(Role::getId)
+                .collect(Collectors.toList());
+
+        if (roleIds.isEmpty()) {
+            return page.map(r -> new RoleListDTO(r.getId(), r.getAuthority(), 0L));
+        }
+
+        List<Object[]> rows = roleRepository.countPermissionsByRoleIds(roleIds);
+
+        var countMap = rows.stream().collect(Collectors.toMap(
+                r -> (Long) r[0],
+                r -> (Long) r[1]
+        ));
+
+        return page.map(r -> new RoleListDTO(
+                r.getId(),
+                r.getAuthority(),
+                countMap.getOrDefault(r.getId(), 0L)
+        ));
     }
 
 

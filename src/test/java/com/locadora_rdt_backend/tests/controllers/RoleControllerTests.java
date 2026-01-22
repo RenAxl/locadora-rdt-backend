@@ -15,6 +15,9 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -43,54 +46,87 @@ public class RoleControllerTests {
         roleDTO = RoleFactory.createRoleDTO();
         roleListDTO = RoleFactory.createRoleListDTO(1L, "ROLE_ADMIN", 2L);
 
-        Mockito.when(service.findAll())
-                .thenReturn(List.of(roleListDTO));
+        PageRequest pageRequest = PageRequest.of(0, 12, Sort.Direction.ASC, "authority");
+        Page<RoleListDTO> page = new org.springframework.data.domain.PageImpl<>(List.of(roleListDTO), pageRequest, 1);
+
+        Mockito.when(service.findAllPaged(
+                ArgumentMatchers.anyString(),
+                ArgumentMatchers.any(PageRequest.class)
+        )).thenReturn(page);
+
 
         Mockito.when(service.insert(ArgumentMatchers.any(RoleDTO.class)))
                 .thenReturn(roleDTO);
     }
 
-
     @Test
-    public void findAllShouldReturnResponseEntityWithList() {
+    public void findAllPagedShouldReturnResponseEntityWithPage() {
 
-        ResponseEntity<List<RoleListDTO>> response = controller.findAll();
+        ResponseEntity<org.springframework.data.domain.Page<RoleListDTO>> response =
+                controller.findAllPaged("", 0, 12, "ASC", "authority");
 
         Assertions.assertNotNull(response);
         Assertions.assertEquals(200, response.getStatusCodeValue());
         Assertions.assertNotNull(response.getBody());
-        Assertions.assertFalse(response.getBody().isEmpty());
+        Assertions.assertFalse(response.getBody().getContent().isEmpty());
 
-        Mockito.verify(service, Mockito.times(1)).findAll();
+        Mockito.verify(service, Mockito.times(1))
+                .findAllPaged(ArgumentMatchers.eq(""), ArgumentMatchers.any(PageRequest.class));
     }
 
-
     @Test
-    public void findAllShouldReturnEmptyListWhenServiceReturnsEmpty() {
+    public void findAllPagedShouldReturnEmptyPageWhenServiceReturnsEmpty() {
 
-        Mockito.when(service.findAll()).thenReturn(List.of());
+        PageRequest pr = PageRequest.of(0, 12, Sort.Direction.ASC, "authority");
+        org.springframework.data.domain.Page<RoleListDTO> emptyPage =
+                new org.springframework.data.domain.PageImpl<>(List.of(), pr, 0);
 
-        ResponseEntity<List<RoleListDTO>> response = controller.findAll();
+        Mockito.when(service.findAllPaged(
+                ArgumentMatchers.eq(""),
+                ArgumentMatchers.any(PageRequest.class)
+        )).thenReturn(emptyPage);
+
+        ResponseEntity<org.springframework.data.domain.Page<RoleListDTO>> response =
+                controller.findAllPaged("", 0, 12, "ASC", "authority");
 
         Assertions.assertNotNull(response);
         Assertions.assertEquals(200, response.getStatusCodeValue());
         Assertions.assertNotNull(response.getBody());
-        Assertions.assertTrue(response.getBody().isEmpty());
+        Assertions.assertTrue(response.getBody().getContent().isEmpty());
+        Assertions.assertEquals(0, response.getBody().getTotalElements());
 
-        Mockito.verify(service, Mockito.times(1)).findAll();
+        Mockito.verify(service, Mockito.times(1))
+                .findAllPaged(ArgumentMatchers.eq(""), ArgumentMatchers.any(PageRequest.class));
     }
 
-
     @Test
-    public void findAllShouldThrowRuntimeExceptionWhenServiceThrowsRuntimeException() {
+    public void findAllPagedShouldThrowRuntimeExceptionWhenServiceThrowsRuntimeException() {
 
-        Mockito.when(service.findAll()).thenThrow(new RuntimeException("Unexpected error"));
+        Mockito.when(service.findAllPaged(
+                ArgumentMatchers.anyString(),
+                ArgumentMatchers.any(PageRequest.class)
+        )).thenThrow(new RuntimeException("Unexpected error"));
 
-        RuntimeException ex = Assertions.assertThrows(RuntimeException.class, () -> controller.findAll());
+        RuntimeException ex = Assertions.assertThrows(RuntimeException.class, () ->
+                controller.findAllPaged("", 0, 12, "ASC", "authority")
+        );
+
         Assertions.assertEquals("Unexpected error", ex.getMessage());
 
-        Mockito.verify(service, Mockito.times(1)).findAll();
+        Mockito.verify(service, Mockito.times(1))
+                .findAllPaged(ArgumentMatchers.eq(""), ArgumentMatchers.any(PageRequest.class));
     }
+
+    @Test
+    public void findAllPagedShouldTrimAuthority() {
+
+        controller.findAllPaged("  ADMIN  ", 0, 12, "ASC", "authority");
+
+        Mockito.verify(service, Mockito.times(1))
+                .findAllPaged(ArgumentMatchers.eq("ADMIN"), ArgumentMatchers.any(PageRequest.class));
+    }
+
+
 
 
     @Test
