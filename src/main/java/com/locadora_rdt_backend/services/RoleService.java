@@ -95,24 +95,4 @@ public class RoleService {
         entity = roleRepository.save(entity);
         return new RoleDTO(entity);
     }
-
-    @Transactional
-    public RoleDTO update(Long id, RoleDTO dto) {
-        try {
-            Role entity = roleRepository.getOne(id);
-            entity.setAuthority(dto.getAuthority());
-            entity = roleRepository.save(entity);
-            return new RoleDTO(entity);
-        } catch (EntityNotFoundException e) {
-            throw new ResourceNotFoundException("Role not found: " + id);
-        }
-    }
-
-    public void delete(Long id) {
-        try {
-            roleRepository.deleteById(id);
-        } catch (DataAccessException e) {
-            throw new ResourceNotFoundException("Role not found: " + id);
-        }
-    }
 }

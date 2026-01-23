@@ -14,7 +14,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.net.URI;
-import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
@@ -65,17 +64,5 @@ public class RoleController {
                 .buildAndExpand(created.getId())
                 .toUri();
         return ResponseEntity.created(uri).body(created);
-    }
-
-    @PutMapping(value = "/{id}")
-    public ResponseEntity<RoleDTO> update(@PathVariable Long id, @Valid @RequestBody RoleDTO dto) {
-        RoleDTO updated = service.update(id, dto);
-        return ResponseEntity.ok().body(updated);
-    }
-
-    @DeleteMapping(value = "/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        service.delete(id);
-        return ResponseEntity.noContent().build();
     }
 }

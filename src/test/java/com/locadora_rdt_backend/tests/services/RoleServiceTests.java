@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 
 import com.locadora_rdt_backend.dto.RoleDTO;
-import com.locadora_rdt_backend.dto.RoleListDTO;
 import com.locadora_rdt_backend.dto.RolePermissionsUpdateDTO;
 import com.locadora_rdt_backend.entities.Permission;
 import com.locadora_rdt_backend.entities.Role;
@@ -186,69 +185,6 @@ public class RoleServiceTests {
         Mockito.verify(roleRepository, Mockito.times(1)).save(ArgumentMatchers.any(Role.class));
     }
 
-    @Test
-    public void updateShouldReturnRoleDTOWhenIdExists() {
-
-        Long existingId = 1L;
-        RoleDTO dto = RoleFactory.createRoleDTO("ROLE_ATENDENTE");
-
-        Mockito.when(roleRepository.getOne(existingId)).thenReturn(role);
-        Mockito.when(roleRepository.save(ArgumentMatchers.any(Role.class))).thenReturn(role);
-
-        RoleDTO result = service.update(existingId, dto);
-
-        Assertions.assertNotNull(result);
-
-        Mockito.verify(roleRepository, Mockito.times(1)).getOne(existingId);
-        Mockito.verify(roleRepository, Mockito.times(1)).save(ArgumentMatchers.any(Role.class));
-    }
-
-    @Test
-    public void updateShouldThrowResourceNotFoundExceptionWhenIdDoesNotExist() {
-
-        Long nonExistingId = 999L;
-        RoleDTO dto = RoleFactory.createRoleDTO("ROLE_X");
-
-        Mockito.when(roleRepository.getOne(nonExistingId))
-                .thenThrow(new javax.persistence.EntityNotFoundException());
-
-        ResourceNotFoundException ex = Assertions.assertThrows(
-                ResourceNotFoundException.class,
-                () -> service.update(nonExistingId, dto)
-        );
-
-        Assertions.assertTrue(ex.getMessage().contains("Role not found: " + nonExistingId));
-        Mockito.verify(roleRepository, Mockito.times(1)).getOne(nonExistingId);
-        Mockito.verify(roleRepository, Mockito.never()).save(ArgumentMatchers.any(Role.class));
-    }
-
-    @Test
-    public void deleteShouldDoNothingWhenIdExists() {
-
-        Long existingId = 1L;
-        Mockito.doNothing().when(roleRepository).deleteById(existingId);
-
-        Assertions.assertDoesNotThrow(() -> service.delete(existingId));
-
-        Mockito.verify(roleRepository, Mockito.times(1)).deleteById(existingId);
-    }
-
-    @Test
-    public void deleteShouldThrowResourceNotFoundExceptionWhenDataAccessExceptionOccurs() {
-
-        Long nonExistingId = 999L;
-
-        Mockito.doThrow(new EmptyResultDataAccessException(1))
-                .when(roleRepository).deleteById(nonExistingId);
-
-        ResourceNotFoundException ex = Assertions.assertThrows(
-                ResourceNotFoundException.class,
-                () -> service.delete(nonExistingId)
-        );
-
-        Assertions.assertTrue(ex.getMessage().contains("Role not found: " + nonExistingId));
-        Mockito.verify(roleRepository, Mockito.times(1)).deleteById(nonExistingId);
-    }
 
     @Test
     public void updateRolePermissionsShouldUpdatePermissionsAndReturnRoleDTOWhenAllOk() {
