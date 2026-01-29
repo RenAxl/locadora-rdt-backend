@@ -1,8 +1,6 @@
 package com.locadora_rdt_backend.controllers;
 
-import com.locadora_rdt_backend.dto.UserDTO;
-import com.locadora_rdt_backend.dto.UserInsertDTO;
-import com.locadora_rdt_backend.dto.UserUpdateDTO;
+import com.locadora_rdt_backend.dto.*;
 import com.locadora_rdt_backend.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -51,6 +49,12 @@ public class UserController {
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(userDto.getId())
                 .toUri();
         return ResponseEntity.created(uri).body(userDto);
+    }
+
+    @PostMapping("/activate")
+    public ResponseEntity<Void> activate(@RequestParam String token, @Valid @RequestBody NewPasswordDTO dto) {
+        service.activateAccount(token, dto);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping(value = "/{id}")
