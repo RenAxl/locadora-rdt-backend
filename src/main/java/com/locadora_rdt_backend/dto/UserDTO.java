@@ -29,7 +29,6 @@ public class UserDTO {
     @NotBlank(message = "Campo requerido")
     private String telephone;
     private String address;
-    private String photo;
     private Instant date;
 
     private List<RoleDTO> roles = new ArrayList<>();
@@ -38,15 +37,13 @@ public class UserDTO {
     }
 
     public UserDTO(Long id, String name, String email, boolean active,
-                   String telephone, String address, String photo,
-                   Instant date) {
+                   String telephone, String address, Instant date) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.active = active;
         this.telephone = telephone;
         this.address = address;
-        this.photo = photo;
         this.date = date;
     }
 
@@ -57,7 +54,6 @@ public class UserDTO {
         this.active = entity.isActive();
         this.telephone = entity.getTelephone();
         this.address = entity.getAddress();
-        this.photo = entity.getPhoto();
         this.date = entity.getDate();
 
         for (Role role : entity.getRoles()) {
@@ -111,14 +107,6 @@ public class UserDTO {
 
     public void setAddress(String address) {
         this.address = address;
-    }
-
-    public String getPhoto() {
-        return photo;
-    }
-
-    public void setPhoto(String photo) {
-        this.photo = photo;
     }
 
     public Instant getDate() {

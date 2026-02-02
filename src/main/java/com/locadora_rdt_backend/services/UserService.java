@@ -19,6 +19,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.http.MediaType;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.Instant;
@@ -143,7 +145,6 @@ public class UserService {
         entity.setEmail(dto.getEmail());
         entity.setTelephone(dto.getTelephone());
         entity.setAddress(dto.getAddress());
-        entity.setPhoto(dto.getPhoto());
 
         entity.getRoles().clear();
         for (RoleDTO roleDto : dto.getRoles()) {
@@ -158,7 +159,6 @@ public class UserService {
         entity.setActive(dto.isActive());
         entity.setTelephone(dto.getTelephone());
         entity.setAddress(dto.getAddress());
-        entity.setPhoto(dto.getPhoto());
 
         entity.getRoles().clear();
         for (RoleDTO roleDto : dto.getRoles()) {
@@ -228,7 +228,6 @@ public class UserService {
 
         tokenRepository.delete(prt);
     }
-
 
 }
 

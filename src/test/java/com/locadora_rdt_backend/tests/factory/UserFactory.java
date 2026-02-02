@@ -1,5 +1,6 @@
 package com.locadora_rdt_backend.tests.factory;
 
+import java.time.Instant;
 import java.util.List;
 
 import com.locadora_rdt_backend.dto.RoleDTO;
@@ -15,14 +16,16 @@ public class UserFactory {
         user.setId(1L);
         user.setName("Renan Duarte");
         user.setEmail("renan@email.com");
+        user.setPassword("123456"); // opcional
         user.setActive(true);
         user.setTelephone("31999999999");
         user.setAddress("Rua A, 123");
-        user.setPhoto("sem-foto.jpg");
 
-        Role role = new Role();
-        role.setId(1L);
-        role.setAuthority("ROLE_ADMIN");
+        user.setPhoto("fake-image".getBytes());
+        user.setPhotoContentType("image/jpeg");
+        user.setDate(Instant.now());
+
+        Role role = createRole();
         user.getRoles().add(role);
 
         return user;
@@ -50,13 +53,9 @@ public class UserFactory {
         UserInsertDTO dto = new UserInsertDTO();
         dto.setName("Renan Duarte");
         dto.setEmail("renan@email.com");
-        dto.setActive(true);
         dto.setTelephone("31999999999");
         dto.setAddress("Rua A, 123");
-        dto.setPhoto("sem-foto.jpg");
-
         dto.setRoles(List.of(createRoleDTO()));
-
         return dto;
     }
 }
