@@ -19,7 +19,6 @@ import javax.validation.constraints.NotBlank;
 import java.net.URI;
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping(value = "/users")
 public class UserController {

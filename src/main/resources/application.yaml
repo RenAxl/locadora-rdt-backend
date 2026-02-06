@@ -27,6 +27,16 @@ spring:
 server:
   port: 8080
 
+security:
+  oauth2:
+    client:
+      client-id: ${OAUTH_CLIENT_ID}
+      client-secret: ${OAUTH_CLIENT_SECRET}
+
+jwt:
+  secret: ${JWT_SECRET}
+  duration: ${JWT_DURATION}
+
 app:
   frontend:
     base-url: http://localhost:4200
