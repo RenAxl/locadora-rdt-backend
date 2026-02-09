@@ -3,6 +3,7 @@ package com.locadora_rdt_backend.security.core;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -45,9 +46,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.cors();
-
-        // Quando eu uso /oauth/token para autenticar, normalmente o CSRF atrapalha POST de login
-        http.csrf().disable();
+        http
+                .cors()
+                .and()
+                .csrf().disable()
+                .authorizeRequests()
+                .antMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+                .antMatchers("/oauth/**").permitAll()
+                .anyRequest().authenticated();
     }
+
 }
