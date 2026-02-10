@@ -36,6 +36,8 @@ security:
 jwt:
   secret: ${JWT_SECRET}
   duration: ${JWT_DURATION}
+  refresh:
+    duration: 86400
 
 app:
   frontend:

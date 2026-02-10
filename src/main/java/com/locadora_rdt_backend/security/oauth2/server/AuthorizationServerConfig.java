@@ -3,10 +3,12 @@ package com.locadora_rdt_backend.security.oauth2.server;
 import java.util.Arrays;
 
 import com.locadora_rdt_backend.security.jwt.enhancer.JwtClaimsTokenEnhancer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
@@ -34,6 +36,12 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 
     @Value("${JWT_DURATION}")
     private Integer jwtDuration;
+
+    @Value("${jwt.refresh.duration}")
+    private Integer jwtRefreshDuration;
+
+    @Autowired
+    private UserDetailsService userDetailsService;
 
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtAccessTokenConverter accessTokenConverter;
@@ -66,8 +74,9 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
                 .withClient(clientId)
                 .secret(passwordEncoder.encode(clientSecret))
                 .scopes("read", "write")
-                .authorizedGrantTypes("password")
-                .accessTokenValiditySeconds(jwtDuration);
+                .authorizedGrantTypes("password", "refresh_token")
+                .accessTokenValiditySeconds(jwtDuration)
+                .refreshTokenValiditySeconds(jwtRefreshDuration);
     }
 
     @Override
@@ -80,6 +89,8 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
                 .authenticationManager(authenticationManager)
                 .tokenStore(tokenStore)
                 .accessTokenConverter(accessTokenConverter)
-                .tokenEnhancer(chain);
+                .tokenEnhancer(chain)
+                .userDetailsService(userDetailsService)
+                .reuseRefreshTokens(false);
     }
 }
