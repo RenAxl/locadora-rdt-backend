@@ -34,14 +34,8 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     @Value("${OAUTH_CLIENT_SECRET}")
     private String clientSecret;
 
-    @Value("${JWT_DURATION}")
+    @Value("${jwt.duration}")
     private Integer jwtDuration;
-
-    @Value("${jwt.refresh.duration}")
-    private Integer jwtRefreshDuration;
-
-    @Autowired
-    private UserDetailsService userDetailsService;
 
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtAccessTokenConverter accessTokenConverter;
@@ -74,9 +68,8 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
                 .withClient(clientId)
                 .secret(passwordEncoder.encode(clientSecret))
                 .scopes("read", "write")
-                .authorizedGrantTypes("password", "refresh_token")
-                .accessTokenValiditySeconds(jwtDuration)
-                .refreshTokenValiditySeconds(jwtRefreshDuration);
+                .authorizedGrantTypes("password")
+                .accessTokenValiditySeconds(jwtDuration);
     }
 
     @Override
@@ -89,8 +82,6 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
                 .authenticationManager(authenticationManager)
                 .tokenStore(tokenStore)
                 .accessTokenConverter(accessTokenConverter)
-                .tokenEnhancer(chain)
-                .userDetailsService(userDetailsService)
-                .reuseRefreshTokens(false);
+                .tokenEnhancer(chain);
     }
 }

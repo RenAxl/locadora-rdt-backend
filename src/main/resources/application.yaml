@@ -35,12 +35,11 @@ security:
 
 jwt:
   secret: ${JWT_SECRET}
-  duration: ${JWT_DURATION}
-  refresh:
-    duration: 86400
+  duration: 86400
 
 app:
   frontend:
     base-url: http://localhost:4200
   activation:
     token-minutes: 30
+

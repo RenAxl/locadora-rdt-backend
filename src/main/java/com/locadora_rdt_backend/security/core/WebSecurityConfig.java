@@ -51,9 +51,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
-                .antMatchers("/oauth/**").permitAll()
-                .anyRequest().authenticated();
+                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .anyRequest().permitAll();
+
+        // Permite o H2 console
+        http.headers().frameOptions().disable();
     }
 
 }
