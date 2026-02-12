@@ -3,10 +3,10 @@ package com.locadora_rdt_backend.tests.services;
 import java.util.List;
 import java.util.Optional;
 
-import com.locadora_rdt_backend.dto.RoleDTO;
+import com.locadora_rdt_backend.dto.UserInsertDTO;
 import com.locadora_rdt_backend.dto.UserUpdateDTO;
-import com.locadora_rdt_backend.entities.Role;
 import com.locadora_rdt_backend.entities.User;
+import com.locadora_rdt_backend.entities.Role;
 import com.locadora_rdt_backend.repositories.PasswordResetTokenRepository;
 import com.locadora_rdt_backend.repositories.RoleRepository;
 import com.locadora_rdt_backend.repositories.UserRepository;
@@ -46,7 +46,6 @@ public class UserServiceTests {
     @Mock
     private RoleRepository roleRepository;
 
-    // 🔥 FALTAVAM estes mocks por causa do insert()
     @Mock
     private EmailService emailService;
 
@@ -61,13 +60,13 @@ public class UserServiceTests {
     private Role role;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
 
         user = UserFactory.createUser();
         page = new PageImpl<>(List.of(user));
         role = UserFactory.createRole();
 
-        // @Value do service (senão NPE na montagem do link)
+        // valores @Value do service (pra não dar NPE no createActivationTokenAndSendEmail)
         ReflectionTestUtils.setField(service, "frontendBaseUrl", "http://localhost:4200");
         ReflectionTestUtils.setField(service, "tokenMinutes", 30L);
 
@@ -80,13 +79,13 @@ public class UserServiceTests {
         Mockito.when(roleRepository.getOne(ArgumentMatchers.anyLong()))
                 .thenReturn(role);
 
-        // tokenRepository.save(...) é chamado no insert()
         Mockito.when(tokenRepository.save(ArgumentMatchers.any()))
                 .thenAnswer(inv -> inv.getArgument(0));
 
-        // emailService.sendHtmlEmail(...) é void
         Mockito.doNothing().when(emailService)
-                .sendHtmlEmail(ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.anyString());
+                .sendHtmlEmail(ArgumentMatchers.anyString(),
+                        ArgumentMatchers.anyString(),
+                        ArgumentMatchers.anyString());
     }
 
     @Test
@@ -103,46 +102,6 @@ public class UserServiceTests {
         Assertions.assertEquals(user.getId(), result.getContent().get(0).getId());
 
         Mockito.verify(repository, Mockito.times(1)).find(name, pageRequest);
-    }
-
-    @Test
-    public void insertShouldReturnUserDTO() {
-
-        com.locadora_rdt_backend.dto.UserInsertDTO dto = UserFactory.createUserInsertDTO();
-
-        com.locadora_rdt_backend.dto.UserDTO result = service.insert(dto);
-
-        Assertions.assertNotNull(result);
-        Assertions.assertEquals(user.getId(), result.getId());
-
-        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
-        Mockito.verify(repository, Mockito.times(1)).save(captor.capture());
-
-        User savedEntity = captor.getValue();
-
-        // Copiados pelo copyDtoInsertToEntity
-        Assertions.assertEquals(dto.getName(), savedEntity.getName());
-        Assertions.assertEquals(dto.getEmail(), savedEntity.getEmail());
-        Assertions.assertEquals(dto.getTelephone(), savedEntity.getTelephone());
-        Assertions.assertEquals(dto.getAddress(), savedEntity.getAddress());
-
-        // Regras do insert()
-        Assertions.assertNull(savedEntity.getPassword(), "insert() seta password como null");
-        Assertions.assertFalse(savedEntity.isActive(), "insert() força active=false");
-
-        // Roles copiadas via RoleRepository.getOne(...)
-        Assertions.assertNotNull(savedEntity.getRoles());
-        Assertions.assertEquals(dto.getRoles().size(), savedEntity.getRoles().size());
-        Assertions.assertTrue(savedEntity.getRoles().stream().anyMatch(r -> r.getId().equals(1L)));
-
-        Mockito.verify(roleRepository, Mockito.atLeastOnce()).getOne(1L);
-
-        // insert() também cria token e envia e-mail
-        Mockito.verify(tokenRepository, Mockito.times(1)).save(ArgumentMatchers.any());
-        Mockito.verify(emailService, Mockito.times(1))
-                .sendHtmlEmail(ArgumentMatchers.eq(dto.getEmail()),
-                        ArgumentMatchers.anyString(),
-                        ArgumentMatchers.anyString());
     }
 
     @Test
@@ -173,17 +132,54 @@ public class UserServiceTests {
     }
 
     @Test
+    public void insertShouldReturnUserDTOAndCreateTokenAndSendEmail() {
+
+        UserInsertDTO dto = UserFactory.createUserInsertDTO();
+
+        com.locadora_rdt_backend.dto.UserDTO result = service.insert(dto);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(user.getId(), result.getId());
+
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        Mockito.verify(repository, Mockito.times(1)).save(captor.capture());
+
+        User savedEntity = captor.getValue();
+
+        // dados copiados
+        Assertions.assertEquals(dto.getName(), savedEntity.getName());
+        Assertions.assertEquals(dto.getEmail(), savedEntity.getEmail());
+        Assertions.assertEquals(dto.getTelephone(), savedEntity.getTelephone());
+        Assertions.assertEquals(dto.getAddress(), savedEntity.getAddress());
+        Assertions.assertEquals(dto.getPhoto(), savedEntity.getPhoto());
+
+        // regras do insert()
+        Assertions.assertNull(savedEntity.getPassword(), "insert() seta password como null");
+        Assertions.assertFalse(savedEntity.isActive(), "insert() força active=false");
+
+        // roles copiadas via RoleRepository.getOne(...)
+        Assertions.assertNotNull(savedEntity.getRoles());
+        Assertions.assertEquals(dto.getRoles().size(), savedEntity.getRoles().size());
+        Assertions.assertTrue(savedEntity.getRoles().stream().anyMatch(r -> r.getId().equals(1L)));
+
+        Mockito.verify(roleRepository, Mockito.atLeastOnce()).getOne(1L);
+
+        // token + email
+        Mockito.verify(tokenRepository, Mockito.times(1)).save(ArgumentMatchers.any());
+        Mockito.verify(emailService, Mockito.times(1))
+                .sendHtmlEmail(
+                        ArgumentMatchers.eq(dto.getEmail()),
+                        ArgumentMatchers.anyString(),
+                        ArgumentMatchers.anyString()
+                );
+    }
+
+    @Test
     public void updateShouldReturnUserDTOWhenIdExists() {
 
         Long existingId = 1L;
 
-        UserUpdateDTO dto = new UserUpdateDTO();
-        dto.setName("Novo Nome");
-        dto.setEmail("novo@email.com");
-        dto.setActive(false);
-        dto.setTelephone("31988887777");
-        dto.setAddress("Rua B, 456");
-        dto.setRoles(List.of(UserFactory.createRoleDTO())); // ESSENCIAL
+        UserUpdateDTO dto = UserFactory.createUserUpdateDTO();
 
         Mockito.when(repository.getOne(existingId)).thenReturn(user);
         Mockito.when(repository.save(ArgumentMatchers.any(User.class))).thenReturn(user);
@@ -203,8 +199,7 @@ public class UserServiceTests {
 
         Long nonExistingId = 1000L;
 
-        UserUpdateDTO dto = new UserUpdateDTO();
-        dto.setRoles(List.of(UserFactory.createRoleDTO()));
+        UserUpdateDTO dto = UserFactory.createUserUpdateDTO();
 
         Mockito.when(repository.getOne(nonExistingId))
                 .thenThrow(new javax.persistence.EntityNotFoundException());

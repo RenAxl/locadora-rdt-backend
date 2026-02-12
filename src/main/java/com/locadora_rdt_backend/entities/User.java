@@ -32,14 +32,7 @@ public class User implements UserDetails, Serializable {
     private boolean active;
     private String telephone;
     private String address;
-
-    @Lob
-    @Column(name = "photo_data")
-    private byte[] photo;
-
-    @Column(name = "photo_content_type")
-    private String photoContentType;
-
+    private String photo;
 
     @CreationTimestamp
     @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
@@ -57,8 +50,7 @@ public class User implements UserDetails, Serializable {
     }
 
     public User(Long id, String name, String email, String password, boolean active,
-                String telephone, String address, byte[] photo,
-                String photoContentType, Instant date) {
+                String telephone, String address, String photo, Instant date) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -67,7 +59,6 @@ public class User implements UserDetails, Serializable {
         this.telephone = telephone;
         this.address = address;
         this.photo = photo;
-        this.photoContentType = photoContentType;
         this.date = date;
     }
 
@@ -127,19 +118,12 @@ public class User implements UserDetails, Serializable {
         this.address = address;
     }
 
-    public byte[] getPhoto() {
+    public String getPhoto() {
         return photo;
     }
-    public void setPhoto(byte[] photo) {
+
+    public void setPhoto(String photo) {
         this.photo = photo;
-    }
-
-    public String getPhotoContentType() {
-        return photoContentType;
-    }
-
-    public void setPhotoContentType(String photoContentType) {
-        this.photoContentType = photoContentType;
     }
 
     public Instant getDate() {

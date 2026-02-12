@@ -30,6 +30,7 @@ public class UserDTO {
     private String telephone;
     private String address;
     private Instant date;
+    private String photo;
 
     private List<RoleDTO> roles = new ArrayList<>();
 
@@ -37,7 +38,7 @@ public class UserDTO {
     }
 
     public UserDTO(Long id, String name, String email, boolean active,
-                   String telephone, String address, Instant date) {
+                   String telephone, String address, Instant date, String photo) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -45,6 +46,7 @@ public class UserDTO {
         this.telephone = telephone;
         this.address = address;
         this.date = date;
+        this.photo = photo;
     }
 
     public UserDTO(User entity) {
@@ -55,6 +57,7 @@ public class UserDTO {
         this.telephone = entity.getTelephone();
         this.address = entity.getAddress();
         this.date = entity.getDate();
+        this.photo = entity.getPhoto();
 
         for (Role role : entity.getRoles()) {
             this.roles.add(new RoleDTO(role));
@@ -115,6 +118,14 @@ public class UserDTO {
 
     public void setDate(Instant date) {
         this.date = date;
+    }
+
+    public String getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(String photo) {
+        this.photo = photo;
     }
 
     public List<RoleDTO> getRoles() {
