@@ -15,6 +15,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -228,6 +229,18 @@ public class UserService {
         repository.save(user);
 
         tokenRepository.delete(prt);
+    }
+
+    @Transactional(readOnly = true)
+    public UserDTO getMe(Authentication authentication) {
+        String username = authentication.getName(); // normalmente email
+
+        User user = repository.findByEmail(username);
+        if (user == null) {
+            throw new UsernameNotFoundException("Usuário não encontrado");
+        }
+
+        return new UserDTO(user);
     }
 
 }

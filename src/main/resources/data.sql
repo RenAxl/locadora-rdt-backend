@@ -22,25 +22,14 @@ INSERT INTO tb_role (authority) VALUES
 
 
 INSERT INTO tb_permission (name, group_name) VALUES
-                                                 ('USER_READ',   'USERS'),
-                                                 ('USER_WRITE',  'USERS'),
-                                                 ('USER_DELETE', 'USERS'),
+                                                 ('USER_READ',          'USERS'),
+                                                 ('USER_WRITE',         'USERS'),
+                                                 ('USER_DELETE',        'USERS'),
                                                  ('USER_STATUS_CHANGE', 'USERS'),
 
-                                                 ('ROLE_READ',   'ROLES'),
-                                                 ('ROLE_WRITE',  'ROLES'),
-                                                 ('ROLE_DELETE', 'ROLES'),
-
-                                                 ('PERMISSION_READ', 'PERMISSIONS'),
-
-                                                 ('CATEGORY_READ',   'CATEGORIES'),
-                                                 ('CATEGORY_WRITE',  'CATEGORIES'),
-                                                 ('CATEGORY_DELETE', 'CATEGORIES'),
-
-
-                                                 ('CHARACTER_READ',   'CHARACTERS'),
-                                                 ('CHARACTER_WRITE',  'CHARACTERS'),
-                                                 ('CHARACTER_DELETE', 'CHARACTERS');
+                                                 ('ROLE_READ',          'ROLES'),
+                                                 ('ROLE_WRITE',         'ROLES'),
+                                                 ('ROLE_DELETE',        'ROLES');
 
 
 INSERT INTO tb_user_role (user_id, role_id) VALUES
@@ -56,33 +45,17 @@ INSERT INTO tb_user_role (user_id, role_id) VALUES
                                                 (10, 5);
 
 
-
 INSERT INTO tb_role_permission (role_id, permission_id) VALUES
                                                             (1, 1),(1, 2),(1, 3),(1, 4),
-                                                            (1, 5),(1, 6),(1, 7),
-                                                            (1, 8),
-                                                            (1, 9),(1,10),(1,11),
-                                                            (1,12),(1,13),(1,14);
+                                                            (1, 5),(1, 6),(1, 7);
 
 
 INSERT INTO tb_role_permission (role_id, permission_id) VALUES
                                                             (2, 1),
-                                                            (2, 9),(2,10),
-                                                            (2,12),(2,13),
                                                             (2, 5);
 
 
 INSERT INTO tb_role_permission (role_id, permission_id) VALUES
-                                                            (3, 9),(3,10),
-                                                            (3,12),(3,13);
+    (4, 1);
 
 
-INSERT INTO tb_role_permission (role_id, permission_id) VALUES
-                                                            (4, 1),
-                                                            (4, 9),
-                                                            (4,12);
-
-
-INSERT INTO tb_role_permission (role_id, permission_id) VALUES
-                                                            (5, 9),
-                                                            (5,12);

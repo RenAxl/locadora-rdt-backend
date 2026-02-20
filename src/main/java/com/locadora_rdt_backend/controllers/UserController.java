@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.http.*;
@@ -83,6 +84,12 @@ public class UserController {
     public ResponseEntity<UserDTO> changeActive(@PathVariable Long id, @RequestBody boolean active) {
         service.changeActiveStatus(id, active);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping(value = "/me")
+    public ResponseEntity<UserDTO> getMe(Authentication authentication) {
+        UserDTO dto = service.getMe(authentication);
+        return ResponseEntity.ok(dto);
     }
 }
 
