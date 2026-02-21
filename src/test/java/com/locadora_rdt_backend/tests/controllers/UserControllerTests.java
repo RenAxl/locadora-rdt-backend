@@ -14,6 +14,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -77,7 +79,6 @@ public class UserControllerTests {
     @Test
     public void insertShouldReturnCreatedAndLocationHeader() {
 
-        // simula request atual para o ServletUriComponentsBuilder funcionar
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("/users");
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
@@ -316,6 +317,75 @@ public class UserControllerTests {
         Mockito.verify(service, Mockito.times(1)).changeActiveStatus(existingId, active);
     }
 
+    @Test
+    public void getMeShouldReturnOkAndUserDTOWhenServiceReturnsDTO() {
 
+        Authentication authentication = Mockito.mock(Authentication.class);
+
+        Mockito.when(service.getMe(authentication)).thenReturn(userDTO);
+
+        ResponseEntity<UserDTO> response = controller.getMe(authentication);
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(200, response.getStatusCodeValue());
+        Assertions.assertNotNull(response.getBody());
+        Assertions.assertEquals(userDTO.getId(), response.getBody().getId());
+
+        Mockito.verify(service, Mockito.times(1)).getMe(authentication);
+    }
+
+    @Test
+    public void getMeShouldThrowUsernameNotFoundExceptionWhenServiceThrowsUsernameNotFoundException() {
+
+        Authentication authentication = Mockito.mock(Authentication.class);
+
+        Mockito.when(service.getMe(authentication))
+                .thenThrow(new UsernameNotFoundException("Usuário não encontrado"));
+
+        UsernameNotFoundException ex = Assertions.assertThrows(
+                UsernameNotFoundException.class,
+                () -> controller.getMe(authentication)
+        );
+
+        Assertions.assertEquals("Usuário não encontrado", ex.getMessage());
+
+        Mockito.verify(service, Mockito.times(1)).getMe(authentication);
+    }
+
+    @Test
+    public void getMeShouldThrowNullPointerExceptionWhenAuthenticationIsNullAndServiceThrowsNPE() {
+
+        Authentication authentication = null;
+
+        Mockito.when(service.getMe(ArgumentMatchers.isNull()))
+                .thenThrow(new NullPointerException("authentication is null"));
+
+        NullPointerException ex = Assertions.assertThrows(
+                NullPointerException.class,
+                () -> controller.getMe(authentication)
+        );
+
+        Assertions.assertEquals("authentication is null", ex.getMessage());
+
+        Mockito.verify(service, Mockito.times(1)).getMe(ArgumentMatchers.isNull());
+    }
+
+    @Test
+    public void getMeShouldThrowRuntimeExceptionWhenServiceThrowsRuntimeException() {
+
+        Authentication authentication = Mockito.mock(Authentication.class);
+
+        Mockito.when(service.getMe(authentication))
+                .thenThrow(new RuntimeException("Erro inesperado"));
+
+        RuntimeException ex = Assertions.assertThrows(
+                RuntimeException.class,
+                () -> controller.getMe(authentication)
+        );
+
+        Assertions.assertEquals("Erro inesperado", ex.getMessage());
+
+        Mockito.verify(service, Mockito.times(1)).getMe(authentication);
+    }
 
 }

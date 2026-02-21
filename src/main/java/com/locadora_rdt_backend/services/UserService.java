@@ -233,7 +233,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public UserDTO getMe(Authentication authentication) {
-        String username = authentication.getName(); // normalmente email
+        String username = authentication.getName(); // Busca o e-mail do usuário
 
         User user = repository.findByEmail(username);
         if (user == null) {

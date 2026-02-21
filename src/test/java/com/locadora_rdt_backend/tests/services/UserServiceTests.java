@@ -29,6 +29,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -45,7 +47,6 @@ public class UserServiceTests {
     @Mock
     private RoleRepository roleRepository;
 
-    // 🔥 FALTAVAM estes mocks por causa do insert()
     @Mock
     private EmailService emailService;
 
@@ -66,7 +67,6 @@ public class UserServiceTests {
         page = new PageImpl<>(List.of(user));
         role = UserFactory.createRole();
 
-        // @Value do service (senão NPE na montagem do link)
         ReflectionTestUtils.setField(service, "frontendBaseUrl", "http://localhost:4200");
         ReflectionTestUtils.setField(service, "tokenMinutes", 30L);
 
@@ -79,11 +79,9 @@ public class UserServiceTests {
         Mockito.when(roleRepository.getOne(ArgumentMatchers.anyLong()))
                 .thenReturn(role);
 
-        // tokenRepository.save(...) é chamado no insert()
         Mockito.when(tokenRepository.save(ArgumentMatchers.any()))
                 .thenAnswer(inv -> inv.getArgument(0));
 
-        // emailService.sendHtmlEmail(...) é void
         Mockito.doNothing().when(emailService)
                 .sendHtmlEmail(ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.anyString());
     }
@@ -119,24 +117,20 @@ public class UserServiceTests {
 
         User savedEntity = captor.getValue();
 
-        // Copiados pelo copyDtoInsertToEntity
         Assertions.assertEquals(dto.getName(), savedEntity.getName());
         Assertions.assertEquals(dto.getEmail(), savedEntity.getEmail());
         Assertions.assertEquals(dto.getTelephone(), savedEntity.getTelephone());
         Assertions.assertEquals(dto.getAddress(), savedEntity.getAddress());
 
-        // Regras do insert()
         Assertions.assertNull(savedEntity.getPassword(), "insert() seta password como null");
         Assertions.assertFalse(savedEntity.isActive(), "insert() força active=false");
 
-        // Roles copiadas via RoleRepository.getOne(...)
         Assertions.assertNotNull(savedEntity.getRoles());
         Assertions.assertEquals(dto.getRoles().size(), savedEntity.getRoles().size());
         Assertions.assertTrue(savedEntity.getRoles().stream().anyMatch(r -> r.getId().equals(1L)));
 
         Mockito.verify(roleRepository, Mockito.atLeastOnce()).getOne(1L);
 
-        // insert() também cria token e envia e-mail
         Mockito.verify(tokenRepository, Mockito.times(1)).save(ArgumentMatchers.any());
         Mockito.verify(emailService, Mockito.times(1))
                 .sendHtmlEmail(ArgumentMatchers.eq(dto.getEmail()),
@@ -362,5 +356,67 @@ public class UserServiceTests {
 
         Assertions.assertEquals(existingId, idCaptor.getValue());
         Assertions.assertEquals(active, activeCaptor.getValue());
+    }
+
+    @Test
+    public void getMeShouldReturnUserDTOWhenUserExists() {
+
+        Authentication auth = Mockito.mock(Authentication.class);
+        Mockito.when(auth.getName()).thenReturn("renan@teste.com");
+
+        User found = UserFactory.createUser();
+        found.setEmail("renan@teste.com");
+
+        Mockito.when(repository.findByEmail("renan@teste.com")).thenReturn(found);
+
+        com.locadora_rdt_backend.dto.UserDTO result = service.getMe(auth);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(found.getId(), result.getId());
+        Assertions.assertEquals(found.getEmail(), result.getEmail());
+
+        Mockito.verify(repository, Mockito.times(1)).findByEmail("renan@teste.com");
+    }
+
+    @Test
+    public void getMeShouldThrowUsernameNotFoundExceptionWhenUserDoesNotExist() {
+
+        Authentication auth = Mockito.mock(Authentication.class);
+        Mockito.when(auth.getName()).thenReturn("naoexiste@teste.com");
+
+        Mockito.when(repository.findByEmail("naoexiste@teste.com")).thenReturn(null);
+
+        UsernameNotFoundException ex = Assertions.assertThrows(
+                UsernameNotFoundException.class,
+                () -> service.getMe(auth)
+        );
+
+        Assertions.assertEquals("Usuário não encontrado", ex.getMessage());
+
+        Mockito.verify(repository, Mockito.times(1)).findByEmail("naoexiste@teste.com");
+    }
+
+    @Test
+    public void getMeShouldThrowNullPointerExceptionWhenAuthenticationIsNull() {
+
+        Authentication auth = null;
+
+        Assertions.assertThrows(NullPointerException.class, () -> service.getMe(auth));
+
+        Mockito.verify(repository, Mockito.never()).findByEmail(ArgumentMatchers.anyString());
+    }
+
+    @Test
+    public void getMeShouldThrowIllegalArgumentExceptionWhenAuthenticationNameIsNull() {
+
+        Authentication auth = Mockito.mock(Authentication.class);
+        Mockito.when(auth.getName()).thenReturn(null);
+
+        Mockito.when(repository.findByEmail(ArgumentMatchers.isNull()))
+                .thenThrow(new IllegalArgumentException("Email inválido"));
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> service.getMe(auth));
+
+        Mockito.verify(repository, Mockito.times(1)).findByEmail(ArgumentMatchers.isNull());
     }
 }
