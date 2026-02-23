@@ -323,6 +323,44 @@ public class UserService {
         repository.save(user);
     }
 
+    @Transactional
+    public UserDTO updateMe(Authentication authentication, UserMeUpdateDTO dto) {
+
+        if (authentication == null) {
+            throw new NullPointerException("authentication is null");
+        }
+
+        if (dto == null) {
+            throw new IllegalArgumentException("Dados inválidos");
+        }
+
+        String currentEmail = authentication.getName(); // Busca o e-mail
+        User user = repository.findByEmail(currentEmail);
+
+        if (user == null) {
+            throw new UsernameNotFoundException("Usuário não encontrado");
+        }
+
+        String newEmail = dto.getEmail();
+        if (newEmail != null && !newEmail.equalsIgnoreCase(user.getEmail())) {
+
+            User existing = repository.findByEmail(newEmail);
+            if (existing != null && !existing.getId().equals(user.getId())) {
+                throw new IllegalArgumentException("Email já está em uso");
+            }
+
+            user.setEmail(newEmail);
+        }
+
+        user.setName(dto.getName());
+        user.setTelephone(dto.getTelephone());
+        user.setAddress(dto.getAddress());
+
+        user = repository.save(user);
+
+        return new UserDTO(user);
+    }
+
 }
 
 

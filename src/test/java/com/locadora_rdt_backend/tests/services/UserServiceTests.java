@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-import com.locadora_rdt_backend.dto.ChangePasswordDTO;
-import com.locadora_rdt_backend.dto.UserPhotoDTO;
-import com.locadora_rdt_backend.dto.UserUpdateDTO;
+import com.locadora_rdt_backend.dto.*;
 import com.locadora_rdt_backend.entities.Role;
 import com.locadora_rdt_backend.entities.User;
 import com.locadora_rdt_backend.repositories.PasswordResetTokenRepository;
@@ -927,5 +925,99 @@ public class UserServiceTests {
         Mockito.verify(repository).findByEmail(emailCaptor.capture());
 
         Assertions.assertEquals("renan@teste.com", emailCaptor.getValue());
+    }
+
+    @Test
+    public void updateMeShouldUpdateAndSaveWhenValidDataAndEmailChanges() {
+
+        Authentication auth = Mockito.mock(Authentication.class);
+        Mockito.when(auth.getName()).thenReturn("old@teste.com");
+
+        User loggedUser = UserFactory.createUser();
+        loggedUser.setId(1L);
+        loggedUser.setEmail("old@teste.com");
+
+        UserMeUpdateDTO dto = new UserMeUpdateDTO();
+        dto.setName("Novo Nome");
+        dto.setEmail("new@teste.com");
+        dto.setTelephone("31988887777");
+        dto.setAddress("Rua Nova, 123");
+
+        Mockito.when(repository.findByEmail("old@teste.com")).thenReturn(loggedUser);
+        Mockito.when(repository.findByEmail("new@teste.com")).thenReturn(null);
+        Mockito.when(repository.save(ArgumentMatchers.any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        UserDTO result = service.updateMe(auth, dto);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(1L, result.getId());
+        Assertions.assertEquals("Novo Nome", result.getName());
+        Assertions.assertEquals("new@teste.com", result.getEmail());
+
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        Mockito.verify(repository, Mockito.times(1)).save(captor.capture());
+
+        User saved = captor.getValue();
+        Assertions.assertEquals("Novo Nome", saved.getName());
+        Assertions.assertEquals("new@teste.com", saved.getEmail());
+        Assertions.assertEquals("31988887777", saved.getTelephone());
+        Assertions.assertEquals("Rua Nova, 123", saved.getAddress());
+
+        Mockito.verify(repository, Mockito.times(1)).findByEmail("old@teste.com");
+        Mockito.verify(repository, Mockito.times(1)).findByEmail("new@teste.com");
+    }
+
+    @Test
+    public void updateMeShouldThrowNullPointerExceptionWhenAuthenticationIsNull() {
+
+        UserMeUpdateDTO dto = new UserMeUpdateDTO();
+        dto.setName("Novo Nome");
+        dto.setEmail("new@teste.com");
+
+        NullPointerException ex = Assertions.assertThrows(
+                NullPointerException.class,
+                () -> service.updateMe(null, dto)
+        );
+
+        Assertions.assertEquals("authentication is null", ex.getMessage());
+
+        Mockito.verify(repository, Mockito.never()).findByEmail(ArgumentMatchers.anyString());
+        Mockito.verify(repository, Mockito.never()).save(ArgumentMatchers.any(User.class));
+    }
+
+    @Test
+    public void updateMeShouldThrowIllegalArgumentExceptionWhenNewEmailAlreadyInUseByAnotherUser() {
+
+        Authentication auth = Mockito.mock(Authentication.class);
+        Mockito.when(auth.getName()).thenReturn("old@teste.com");
+
+        User loggedUser = UserFactory.createUser();
+        loggedUser.setId(1L);
+        loggedUser.setEmail("old@teste.com");
+
+        UserMeUpdateDTO dto = new UserMeUpdateDTO();
+        dto.setName("Novo Nome");
+        dto.setEmail("taken@teste.com");
+        dto.setTelephone("31988887777");
+        dto.setAddress("Rua Nova, 123");
+
+        Mockito.when(repository.findByEmail("old@teste.com")).thenReturn(loggedUser);
+
+        User otherUser = UserFactory.createUser();
+        otherUser.setId(2L);
+        otherUser.setEmail("taken@teste.com");
+
+        Mockito.when(repository.findByEmail("taken@teste.com")).thenReturn(otherUser);
+
+        IllegalArgumentException ex = Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> service.updateMe(auth, dto)
+        );
+
+        Assertions.assertEquals("Email já está em uso", ex.getMessage());
+
+        Mockito.verify(repository, Mockito.times(1)).findByEmail("old@teste.com");
+        Mockito.verify(repository, Mockito.times(1)).findByEmail("taken@teste.com");
+        Mockito.verify(repository, Mockito.never()).save(ArgumentMatchers.any(User.class));
     }
 }

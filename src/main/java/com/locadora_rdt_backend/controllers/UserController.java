@@ -121,6 +121,13 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping(value = "/me")
+    public ResponseEntity<UserDTO> updateMe(Authentication authentication,
+                                            @Valid @RequestBody UserMeUpdateDTO dto) {
+        UserDTO result = service.updateMe(authentication, dto);
+        return ResponseEntity.ok(result);
+    }
+
 }
 
 
