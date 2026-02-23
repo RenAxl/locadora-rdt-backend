@@ -395,204 +395,6 @@ public class UserControllerTests {
 
 
     @Test
-    public void updatePhotoShouldReturnNoContentWhenServiceSucceeds() {
-
-        Long existingId = 1L;
-
-        MockMultipartFile file = new MockMultipartFile(
-                "file",
-                "photo.png",
-                "image/png",
-                "bytes".getBytes()
-        );
-
-        Mockito.doNothing().when(service).updatePhoto(existingId, file);
-
-        ResponseEntity<Void> response = controller.updatePhoto(existingId, file);
-
-        Assertions.assertNotNull(response);
-        Assertions.assertEquals(204, response.getStatusCodeValue());
-        Assertions.assertNull(response.getBody());
-
-        Mockito.verify(service, Mockito.times(1)).updatePhoto(existingId, file);
-    }
-
-    @Test
-    public void updatePhotoShouldThrowResourceNotFoundExceptionWhenServiceThrowsResourceNotFoundException() {
-
-        Long nonExistingId = 1000L;
-
-        MockMultipartFile file = new MockMultipartFile(
-                "file",
-                "photo.png",
-                "image/png",
-                "bytes".getBytes()
-        );
-
-        Mockito.doThrow(new ResourceNotFoundException("User not found: " + nonExistingId))
-                .when(service).updatePhoto(nonExistingId, file);
-
-        ResourceNotFoundException ex = Assertions.assertThrows(
-                ResourceNotFoundException.class,
-                () -> controller.updatePhoto(nonExistingId, file)
-        );
-
-        Assertions.assertEquals("User not found: " + nonExistingId, ex.getMessage());
-
-        Mockito.verify(service, Mockito.times(1)).updatePhoto(nonExistingId, file);
-    }
-
-    @Test
-    public void updatePhotoShouldThrowIllegalArgumentExceptionWhenServiceThrowsIllegalArgumentException() {
-
-        Long existingId = 1L;
-
-        MockMultipartFile file = new MockMultipartFile(
-                "file",
-                "photo.gif",
-                "image/gif",
-                "bytes".getBytes()
-        );
-
-        Mockito.doThrow(new IllegalArgumentException("Tipo de arquivo inválido. Use JPG, PNG ou WEBP."))
-                .when(service).updatePhoto(existingId, file);
-
-        IllegalArgumentException ex = Assertions.assertThrows(
-                IllegalArgumentException.class,
-                () -> controller.updatePhoto(existingId, file)
-        );
-
-        Assertions.assertEquals("Tipo de arquivo inválido. Use JPG, PNG ou WEBP.", ex.getMessage());
-
-        Mockito.verify(service, Mockito.times(1)).updatePhoto(existingId, file);
-    }
-
-    @Test
-    public void updatePhotoShouldThrowRuntimeExceptionWhenServiceThrowsRuntimeException() {
-
-        Long existingId = 1L;
-
-        MockMultipartFile file = new MockMultipartFile(
-                "file",
-                "photo.png",
-                "image/png",
-                "bytes".getBytes()
-        );
-
-        Mockito.doThrow(new RuntimeException("Falha ao ler bytes do arquivo."))
-                .when(service).updatePhoto(existingId, file);
-
-        RuntimeException ex = Assertions.assertThrows(
-                RuntimeException.class,
-                () -> controller.updatePhoto(existingId, file)
-        );
-
-        Assertions.assertEquals("Falha ao ler bytes do arquivo.", ex.getMessage());
-
-        Mockito.verify(service, Mockito.times(1)).updatePhoto(existingId, file);
-    }
-
-
-    @Test
-    public void getPhotoShouldReturnOkWithBytesAndHeadersWhenServiceReturnsValidDTO() {
-
-        Long existingId = 1L;
-
-        byte[] photoBytes = "image-bytes".getBytes();
-        UserPhotoDTO dto = new UserPhotoDTO(photoBytes, "image/png");
-
-        Mockito.when(service.getPhoto(existingId)).thenReturn(dto);
-
-        ResponseEntity<byte[]> response = controller.getPhoto(existingId);
-
-        Assertions.assertNotNull(response);
-        Assertions.assertEquals(200, response.getStatusCodeValue());
-
-        Assertions.assertNotNull(response.getBody());
-        Assertions.assertArrayEquals(photoBytes, response.getBody());
-
-        Assertions.assertEquals(MediaType.parseMediaType("image/png"), response.getHeaders().getContentType());
-
-        String cacheControl = response.getHeaders().getCacheControl();
-        Assertions.assertNotNull(cacheControl);
-        Assertions.assertTrue(cacheControl.contains("no-cache"));
-
-        Mockito.verify(service, Mockito.times(1)).getPhoto(existingId);
-    }
-
-    @Test
-    public void getPhotoShouldThrowResourceNotFoundExceptionWhenServiceThrowsUserNotFound() {
-
-        Long nonExistingId = 1000L;
-
-        Mockito.when(service.getPhoto(nonExistingId))
-                .thenThrow(new ResourceNotFoundException("User not found: " + nonExistingId));
-
-        ResourceNotFoundException ex = Assertions.assertThrows(
-                ResourceNotFoundException.class,
-                () -> controller.getPhoto(nonExistingId)
-        );
-
-        Assertions.assertEquals("User not found: " + nonExistingId, ex.getMessage());
-
-        Mockito.verify(service, Mockito.times(1)).getPhoto(nonExistingId);
-    }
-
-    @Test
-    public void getPhotoShouldThrowResourceNotFoundExceptionWhenServiceThrowsPhotoNotFound() {
-
-        Long existingId = 1L;
-
-        Mockito.when(service.getPhoto(existingId))
-                .thenThrow(new ResourceNotFoundException("User photo not found: " + existingId));
-
-        ResourceNotFoundException ex = Assertions.assertThrows(
-                ResourceNotFoundException.class,
-                () -> controller.getPhoto(existingId)
-        );
-
-        Assertions.assertEquals("User photo not found: " + existingId, ex.getMessage());
-
-        Mockito.verify(service, Mockito.times(1)).getPhoto(existingId);
-    }
-
-    @Test
-    public void getPhotoShouldThrowInvalidMediaTypeExceptionWhenContentTypeIsInvalid() {
-
-        Long existingId = 1L;
-
-        byte[] photoBytes = "image-bytes".getBytes();
-        UserPhotoDTO dto = new UserPhotoDTO(photoBytes, "image"); // inválido (sem /subtype)
-
-        Mockito.when(service.getPhoto(existingId)).thenReturn(dto);
-
-        Assertions.assertThrows(
-                org.springframework.http.InvalidMediaTypeException.class,
-                () -> controller.getPhoto(existingId)
-        );
-
-        Mockito.verify(service, Mockito.times(1)).getPhoto(existingId);
-    }
-
-    @Test
-    public void getPhotoShouldThrowIllegalArgumentExceptionWhenContentTypeIsNull() {
-
-        Long existingId = 1L;
-
-        byte[] photoBytes = "image-bytes".getBytes();
-        UserPhotoDTO dto = new UserPhotoDTO(photoBytes, null); // vai quebrar no parseMediaType(null)
-
-        Mockito.when(service.getPhoto(existingId)).thenReturn(dto);
-
-        Assertions.assertThrows(
-                IllegalArgumentException.class,
-                () -> controller.getPhoto(existingId)
-        );
-
-        Mockito.verify(service, Mockito.times(1)).getPhoto(existingId);
-    }
-
-    @Test
     public void changePasswordShouldReturnNoContentWhenServiceSucceeds() {
 
         Authentication authentication = Mockito.mock(Authentication.class);
@@ -758,6 +560,74 @@ public class UserControllerTests {
         controller.changePassword(authentication, dto);
 
         Mockito.verify(service, Mockito.times(1)).changePassword(authentication, dto);
+    }
+
+    @Test
+    public void updateMyPhotoShouldReturnNoContentWhenServiceSucceeds() {
+
+        Authentication authentication = Mockito.mock(Authentication.class);
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "photo.png",
+                "image/png",
+                "bytes".getBytes()
+        );
+
+        Mockito.doNothing().when(service).updateMyPhoto(authentication, file);
+
+        ResponseEntity<Void> response = controller.updateMyPhoto(authentication, file);
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(204, response.getStatusCodeValue());
+        Assertions.assertNull(response.getBody());
+
+        Mockito.verify(service, Mockito.times(1)).updateMyPhoto(authentication, file);
+    }
+
+    @Test
+    public void getMyPhotoShouldReturnOkWithBytesAndHeadersWhenServiceReturnsValidDTO() {
+
+        Authentication authentication = Mockito.mock(Authentication.class);
+
+        byte[] photoBytes = "image-bytes".getBytes();
+        UserPhotoDTO dto = new UserPhotoDTO(photoBytes, "image/png");
+
+        Mockito.when(service.getMyPhoto(authentication)).thenReturn(dto);
+
+        ResponseEntity<byte[]> response = controller.getMyPhoto(authentication);
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(200, response.getStatusCodeValue());
+
+        Assertions.assertNotNull(response.getBody());
+        Assertions.assertArrayEquals(photoBytes, response.getBody());
+
+        Assertions.assertEquals(MediaType.parseMediaType("image/png"), response.getHeaders().getContentType());
+
+        String cacheControl = response.getHeaders().getCacheControl();
+        Assertions.assertNotNull(cacheControl);
+        Assertions.assertTrue(cacheControl.contains("no-cache"));
+
+        Mockito.verify(service, Mockito.times(1)).getMyPhoto(authentication);
+    }
+
+    @Test
+    public void getMyPhotoShouldThrowInvalidMediaTypeExceptionWhenContentTypeIsInvalid() {
+
+        Authentication authentication = Mockito.mock(Authentication.class);
+
+        byte[] photoBytes = "image-bytes".getBytes();
+        UserPhotoDTO dto = new UserPhotoDTO(photoBytes, "image"); // inválido (sem /subtype)
+
+        Mockito.when(service.getMyPhoto(authentication)).thenReturn(dto);
+
+        Assertions.assertThrows(
+                org.springframework.http.InvalidMediaTypeException.class,
+                () -> controller.getMyPhoto(authentication)
+        );
+
+        Mockito.verify(service, Mockito.times(1)).getMyPhoto(authentication);
     }
 
 }

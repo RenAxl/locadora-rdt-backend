@@ -92,28 +92,6 @@ public class UserController {
         return ResponseEntity.ok(dto);
     }
 
-    @PutMapping(value = "/{id}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Void> updatePhoto(
-            @PathVariable Long id,
-            @RequestParam("file") MultipartFile file
-    ) {
-        service.updatePhoto(id, file);
-        return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping(value = "/{id}/photo")
-    public ResponseEntity<byte[]> getPhoto(@PathVariable Long id) {
-
-        UserPhotoDTO dto = service.getPhoto(id);
-
-        MediaType mediaType = MediaType.parseMediaType(dto.getContentType());
-
-        return ResponseEntity.ok()
-                .contentType(mediaType)
-                .cacheControl(CacheControl.noCache())
-                .body(dto.getPhoto());
-    }
-
     @PutMapping(value = "/me/password")
     public ResponseEntity<Void> changePassword(Authentication authentication,
                                                @Valid @RequestBody ChangePasswordDTO dto) {
@@ -126,6 +104,28 @@ public class UserController {
                                             @Valid @RequestBody UserMeUpdateDTO dto) {
         UserDTO result = service.updateMe(authentication, dto);
         return ResponseEntity.ok(result);
+    }
+
+    @PutMapping(value = "/me/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> updateMyPhoto(
+            Authentication authentication,
+            @RequestParam("file") MultipartFile file
+    ) {
+        service.updateMyPhoto(authentication, file);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping(value = "/me/photo")
+    public ResponseEntity<byte[]> getMyPhoto(Authentication authentication) {
+
+        UserPhotoDTO dto = service.getMyPhoto(authentication);
+
+        MediaType mediaType = MediaType.parseMediaType(dto.getContentType());
+
+        return ResponseEntity.ok()
+                .contentType(mediaType)
+                .cacheControl(CacheControl.noCache())
+                .body(dto.getPhoto());
     }
 
 }

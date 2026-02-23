@@ -250,50 +250,6 @@ public class UserService {
     }
 
     @Transactional
-    public void updatePhoto(Long id, MultipartFile file) {
-        User entity = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + id));
-
-        if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException("Arquivo de foto vazio.");
-        }
-
-        String contentType = file.getContentType();
-        if (contentType == null || !ALLOWED_TYPES.contains(contentType)) {
-            throw new IllegalArgumentException("Tipo de arquivo inválido. Use JPG, PNG ou WEBP.");
-        }
-
-        long maxBytes = 2L * 1024 * 1024;
-        if (file.getSize() > maxBytes) {
-            throw new IllegalArgumentException("Foto muito grande. Máximo: 2MB.");
-        }
-
-        try {
-            entity.setPhoto(file.getBytes());
-            entity.setPhotoContentType(contentType);
-        } catch (IOException e) {
-            throw new RuntimeException("Falha ao ler bytes do arquivo.", e);
-        }
-
-        repository.save(entity);
-    }
-
-    @Transactional(readOnly = true)
-    public UserPhotoDTO getPhoto(Long id) {
-        User entity = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + id));
-
-        if (entity.getPhoto() == null) {
-            throw new ResourceNotFoundException("User photo not found: " + id);
-        }
-
-        return new UserPhotoDTO(
-                entity.getPhoto(),
-                entity.getPhotoContentType()
-        );
-    }
-
-    @Transactional
     public void changePassword(Authentication authentication, ChangePasswordDTO dto) {
 
         if (authentication == null) {
@@ -359,6 +315,68 @@ public class UserService {
         user = repository.save(user);
 
         return new UserDTO(user);
+    }
+
+    @Transactional
+    public void updateMyPhoto(Authentication authentication, MultipartFile file) {
+
+        if (authentication == null) {
+            throw new NullPointerException("authentication is null");
+        }
+
+        String username = authentication.getName(); // email do usuário logado
+        User user = repository.findByEmail(username);
+
+        if (user == null) {
+            throw new UsernameNotFoundException("Usuário não encontrado");
+        }
+
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("Arquivo de foto vazio.");
+        }
+
+        String contentType = file.getContentType();
+        if (contentType == null || !ALLOWED_TYPES.contains(contentType)) {
+            throw new IllegalArgumentException("Tipo de arquivo inválido. Use JPG, PNG ou WEBP.");
+        }
+
+        long maxBytes = 2L * 1024 * 1024;
+        if (file.getSize() > maxBytes) {
+            throw new IllegalArgumentException("Foto muito grande. Máximo: 2MB.");
+        }
+
+        try {
+            user.setPhoto(file.getBytes());
+            user.setPhotoContentType(contentType);
+        } catch (IOException e) {
+            throw new RuntimeException("Falha ao ler bytes do arquivo.", e);
+        }
+
+        repository.save(user);
+    }
+
+    @Transactional(readOnly = true)
+    public UserPhotoDTO getMyPhoto(Authentication authentication) {
+
+        if (authentication == null) {
+            throw new NullPointerException("authentication is null");
+        }
+
+        String username = authentication.getName(); // email do usuário logado
+        User user = repository.findByEmail(username);
+
+        if (user == null) {
+            throw new UsernameNotFoundException("Usuário não encontrado");
+        }
+
+        if (user.getPhoto() == null) {
+            throw new ResourceNotFoundException("User photo not found: " + user.getId());
+        }
+
+        return new UserPhotoDTO(
+                user.getPhoto(),
+                user.getPhotoContentType()
+        );
     }
 
 }
