@@ -114,6 +114,13 @@ public class UserController {
                 .body(dto.getPhoto());
     }
 
+    @PutMapping(value = "/me/password")
+    public ResponseEntity<Void> changePassword(Authentication authentication,
+                                               @Valid @RequestBody ChangePasswordDTO dto) {
+        service.changePassword(authentication, dto);
+        return ResponseEntity.noContent().build();
+    }
+
 }
 
 

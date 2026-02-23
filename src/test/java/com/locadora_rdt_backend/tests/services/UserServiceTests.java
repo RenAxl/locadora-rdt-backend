@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+import com.locadora_rdt_backend.dto.ChangePasswordDTO;
 import com.locadora_rdt_backend.dto.UserPhotoDTO;
 import com.locadora_rdt_backend.dto.UserUpdateDTO;
 import com.locadora_rdt_backend.entities.Role;
@@ -703,5 +704,228 @@ public class UserServiceTests {
         Assertions.assertNull(result.getContentType());
 
         Mockito.verify(repository, Mockito.times(1)).findById(existingId);
+    }
+
+
+    @Test
+    public void changePasswordShouldUpdateAndSaveWhenValidData() {
+
+        Authentication auth = Mockito.mock(Authentication.class);
+        Mockito.when(auth.getName()).thenReturn("renan@teste.com");
+
+        User found = UserFactory.createUser();
+        found.setEmail("renan@teste.com");
+        found.setPassword("ENC_CURRENT"); // senha atual "criptografada" (fake)
+
+        ChangePasswordDTO dto = new ChangePasswordDTO("current123", "new123456");
+
+        Mockito.when(repository.findByEmail("renan@teste.com")).thenReturn(found);
+
+        Mockito.when(passwordEncoder.matches("current123", "ENC_CURRENT")).thenReturn(true);
+
+        Mockito.when(passwordEncoder.matches("new123456", "ENC_CURRENT")).thenReturn(false);
+
+        Mockito.when(passwordEncoder.encode("new123456")).thenReturn("ENC_NEW");
+
+        Mockito.when(repository.save(ArgumentMatchers.any(User.class))).thenReturn(found);
+
+        Assertions.assertDoesNotThrow(() -> service.changePassword(auth, dto));
+
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        Mockito.verify(repository, Mockito.times(1)).save(captor.capture());
+
+        User saved = captor.getValue();
+        Assertions.assertEquals("ENC_NEW", saved.getPassword());
+
+        Mockito.verify(repository, Mockito.times(1)).findByEmail("renan@teste.com");
+        Mockito.verify(passwordEncoder, Mockito.times(1)).matches("current123", "ENC_CURRENT");
+        Mockito.verify(passwordEncoder, Mockito.times(1)).matches("new123456", "ENC_CURRENT");
+        Mockito.verify(passwordEncoder, Mockito.times(1)).encode("new123456");
+    }
+
+    @Test
+    public void changePasswordShouldThrowNullPointerExceptionWhenAuthenticationIsNull() {
+
+        ChangePasswordDTO dto = new ChangePasswordDTO("current123", "new123456");
+
+        NullPointerException ex = Assertions.assertThrows(
+                NullPointerException.class,
+                () -> service.changePassword(null, dto)
+        );
+
+        Assertions.assertEquals("authentication is null", ex.getMessage());
+
+        Mockito.verify(repository, Mockito.never()).findByEmail(ArgumentMatchers.anyString());
+        Mockito.verify(repository, Mockito.never()).save(ArgumentMatchers.any(User.class));
+        Mockito.verify(passwordEncoder, Mockito.never()).matches(ArgumentMatchers.anyString(), ArgumentMatchers.anyString());
+        Mockito.verify(passwordEncoder, Mockito.never()).encode(ArgumentMatchers.anyString());
+    }
+
+    @Test
+    public void changePasswordShouldThrowUsernameNotFoundExceptionWhenUserNotFound() {
+
+        Authentication auth = Mockito.mock(Authentication.class);
+        Mockito.when(auth.getName()).thenReturn("naoexiste@teste.com");
+
+        Mockito.when(repository.findByEmail("naoexiste@teste.com")).thenReturn(null);
+
+        ChangePasswordDTO dto = new ChangePasswordDTO("current123", "new123456");
+
+        UsernameNotFoundException ex = Assertions.assertThrows(
+                UsernameNotFoundException.class,
+                () -> service.changePassword(auth, dto)
+        );
+
+        Assertions.assertEquals("Usuário não encontrado", ex.getMessage());
+
+        Mockito.verify(repository, Mockito.times(1)).findByEmail("naoexiste@teste.com");
+        Mockito.verify(repository, Mockito.never()).save(ArgumentMatchers.any(User.class));
+        Mockito.verify(passwordEncoder, Mockito.never()).matches(ArgumentMatchers.anyString(), ArgumentMatchers.anyString());
+        Mockito.verify(passwordEncoder, Mockito.never()).encode(ArgumentMatchers.anyString());
+    }
+
+    @Test
+    public void changePasswordShouldThrowIllegalArgumentExceptionWhenDtoIsNull() {
+
+        Authentication auth = Mockito.mock(Authentication.class);
+        Mockito.when(auth.getName()).thenReturn("renan@teste.com");
+
+        User found = UserFactory.createUser();
+        found.setEmail("renan@teste.com");
+        found.setPassword("ENC_CURRENT");
+
+        Mockito.when(repository.findByEmail("renan@teste.com")).thenReturn(found);
+
+        IllegalArgumentException ex = Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> service.changePassword(auth, null)
+        );
+
+        Assertions.assertEquals("Dados inválidos", ex.getMessage());
+
+        Mockito.verify(repository, Mockito.times(1)).findByEmail("renan@teste.com");
+        Mockito.verify(repository, Mockito.never()).save(ArgumentMatchers.any(User.class));
+        Mockito.verify(passwordEncoder, Mockito.never()).matches(ArgumentMatchers.anyString(), ArgumentMatchers.anyString());
+        Mockito.verify(passwordEncoder, Mockito.never()).encode(ArgumentMatchers.anyString());
+    }
+
+    @Test
+    public void changePasswordShouldThrowIllegalArgumentExceptionWhenCurrentPasswordDoesNotMatch() {
+
+        Authentication auth = Mockito.mock(Authentication.class);
+        Mockito.when(auth.getName()).thenReturn("renan@teste.com");
+
+        User found = UserFactory.createUser();
+        found.setEmail("renan@teste.com");
+        found.setPassword("ENC_CURRENT");
+
+        Mockito.when(repository.findByEmail("renan@teste.com")).thenReturn(found);
+
+        ChangePasswordDTO dto = new ChangePasswordDTO("wrongCurrent", "new123456");
+
+        Mockito.when(passwordEncoder.matches("wrongCurrent", "ENC_CURRENT")).thenReturn(false);
+
+        IllegalArgumentException ex = Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> service.changePassword(auth, dto)
+        );
+
+        Assertions.assertEquals("Senha atual incorreta", ex.getMessage());
+
+        Mockito.verify(repository, Mockito.times(1)).findByEmail("renan@teste.com");
+        Mockito.verify(passwordEncoder, Mockito.times(1)).matches("wrongCurrent", "ENC_CURRENT");
+        Mockito.verify(passwordEncoder, Mockito.never()).encode(ArgumentMatchers.anyString());
+        Mockito.verify(repository, Mockito.never()).save(ArgumentMatchers.any(User.class));
+    }
+
+    @Test
+    public void changePasswordShouldThrowIllegalArgumentExceptionWhenNewPasswordIsSameAsCurrent() {
+
+        Authentication auth = Mockito.mock(Authentication.class);
+        Mockito.when(auth.getName()).thenReturn("renan@teste.com");
+
+        User found = UserFactory.createUser();
+        found.setEmail("renan@teste.com");
+        found.setPassword("ENC_CURRENT");
+
+        Mockito.when(repository.findByEmail("renan@teste.com")).thenReturn(found);
+
+        ChangePasswordDTO dto = new ChangePasswordDTO("current123", "current123");
+
+        Mockito.when(passwordEncoder.matches("current123", "ENC_CURRENT")).thenReturn(true);
+        Mockito.when(passwordEncoder.matches("current123", "ENC_CURRENT")).thenReturn(true);
+
+        IllegalArgumentException ex = Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> service.changePassword(auth, dto)
+        );
+
+        Assertions.assertEquals("A nova senha não pode ser igual à senha atual", ex.getMessage());
+
+        Mockito.verify(repository, Mockito.times(1)).findByEmail("renan@teste.com");
+        Mockito.verify(passwordEncoder, Mockito.times(2)).matches("current123", "ENC_CURRENT");
+        Mockito.verify(passwordEncoder, Mockito.never()).encode(ArgumentMatchers.anyString());
+        Mockito.verify(repository, Mockito.never()).save(ArgumentMatchers.any(User.class));
+    }
+
+    @Test
+    public void changePasswordShouldPropagateRuntimeExceptionWhenRepositorySaveThrows() {
+
+        Authentication auth = Mockito.mock(Authentication.class);
+        Mockito.when(auth.getName()).thenReturn("renan@teste.com");
+
+        User found = UserFactory.createUser();
+        found.setEmail("renan@teste.com");
+        found.setPassword("ENC_CURRENT");
+
+        ChangePasswordDTO dto = new ChangePasswordDTO("current123", "new123456");
+
+        Mockito.when(repository.findByEmail("renan@teste.com")).thenReturn(found);
+
+        Mockito.when(passwordEncoder.matches("current123", "ENC_CURRENT")).thenReturn(true);
+        Mockito.when(passwordEncoder.matches("new123456", "ENC_CURRENT")).thenReturn(false);
+        Mockito.when(passwordEncoder.encode("new123456")).thenReturn("ENC_NEW");
+
+        Mockito.when(repository.save(ArgumentMatchers.any(User.class)))
+                .thenThrow(new RuntimeException("DB error"));
+
+        RuntimeException ex = Assertions.assertThrows(
+                RuntimeException.class,
+                () -> service.changePassword(auth, dto)
+        );
+
+        Assertions.assertEquals("DB error", ex.getMessage());
+
+        Mockito.verify(repository, Mockito.times(1)).findByEmail("renan@teste.com");
+        Mockito.verify(passwordEncoder, Mockito.times(1)).encode("new123456");
+        Mockito.verify(repository, Mockito.times(1)).save(ArgumentMatchers.any(User.class));
+    }
+
+    @Test
+    public void changePasswordShouldCallRepositoryFindByEmailWithAuthenticationName() {
+
+        Authentication auth = Mockito.mock(Authentication.class);
+        Mockito.when(auth.getName()).thenReturn("renan@teste.com");
+
+        User found = UserFactory.createUser();
+        found.setEmail("renan@teste.com");
+        found.setPassword("ENC_CURRENT");
+
+        ChangePasswordDTO dto = new ChangePasswordDTO("current123", "new123456");
+
+        Mockito.when(repository.findByEmail(ArgumentMatchers.anyString())).thenReturn(found);
+
+        Mockito.when(passwordEncoder.matches("current123", "ENC_CURRENT")).thenReturn(true);
+        Mockito.when(passwordEncoder.matches("new123456", "ENC_CURRENT")).thenReturn(false);
+        Mockito.when(passwordEncoder.encode("new123456")).thenReturn("ENC_NEW");
+
+        Mockito.when(repository.save(ArgumentMatchers.any(User.class))).thenReturn(found);
+
+        service.changePassword(auth, dto);
+
+        ArgumentCaptor<String> emailCaptor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(repository).findByEmail(emailCaptor.capture());
+
+        Assertions.assertEquals("renan@teste.com", emailCaptor.getValue());
     }
 }

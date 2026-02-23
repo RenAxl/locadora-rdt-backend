@@ -293,6 +293,36 @@ public class UserService {
         );
     }
 
+    @Transactional
+    public void changePassword(Authentication authentication, ChangePasswordDTO dto) {
+
+        if (authentication == null) {
+            throw new NullPointerException("authentication is null");
+        }
+
+        String username = authentication.getName(); // Busca email do usuário
+        User user = repository.findByEmail(username);
+
+        if (user == null) {
+            throw new UsernameNotFoundException("Usuário não encontrado");
+        }
+
+        if (dto == null) {
+            throw new IllegalArgumentException("Dados inválidos");
+        }
+
+        if (!passwordEncoder.matches(dto.getCurrentPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("Senha atual incorreta");
+        }
+
+        if (passwordEncoder.matches(dto.getNewPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("A nova senha não pode ser igual à senha atual");
+        }
+
+        user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
+        repository.save(user);
+    }
+
 }
 
 

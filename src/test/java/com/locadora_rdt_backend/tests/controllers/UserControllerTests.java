@@ -1,5 +1,6 @@
 package com.locadora_rdt_backend.tests.controllers;
 
+import com.locadora_rdt_backend.dto.ChangePasswordDTO;
 import com.locadora_rdt_backend.dto.UserPhotoDTO;
 import com.locadora_rdt_backend.services.exceptions.ResourceNotFoundException;
 import org.junit.jupiter.api.Assertions;
@@ -589,6 +590,174 @@ public class UserControllerTests {
         );
 
         Mockito.verify(service, Mockito.times(1)).getPhoto(existingId);
+    }
+
+    @Test
+    public void changePasswordShouldReturnNoContentWhenServiceSucceeds() {
+
+        Authentication authentication = Mockito.mock(Authentication.class);
+
+        ChangePasswordDTO dto = new ChangePasswordDTO();
+        dto.setCurrentPassword("current123");
+        dto.setNewPassword("new123456");
+
+        Mockito.doNothing().when(service).changePassword(authentication, dto);
+
+        ResponseEntity<Void> response = controller.changePassword(authentication, dto);
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(204, response.getStatusCodeValue());
+        Assertions.assertNull(response.getBody());
+
+        Mockito.verify(service, Mockito.times(1)).changePassword(authentication, dto);
+    }
+
+    @Test
+    public void changePasswordShouldThrowNullPointerExceptionWhenServiceThrowsNullPointerException() {
+
+        Authentication authentication = null;
+
+        ChangePasswordDTO dto = new ChangePasswordDTO();
+        dto.setCurrentPassword("current123");
+        dto.setNewPassword("new123456");
+
+        Mockito.doThrow(new NullPointerException("authentication is null"))
+                .when(service).changePassword(ArgumentMatchers.isNull(), ArgumentMatchers.any(ChangePasswordDTO.class));
+
+        NullPointerException ex = Assertions.assertThrows(
+                NullPointerException.class,
+                () -> controller.changePassword(authentication, dto)
+        );
+
+        Assertions.assertEquals("authentication is null", ex.getMessage());
+
+        Mockito.verify(service, Mockito.times(1))
+                .changePassword(ArgumentMatchers.isNull(), ArgumentMatchers.any(ChangePasswordDTO.class));
+    }
+
+    @Test
+    public void changePasswordShouldThrowUsernameNotFoundExceptionWhenServiceThrowsUsernameNotFoundException() {
+
+        Authentication authentication = Mockito.mock(Authentication.class);
+
+        ChangePasswordDTO dto = new ChangePasswordDTO();
+        dto.setCurrentPassword("current123");
+        dto.setNewPassword("new123456");
+
+        Mockito.doThrow(new UsernameNotFoundException("Usuário não encontrado"))
+                .when(service).changePassword(authentication, dto);
+
+        UsernameNotFoundException ex = Assertions.assertThrows(
+                UsernameNotFoundException.class,
+                () -> controller.changePassword(authentication, dto)
+        );
+
+        Assertions.assertEquals("Usuário não encontrado", ex.getMessage());
+
+        Mockito.verify(service, Mockito.times(1)).changePassword(authentication, dto);
+    }
+
+    @Test
+    public void changePasswordShouldThrowIllegalArgumentExceptionWhenServiceThrowsSenhaAtualIncorreta() {
+
+        Authentication authentication = Mockito.mock(Authentication.class);
+
+        ChangePasswordDTO dto = new ChangePasswordDTO();
+        dto.setCurrentPassword("wrong");
+        dto.setNewPassword("new123456");
+
+        Mockito.doThrow(new IllegalArgumentException("Senha atual incorreta"))
+                .when(service).changePassword(authentication, dto);
+
+        IllegalArgumentException ex = Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> controller.changePassword(authentication, dto)
+        );
+
+        Assertions.assertEquals("Senha atual incorreta", ex.getMessage());
+
+        Mockito.verify(service, Mockito.times(1)).changePassword(authentication, dto);
+    }
+
+    @Test
+    public void changePasswordShouldThrowIllegalArgumentExceptionWhenServiceThrowsNewPasswordEqualsCurrent() {
+
+        Authentication authentication = Mockito.mock(Authentication.class);
+
+        ChangePasswordDTO dto = new ChangePasswordDTO();
+        dto.setCurrentPassword("current123");
+        dto.setNewPassword("current123");
+
+        Mockito.doThrow(new IllegalArgumentException("A nova senha não pode ser igual à senha atual"))
+                .when(service).changePassword(authentication, dto);
+
+        IllegalArgumentException ex = Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> controller.changePassword(authentication, dto)
+        );
+
+        Assertions.assertEquals("A nova senha não pode ser igual à senha atual", ex.getMessage());
+
+        Mockito.verify(service, Mockito.times(1)).changePassword(authentication, dto);
+    }
+
+    @Test
+    public void changePasswordShouldThrowIllegalArgumentExceptionWhenServiceThrowsDadosInvalidos() {
+
+        Authentication authentication = Mockito.mock(Authentication.class);
+
+        ChangePasswordDTO dto = null;
+
+        Mockito.doThrow(new IllegalArgumentException("Dados inválidos"))
+                .when(service).changePassword(ArgumentMatchers.eq(authentication), ArgumentMatchers.isNull());
+
+        IllegalArgumentException ex = Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> controller.changePassword(authentication, dto)
+        );
+
+        Assertions.assertEquals("Dados inválidos", ex.getMessage());
+
+        Mockito.verify(service, Mockito.times(1))
+                .changePassword(ArgumentMatchers.eq(authentication), ArgumentMatchers.isNull());
+    }
+
+    @Test
+    public void changePasswordShouldThrowRuntimeExceptionWhenServiceThrowsRuntimeException() {
+
+        Authentication authentication = Mockito.mock(Authentication.class);
+
+        ChangePasswordDTO dto = new ChangePasswordDTO();
+        dto.setCurrentPassword("current123");
+        dto.setNewPassword("new123456");
+
+        Mockito.doThrow(new RuntimeException("DB error"))
+                .when(service).changePassword(authentication, dto);
+
+        RuntimeException ex = Assertions.assertThrows(
+                RuntimeException.class,
+                () -> controller.changePassword(authentication, dto)
+        );
+
+        Assertions.assertEquals("DB error", ex.getMessage());
+
+        Mockito.verify(service, Mockito.times(1)).changePassword(authentication, dto);
+    }
+
+    @Test
+    public void changePasswordShouldCallServiceWithCorrectArguments() {
+
+        Authentication authentication = Mockito.mock(Authentication.class);
+
+        ChangePasswordDTO dto = new ChangePasswordDTO();
+        dto.setCurrentPassword("current123");
+        dto.setNewPassword("new123456");
+
+        Mockito.doNothing().when(service).changePassword(ArgumentMatchers.any(), ArgumentMatchers.any());
+
+        controller.changePassword(authentication, dto);
+
+        Mockito.verify(service, Mockito.times(1)).changePassword(authentication, dto);
     }
 
 }

@@ -44,6 +44,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .antMatchers(HttpMethod.PUT, "/users/**").hasAuthority("USER_WRITE")
                 .antMatchers(HttpMethod.DELETE, "/users/**").hasAuthority("USER_DELETE")
                 .antMatchers(HttpMethod.PATCH, "/users/*/active").hasAuthority("USER_STATUS_CHANGE")
+                .antMatchers(HttpMethod.PUT, "/users/me/password").authenticated()
 
                 .antMatchers(HttpMethod.GET, "/roles/**").hasAuthority("ROLE_READ")
                 .antMatchers(HttpMethod.POST, "/roles/**").hasAuthority("ROLE_WRITE")
