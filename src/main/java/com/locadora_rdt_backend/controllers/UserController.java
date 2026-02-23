@@ -91,6 +91,29 @@ public class UserController {
         UserDTO dto = service.getMe(authentication);
         return ResponseEntity.ok(dto);
     }
+
+    @PutMapping(value = "/{id}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> updatePhoto(
+            @PathVariable Long id,
+            @RequestParam("file") MultipartFile file
+    ) {
+        service.updatePhoto(id, file);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping(value = "/{id}/photo")
+    public ResponseEntity<byte[]> getPhoto(@PathVariable Long id) {
+
+        UserPhotoDTO dto = service.getPhoto(id);
+
+        MediaType mediaType = MediaType.parseMediaType(dto.getContentType());
+
+        return ResponseEntity.ok()
+                .contentType(mediaType)
+                .cacheControl(CacheControl.noCache())
+                .body(dto.getPhoto());
+    }
+
 }
 
 

@@ -1,8 +1,10 @@
 package com.locadora_rdt_backend.tests.services;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+import com.locadora_rdt_backend.dto.UserPhotoDTO;
 import com.locadora_rdt_backend.dto.UserUpdateDTO;
 import com.locadora_rdt_backend.entities.Role;
 import com.locadora_rdt_backend.entities.User;
@@ -29,11 +31,13 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(SpringExtension.class)
 public class UserServiceTests {
@@ -418,5 +422,286 @@ public class UserServiceTests {
         Assertions.assertThrows(IllegalArgumentException.class, () -> service.getMe(auth));
 
         Mockito.verify(repository, Mockito.times(1)).findByEmail(ArgumentMatchers.isNull());
+    }
+
+    @Test
+    public void updatePhotoShouldUpdateAndSaveWhenValidFile() throws Exception {
+
+        Long existingId = 1L;
+
+        byte[] bytes = "fake-image-bytes".getBytes();
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "photo.png",
+                "image/png",
+                bytes
+        );
+
+        User entity = UserFactory.createUser();
+        entity.setId(existingId);
+        entity.setPhoto(null);
+        entity.setPhotoContentType(null);
+
+        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(entity));
+        Mockito.when(repository.save(ArgumentMatchers.any(User.class))).thenReturn(entity);
+
+        Assertions.assertDoesNotThrow(() -> service.updatePhoto(existingId, file));
+
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        Mockito.verify(repository, Mockito.times(1)).save(captor.capture());
+
+        User saved = captor.getValue();
+
+        Assertions.assertArrayEquals(bytes, saved.getPhoto());
+        Assertions.assertEquals("image/png", saved.getPhotoContentType());
+
+        Mockito.verify(repository, Mockito.times(1)).findById(existingId);
+    }
+
+    @Test
+    public void updatePhotoShouldThrowResourceNotFoundExceptionWhenUserDoesNotExist() {
+
+        Long nonExistingId = 1000L;
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "photo.png",
+                "image/png",
+                "bytes".getBytes()
+        );
+
+        Mockito.when(repository.findById(nonExistingId)).thenReturn(Optional.empty());
+
+        Assertions.assertThrows(ResourceNotFoundException.class,
+                () -> service.updatePhoto(nonExistingId, file));
+
+        Mockito.verify(repository, Mockito.times(1)).findById(nonExistingId);
+        Mockito.verify(repository, Mockito.never()).save(ArgumentMatchers.any(User.class));
+    }
+
+    @Test
+    public void updatePhotoShouldThrowIllegalArgumentExceptionWhenFileIsNull() {
+
+        Long existingId = 1L;
+
+        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(user));
+
+        IllegalArgumentException ex = Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> service.updatePhoto(existingId, null)
+        );
+
+        Assertions.assertEquals("Arquivo de foto vazio.", ex.getMessage());
+
+        Mockito.verify(repository, Mockito.times(1)).findById(existingId);
+        Mockito.verify(repository, Mockito.never()).save(ArgumentMatchers.any(User.class));
+    }
+
+    @Test
+    public void updatePhotoShouldThrowIllegalArgumentExceptionWhenFileIsEmpty() {
+
+        Long existingId = 1L;
+
+        MockMultipartFile emptyFile = new MockMultipartFile(
+                "file",
+                "photo.png",
+                "image/png",
+                new byte[0] // vazio
+        );
+
+        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(user));
+
+        IllegalArgumentException ex = Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> service.updatePhoto(existingId, emptyFile)
+        );
+
+        Assertions.assertEquals("Arquivo de foto vazio.", ex.getMessage());
+
+        Mockito.verify(repository, Mockito.times(1)).findById(existingId);
+        Mockito.verify(repository, Mockito.never()).save(ArgumentMatchers.any(User.class));
+    }
+
+    @Test
+    public void updatePhotoShouldThrowIllegalArgumentExceptionWhenContentTypeIsNull() {
+
+        Long existingId = 1L;
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "photo.png",
+                null, // contentType null
+                "bytes".getBytes()
+        );
+
+        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(user));
+
+        IllegalArgumentException ex = Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> service.updatePhoto(existingId, file)
+        );
+
+        Assertions.assertEquals("Tipo de arquivo inválido. Use JPG, PNG ou WEBP.", ex.getMessage());
+
+        Mockito.verify(repository, Mockito.times(1)).findById(existingId);
+        Mockito.verify(repository, Mockito.never()).save(ArgumentMatchers.any(User.class));
+    }
+
+    @Test
+    public void updatePhotoShouldThrowIllegalArgumentExceptionWhenContentTypeIsNotAllowed() {
+
+        Long existingId = 1L;
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "photo.gif",
+                "image/gif", // não permitido
+                "bytes".getBytes()
+        );
+
+        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(user));
+
+        IllegalArgumentException ex = Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> service.updatePhoto(existingId, file)
+        );
+
+        Assertions.assertEquals("Tipo de arquivo inválido. Use JPG, PNG ou WEBP.", ex.getMessage());
+
+        Mockito.verify(repository, Mockito.times(1)).findById(existingId);
+        Mockito.verify(repository, Mockito.never()).save(ArgumentMatchers.any(User.class));
+    }
+
+    @Test
+    public void updatePhotoShouldThrowIllegalArgumentExceptionWhenFileIsBiggerThan2MB() {
+
+        Long existingId = 1L;
+
+        byte[] bigBytes = new byte[(2 * 1024 * 1024) + 1];
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "photo.png",
+                "image/png",
+                bigBytes
+        );
+
+        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(user));
+
+        IllegalArgumentException ex = Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> service.updatePhoto(existingId, file)
+        );
+
+        Assertions.assertEquals("Foto muito grande. Máximo: 2MB.", ex.getMessage());
+
+        Mockito.verify(repository, Mockito.times(1)).findById(existingId);
+        Mockito.verify(repository, Mockito.never()).save(ArgumentMatchers.any(User.class));
+    }
+
+    @Test
+    public void updatePhotoShouldThrowRuntimeExceptionWhenGetBytesThrowsIOException() throws Exception {
+
+        Long existingId = 1L;
+
+        MultipartFile file = Mockito.mock(MultipartFile.class);
+
+        Mockito.when(file.isEmpty()).thenReturn(false);
+        Mockito.when(file.getContentType()).thenReturn("image/png");
+        Mockito.when(file.getSize()).thenReturn(1000L);
+        Mockito.when(file.getBytes()).thenThrow(new IOException("boom"));
+
+        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(user));
+
+        RuntimeException ex = Assertions.assertThrows(
+                RuntimeException.class,
+                () -> service.updatePhoto(existingId, file)
+        );
+
+        Assertions.assertEquals("Falha ao ler bytes do arquivo.", ex.getMessage());
+        Assertions.assertNotNull(ex.getCause());
+        Assertions.assertTrue(ex.getCause() instanceof IOException);
+
+        Mockito.verify(repository, Mockito.times(1)).findById(existingId);
+        Mockito.verify(repository, Mockito.never()).save(ArgumentMatchers.any(User.class));
+    }
+
+
+    @Test
+    public void getPhotoShouldReturnUserPhotoDTOWhenUserAndPhotoExist() {
+
+        Long existingId = 1L;
+
+        byte[] bytes = "image-bytes".getBytes();
+        User entity = UserFactory.createUser();
+        entity.setId(existingId);
+        entity.setPhoto(bytes);
+        entity.setPhotoContentType("image/jpeg");
+
+        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(entity));
+
+        UserPhotoDTO result = service.getPhoto(existingId);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertArrayEquals(bytes, result.getPhoto());
+        Assertions.assertEquals("image/jpeg", result.getContentType());
+
+        Mockito.verify(repository, Mockito.times(1)).findById(existingId);
+    }
+
+    @Test
+    public void getPhotoShouldThrowResourceNotFoundExceptionWhenUserDoesNotExist() {
+
+        Long nonExistingId = 1000L;
+
+        Mockito.when(repository.findById(nonExistingId)).thenReturn(Optional.empty());
+
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> service.getPhoto(nonExistingId));
+
+        Mockito.verify(repository, Mockito.times(1)).findById(nonExistingId);
+    }
+
+    @Test
+    public void getPhotoShouldThrowResourceNotFoundExceptionWhenPhotoIsNull() {
+
+        Long existingId = 1L;
+
+        User entity = UserFactory.createUser();
+        entity.setId(existingId);
+        entity.setPhoto(null);
+        entity.setPhotoContentType(null);
+
+        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(entity));
+
+        ResourceNotFoundException ex = Assertions.assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.getPhoto(existingId)
+        );
+
+        Assertions.assertEquals("User photo not found: " + existingId, ex.getMessage());
+
+        Mockito.verify(repository, Mockito.times(1)).findById(existingId);
+    }
+
+    @Test
+    public void getPhotoShouldReturnDTOEvenWhenContentTypeIsNullIfPhotoExists() {
+
+        Long existingId = 1L;
+
+        byte[] bytes = "image-bytes".getBytes();
+        User entity = UserFactory.createUser();
+        entity.setId(existingId);
+        entity.setPhoto(bytes);
+        entity.setPhotoContentType(null); // null mesmo
+
+        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(entity));
+
+        UserPhotoDTO result = service.getPhoto(existingId);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertArrayEquals(bytes, result.getPhoto());
+        Assertions.assertNull(result.getContentType());
+
+        Mockito.verify(repository, Mockito.times(1)).findById(existingId);
     }
 }

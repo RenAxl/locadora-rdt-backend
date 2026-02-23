@@ -28,11 +28,9 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 
         http
                 .authorizeRequests()
-
-
-                .antMatchers("/oauth/token", "/h2-console/**").permitAll()
+                .antMatchers("/oauth/token").permitAll()
+                .antMatchers("/h2-console", "/h2-console/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/users/activate").permitAll()
-
                 .antMatchers(HttpMethod.GET, "/users/me").authenticated()
 
                 .antMatchers(HttpMethod.GET, "/users/**")
@@ -53,9 +51,10 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 
                 .antMatchers(HttpMethod.GET, "/permissions/**").hasAuthority("PERMISSION_READ")
 
-                .anyRequest().authenticated();
-
-        http.csrf().disable();
+                .anyRequest().authenticated()
+                .and()
+                .csrf().disable()
+                .headers().frameOptions().sameOrigin();
     }
 
 

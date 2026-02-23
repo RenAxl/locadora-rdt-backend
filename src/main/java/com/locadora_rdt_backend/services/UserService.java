@@ -15,6 +15,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -22,13 +23,16 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.persistence.EntityNotFoundException;
+import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -55,6 +59,8 @@ public class UserService {
 
     @Value("${app.activation.token-minutes:30}")
     private long tokenMinutes;
+
+    private static final Set<String> ALLOWED_TYPES = Set.of("image/jpeg", "image/png", "image/webp");
 
 
     @Transactional(readOnly = true)
@@ -241,6 +247,50 @@ public class UserService {
         }
 
         return new UserDTO(user);
+    }
+
+    @Transactional
+    public void updatePhoto(Long id, MultipartFile file) {
+        User entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + id));
+
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("Arquivo de foto vazio.");
+        }
+
+        String contentType = file.getContentType();
+        if (contentType == null || !ALLOWED_TYPES.contains(contentType)) {
+            throw new IllegalArgumentException("Tipo de arquivo inválido. Use JPG, PNG ou WEBP.");
+        }
+
+        long maxBytes = 2L * 1024 * 1024;
+        if (file.getSize() > maxBytes) {
+            throw new IllegalArgumentException("Foto muito grande. Máximo: 2MB.");
+        }
+
+        try {
+            entity.setPhoto(file.getBytes());
+            entity.setPhotoContentType(contentType);
+        } catch (IOException e) {
+            throw new RuntimeException("Falha ao ler bytes do arquivo.", e);
+        }
+
+        repository.save(entity);
+    }
+
+    @Transactional(readOnly = true)
+    public UserPhotoDTO getPhoto(Long id) {
+        User entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + id));
+
+        if (entity.getPhoto() == null) {
+            throw new ResourceNotFoundException("User photo not found: " + id);
+        }
+
+        return new UserPhotoDTO(
+                entity.getPhoto(),
+                entity.getPhotoContentType()
+        );
     }
 
 }
