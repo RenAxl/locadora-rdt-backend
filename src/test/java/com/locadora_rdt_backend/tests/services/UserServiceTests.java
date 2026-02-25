@@ -889,11 +889,9 @@ public class UserServiceTests {
         Assertions.assertEquals(TokenType.PASSWORD_RESET, savedToken.getType());
         Assertions.assertEquals(activeUser, savedToken.getUser());
 
-        // expiration deve ser no futuro
         Assertions.assertNotNull(savedToken.getExpiration());
         Assertions.assertTrue(savedToken.getExpiration().isAfter(Instant.now()));
 
-        // Assert - email enviado (captura HTML para validar o link e o token)
         ArgumentCaptor<String> toCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> subjectCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> htmlCaptor = ArgumentCaptor.forClass(String.class);

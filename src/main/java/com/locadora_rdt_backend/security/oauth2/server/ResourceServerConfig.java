@@ -32,6 +32,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .antMatchers("/h2-console", "/h2-console/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/users/activate").permitAll()
                 .antMatchers(HttpMethod.POST, "/users/forgot-password").permitAll()
+                .antMatchers(HttpMethod.POST, "/users/reset-password").permitAll()
                 .antMatchers(HttpMethod.GET, "/users/me").authenticated()
 
                 .antMatchers(HttpMethod.GET, "/users/**")

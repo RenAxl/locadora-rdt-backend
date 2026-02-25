@@ -134,6 +134,12 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(@RequestParam String token, @Valid @RequestBody NewPasswordDTO dto) {
+        service.resetPassword(token, dto);
+        return ResponseEntity.noContent().build();
+    }
+
 }
 
 

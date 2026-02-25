@@ -439,6 +439,33 @@ public class UserService {
                 "</body></html>";
     }
 
+    @Transactional
+    public void resetPassword(String token, NewPasswordDTO dto) {
+
+        if (token == null || token.isBlank()) {
+            throw new IllegalArgumentException("Token inválido");
+        }
+
+        if (dto == null || dto.getPassword() == null || dto.getPassword().isBlank()) {
+            throw new IllegalArgumentException("Senha inválida");
+        }
+
+        PasswordResetToken prt = tokenRepository
+                .findByTokenAndTypeAndExpirationAfter(token, TokenType.PASSWORD_RESET, Instant.now())
+                .orElseThrow(() -> new RuntimeException("Token inválido ou expirado"));
+
+        User user = prt.getUser();
+
+        if (user.getPassword() != null && passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("A nova senha não pode ser igual à senha atual");
+        }
+
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        repository.save(user);
+
+        tokenRepository.delete(prt);
+    }
+
 }
 
 
