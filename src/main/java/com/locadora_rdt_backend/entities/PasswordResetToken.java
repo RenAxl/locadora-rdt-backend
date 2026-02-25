@@ -1,7 +1,8 @@
 package com.locadora_rdt_backend.entities;
 
-import java.time.Instant;
+import com.locadora_rdt_backend.entities.enums.TokenType;
 
+import java.time.Instant;
 import javax.persistence.*;
 
 @Entity
@@ -18,8 +19,12 @@ public class PasswordResetToken {
     @Column(nullable = false)
     private Instant expiration;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TokenType type;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     public PasswordResetToken() {}
@@ -36,6 +41,10 @@ public class PasswordResetToken {
         return expiration;
     }
 
+    public TokenType getType() {
+        return type;
+    }
+
     public User getUser() {
         return user;
     }
@@ -50,6 +59,10 @@ public class PasswordResetToken {
 
     public void setExpiration(Instant expiration) {
         this.expiration = expiration;
+    }
+
+    public void setType(TokenType type) {
+        this.type = type;
     }
 
     public void setUser(User user) {

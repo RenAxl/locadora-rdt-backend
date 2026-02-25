@@ -4,6 +4,7 @@ import com.locadora_rdt_backend.dto.*;
 import com.locadora_rdt_backend.entities.PasswordResetToken;
 import com.locadora_rdt_backend.entities.Role;
 import com.locadora_rdt_backend.entities.User;
+import com.locadora_rdt_backend.entities.enums.TokenType;
 import com.locadora_rdt_backend.repositories.PasswordResetTokenRepository;
 import com.locadora_rdt_backend.repositories.RoleRepository;
 import com.locadora_rdt_backend.repositories.UserRepository;
@@ -175,15 +176,17 @@ public class UserService {
         }
     }
 
-
     private void createActivationTokenAndSendEmail(User user) {
         String token = UUID.randomUUID().toString();
         Instant expiration = Instant.now().plus(tokenMinutes, ChronoUnit.MINUTES);
+
+        tokenRepository.deleteByUserIdAndType(user.getId(), TokenType.ACTIVATION);
 
         PasswordResetToken prt = new PasswordResetToken();
         prt.setToken(token);
         prt.setUser(user);
         prt.setExpiration(expiration);
+        prt.setType(TokenType.ACTIVATION); // ✅ ESSENCIAL AGORA
 
         tokenRepository.save(prt);
 
@@ -223,8 +226,9 @@ public class UserService {
 
     @Transactional
     public void activateAccount(String token, NewPasswordDTO dto) {
+
         PasswordResetToken prt = tokenRepository
-                .findByTokenAndExpirationAfter(token, Instant.now())
+                .findByTokenAndTypeAndExpirationAfter(token, TokenType.ACTIVATION, Instant.now())
                 .orElseThrow(() -> new RuntimeException("Token inválido ou expirado"));
 
         User user = prt.getUser();
@@ -377,6 +381,62 @@ public class UserService {
                 user.getPhoto(),
                 user.getPhotoContentType()
         );
+    }
+
+    @Transactional
+    public void requestPasswordReset(ForgotPasswordDTO dto) {
+
+        if (dto == null || dto.getEmail() == null || dto.getEmail().isBlank()) {
+            return;
+        }
+
+        User user = repository.findByEmail(dto.getEmail().trim());
+
+        if (user == null) {
+            return;
+        }
+
+        if (!user.isActive()) {
+            return;
+        }
+
+        tokenRepository.deleteByUserIdAndType(user.getId(), TokenType.PASSWORD_RESET);
+
+        String token = UUID.randomUUID().toString();
+        Instant expiration = Instant.now().plus(tokenMinutes, ChronoUnit.MINUTES);
+
+        PasswordResetToken prt = new PasswordResetToken();
+        prt.setToken(token);
+        prt.setUser(user);
+        prt.setExpiration(expiration);
+        prt.setType(TokenType.PASSWORD_RESET);
+
+        tokenRepository.save(prt);
+
+        String link = UriComponentsBuilder
+                .fromHttpUrl(frontendBaseUrl)
+                .path("/auth/reset-password")
+                .queryParam("token", token)
+                .toUriString();
+
+        String html = buildPasswordResetEmailHtml(user.getName(), link, tokenMinutes);
+
+        emailService.sendHtmlEmail(user.getEmail(), "Recuperação de senha - Locadora RDT", html);
+    }
+
+    private String buildPasswordResetEmailHtml(String name, String link, long minutes) {
+        return "<!DOCTYPE html>" +
+                "<html><head><meta charset='UTF-8'></head><body style='font-family: Arial, sans-serif;'>" +
+                "<h2>Recuperação de senha 🔐</h2>" +
+                "<p>Olá, <b>" + escape(name) + "</b>!</p>" +
+                "<p>Recebemos uma solicitação para redefinir sua senha. Clique no botão abaixo:</p>" +
+                "<p style='margin: 24px 0;'>" +
+                "<a href='" + link + "' style='background:#0d6efd;color:#fff;padding:12px 18px;text-decoration:none;border-radius:6px;'>Redefinir minha senha</a>" +
+                "</p>" +
+                "<p>Este link expira em <b>" + minutes + " minutos</b>.</p>" +
+                "<p>Se você não solicitou, pode ignorar este e-mail.</p>" +
+                "<p>Equipe <b>Locadora RDT</b></p>" +
+                "</body></html>";
     }
 
 }

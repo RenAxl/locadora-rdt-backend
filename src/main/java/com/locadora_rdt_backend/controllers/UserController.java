@@ -128,6 +128,12 @@ public class UserController {
                 .body(dto.getPhoto());
     }
 
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Void> forgotPassword(@Valid @RequestBody ForgotPasswordDTO dto) {
+        service.requestPasswordReset(dto);
+        return ResponseEntity.noContent().build();
+    }
+
 }
 
 

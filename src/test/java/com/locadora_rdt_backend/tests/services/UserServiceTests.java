@@ -1,12 +1,15 @@
 package com.locadora_rdt_backend.tests.services;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
 import com.locadora_rdt_backend.dto.*;
+import com.locadora_rdt_backend.entities.PasswordResetToken;
 import com.locadora_rdt_backend.entities.Role;
 import com.locadora_rdt_backend.entities.User;
+import com.locadora_rdt_backend.entities.enums.TokenType;
 import com.locadora_rdt_backend.repositories.PasswordResetTokenRepository;
 import com.locadora_rdt_backend.repositories.RoleRepository;
 import com.locadora_rdt_backend.repositories.UserRepository;
@@ -820,4 +823,90 @@ public class UserServiceTests {
 
         Mockito.verify(repository, Mockito.times(1)).findByEmail("renan@teste.com");
     }
+
+    @Test
+    public void requestPasswordResetShouldDoNothingWhenEmailNotFound() {
+
+        ForgotPasswordDTO dto = new ForgotPasswordDTO();
+        dto.setEmail("naoexiste@teste.com");
+
+        Mockito.when(repository.findByEmail("naoexiste@teste.com")).thenReturn(null);
+
+        Assertions.assertDoesNotThrow(() -> service.requestPasswordReset(dto));
+
+        Mockito.verify(repository, Mockito.times(1)).findByEmail("naoexiste@teste.com");
+        Mockito.verify(tokenRepository, Mockito.never()).deleteByUserIdAndType(Mockito.anyLong(), Mockito.any());
+        Mockito.verify(tokenRepository, Mockito.never()).save(Mockito.any());
+        Mockito.verify(emailService, Mockito.never()).sendHtmlEmail(Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
+    }
+
+    @Test
+    public void requestPasswordResetShouldDoNothingWhenUserIsInactive() {
+
+        ForgotPasswordDTO dto = new ForgotPasswordDTO();
+        dto.setEmail("inativo@teste.com");
+
+        User inactiveUser = UserFactory.createUser();
+        inactiveUser.setId(10L);
+        inactiveUser.setEmail("inativo@teste.com");
+        inactiveUser.setActive(false);
+
+        Mockito.when(repository.findByEmail("inativo@teste.com")).thenReturn(inactiveUser);
+
+        Assertions.assertDoesNotThrow(() -> service.requestPasswordReset(dto));
+
+        Mockito.verify(repository, Mockito.times(1)).findByEmail("inativo@teste.com");
+        Mockito.verify(tokenRepository, Mockito.never()).deleteByUserIdAndType(Mockito.anyLong(), Mockito.any());
+        Mockito.verify(tokenRepository, Mockito.never()).save(Mockito.any());
+        Mockito.verify(emailService, Mockito.never()).sendHtmlEmail(Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
+    }
+
+    @Test
+    public void requestPasswordResetShouldCreateTokenAndSendEmailWhenUserIsActive() {
+
+        ForgotPasswordDTO dto = new ForgotPasswordDTO();
+        dto.setEmail("ativo@teste.com");
+
+        User activeUser = UserFactory.createUser();
+        activeUser.setId(1L);
+        activeUser.setName("Renan");
+        activeUser.setEmail("ativo@teste.com");
+        activeUser.setActive(true);
+
+        Mockito.when(repository.findByEmail("ativo@teste.com")).thenReturn(activeUser);
+
+        Assertions.assertDoesNotThrow(() -> service.requestPasswordReset(dto));
+
+        Mockito.verify(tokenRepository, Mockito.times(1))
+                .deleteByUserIdAndType(1L, TokenType.PASSWORD_RESET);
+
+        ArgumentCaptor<PasswordResetToken> tokenCaptor = ArgumentCaptor.forClass(PasswordResetToken.class);
+        Mockito.verify(tokenRepository, Mockito.times(1)).save(tokenCaptor.capture());
+
+        PasswordResetToken savedToken = tokenCaptor.getValue();
+        Assertions.assertNotNull(savedToken.getToken());
+        Assertions.assertFalse(savedToken.getToken().isBlank());
+        Assertions.assertEquals(TokenType.PASSWORD_RESET, savedToken.getType());
+        Assertions.assertEquals(activeUser, savedToken.getUser());
+
+        // expiration deve ser no futuro
+        Assertions.assertNotNull(savedToken.getExpiration());
+        Assertions.assertTrue(savedToken.getExpiration().isAfter(Instant.now()));
+
+        // Assert - email enviado (captura HTML para validar o link e o token)
+        ArgumentCaptor<String> toCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> subjectCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> htmlCaptor = ArgumentCaptor.forClass(String.class);
+
+        Mockito.verify(emailService, Mockito.times(1))
+                .sendHtmlEmail(toCaptor.capture(), subjectCaptor.capture(), htmlCaptor.capture());
+
+        Assertions.assertEquals("ativo@teste.com", toCaptor.getValue());
+        Assertions.assertTrue(subjectCaptor.getValue().contains("Recuperação de senha"));
+
+        String html = htmlCaptor.getValue();
+        Assertions.assertTrue(html.contains("/auth/reset-password"));
+        Assertions.assertTrue(html.contains("token=" + savedToken.getToken()));
+    }
+
 }

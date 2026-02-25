@@ -1,7 +1,6 @@
 package com.locadora_rdt_backend.tests.controllers;
 
-import com.locadora_rdt_backend.dto.ChangePasswordDTO;
-import com.locadora_rdt_backend.dto.UserPhotoDTO;
+import com.locadora_rdt_backend.dto.*;
 import com.locadora_rdt_backend.services.exceptions.ResourceNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,8 +25,6 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.locadora_rdt_backend.controllers.UserController;
-import com.locadora_rdt_backend.dto.UserDTO;
-import com.locadora_rdt_backend.dto.UserInsertDTO;
 import com.locadora_rdt_backend.services.UserService;
 import com.locadora_rdt_backend.tests.factory.UserFactory;
 
@@ -628,6 +625,59 @@ public class UserControllerTests {
         );
 
         Mockito.verify(service, Mockito.times(1)).getMyPhoto(authentication);
+    }
+
+    @Test
+    public void forgotPasswordShouldReturnNoContentAndCallService() {
+
+        ForgotPasswordDTO dto = new ForgotPasswordDTO();
+        dto.setEmail("renan.duarte@email.com");
+
+        Mockito.doNothing().when(service).requestPasswordReset(dto);
+
+        ResponseEntity<Void> response = controller.forgotPassword(dto);
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(204, response.getStatusCodeValue());
+        Assertions.assertNull(response.getBody());
+
+        Mockito.verify(service, Mockito.times(1)).requestPasswordReset(dto);
+    }
+
+    @Test
+    public void forgotPasswordShouldThrowRuntimeExceptionWhenServiceThrowsRuntimeException() {
+
+        ForgotPasswordDTO dto = new ForgotPasswordDTO();
+        dto.setEmail("renan.duarte@email.com");
+
+        Mockito.doThrow(new RuntimeException("Erro SMTP"))
+                .when(service).requestPasswordReset(dto);
+
+        RuntimeException ex = Assertions.assertThrows(
+                RuntimeException.class,
+                () -> controller.forgotPassword(dto)
+        );
+
+        Assertions.assertEquals("Erro SMTP", ex.getMessage());
+        Mockito.verify(service, Mockito.times(1)).requestPasswordReset(dto);
+    }
+
+    @Test
+    public void forgotPasswordShouldThrowIllegalArgumentExceptionWhenServiceThrowsIllegalArgumentException() {
+
+        ForgotPasswordDTO dto = new ForgotPasswordDTO();
+        dto.setEmail("email_invalido");
+
+        Mockito.doThrow(new IllegalArgumentException("Email inválido"))
+                .when(service).requestPasswordReset(dto);
+
+        IllegalArgumentException ex = Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> controller.forgotPassword(dto)
+        );
+
+        Assertions.assertEquals("Email inválido", ex.getMessage());
+        Mockito.verify(service, Mockito.times(1)).requestPasswordReset(dto);
     }
 
 }
