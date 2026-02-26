@@ -680,4 +680,59 @@ public class UserControllerTests {
         Mockito.verify(service, Mockito.times(1)).requestPasswordReset(dto);
     }
 
+    @Test
+    public void resetPasswordShouldReturnNoContentAndCallService() {
+
+        String token = "valid-token";
+        NewPasswordDTO dto = new NewPasswordDTO("newPass123");
+
+        Mockito.doNothing().when(service).resetPassword(token, dto);
+
+        ResponseEntity<Void> response = controller.resetPassword(token, dto);
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(204, response.getStatusCodeValue());
+        Assertions.assertNull(response.getBody());
+
+        Mockito.verify(service, Mockito.times(1)).resetPassword(token, dto);
+    }
+
+    @Test
+    public void resetPasswordShouldThrowRuntimeExceptionWhenServiceThrowsRuntimeException() {
+
+        String token = "valid-token";
+        NewPasswordDTO dto = new NewPasswordDTO("newPass123");
+
+        Mockito.doThrow(new RuntimeException("Token inválido ou expirado"))
+                .when(service).resetPassword(token, dto);
+
+        RuntimeException ex = Assertions.assertThrows(
+                RuntimeException.class,
+                () -> controller.resetPassword(token, dto)
+        );
+
+        Assertions.assertEquals("Token inválido ou expirado", ex.getMessage());
+
+        Mockito.verify(service, Mockito.times(1)).resetPassword(token, dto);
+    }
+
+    @Test
+    public void resetPasswordShouldThrowIllegalArgumentExceptionWhenServiceThrowsIllegalArgumentException() {
+
+        String token = "valid-token";
+        NewPasswordDTO dto = new NewPasswordDTO("samePass123");
+
+        Mockito.doThrow(new IllegalArgumentException("A nova senha não pode ser igual à senha atual"))
+                .when(service).resetPassword(token, dto);
+
+        IllegalArgumentException ex = Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> controller.resetPassword(token, dto)
+        );
+
+        Assertions.assertEquals("A nova senha não pode ser igual à senha atual", ex.getMessage());
+
+        Mockito.verify(service, Mockito.times(1)).resetPassword(token, dto);
+    }
+
 }

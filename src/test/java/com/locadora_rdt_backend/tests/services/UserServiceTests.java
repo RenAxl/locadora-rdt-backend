@@ -903,8 +903,87 @@ public class UserServiceTests {
         Assertions.assertTrue(subjectCaptor.getValue().contains("Recuperação de senha"));
 
         String html = htmlCaptor.getValue();
-        Assertions.assertTrue(html.contains("/auth/reset-password"));
+        Assertions.assertTrue(html.contains("/auth/reset"));
         Assertions.assertTrue(html.contains("token=" + savedToken.getToken()));
+    }
+
+    @Test
+    public void resetPasswordShouldThrowIllegalArgumentExceptionWhenTokenIsBlank() {
+
+        String token = "   ";
+        NewPasswordDTO dto = new NewPasswordDTO("newPass123");
+
+        IllegalArgumentException ex = Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> service.resetPassword(token, dto)
+        );
+
+        Assertions.assertEquals("Token inválido", ex.getMessage());
+
+        Mockito.verify(tokenRepository, Mockito.never())
+                .findByTokenAndTypeAndExpirationAfter(Mockito.anyString(), Mockito.any(), Mockito.any());
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any(User.class));
+        Mockito.verify(tokenRepository, Mockito.never()).delete(Mockito.any());
+    }
+
+    @Test
+    public void resetPasswordShouldThrowRuntimeExceptionWhenTokenIsInvalidOrExpired() {
+
+        String token = "invalid-token";
+        NewPasswordDTO dto = new NewPasswordDTO("newPass123");
+
+        Mockito.when(tokenRepository.findByTokenAndTypeAndExpirationAfter(
+                ArgumentMatchers.eq(token),
+                ArgumentMatchers.eq(TokenType.PASSWORD_RESET),
+                ArgumentMatchers.any(Instant.class)
+        )).thenReturn(Optional.empty());
+
+        RuntimeException ex = Assertions.assertThrows(
+                RuntimeException.class,
+                () -> service.resetPassword(token, dto)
+        );
+
+        Assertions.assertEquals("Token inválido ou expirado", ex.getMessage());
+
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any(User.class));
+        Mockito.verify(tokenRepository, Mockito.never()).delete(Mockito.any());
+        Mockito.verify(passwordEncoder, Mockito.never()).encode(Mockito.anyString());
+    }
+
+    @Test
+    public void resetPasswordShouldThrowIllegalArgumentExceptionWhenNewPasswordEqualsCurrentPassword() {
+
+        String token = "valid-token";
+        NewPasswordDTO dto = new NewPasswordDTO("samePass123");
+
+        User u = UserFactory.createUser();
+        u.setId(1L);
+        u.setPassword("ENC_CURRENT");
+
+        PasswordResetToken prt = new PasswordResetToken();
+        prt.setToken(token);
+        prt.setType(TokenType.PASSWORD_RESET);
+        prt.setUser(u);
+        prt.setExpiration(Instant.now().plusSeconds(60));
+
+        Mockito.when(tokenRepository.findByTokenAndTypeAndExpirationAfter(
+                ArgumentMatchers.eq(token),
+                ArgumentMatchers.eq(TokenType.PASSWORD_RESET),
+                ArgumentMatchers.any(Instant.class)
+        )).thenReturn(Optional.of(prt));
+
+        Mockito.when(passwordEncoder.matches("samePass123", "ENC_CURRENT")).thenReturn(true);
+
+        IllegalArgumentException ex = Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> service.resetPassword(token, dto)
+        );
+
+        Assertions.assertEquals("A nova senha não pode ser igual à senha atual", ex.getMessage());
+
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any(User.class));
+        Mockito.verify(tokenRepository, Mockito.never()).delete(Mockito.any());
+        Mockito.verify(passwordEncoder, Mockito.never()).encode(Mockito.anyString());
     }
 
 }

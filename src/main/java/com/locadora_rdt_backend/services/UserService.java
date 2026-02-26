@@ -415,7 +415,7 @@ public class UserService {
 
         String link = UriComponentsBuilder
                 .fromHttpUrl(frontendBaseUrl)
-                .path("/auth/reset-password")
+                .path("/auth/reset")
                 .queryParam("token", token)
                 .toUriString();
 
