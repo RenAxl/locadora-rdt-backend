@@ -1,6 +1,7 @@
 package com.locadora_rdt_backend.entities;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Type;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,7 +32,9 @@ public class User implements UserDetails, Serializable {
     private String address;
 
     @Lob
-    @Column(name = "photo_data")
+    @Basic(fetch = FetchType.LAZY)
+    @Type(type = "org.hibernate.type.BinaryType")
+    @Column(name = "photo_data", columnDefinition = "BYTEA")
     private byte[] photo;
 
     @Column(name = "photo_content_type")

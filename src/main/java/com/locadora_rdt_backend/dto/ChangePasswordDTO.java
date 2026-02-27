@@ -9,7 +9,7 @@ public class ChangePasswordDTO {
     private String currentPassword;
 
     @NotBlank(message = "Nova senha é obrigatória")
-    @Size(min = 8, message = "A nova senha deve ter no mínimo 8 caracteres")
+    @Size(min = 6, message = "A nova senha deve ter no mínimo 6 caracteres")
     private String newPassword;
 
     public ChangePasswordDTO() {}

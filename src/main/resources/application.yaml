@@ -2,15 +2,8 @@ spring:
   application:
     name: locadora-rdt-backend
 
-  datasource:
-    url: jdbc:h2:mem:testdb-locadora
-    username: sa
-    password:
-
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+  profiles:
+    active: dev
 
   mail:
     host: smtp.gmail.com
@@ -42,4 +35,3 @@ app:
     base-url: http://localhost:4200
   activation:
     token-minutes: 30
-
