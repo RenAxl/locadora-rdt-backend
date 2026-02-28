@@ -986,4 +986,52 @@ public class UserServiceTests {
         Mockito.verify(passwordEncoder, Mockito.never()).encode(Mockito.anyString());
     }
 
+    @Test
+    public void getUserPhotoByIdShouldThrowIllegalArgumentExceptionWhenIdIsNull() {
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> service.getUserPhotoById(null));
+
+        Mockito.verify(repository, Mockito.never()).findById(ArgumentMatchers.anyLong());
+    }
+
+    @Test
+    public void getUserPhotoByIdShouldThrowResourceNotFoundExceptionWhenUserDoesNotExist() {
+
+        Long nonExistingId = 1000L;
+
+        Mockito.when(repository.findById(nonExistingId)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException ex = Assertions.assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.getUserPhotoById(nonExistingId)
+        );
+
+        Assertions.assertTrue(ex.getMessage().contains("User not found: " + nonExistingId));
+
+        Mockito.verify(repository, Mockito.times(1)).findById(nonExistingId);
+    }
+
+    @Test
+    public void getUserPhotoByIdShouldReturnUserPhotoDTOWhenUserAndPhotoExist() {
+
+        Long existingId = 1L;
+
+        byte[] bytes = "image-bytes".getBytes();
+
+        User found = UserFactory.createUser();
+        found.setId(existingId);
+        found.setPhoto(bytes);
+        found.setPhotoContentType("image/png");
+
+        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(found));
+
+        UserPhotoDTO result = service.getUserPhotoById(existingId);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertArrayEquals(bytes, result.getPhoto());
+        Assertions.assertEquals("image/png", result.getContentType());
+
+        Mockito.verify(repository, Mockito.times(1)).findById(existingId);
+    }
+
 }

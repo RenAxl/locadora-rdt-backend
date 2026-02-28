@@ -735,4 +735,65 @@ public class UserControllerTests {
         Mockito.verify(service, Mockito.times(1)).resetPassword(token, dto);
     }
 
+    @Test
+    public void getUserPhotoByIdShouldReturnOkWithBytesAndHeadersWhenServiceReturnsValidDTO() {
+
+        Long existingId = 1L;
+
+        byte[] photoBytes = "image-bytes".getBytes();
+        UserPhotoDTO dto = new UserPhotoDTO(photoBytes, "image/png");
+
+        Mockito.when(service.getUserPhotoById(existingId)).thenReturn(dto);
+
+        ResponseEntity<byte[]> response = controller.getUserPhotoById(existingId);
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(200, response.getStatusCodeValue());
+
+        Assertions.assertNotNull(response.getBody());
+        Assertions.assertArrayEquals(photoBytes, response.getBody());
+
+        Assertions.assertEquals(MediaType.parseMediaType("image/png"), response.getHeaders().getContentType());
+
+        String cacheControl = response.getHeaders().getCacheControl();
+        Assertions.assertNotNull(cacheControl);
+        Assertions.assertTrue(cacheControl.contains("no-cache"));
+
+        Mockito.verify(service, Mockito.times(1)).getUserPhotoById(existingId);
+    }
+
+    @Test
+    public void getUserPhotoByIdShouldReturnNoContentWhenServiceReturnsNull() {
+
+        Long existingId = 1L;
+
+        Mockito.when(service.getUserPhotoById(existingId)).thenReturn(null);
+
+        ResponseEntity<byte[]> response = controller.getUserPhotoById(existingId);
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(204, response.getStatusCodeValue());
+        Assertions.assertNull(response.getBody());
+
+        Mockito.verify(service, Mockito.times(1)).getUserPhotoById(existingId);
+    }
+
+    @Test
+    public void getUserPhotoByIdShouldReturnNoContentWhenServiceReturnsEmptyPhoto() {
+
+        Long existingId = 1L;
+
+        UserPhotoDTO dto = new UserPhotoDTO(new byte[0], "image/jpeg"); // foto vazia -> 204
+
+        Mockito.when(service.getUserPhotoById(existingId)).thenReturn(dto);
+
+        ResponseEntity<byte[]> response = controller.getUserPhotoById(existingId);
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(204, response.getStatusCodeValue());
+        Assertions.assertNull(response.getBody());
+
+        Mockito.verify(service, Mockito.times(1)).getUserPhotoById(existingId);
+    }
+
 }

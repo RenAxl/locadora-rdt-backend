@@ -119,6 +119,11 @@ public class UserController {
 
         UserPhotoDTO dto = service.getMyPhoto(authentication);
 
+        // Sem foto é status 204. Isto é para não aparecer erro no frontend quando não tiver foto.
+        if (dto == null || dto.getPhoto() == null || dto.getPhoto().length == 0) {
+            return ResponseEntity.noContent().build();
+        }
+
         MediaType mediaType = MediaType.parseMediaType(dto.getContentType());
 
         return ResponseEntity.ok()
@@ -139,7 +144,26 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping(value = "/{id}/photo")
+    public ResponseEntity<byte[]> getUserPhotoById(@PathVariable Long id) {
+
+        UserPhotoDTO dto = service.getUserPhotoById(id);
+
+        // Sem foto é status 204. Isto é para não aparecer erro no frontend quando não tiver foto.
+        if (dto == null || dto.getPhoto() == null || dto.getPhoto().length == 0) {
+            return ResponseEntity.noContent().build();
+        }
+
+        MediaType mediaType = MediaType.parseMediaType(dto.getContentType());
+
+        return ResponseEntity.ok()
+                .contentType(mediaType)
+                .cacheControl(CacheControl.noCache())
+                .body(dto.getPhoto());
+    }
+
 }
+
 
 
 

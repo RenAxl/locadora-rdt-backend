@@ -363,18 +363,20 @@ public class UserService {
     public UserPhotoDTO getMyPhoto(Authentication authentication) {
 
         if (authentication == null) {
-            throw new NullPointerException("authentication is null");
+            throw new UsernameNotFoundException("Usuário não autenticado");
         }
 
         String username = authentication.getName(); // email do usuário logado
+
         User user = repository.findByEmail(username);
 
         if (user == null) {
             throw new UsernameNotFoundException("Usuário não encontrado");
         }
 
-        if (user.getPhoto() == null) {
-            throw new ResourceNotFoundException("User photo not found: " + user.getId());
+        // Sem foto retorna null, isto é para não erro no frontend quando não tiver foto.
+        if (user.getPhoto() == null || user.getPhoto().length == 0) {
+            return null;
         }
 
         return new UserPhotoDTO(
@@ -464,6 +466,27 @@ public class UserService {
         repository.save(user);
 
         tokenRepository.delete(prt);
+    }
+
+    @Transactional(readOnly = true)
+    public UserPhotoDTO getUserPhotoById(Long id) {
+
+        if (id == null) {
+            throw new IllegalArgumentException("id is null");
+        }
+
+        User user = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + id));
+
+        // Sem foto -> retorna null (Controller responde 204)
+        if (user.getPhoto() == null || user.getPhoto().length == 0) {
+            return null;
+        }
+
+        return new UserPhotoDTO(
+                user.getPhoto(),
+                user.getPhotoContentType()
+        );
     }
 
 }
