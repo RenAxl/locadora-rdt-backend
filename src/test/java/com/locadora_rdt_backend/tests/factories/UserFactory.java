@@ -1,0 +1,61 @@
+package com.locadora_rdt_backend.tests.factories;
+
+import java.time.Instant;
+import java.util.List;
+
+import com.locadora_rdt_backend.modules.roles.dto.RoleDTO;
+import com.locadora_rdt_backend.modules.users.dto.UserDTO;
+import com.locadora_rdt_backend.modules.users.dto.UserInsertDTO;
+import com.locadora_rdt_backend.modules.roles.model.Role;
+import com.locadora_rdt_backend.modules.users.model.User;
+
+public class UserFactory {
+
+    public static User createUser() {
+        User user = new User();
+        user.setId(1L);
+        user.setName("Renan Duarte");
+        user.setEmail("renan@email.com");
+        user.setPassword("123456"); // opcional
+        user.setActive(true);
+        user.setTelephone("31999999999");
+        user.setAddress("Rua A, 123");
+
+        user.setPhoto("fake-image".getBytes());
+        user.setPhotoContentType("image/jpeg");
+        user.setDate(Instant.now());
+
+        Role role = createRole();
+        user.getRoles().add(role);
+
+        return user;
+    }
+
+    public static UserDTO createUserDTO() {
+        return new UserDTO(createUser());
+    }
+
+    public static Role createRole() {
+        Role role = new Role();
+        role.setId(1L);
+        role.setAuthority("ROLE_ADMIN");
+        return role;
+    }
+
+    public static RoleDTO createRoleDTO() {
+        RoleDTO dto = new RoleDTO();
+        dto.setId(1L);
+        dto.setAuthority("ROLE_ADMIN");
+        return dto;
+    }
+
+    public static UserInsertDTO createUserInsertDTO() {
+        UserInsertDTO dto = new UserInsertDTO();
+        dto.setName("Renan Duarte");
+        dto.setEmail("renan@email.com");
+        dto.setTelephone("31999999999");
+        dto.setAddress("Rua A, 123");
+        dto.setRoles(List.of(createRoleDTO()));
+        return dto;
+    }
+}

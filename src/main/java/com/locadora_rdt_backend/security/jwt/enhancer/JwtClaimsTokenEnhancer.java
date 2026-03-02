@@ -3,8 +3,8 @@ package com.locadora_rdt_backend.security.jwt.enhancer;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.locadora_rdt_backend.entities.User;
-import com.locadora_rdt_backend.repositories.UserRepository;
+import com.locadora_rdt_backend.modules.users.model.User;
+import com.locadora_rdt_backend.modules.users.repository.UserRepository;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 

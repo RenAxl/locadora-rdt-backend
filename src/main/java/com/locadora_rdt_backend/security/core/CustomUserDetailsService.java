@@ -1,7 +1,7 @@
 package com.locadora_rdt_backend.security.core;
 
-import com.locadora_rdt_backend.entities.User;
-import com.locadora_rdt_backend.repositories.UserRepository;
+import com.locadora_rdt_backend.modules.users.model.User;
+import com.locadora_rdt_backend.modules.users.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
