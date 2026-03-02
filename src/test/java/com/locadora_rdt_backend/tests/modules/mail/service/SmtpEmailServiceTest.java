@@ -135,4 +135,5 @@ class SmtpEmailServiceTest {
         verify(mailSender, times(1)).createMimeMessage();
         verify(mailSender, never()).send(any(MimeMessage.class));
     }
+
 }
