@@ -378,4 +378,57 @@ public class CustomerControllerIT {
         Mockito.verify(service, Mockito.times(1)).delete(existingId);
     }
 
+    @Test
+    @WithMockUser
+    public void deleteAllShouldReturnNoContentWhenIdsExist() throws Exception {
+        List<Long> ids = List.of(1L, 2L);
+
+        Mockito.doNothing().when(service).deleteAll(ids);
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                        .delete("/customers/all")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(ids)))
+                .andExpect(status().isNoContent());
+
+        Mockito.verify(service, Mockito.times(1)).deleteAll(ids);
+    }
+
+    @Test
+    @WithMockUser
+    public void deleteAllShouldReturnBadRequestWhenListIsEmpty() throws Exception {
+        List<Long> ids = List.of();
+
+        Mockito.doThrow(new IllegalArgumentException("Lista de ids vazia"))
+                .when(service).deleteAll(ids);
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                        .delete("/customers/all")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(ids)))
+                .andExpect(status().isBadRequest());
+
+        Mockito.verify(service, Mockito.times(1)).deleteAll(ids);
+    }
+
+    @Test
+    @WithMockUser
+    public void deleteAllShouldReturnNotFoundWhenIdsDoNotExist() throws Exception {
+        List<Long> ids = List.of(1L, 2L);
+
+        Mockito.doThrow(new ResourceNotFoundException("Um ou mais IDs não existem"))
+                .when(service).deleteAll(ids);
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                        .delete("/customers/all")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(ids)))
+                .andExpect(status().isNotFound());
+
+        Mockito.verify(service, Mockito.times(1)).deleteAll(ids);
+    }
+
 }

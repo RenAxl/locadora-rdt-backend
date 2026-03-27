@@ -326,4 +326,57 @@ public class CustomerServiceTests {
 
         Mockito.verify(repository, Mockito.times(1)).deleteById(nonExistingId);
     }
+
+    @Test
+    public void deleteAllShouldDeleteWhenIdsExist() {
+        List<Long> ids = List.of(1L, 2L);
+
+        Customer c1 = new Customer();
+        c1.setId(1L);
+
+        Customer c2 = new Customer();
+        c2.setId(2L);
+
+        Mockito.when(repository.findAllById(ids))
+                .thenReturn(List.of(c1, c2));
+
+        Mockito.doNothing().when(repository).deleteAllByIds(ids);
+
+        Assertions.assertDoesNotThrow(() -> {
+            service.deleteAll(ids);
+        });
+
+        Mockito.verify(repository, Mockito.times(1)).findAllById(ids);
+        Mockito.verify(repository, Mockito.times(1)).deleteAllByIds(ids);
+    }
+
+    @Test
+    public void deleteAllShouldThrowIllegalArgumentExceptionWhenListIsEmpty() {
+        List<Long> ids = List.of();
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            service.deleteAll(ids);
+        });
+
+        Mockito.verify(repository, Mockito.never()).deleteAllByIds(Mockito.any());
+    }
+
+    @Test
+    public void deleteAllShouldThrowResourceNotFoundExceptionWhenIdsDoNotExist() {
+        List<Long> ids = List.of(1L, 2L);
+
+        Customer c1 = new Customer();
+        c1.setId(1L);
+
+        // Simula que só 1 ID existe
+        Mockito.when(repository.findAllById(ids))
+                .thenReturn(List.of(c1));
+
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            service.deleteAll(ids);
+        });
+
+        Mockito.verify(repository, Mockito.times(1)).findAllById(ids);
+        Mockito.verify(repository, Mockito.never()).deleteAllByIds(Mockito.any());
+    }
 }

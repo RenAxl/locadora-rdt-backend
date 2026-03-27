@@ -16,10 +16,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CustomerService {
@@ -137,4 +135,25 @@ public class CustomerService {
             throw new ResourceNotFoundException("Id not found " + id);
         }
     }
+
+    @Transactional
+    public void deleteAll(List<Long> ids) {
+
+        if (ids == null || ids.isEmpty()) {
+            throw new IllegalArgumentException("Lista de ids vazia");
+        }
+
+        List<Long> existingIds = repository.findAllById(ids)
+                .stream()
+                .map(Customer::getId)
+                .collect(Collectors.toList());
+
+
+        if (existingIds.size() != ids.size()) {
+            throw new ResourceNotFoundException("Um ou mais IDs não existem");
+        }
+
+        repository.deleteAllByIds(ids);
+    }
+
 }

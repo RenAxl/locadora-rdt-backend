@@ -47,6 +47,10 @@ public class CustomerUpdateValidator implements ConstraintValidator<CustomerUpda
             list.add(new FieldMessage("telephone", "Telefone já existe"));
         }
 
+        if (repository.findByCpf(dto.getCpf()) != null && repository.findByCpf(dto.getCpf()).getId() != userId) {
+            list.add(new FieldMessage("cpf", "CPF já existe"));
+        }
+
         for (FieldMessage e : list) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(e.getMessage())
