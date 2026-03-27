@@ -54,7 +54,9 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 
                 .antMatchers(HttpMethod.GET, "/permissions/**").hasAuthority("PERMISSION_READ")
 
-                .anyRequest().authenticated()
+                //.antMatchers(HttpMethod.GET, "/customers/**").hasAuthority("CUSTOMER_READ")
+
+                //.anyRequest().authenticated()
                 .and()
                 .csrf().disable()
                 .headers().frameOptions().sameOrigin();

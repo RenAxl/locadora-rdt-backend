@@ -3,7 +3,7 @@ spring:
     name: locadora-rdt-backend
 
   profiles:
-    active: dev
+    active: test
 
   mail:
     host: smtp.gmail.com
