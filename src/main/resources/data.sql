@@ -35,7 +35,8 @@ INSERT INTO tb_permission (name, group_name) VALUES
 
                                                  ('CUSTOMER_READ',          'CUSTOMERS'),
                                                  ('CUSTOMER_WRITE',         'CUSTOMERS'),
-                                                 ('CUSTOMER_DELETE',        'CUSTOMERS');
+                                                 ('CUSTOMER_DELETE',        'CUSTOMERS'),
+                                                 ('CUSTOMER_STATUS_CHANGE', 'CUSTOMERS');
 
 
 
@@ -59,7 +60,7 @@ INSERT INTO tb_user_role (user_id, role_id) VALUES
 INSERT INTO tb_role_permission (role_id, permission_id) VALUES
                                                             (1, 1),(1, 2),(1, 3),(1, 4),
                                                             (1, 5),(1, 6),(1, 7), (1, 8),
-                                                            (1, 9),(1, 10),(1, 11);
+                                                            (1, 9),(1, 10),(1, 11), (1, 12);
 
 
 INSERT INTO tb_role_permission (role_id, permission_id) VALUES

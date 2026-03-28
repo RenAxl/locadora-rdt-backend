@@ -58,4 +58,16 @@ public class ResourceExceptionHandler {
         return ResponseEntity.status(status).body(err);
     }
 
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<StandardError> runtime(RuntimeException e, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+        StandardError err = new StandardError();
+        err.setTimestamp(Instant.now());
+        err.setStatus(status.value());
+        err.setError("Erro de backend: Unexpected error");
+        err.setMessage(e.getMessage());
+        err.setPath(request.getRequestURI());
+        return ResponseEntity.status(status).body(err);
+    }
+
 }

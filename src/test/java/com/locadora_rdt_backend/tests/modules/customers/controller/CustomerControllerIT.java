@@ -431,4 +431,63 @@ public class CustomerControllerIT {
         Mockito.verify(service, Mockito.times(1)).deleteAll(ids);
     }
 
+    @Test
+    @WithMockUser
+    public void changeActiveShouldReturnNoContentWhenIdExists() throws Exception {
+        Long existingId = 1L;
+        boolean active = true;
+
+        Mockito.doNothing().when(service).changeActiveStatus(existingId, active);
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                        .patch("/customers/{id}/active", existingId)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(active)))
+                .andExpect(status().isNoContent());
+
+        Mockito.verify(service, Mockito.times(1))
+                .changeActiveStatus(existingId, active);
+    }
+
+    @Test
+    @WithMockUser
+    public void changeActiveShouldReturnNotFoundWhenIdDoesNotExist() throws Exception {
+        Long nonExistingId = 999L;
+        boolean active = true;
+
+        Mockito.doThrow(new ResourceNotFoundException("Id not found " + nonExistingId))
+                .when(service).changeActiveStatus(nonExistingId, active);
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                        .patch("/customers/{id}/active", nonExistingId)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(active)))
+                .andExpect(status().isNotFound());
+
+        Mockito.verify(service, Mockito.times(1))
+                .changeActiveStatus(nonExistingId, active);
+    }
+
+    @Test
+    @WithMockUser
+    public void changeActiveShouldReturnInternalServerErrorWhenDatabaseErrorOccurs() throws Exception {
+        Long existingId = 1L;
+        boolean active = true;
+
+        Mockito.doThrow(new RuntimeException("Error changing user status."))
+                .when(service).changeActiveStatus(existingId, active);
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                        .patch("/customers/{id}/active", existingId)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(active)))
+                .andExpect(status().isInternalServerError());
+
+        Mockito.verify(service, Mockito.times(1))
+                .changeActiveStatus(existingId, active);
+    }
+
 }

@@ -6,6 +6,7 @@ import com.locadora_rdt_backend.modules.customers.dto.CustomerInsertDTO;
 import com.locadora_rdt_backend.modules.customers.dto.CustomerUpdateDTO;
 import com.locadora_rdt_backend.modules.customers.model.Customer;
 import com.locadora_rdt_backend.modules.customers.repository.CustomerRepository;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -154,6 +155,20 @@ public class CustomerService {
         }
 
         repository.deleteAllByIds(ids);
+    }
+
+    @Transactional
+    public void changeActiveStatus(Long id, boolean active) {
+        try {
+            int updated = repository.updateActiveById(id, active);
+
+            if (updated == 0) {
+                throw new ResourceNotFoundException("Id not found " + id);
+            }
+
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Error changing user status.", e);
+        }
     }
 
 }

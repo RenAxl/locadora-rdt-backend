@@ -379,4 +379,52 @@ public class CustomerServiceTests {
         Mockito.verify(repository, Mockito.times(1)).findAllById(ids);
         Mockito.verify(repository, Mockito.never()).deleteAllByIds(Mockito.any());
     }
+
+    @Test
+    public void changeActiveStatusShouldUpdateWhenIdExists() {
+        Long existingId = 1L;
+        boolean active = true;
+
+        Mockito.when(repository.updateActiveById(existingId, active))
+                .thenReturn(1);
+
+        Assertions.assertDoesNotThrow(() -> {
+            service.changeActiveStatus(existingId, active);
+        });
+
+        Mockito.verify(repository, Mockito.times(1))
+                .updateActiveById(existingId, active);
+    }
+
+    @Test
+    public void changeActiveStatusShouldThrowResourceNotFoundExceptionWhenIdDoesNotExist() {
+        Long nonExistingId = 999L;
+        boolean active = true;
+
+        Mockito.when(repository.updateActiveById(nonExistingId, active))
+                .thenReturn(0);
+
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            service.changeActiveStatus(nonExistingId, active);
+        });
+
+        Mockito.verify(repository, Mockito.times(1))
+                .updateActiveById(nonExistingId, active);
+    }
+
+    @Test
+    public void changeActiveStatusShouldThrowRuntimeExceptionWhenDatabaseErrorOccurs() {
+        Long existingId = 1L;
+        boolean active = true;
+
+        Mockito.when(repository.updateActiveById(existingId, active))
+                .thenThrow(new org.springframework.dao.DataAccessException("DB error") {});
+
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            service.changeActiveStatus(existingId, active);
+        });
+
+        Mockito.verify(repository, Mockito.times(1))
+                .updateActiveById(existingId, active);
+    }
 }
