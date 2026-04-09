@@ -95,3 +95,15 @@ VALUES
     ('Patricia Gomes', '10101010101', 'patricia.gomes@email.com', '31999990010', 'Rua J, 1000 - Belo Horizonte', true, NULL, NULL, NOW(), NULL);
 
 
+
+INSERT INTO tb_position (name, created_at) VALUES
+                                               ('Atendente', NOW()),
+                                               ('Gerente', NOW()),
+                                               ('Auxiliar Administrativo', NOW()),
+                                               ('Assistente Financeiro', NOW()),
+                                               ('Analista Financeiro', NOW()),
+                                               ('Motorista', NOW()),
+                                               ('Lavador de Veículos', NOW()),
+                                               ('Supervisor de Operações', NOW());
+
+
