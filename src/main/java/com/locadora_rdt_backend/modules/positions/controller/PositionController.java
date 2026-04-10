@@ -1,8 +1,7 @@
-package com.locadora_rdt_backend.modules.employees.positions.controller;
+package com.locadora_rdt_backend.modules.positions.controller;
 
-import com.locadora_rdt_backend.modules.employees.positions.dto.PositionDTO;
-import com.locadora_rdt_backend.modules.employees.positions.model.Position;
-import com.locadora_rdt_backend.modules.employees.positions.service.PositionService;
+import com.locadora_rdt_backend.modules.positions.dto.PositionDTO;
+import com.locadora_rdt_backend.modules.positions.service.PositionService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;

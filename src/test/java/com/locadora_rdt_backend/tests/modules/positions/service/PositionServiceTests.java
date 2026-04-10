@@ -1,9 +1,9 @@
-package com.locadora_rdt_backend.tests.modules.employees.positions.service;
+package com.locadora_rdt_backend.tests.modules.positions.service;
 
-import com.locadora_rdt_backend.modules.employees.positions.dto.PositionDTO;
-import com.locadora_rdt_backend.modules.employees.positions.model.Position;
-import com.locadora_rdt_backend.modules.employees.positions.repository.PositionRepository;
-import com.locadora_rdt_backend.modules.employees.positions.service.PositionService;
+import com.locadora_rdt_backend.modules.positions.dto.PositionDTO;
+import com.locadora_rdt_backend.modules.positions.model.Position;
+import com.locadora_rdt_backend.modules.positions.repository.PositionRepository;
+import com.locadora_rdt_backend.modules.positions.service.PositionService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

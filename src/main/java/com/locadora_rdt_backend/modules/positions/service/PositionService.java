@@ -1,8 +1,8 @@
-package com.locadora_rdt_backend.modules.employees.positions.service;
+package com.locadora_rdt_backend.modules.positions.service;
 
-import com.locadora_rdt_backend.modules.employees.positions.dto.PositionDTO;
-import com.locadora_rdt_backend.modules.employees.positions.model.Position;
-import com.locadora_rdt_backend.modules.employees.positions.repository.PositionRepository;
+import com.locadora_rdt_backend.modules.positions.dto.PositionDTO;
+import com.locadora_rdt_backend.modules.positions.model.Position;
+import com.locadora_rdt_backend.modules.positions.repository.PositionRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;

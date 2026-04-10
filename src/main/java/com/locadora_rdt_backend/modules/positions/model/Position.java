@@ -1,4 +1,4 @@
-package com.locadora_rdt_backend.modules.employees.positions.model;
+package com.locadora_rdt_backend.modules.positions.model;
 
 import javax.persistence.*;
 import java.io.Serializable;

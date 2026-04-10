@@ -1,6 +1,6 @@
-package com.locadora_rdt_backend.modules.employees.positions.dto;
+package com.locadora_rdt_backend.modules.positions.dto;
 
-import com.locadora_rdt_backend.modules.employees.positions.model.Position;
+import com.locadora_rdt_backend.modules.positions.model.Position;
 
 import java.io.Serializable;
 import java.time.Instant;

@@ -1,9 +1,9 @@
-package com.locadora_rdt_backend.tests.modules.employees.positions.controller;
+package com.locadora_rdt_backend.tests.modules.positions.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.locadora_rdt_backend.modules.employees.positions.controller.PositionController;
-import com.locadora_rdt_backend.modules.employees.positions.dto.PositionDTO;
-import com.locadora_rdt_backend.modules.employees.positions.service.PositionService;
+import com.locadora_rdt_backend.modules.positions.controller.PositionController;
+import com.locadora_rdt_backend.modules.positions.dto.PositionDTO;
+import com.locadora_rdt_backend.modules.positions.service.PositionService;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
