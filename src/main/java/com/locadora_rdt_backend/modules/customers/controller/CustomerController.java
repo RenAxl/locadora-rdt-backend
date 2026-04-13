@@ -118,6 +118,7 @@ public class CustomerController {
         service.deleteAll(ids);
         return ResponseEntity.noContent().build();
     }
+
     @Operation(summary = "Activates and deactivates the customer.")
     @PatchMapping("/{id}/active")
     public ResponseEntity<CustomerDTO> changeActive(@PathVariable Long id, @RequestBody boolean active) {

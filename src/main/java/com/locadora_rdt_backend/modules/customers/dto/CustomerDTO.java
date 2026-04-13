@@ -3,7 +3,7 @@ package com.locadora_rdt_backend.modules.customers.dto;
 import com.locadora_rdt_backend.modules.customers.model.Customer;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public class CustomerDTO implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -15,8 +15,8 @@ public class CustomerDTO implements Serializable {
     private String phone;
     private String address;
     private Boolean active;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Instant createdAt;
+    private Instant updatedAt;
 
     public CustomerDTO() {
     }
@@ -89,19 +89,19 @@ public class CustomerDTO implements Serializable {
         this.active = active;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getUpdatedAt() {
+    public Instant getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
+    public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
     }
 }

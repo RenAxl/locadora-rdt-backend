@@ -1,4 +1,4 @@
-package com.locadora_rdt_backend.modules.positions.model;
+package com.locadora_rdt_backend.modules.employees.positions.model;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -19,17 +19,15 @@ public class Position implements Serializable {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
+    @Column(name = "updated_at")
+    private Instant updatedAt;
+
     public Position() {
     }
 
     public Position(Long id, String name) {
         this.id = id;
         this.name = name;
-    }
-
-    @PrePersist
-    public void prePersist() {
-        createdAt = Instant.now();
     }
 
 
@@ -45,12 +43,24 @@ public class Position implements Serializable {
         return createdAt;
     }
 
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
     public void setId(Long id) {
         this.id = id;
     }
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     @Override

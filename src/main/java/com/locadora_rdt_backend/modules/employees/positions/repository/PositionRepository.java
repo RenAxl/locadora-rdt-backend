@@ -1,6 +1,6 @@
-package com.locadora_rdt_backend.modules.positions.repository;
+package com.locadora_rdt_backend.modules.employees.positions.repository;
 
-import com.locadora_rdt_backend.modules.positions.model.Position;
+import com.locadora_rdt_backend.modules.employees.positions.model.Position;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

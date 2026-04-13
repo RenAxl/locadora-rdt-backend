@@ -3,7 +3,7 @@ package com.locadora_rdt_backend.tests.factories;
 import com.locadora_rdt_backend.modules.customers.dto.CustomerDTO;
 import com.locadora_rdt_backend.modules.customers.model.Customer;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public class CustomerFactory {
 
@@ -16,8 +16,8 @@ public class CustomerFactory {
         customer.setPhone("31999999999");
         customer.setAddress("Rua A, 123");
         customer.setActive(true);
-        customer.setCreatedAt(LocalDateTime.now());
-        customer.setUpdatedAt(LocalDateTime.now());
+        customer.setCreatedAt(Instant.now());
+        customer.setUpdatedAt(Instant.now());
         return customer;
     }
 

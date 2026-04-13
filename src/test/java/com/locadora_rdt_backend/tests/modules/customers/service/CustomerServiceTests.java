@@ -23,7 +23,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,8 +57,8 @@ public class CustomerServiceTests {
         customer.setPhone("31999999999");
         customer.setAddress("Rua A, 100");
         customer.setActive(true);
-        customer.setCreatedAt(LocalDateTime.now());
-        customer.setUpdatedAt(LocalDateTime.now());
+        customer.setCreatedAt(Instant.now());
+        customer.setUpdatedAt(Instant.now());
 
         insertDTO = new CustomerInsertDTO();
         insertDTO.setName("Maria Silva");

@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -52,12 +53,11 @@ public class CustomerService {
     public CustomerDTO insert(CustomerInsertDTO dto) {
         Customer entity = new Customer();
         copyInsertDtoToEntity(dto, entity);
-
+        entity.setCreatedAt(Instant.now());
         entity.setActive(false);
-        entity.setCreatedAt(LocalDateTime.now());
-
         entity = repository.save(entity);
         return new CustomerDTO(entity);
+
     }
 
     @Transactional
@@ -65,10 +65,10 @@ public class CustomerService {
         try {
             Customer entity = repository.getOne(id);
             copyUpdateDtoToEntity(dto, entity);
-            entity.setUpdatedAt(LocalDateTime.now());
-
+            entity.setUpdatedAt(Instant.now());
             entity = repository.save(entity);
             return new CustomerDTO(entity);
+
         } catch (EntityNotFoundException e) {
             throw new ResourceNotFoundException("Id not found " + id);
         }

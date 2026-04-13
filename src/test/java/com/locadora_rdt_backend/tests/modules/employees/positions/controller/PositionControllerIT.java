@@ -1,9 +1,9 @@
-package com.locadora_rdt_backend.tests.modules.positions.controller;
+package com.locadora_rdt_backend.tests.modules.employees.positions.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.locadora_rdt_backend.modules.positions.controller.PositionController;
-import com.locadora_rdt_backend.modules.positions.dto.PositionDTO;
-import com.locadora_rdt_backend.modules.positions.service.PositionService;
+import com.locadora_rdt_backend.modules.employees.positions.controller.PositionController;
+import com.locadora_rdt_backend.modules.employees.positions.dto.PositionDTO;
+import com.locadora_rdt_backend.modules.employees.positions.service.PositionService;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
@@ -118,6 +118,39 @@ public class PositionControllerIT {
     }
 
     @Test
+    public void findByIdShouldReturnPositionDTOWhenIdExists() throws Exception {
+
+        Long existingId = 1L;
+
+        PositionDTO dto = new PositionDTO();
+        dto.setId(existingId);
+        dto.setName("Gerente");
+
+        Mockito.when(service.findById(existingId)).thenReturn(dto);
+
+        mockMvc.perform(get("/positions/{id}", existingId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(1)))
+                .andExpect(jsonPath("$.name", is("Gerente")));
+
+        Mockito.verify(service, Mockito.times(1)).findById(existingId);
+    }
+
+    @Test
+    public void findByIdShouldReturnNotFoundWhenIdDoesNotExist() throws Exception {
+
+        Long nonExistingId = 999L;
+
+        Mockito.when(service.findById(nonExistingId))
+                .thenThrow(new com.locadora_rdt_backend.common.exception.ResourceNotFoundException("Not found"));
+
+        mockMvc.perform(get("/positions/{id}", nonExistingId))
+                .andExpect(status().isNotFound());
+
+        Mockito.verify(service, Mockito.times(1)).findById(nonExistingId);
+    }
+
+    @Test
     @WithMockUser
     public void insertShouldReturnCreatedAndPositionDTO() throws Exception {
 
@@ -187,5 +220,94 @@ public class PositionControllerIT {
 
         Mockito.verify(service, Mockito.times(1))
                 .insert(ArgumentMatchers.any(PositionDTO.class));
+    }
+
+    @Test
+    @WithMockUser
+    public void updateShouldReturnUpdatedPositionDTOWhenIdExists() throws Exception {
+
+        Long existingId = 1L;
+
+        PositionDTO requestDTO = new PositionDTO();
+        requestDTO.setName("Supervisor");
+
+        PositionDTO responseDTO = new PositionDTO();
+        responseDTO.setId(existingId);
+        responseDTO.setName("Supervisor");
+
+        Mockito.when(service.update(eq(existingId), ArgumentMatchers.any(PositionDTO.class)))
+                .thenReturn(responseDTO);
+
+        mockMvc.perform(
+                        org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/positions/{id}", existingId)
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(requestDTO))
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(1)))
+                .andExpect(jsonPath("$.name", is("Supervisor")));
+
+        Mockito.verify(service, Mockito.times(1))
+                .update(eq(existingId), ArgumentMatchers.any(PositionDTO.class));
+    }
+
+    @Test
+    @WithMockUser
+    public void updateShouldReturnNotFoundWhenIdDoesNotExist() throws Exception {
+
+        Long nonExistingId = 999L;
+
+        PositionDTO requestDTO = new PositionDTO();
+        requestDTO.setName("Supervisor");
+
+        Mockito.when(service.update(eq(nonExistingId), ArgumentMatchers.any(PositionDTO.class)))
+                .thenThrow(new com.locadora_rdt_backend.common.exception.ResourceNotFoundException("Not found"));
+
+        mockMvc.perform(
+                        org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/positions/{id}", nonExistingId)
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(requestDTO))
+                )
+                .andExpect(status().isNotFound());
+
+        Mockito.verify(service, Mockito.times(1))
+                .update(eq(nonExistingId), ArgumentMatchers.any(PositionDTO.class));
+    }
+
+    @Test
+    @WithMockUser
+    public void deleteShouldReturnNoContentWhenIdExists() throws Exception {
+
+        Long existingId = 1L;
+
+        Mockito.doNothing().when(service).delete(existingId);
+
+        mockMvc.perform(
+                        org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete("/positions/{id}", existingId)
+                                .with(csrf())
+                )
+                .andExpect(status().isNoContent());
+
+        Mockito.verify(service, Mockito.times(1)).delete(existingId);
+    }
+
+    @Test
+    @WithMockUser
+    public void deleteShouldReturnNotFoundWhenIdDoesNotExist() throws Exception {
+
+        Long nonExistingId = 999L;
+
+        Mockito.doThrow(new com.locadora_rdt_backend.common.exception.ResourceNotFoundException("Not found"))
+                .when(service).delete(nonExistingId);
+
+        mockMvc.perform(
+                        org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete("/positions/{id}", nonExistingId)
+                                .with(csrf())
+                )
+                .andExpect(status().isNotFound());
+
+        Mockito.verify(service, Mockito.times(1)).delete(nonExistingId);
     }
 }

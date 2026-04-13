@@ -96,14 +96,14 @@ VALUES
 
 
 
-INSERT INTO tb_position (name, created_at) VALUES
-                                               ('Atendente', NOW()),
-                                               ('Gerente', NOW()),
-                                               ('Auxiliar Administrativo', NOW()),
-                                               ('Assistente Financeiro', NOW()),
-                                               ('Analista Financeiro', NOW()),
-                                               ('Motorista', NOW()),
-                                               ('Lavador de Veículos', NOW()),
-                                               ('Supervisor de Operações', NOW());
+INSERT INTO tb_position (name, created_at, updated_at) VALUES
+                                                           ('Atendente', NOW(), NOW()),
+                                                           ('Gerente', NOW(), NOW()),
+                                                           ('Auxiliar Administrativo', NOW(), NOW()),
+                                                           ('Assistente Financeiro', NOW(), NOW()),
+                                                           ('Analista Financeiro', NOW(), NOW()),
+                                                           ('Motorista', NOW(), NOW()),
+                                                           ('Lavador de Veículos', NOW(), NOW()),
+                                                           ('Supervisor de Operações', NOW(), NOW());
 
 
