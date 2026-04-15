@@ -1,11 +1,15 @@
-package com.locadora_rdt_backend.modules.customers.service;
+package com.locadora_rdt_backend.modules.employees.service;
 
 import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
-import com.locadora_rdt_backend.modules.customers.dto.CustomerDTO;
-import com.locadora_rdt_backend.modules.customers.dto.CustomerInsertDTO;
-import com.locadora_rdt_backend.modules.customers.dto.CustomerUpdateDTO;
-import com.locadora_rdt_backend.modules.customers.model.Customer;
-import com.locadora_rdt_backend.modules.customers.repository.CustomerRepository;
+import com.locadora_rdt_backend.modules.employees.departments.model.Department;
+import com.locadora_rdt_backend.modules.employees.departments.repository.DepartmentRepository;
+import com.locadora_rdt_backend.modules.employees.dto.EmployeeDTO;
+import com.locadora_rdt_backend.modules.employees.dto.EmployeeInsertDTO;
+import com.locadora_rdt_backend.modules.employees.dto.EmployeeUpdateDTO;
+import com.locadora_rdt_backend.modules.employees.model.Employee;
+import com.locadora_rdt_backend.modules.employees.positions.model.Position;
+import com.locadora_rdt_backend.modules.employees.positions.repository.PositionRepository;
+import com.locadora_rdt_backend.modules.employees.repository.EmployeeRepository;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
@@ -21,9 +25,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class CustomerService {
+public class EmployeeService {
 
-    private final CustomerRepository repository;
+    private final EmployeeRepository repository;
+    private final PositionRepository positionRepository;
+    private final DepartmentRepository departmentRepository;
 
     private static final Set<String> ALLOWED_TYPES = new HashSet<>(
             Arrays.asList("image/jpeg", "image/png", "image/webp")
@@ -31,42 +37,45 @@ public class CustomerService {
 
     private static final long MAX_PHOTO_SIZE = 2L * 1024 * 1024;
 
-    public CustomerService(CustomerRepository repository) {
+    public EmployeeService(
+            EmployeeRepository repository,
+            PositionRepository positionRepository,
+            DepartmentRepository departmentRepository
+    ) {
         this.repository = repository;
+        this.positionRepository = positionRepository;
+        this.departmentRepository = departmentRepository;
     }
 
     @Transactional(readOnly = true)
-    public Page<CustomerDTO> findAllPaged(String name, PageRequest pageRequest) {
-        Page<Customer> list = repository.find(name, pageRequest);
-        return list.map(CustomerDTO::new);
+    public Page<EmployeeDTO> findAllPaged(String name, PageRequest pageRequest) {
+        Page<Employee> list = repository.find(name, pageRequest);
+        return list.map(EmployeeDTO::new);
     }
 
     @Transactional(readOnly = true)
-    public CustomerDTO findById(Long id) {
-        Customer entity = repository.findById(id)
+    public EmployeeDTO findById(Long id) {
+        Employee entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Funcionário não encontrado"));
-        return new CustomerDTO(entity);
+        return new EmployeeDTO(entity);
     }
 
     @Transactional
-    public CustomerDTO insert(CustomerInsertDTO dto) {
-        Customer entity = new Customer();
+    public EmployeeDTO insert(EmployeeInsertDTO dto) {
+        Employee entity = new Employee();
         copyInsertDtoToEntity(dto, entity);
-        entity.setCreatedAt(Instant.now());
-        entity.setActive(false);
         entity = repository.save(entity);
-        return new CustomerDTO(entity);
+        return new EmployeeDTO(entity);
 
     }
 
     @Transactional
-    public CustomerDTO update(Long id, CustomerUpdateDTO dto) {
+    public EmployeeDTO update(Long id, EmployeeUpdateDTO dto) {
         try {
-            Customer entity = repository.getOne(id);
+            Employee entity = repository.getOne(id);
             copyUpdateDtoToEntity(dto, entity);
-            entity.setUpdatedAt(Instant.now());
             entity = repository.save(entity);
-            return new CustomerDTO(entity);
+            return new EmployeeDTO(entity);
 
         } catch (EntityNotFoundException e) {
             throw new ResourceNotFoundException("Id not found " + id);
@@ -75,8 +84,8 @@ public class CustomerService {
 
     @Transactional
     public void updatePhoto(Long id, MultipartFile file) {
-        Customer entity = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado"));
+        Employee entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Funcionário não encontrado"));
 
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("Arquivo de foto vazio.");
@@ -95,9 +104,9 @@ public class CustomerService {
     }
 
     @Transactional(readOnly = true)
-    public Customer findEntityById(Long id) {
+    public Employee findEntityById(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Funcionário não encontrado"));
     }
 
     private void validatePhoto(MultipartFile file) {
@@ -112,20 +121,43 @@ public class CustomerService {
         }
     }
 
-    private void copyInsertDtoToEntity(CustomerInsertDTO dto, Customer entity) {
+    private void copyInsertDtoToEntity(EmployeeInsertDTO dto, Employee entity) {
         entity.setName(dto.getName());
-        entity.setCpf(dto.getCpf());
+        entity.setEmployeeCode(dto.getEmployeeCode());
         entity.setEmail(dto.getEmail());
         entity.setPhone(dto.getPhone());
         entity.setAddress(dto.getAddress());
+        entity.setSalary(dto.getSalary());
+        entity.setHireDate(dto.getHireDate());
+        entity.setTerminationDate(dto.getTerminationDate());
+        entity.setEmploymentType(dto.getEmploymentType());
+        entity.setCreatedAt(Instant.now());
+        entity.setActive(false);
+
+        Position position = positionRepository.getOne(dto.getPositionId());
+        entity.setPosition(position);
+
+        Department department = departmentRepository.getOne(dto.getDepartmentId());
+        entity.setDepartment(department);
     }
 
-    private void copyUpdateDtoToEntity(CustomerUpdateDTO dto, Customer entity) {
+    private void copyUpdateDtoToEntity(EmployeeUpdateDTO dto, Employee entity) {
         entity.setName(dto.getName());
-        entity.setCpf(dto.getCpf());
+        entity.setEmployeeCode(dto.getEmployeeCode());
         entity.setEmail(dto.getEmail());
         entity.setPhone(dto.getPhone());
         entity.setAddress(dto.getAddress());
+        entity.setSalary(dto.getSalary());
+        entity.setHireDate(dto.getHireDate());
+        entity.setTerminationDate(dto.getTerminationDate());
+        entity.setEmploymentType(dto.getEmploymentType());
+        entity.setUpdatedAt(Instant.now());
+
+        Position position = positionRepository.getOne(dto.getPositionId());
+        entity.setPosition(position);
+
+        Department department = departmentRepository.getOne(dto.getDepartmentId());
+        entity.setDepartment(department);
     }
 
     public void delete(Long id) {
@@ -145,7 +177,7 @@ public class CustomerService {
 
         List<Long> existingIds = repository.findAllById(ids)
                 .stream()
-                .map(Customer::getId)
+                .map(Employee::getId)
                 .collect(Collectors.toList());
 
 

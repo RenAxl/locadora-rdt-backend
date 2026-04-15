@@ -1,8 +1,12 @@
 package com.locadora_rdt_backend.modules.employees.positions.model;
 
+import com.locadora_rdt_backend.modules.employees.model.Employee;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "tb_position")
@@ -22,6 +26,9 @@ public class Position implements Serializable {
     @Column(name = "updated_at")
     private Instant updatedAt;
 
+    @OneToMany(mappedBy = "position")
+    private List<Employee> employees = new ArrayList<>();
+
     public Position() {
     }
 
@@ -29,7 +36,6 @@ public class Position implements Serializable {
         this.id = id;
         this.name = name;
     }
-
 
     public Long getId() {
         return id;

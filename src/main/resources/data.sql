@@ -107,3 +107,51 @@ INSERT INTO tb_position (name, created_at, updated_at) VALUES
                                                            ('Supervisor de Operações', NOW(), NOW());
 
 
+INSERT INTO tb_department (name, description, created_at, updated_at, created_by, updated_by) VALUES
+                                                                                                  ('Financeiro', 'Responsável pelas finanças da empresa', NOW(), NOW(), 'admin', 'admin'),
+                                                                                                  ('RH', 'Gestão de pessoas e recrutamento', NOW(), NOW(), 'admin', 'admin'),
+                                                                                                  ('TI', 'Tecnologia da informação e sistemas', NOW(), NOW(), 'admin', 'admin'),
+                                                                                                  ('Operações', 'Controle operacional da empresa', NOW(), NOW(), 'admin', 'admin'),
+                                                                                                  ('Comercial', 'Área de vendas e atendimento ao cliente', NOW(), NOW(), 'admin', 'admin'),
+                                                                                                  ('Marketing', 'Estratégias de marketing e publicidade', NOW(), NOW(), 'admin', 'admin'),
+                                                                                                  ('Jurídico', 'Assuntos legais e contratos', NOW(), NOW(), 'admin', 'admin'),
+                                                                                                  ('Logística', 'Controle de transporte e estoque', NOW(), NOW(), 'admin', 'admin'),
+                                                                                                  ('Suporte', 'Atendimento e suporte técnico', NOW(), NOW(), 'admin', 'admin'),
+                                                                                                  ('Diretoria', 'Gestão estratégica da empresa', NOW(), NOW(), 'admin', 'admin');
+
+
+INSERT INTO tb_employee (
+    name, employee_code, email, phone, address, salary,
+    hire_date, termination_date, employment_type, active,
+    created_at, updated_at, created_by, updated_by,
+    position_id, department_id
+) VALUES
+      ('João Silva', 'EMP001', 'joao@empresa.com', '31999990001', 'BH - MG', 5000.00,
+       '2022-01-10', NULL, 'CLT', true, NOW(), NOW(), 1, 1, 1, 1),
+
+      ('Maria Souza', 'EMP002', 'maria@empresa.com', '31999990002', 'BH - MG', 4500.00,
+       '2021-03-15', NULL, 'CLT', true, NOW(), NOW(), 1, 1, 2, 2),
+
+      ('Carlos Lima', 'EMP003', 'carlos@empresa.com', '31999990003', 'BH - MG', 7000.00,
+       '2020-07-20', NULL, 'CLT', true, NOW(), NOW(), 1, 1, 3, 3),
+
+      ('Ana Paula', 'EMP004', 'ana@empresa.com', '31999990004', 'BH - MG', 6000.00,
+       '2023-02-01', NULL, 'CLT', true, NOW(), NOW(), 1, 1, 2, 1),
+
+      ('Lucas Mendes', 'EMP005', 'lucas@empresa.com', '31999990005', 'BH - MG', 3500.00,
+       '2022-05-10', NULL, 'PJ', true, NOW(), NOW(), 1, 1, 4, 4),
+
+      ('Fernanda Alves', 'EMP006', 'fernanda@empresa.com', '31999990006', 'BH - MG', 8000.00,
+       '2019-11-25', NULL, 'CLT', true, NOW(), NOW(), 1, 1, 1, 10),
+
+      ('Bruno Rocha', 'EMP007', 'bruno@empresa.com', '31999990007', 'BH - MG', 4200.00,
+       '2021-08-30', NULL, 'CLT', true, NOW(), NOW(), 1, 1, 5, 5),
+
+      ('Patrícia Gomes', 'EMP008', 'patricia@empresa.com', '31999990008', 'BH - MG', 3900.00,
+       '2023-01-12', NULL, 'CLT', true, NOW(), NOW(), 1, 1, 4, 6),
+
+      ('Ricardo Dias', 'EMP009', 'ricardo@empresa.com', '31999990009', 'BH - MG', 5200.00,
+       '2020-09-18', NULL, 'CLT', true, NOW(), NOW(), 1, 1, 3, 7),
+
+      ('Juliana Castro', 'EMP010', 'juliana@empresa.com', '31999990010', 'BH - MG', 6100.00,
+       '2022-06-05', NULL, 'CLT', true, NOW(), NOW(), 1, 1, 2, 8);
