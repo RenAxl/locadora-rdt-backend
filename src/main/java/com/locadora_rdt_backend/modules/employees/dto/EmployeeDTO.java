@@ -1,8 +1,9 @@
 package com.locadora_rdt_backend.modules.employees.dto;
 
+import com.locadora_rdt_backend.modules.employees.departments.dto.DepartmentDTO;
 import com.locadora_rdt_backend.modules.employees.model.Employee;
+import com.locadora_rdt_backend.modules.employees.positions.dto.PositionDTO;
 
-import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -21,25 +22,26 @@ public class EmployeeDTO implements Serializable {
     private LocalDate hireDate;
     private LocalDate terminationDate;
     private String employmentType;
-    private Boolean active = true;
-    private byte[] photo;
+    private Boolean active;
+
     private String photoContentType;
+
     private Instant createdAt;
     private Instant updatedAt;
+
     private Long createdBy;
     private Long updatedBy;
-    private Long positionId;
-    private String positionName;
-    private Long departmentId;
-    private String departmentName;
+
+    private PositionDTO position;
+    private DepartmentDTO department;
 
     public EmployeeDTO() {
     }
 
     public EmployeeDTO(Long id, String name, String employeeCode, String email, String phone, String address,
                        BigDecimal salary, LocalDate hireDate, LocalDate terminationDate, String employmentType,
-                       Boolean active, byte[] photo, String photoContentType, Instant createdAt, Instant updatedAt, Long createdBy,
-                       Long updatedBy, Long positionId, String positionName, Long departmentId, String departmentName) {
+                       Boolean active, String photoContentType, Instant createdAt, Instant updatedAt, Long createdBy,
+                       Long updatedBy, PositionDTO position, DepartmentDTO department) {
         this.id = id;
         this.name = name;
         this.employeeCode = employeeCode;
@@ -51,40 +53,40 @@ public class EmployeeDTO implements Serializable {
         this.terminationDate = terminationDate;
         this.employmentType = employmentType;
         this.active = active;
-        this.photo = photo;
         this.photoContentType = photoContentType;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.createdBy = createdBy;
         this.updatedBy = updatedBy;
-        this.positionId = positionId;
-        this.positionName = positionName;
-        this.departmentId = departmentId;
-        this.departmentName = departmentName;
+        this.position = position;
+        this.department = department;
     }
 
     public EmployeeDTO(Employee entity) {
-        this.id = entity.getId();
-        this.name = entity.getName();
-        this.employeeCode = entity.getEmployeeCode();
-        this.email = entity.getEmail();
-        this.phone = entity.getPhone();
-        this.address = entity.getAddress();
-        this.salary = entity.getSalary();
-        this.hireDate = entity.getHireDate();
-        this.terminationDate = entity.getTerminationDate();
-        this.employmentType = entity.getEmploymentType();
-        this.active = entity.getActive();
-        this.photo = entity.getPhoto();
-        this.photoContentType = entity.getPhotoContentType();
-        this.createdAt = entity.getCreatedAt();
-        this.updatedAt = entity.getUpdatedAt();
-        this.createdBy = entity.getCreatedBy();
-        this.updatedBy = entity.getUpdatedBy();
-        this.positionId = entity.getPosition().getId();
-        this.positionName = entity.getPosition().getName();
-        this.departmentId = entity.getDepartment().getId();
-        this.departmentName = entity.getDepartment().getName();
+        id = entity.getId();
+        name = entity.getName();
+        employeeCode = entity.getEmployeeCode();
+        email = entity.getEmail();
+        phone = entity.getPhone();
+        address = entity.getAddress();
+        salary = entity.getSalary();
+        hireDate = entity.getHireDate();
+        terminationDate = entity.getTerminationDate();
+        employmentType = entity.getEmploymentType();
+        active = entity.getActive();
+        photoContentType = entity.getPhotoContentType();
+        createdAt = entity.getCreatedAt();
+        updatedAt = entity.getUpdatedAt();
+        createdBy = entity.getCreatedBy();
+        updatedBy = entity.getUpdatedBy();
+
+        if (entity.getPosition() != null) {
+            position = new PositionDTO(entity.getPosition());
+        }
+
+        if (entity.getDepartment() != null) {
+            department = new DepartmentDTO(entity.getDepartment());
+        }
     }
 
     public Long getId() {
@@ -131,10 +133,6 @@ public class EmployeeDTO implements Serializable {
         return active;
     }
 
-    public byte[] getPhoto() {
-        return photo;
-    }
-
     public String getPhotoContentType() {
         return photoContentType;
     }
@@ -155,103 +153,11 @@ public class EmployeeDTO implements Serializable {
         return updatedBy;
     }
 
-    public Long getPositionId() {
-        return positionId;
+    public PositionDTO getPosition() {
+        return position;
     }
 
-    public String getPositionName() {
-        return positionName;
-    }
-
-    public Long getDepartmentId() {
-        return departmentId;
-    }
-
-    public String getDepartmentName() {
-        return departmentName;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setEmployeeCode(String employeeCode) {
-        this.employeeCode = employeeCode;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public void setSalary(BigDecimal salary) {
-        this.salary = salary;
-    }
-
-    public void setHireDate(LocalDate hireDate) {
-        this.hireDate = hireDate;
-    }
-
-    public void setTerminationDate(LocalDate terminationDate) {
-        this.terminationDate = terminationDate;
-    }
-
-    public void setEmploymentType(String employmentType) {
-        this.employmentType = employmentType;
-    }
-
-    public void setActive(Boolean active) {
-        this.active = active;
-    }
-
-    public void setPhoto(byte[] photo) {
-        this.photo = photo;
-    }
-
-    public void setPhotoContentType(String photoContentType) {
-        this.photoContentType = photoContentType;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public void setCreatedBy(Long createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public void setUpdatedBy(Long updatedBy) {
-        this.updatedBy = updatedBy;
-    }
-
-    public void setPositionId(Long positionId) {
-        this.positionId = positionId;
-    }
-
-    public void setPositionName(String positionName) {
-        this.positionName = positionName;
-    }
-
-    public void setDepartmentId(Long departmentId) {
-        this.departmentId = departmentId;
-    }
-
-    public void setDepartmentName(String departmentName) {
-        this.departmentName = departmentName;
+    public DepartmentDTO getDepartment() {
+        return department;
     }
 }

@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 public class EmployeeUpdateValidator implements ConstraintValidator<EmployeeUpdateValid, EmployeeUpdateDTO> {
+
     private final EmployeeRepository repository;
     private final HttpServletRequest request;
 
@@ -32,23 +33,45 @@ public class EmployeeUpdateValidator implements ConstraintValidator<EmployeeUpda
     public boolean isValid(EmployeeUpdateDTO dto, ConstraintValidatorContext context) {
 
         @SuppressWarnings("unchecked")
-        var uriVars = (Map<String, String>) request
+        Map<String, String> uriVars = (Map<String, String>) request
                 .getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
 
         long employeeId = Long.parseLong(uriVars.get("id"));
 
         List<FieldMessage> list = new ArrayList<>();
 
-        if (repository.findByEmail(dto.getEmail()) != null && repository.findByEmail(dto.getEmail()).getId() != employeeId) {
-            list.add(new FieldMessage("email", "Email já existe"));
+        // EMAIL
+        if (dto.getEmail() != null && !dto.getEmail().trim().isEmpty()) {
+            var employee = repository.findByEmail(dto.getEmail());
+            if (employee != null && employee.getId() != employeeId) {
+                list.add(new FieldMessage("email", "Email já existe"));
+            }
         }
 
-        if (repository.findByPhone(dto.getPhone()) != null && repository.findByPhone(dto.getPhone()).getId() != employeeId) {
-            list.add(new FieldMessage("telephone", "Telefone já existe"));
+        // TELEFONE
+        if (dto.getPhone() != null && !dto.getPhone().trim().isEmpty()) {
+            var employee = repository.findByPhone(dto.getPhone());
+            if (employee != null && employee.getId() != employeeId) {
+                list.add(new FieldMessage("phone", "Telefone já existe"));
+            }
         }
 
-        if (repository.findByEmployeeCode(dto.getEmployeeCode()) != null && repository.findByEmployeeCode(dto.getEmployeeCode()).getId() != employeeId) {
-            list.add(new FieldMessage("employeeCode", "Matrícula já existe"));
+        // MATRÍCULA
+        if (dto.getEmployeeCode() != null && !dto.getEmployeeCode().trim().isEmpty()) {
+            var employee = repository.findByEmployeeCode(dto.getEmployeeCode());
+            if (employee != null && employee.getId() != employeeId) {
+                list.add(new FieldMessage("employeeCode", "Matrícula já existe"));
+            }
+        }
+
+        // ✅ REGRA DE NEGÓCIO: DATA
+        if (dto.getHireDate() != null && dto.getTerminationDate() != null
+                && dto.getTerminationDate().isBefore(dto.getHireDate())) {
+
+            list.add(new FieldMessage(
+                    "terminationDate",
+                    "A data de desligamento não pode ser menor que a data de admissão"
+            ));
         }
 
         for (FieldMessage e : list) {
@@ -60,5 +83,4 @@ public class EmployeeUpdateValidator implements ConstraintValidator<EmployeeUpda
 
         return list.isEmpty();
     }
-
 }

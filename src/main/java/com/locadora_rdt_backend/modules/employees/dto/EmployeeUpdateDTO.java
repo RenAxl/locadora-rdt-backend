@@ -44,7 +44,7 @@ public class EmployeeUpdateDTO implements Serializable {
     @Size(max = 30, message = "Tipo de contratação deve ter no máximo 30 caracteres")
     private String employmentType;
 
-    @NotNull(message = "Status ativo é obrigatório")
+
     private Boolean active;
 
     @NotNull(message = "Cargo é obrigatório")

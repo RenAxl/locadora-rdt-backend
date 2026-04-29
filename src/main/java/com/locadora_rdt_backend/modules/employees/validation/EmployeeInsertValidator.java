@@ -25,6 +25,10 @@ public class EmployeeInsertValidator implements ConstraintValidator<EmployeeInse
     @Override
     public boolean isValid(EmployeeInsertDTO dto, ConstraintValidatorContext context) {
 
+        if (dto == null) {
+            return true;
+        }
+
         List<FieldMessage> list = new ArrayList<>();
 
         if (repository.existsByEmail(dto.getEmail())) {
@@ -37,6 +41,14 @@ public class EmployeeInsertValidator implements ConstraintValidator<EmployeeInse
 
         if (repository.existsByPhone(dto.getPhone())) {
             list.add(new FieldMessage("phone", "Telefone já existe"));
+        }
+
+        if (dto.getHireDate() != null && dto.getTerminationDate() != null
+                && dto.getTerminationDate().isBefore(dto.getHireDate())) {
+            list.add(new FieldMessage(
+                    "terminationDate",
+                    "A data de desligamento não pode ser menor que a data de admissão"
+            ));
         }
 
 
