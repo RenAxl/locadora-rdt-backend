@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
 import com.locadora_rdt_backend.modules.customers.controller.CustomerFileController;
 import com.locadora_rdt_backend.modules.customers.dto.file.CustomerFileDTO;
-import com.locadora_rdt_backend.modules.customers.dto.file.CustomerFileResponseDTO;
+import com.locadora_rdt_backend.modules.customers.dto.file.CustomerFileViewDTO;
 import com.locadora_rdt_backend.modules.customers.service.CustomerFileService;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -146,8 +146,8 @@ public class CustomerFileControllerIT {
 
         byte[] data = "content".getBytes();
 
-        CustomerFileResponseDTO dto =
-                new CustomerFileResponseDTO("file.pdf", "application/pdf", data);
+        CustomerFileViewDTO dto =
+                new CustomerFileViewDTO("file.pdf", "application/pdf", data);
 
         Mockito.when(service.download(customerId, fileId))
                 .thenReturn(dto);
@@ -163,8 +163,8 @@ public class CustomerFileControllerIT {
 
         byte[] data = "content".getBytes();
 
-        CustomerFileResponseDTO dto =
-                new CustomerFileResponseDTO("file.pdf", "application/pdf", data);
+        CustomerFileViewDTO dto =
+                new CustomerFileViewDTO("file.pdf", "application/pdf", data);
 
         Mockito.when(service.download(customerId, fileId))
                 .thenReturn(dto);

@@ -1,13 +1,13 @@
-package com.locadora_rdt_backend.modules.customers.service;
+package com.locadora_rdt_backend.modules.employees.service;
 
 import com.locadora_rdt_backend.common.exception.FileException;
 import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
-import com.locadora_rdt_backend.modules.customers.dto.file.CustomerFileDTO;
-import com.locadora_rdt_backend.modules.customers.dto.file.CustomerFileViewDTO;
-import com.locadora_rdt_backend.modules.customers.model.Customer;
-import com.locadora_rdt_backend.modules.customers.model.CustomerFile;
-import com.locadora_rdt_backend.modules.customers.repository.CustomerFileRepository;
-import com.locadora_rdt_backend.modules.customers.repository.CustomerRepository;
+import com.locadora_rdt_backend.modules.employees.dto.file.EmployeeFileDTO;
+import com.locadora_rdt_backend.modules.employees.dto.file.EmployeeFileViewDTO;
+import com.locadora_rdt_backend.modules.employees.model.Employee;
+import com.locadora_rdt_backend.modules.employees.model.EmployeeFile;
+import com.locadora_rdt_backend.modules.employees.repository.EmployeeFileRepository;
+import com.locadora_rdt_backend.modules.employees.repository.EmployeeRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,7 +20,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-public class CustomerFileService {
+public class EmployeeFileService {
 
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
@@ -41,22 +41,22 @@ public class CustomerFileService {
             "application/vnd.oasis.opendocument.text"
     );
 
-    private final CustomerFileRepository customerFileRepository;
-    private final CustomerRepository customerRepository;
+    private final EmployeeFileRepository employeeFileRepository;
+    private final EmployeeRepository employeeRepository;
 
-    public CustomerFileService(CustomerFileRepository customerFileRepository,
-                               CustomerRepository customerRepository) {
-        this.customerFileRepository = customerFileRepository;
-        this.customerRepository = customerRepository;
+    public EmployeeFileService(EmployeeFileRepository employeeFileRepository,
+                               EmployeeRepository employeeRepository) {
+        this.employeeFileRepository = employeeFileRepository;
+        this.employeeRepository = employeeRepository;
     }
 
     @Transactional
-    public CustomerFileDTO upload(Long customerId, String name, MultipartFile file) {
-        Customer customer = findCustomerById(customerId);
+    public EmployeeFileDTO upload(Long employeeId, String name, MultipartFile file) {
+        Employee employee = findEmployeeById(employeeId);
         validateFile(file);
 
-        CustomerFile entity = new CustomerFile();
-        entity.setCustomer(customer);
+        EmployeeFile entity = new EmployeeFile();
+        entity.setEmployee(employee);
         entity.setName(name.trim());
         entity.setOriginalFileName(file.getOriginalFilename());
         entity.setStoredFileName(generateStoredFileName(file.getOriginalFilename()));
@@ -69,25 +69,25 @@ public class CustomerFileService {
             throw new FileException("Erro ao ler o arquivo enviado.");
         }
 
-        entity = customerFileRepository.save(entity);
-        return new CustomerFileDTO(entity);
+        entity = employeeFileRepository.save(entity);
+        return new EmployeeFileDTO(entity);
     }
 
     @Transactional(readOnly = true)
-    public List<CustomerFileDTO> findAllByCustomer(Long customerId) {
-        findCustomerById(customerId);
+    public List<EmployeeFileDTO> findAllByEmployee(Long employeeId) {
+        findEmployeeById(employeeId);
 
-        return customerFileRepository.findByCustomerIdOrderByIdDesc(customerId)
+        return employeeFileRepository.findByEmployeeIdOrderByIdDesc(employeeId)
                 .stream()
-                .map(CustomerFileDTO::new)
+                .map(EmployeeFileDTO::new)
                 .collect(Collectors.toList());
     }
 
 
     @Transactional(readOnly = true)
-    public CustomerFileViewDTO download(Long customerId, Long fileId) {
-        CustomerFile entity = findFileBelongsToCustomer(customerId, fileId);
-        return new CustomerFileViewDTO(
+    public EmployeeFileViewDTO download(Long employeeId, Long fileId) {
+        EmployeeFile entity = findFileBelongsToEmployee(employeeId, fileId);
+        return new EmployeeFileViewDTO(
                 entity.getOriginalFileName(),
                 entity.getContentType(),
                 entity.getData()
@@ -96,19 +96,19 @@ public class CustomerFileService {
 
 
     @Transactional
-    public void delete(Long customerId, Long fileId) {
-        CustomerFile entity = findFileBelongsToCustomer(customerId, fileId);
-        customerFileRepository.delete(entity);
+    public void delete(Long employeeId, Long fileId) {
+        EmployeeFile entity = findFileBelongsToEmployee(employeeId, fileId);
+        employeeFileRepository.delete(entity);
     }
 
     @Transactional(readOnly = true)
-    public CustomerFile findFileBelongsToCustomer(Long customerId, Long fileId) {
-        findCustomerById(customerId);
+    public EmployeeFile findFileBelongsToEmployee(Long employeeId, Long fileId) {
+        findEmployeeById(employeeId);
 
-        CustomerFile entity = customerFileRepository.findById(fileId)
+        EmployeeFile entity = employeeFileRepository.findById(fileId)
                 .orElseThrow(() -> new ResourceNotFoundException("Arquivo não encontrado. Id: " + fileId));
 
-        if (!entity.getCustomer().getId().equals(customerId)) {
+        if (!entity.getEmployee().getId().equals(employeeId)) {
             throw new ResourceNotFoundException("Arquivo não pertence ao cliente informado.");
         }
 
@@ -116,9 +116,9 @@ public class CustomerFileService {
     }
 
     @Transactional(readOnly = true)
-    public Customer findCustomerById(Long customerId) {
-        return customerRepository.findById(customerId)
-                .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado. Id: " + customerId));
+    public Employee findEmployeeById(Long employeeId) {
+        return employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado. Id: " + employeeId));
     }
 
     private void validateFile(MultipartFile file) {

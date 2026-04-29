@@ -2,17 +2,17 @@ package com.locadora_rdt_backend.modules.customers.dto.file;
 
 import java.io.Serializable;
 
-public class CustomerFileResponseDTO implements Serializable {
+public class CustomerFileViewDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String fileName;
     private String contentType;
     private byte[] data;
 
-    public CustomerFileResponseDTO() {
+    public CustomerFileViewDTO() {
     }
 
-    public CustomerFileResponseDTO(String fileName, String contentType, byte[] data) {
+    public CustomerFileViewDTO(String fileName, String contentType, byte[] data) {
         this.fileName = fileName;
         this.contentType = contentType;
         this.data = data;

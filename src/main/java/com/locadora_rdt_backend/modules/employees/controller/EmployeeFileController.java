@@ -1,8 +1,8 @@
-package com.locadora_rdt_backend.modules.customers.controller;
+package com.locadora_rdt_backend.modules.employees.controller;
 
-import com.locadora_rdt_backend.modules.customers.dto.file.CustomerFileDTO;
-import com.locadora_rdt_backend.modules.customers.dto.file.CustomerFileViewDTO;
-import com.locadora_rdt_backend.modules.customers.service.CustomerFileService;
+import com.locadora_rdt_backend.modules.employees.dto.file.EmployeeFileDTO;
+import com.locadora_rdt_backend.modules.employees.dto.file.EmployeeFileViewDTO;
+import com.locadora_rdt_backend.modules.employees.service.EmployeeFileService;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -15,22 +15,22 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/customers/{customerId}/files")
-public class CustomerFileController {
+@RequestMapping("/employees/{employeeId}/files")
+public class EmployeeFileController {
 
-    private final CustomerFileService service;
+    private final EmployeeFileService service;
 
-    public CustomerFileController(CustomerFileService service) {
+    public EmployeeFileController(EmployeeFileService service) {
         this.service = service;
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<CustomerFileDTO> upload(
-            @PathVariable Long customerId,
+    public ResponseEntity<EmployeeFileDTO> upload(
+            @PathVariable Long employeeId,
             @RequestParam("name") String name,
             @RequestParam("file") MultipartFile file) {
 
-        CustomerFileDTO dto = service.upload(customerId, name, file);
+        EmployeeFileDTO dto = service.upload(employeeId, name, file);
 
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{fileId}")
@@ -41,17 +41,17 @@ public class CustomerFileController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CustomerFileDTO>> findAllByCustomer(@PathVariable Long customerId) {
-        List<CustomerFileDTO> list = service.findAllByCustomer(customerId);
+    public ResponseEntity<List<EmployeeFileDTO>> findAllByEmployee(@PathVariable Long employeeId) {
+        List<EmployeeFileDTO> list = service.findAllByEmployee(employeeId);
         return ResponseEntity.ok(list);
     }
 
     @GetMapping("/{fileId}/view")
     public ResponseEntity<byte[]> view(
-            @PathVariable Long customerId,
+            @PathVariable Long employeeId,
             @PathVariable Long fileId) {
 
-        CustomerFileViewDTO dto = service.download(customerId, fileId);
+        EmployeeFileViewDTO dto = service.download(employeeId, fileId);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType(dto.getContentType()));
@@ -66,10 +66,10 @@ public class CustomerFileController {
 
     @GetMapping("/{fileId}/download")
     public ResponseEntity<byte[]> download(
-            @PathVariable Long customerId,
+            @PathVariable Long employeeId,
             @PathVariable Long fileId) {
 
-        CustomerFileViewDTO dto = service.download(customerId, fileId);
+        EmployeeFileViewDTO dto = service.download(employeeId, fileId);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType(dto.getContentType()));
@@ -84,9 +84,9 @@ public class CustomerFileController {
 
     @DeleteMapping("/{fileId}")
     public ResponseEntity<Void> delete(
-            @PathVariable Long customerId,
+            @PathVariable Long employeeId,
             @PathVariable Long fileId) {
-        service.delete(customerId, fileId);
+        service.delete(employeeId, fileId);
         return ResponseEntity.noContent().build();
     }
 }
