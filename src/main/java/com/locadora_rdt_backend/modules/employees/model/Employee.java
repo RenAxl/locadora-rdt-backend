@@ -55,11 +55,11 @@ public class Employee implements Serializable {
     @Column(name = "updated_at")
     private Instant updatedAt;
 
-    @Column(name = "created_by")
-    private Long createdBy;
+    @Column(name = "created_by", length = 100, updatable = false)
+    private String createdBy;
 
-    @Column(name = "updated_by")
-    private Long updatedBy;
+    @Column(name = "updated_by", length = 100)
+    private String updatedBy;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "position_id")
@@ -79,7 +79,8 @@ public class Employee implements Serializable {
                     String address, BigDecimal salary, LocalDate hireDate,
                     LocalDate terminationDate, String employmentType,
                     byte[] photo, String photoContentType, Boolean active,
-                    Long createdBy, Long updatedBy, Position position, Department department) {
+                    String createdBy, String updatedBy, Position position,
+                    Department department) {
         this.id = id;
         this.name = name;
         this.employeeCode = employeeCode;
@@ -102,6 +103,10 @@ public class Employee implements Serializable {
     @PrePersist
     public void prePersist() {
         createdAt = Instant.now();
+
+        if (active == null) {
+            active = true;
+        }
     }
 
     @PreUpdate
@@ -169,11 +174,11 @@ public class Employee implements Serializable {
         return updatedAt;
     }
 
-    public Long getCreatedBy() {
+    public String getCreatedBy() {
         return createdBy;
     }
 
-    public Long getUpdatedBy() {
+    public String getUpdatedBy() {
         return updatedBy;
     }
 
@@ -183,6 +188,10 @@ public class Employee implements Serializable {
 
     public Department getDepartment() {
         return department;
+    }
+
+    public List<EmployeeFile> getFiles() {
+        return files;
     }
 
     public void setId(Long id) {
@@ -245,11 +254,11 @@ public class Employee implements Serializable {
         this.updatedAt = updatedAt;
     }
 
-    public void setCreatedBy(Long createdBy) {
+    public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
 
-    public void setUpdatedBy(Long updatedBy) {
+    public void setUpdatedBy(String updatedBy) {
         this.updatedBy = updatedBy;
     }
 
@@ -259,6 +268,10 @@ public class Employee implements Serializable {
 
     public void setDepartment(Department department) {
         this.department = department;
+    }
+
+    public void setFiles(List<EmployeeFile> files) {
+        this.files = files;
     }
 
     @Override
@@ -274,9 +287,13 @@ public class Employee implements Serializable {
         if (this == obj) return true;
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
+
         Employee other = (Employee) obj;
+
         if (id == null) {
             return other.id == null;
-        } else return id.equals(other.id);
+        }
+
+        return id.equals(other.id);
     }
 }

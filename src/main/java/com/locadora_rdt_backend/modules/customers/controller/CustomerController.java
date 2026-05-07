@@ -1,6 +1,7 @@
 package com.locadora_rdt_backend.modules.customers.controller;
 
 import com.locadora_rdt_backend.modules.customers.dto.CustomerDTO;
+import com.locadora_rdt_backend.modules.customers.dto.CustomerDetailsDTO;
 import com.locadora_rdt_backend.modules.customers.dto.CustomerInsertDTO;
 import com.locadora_rdt_backend.modules.customers.dto.CustomerUpdateDTO;
 import com.locadora_rdt_backend.modules.customers.model.Customer;
@@ -31,7 +32,6 @@ public class CustomerController {
         this.service = service;
     }
 
-    @Operation(summary = "List customers with pagination")
     @GetMapping
     public ResponseEntity<Page<CustomerDTO>> findAllPaged(
             @RequestParam(value = "name", defaultValue = "") String name,
@@ -51,14 +51,13 @@ public class CustomerController {
         return ResponseEntity.ok(list);
     }
 
-    @Operation(summary = "Get customer by ID")
     @GetMapping("/{id}")
-    public ResponseEntity<CustomerDTO> findById(@PathVariable Long id) {
-        CustomerDTO dto = service.findById(id);
+    public ResponseEntity<CustomerDetailsDTO> findById(@PathVariable Long id) {
+        CustomerDetailsDTO dto = service.findById(id);
         return ResponseEntity.ok(dto);
     }
 
-    @Operation(summary = "Create customer")
+
     @PostMapping
     public ResponseEntity<CustomerDTO> insert(@Valid @RequestBody CustomerInsertDTO dto) {
         CustomerDTO result = service.insert(dto);
@@ -71,7 +70,6 @@ public class CustomerController {
         return ResponseEntity.created(uri).body(result);
     }
 
-    @Operation(summary = "Update customer")
     @PutMapping("/{id}")
     public ResponseEntity<CustomerDTO> update(
             @PathVariable Long id,
@@ -81,7 +79,6 @@ public class CustomerController {
         return ResponseEntity.ok(customerDto);
     }
 
-    @Operation(summary = "Update customer photo")
     @PutMapping(value = "/{id}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> updatePhoto(
             @PathVariable Long id,
@@ -91,7 +88,6 @@ public class CustomerController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Get customer photo")
     @GetMapping("/{id}/photo")
     public ResponseEntity<byte[]> getPhoto(@PathVariable Long id) {
         Customer entity = service.findEntityById(id);
@@ -105,23 +101,20 @@ public class CustomerController {
                 .body(entity.getPhoto());
     }
 
-    @Operation(summary = "Delete customer")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Delete multiple customers")
     @DeleteMapping("/all")
     public ResponseEntity<Void> deleteAll(@RequestBody List<Long> ids) {
         service.deleteAll(ids);
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Activates and deactivates the customer.")
     @PatchMapping("/{id}/active")
-    public ResponseEntity<CustomerDTO> changeActive(@PathVariable Long id, @RequestBody boolean active) {
+    public ResponseEntity<Void> changeActive(@PathVariable Long id, @RequestBody boolean active) {
         service.changeActiveStatus(id, active);
         return ResponseEntity.noContent().build();
     }

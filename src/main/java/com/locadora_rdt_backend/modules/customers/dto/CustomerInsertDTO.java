@@ -1,7 +1,6 @@
 package com.locadora_rdt_backend.modules.customers.dto;
 
 import com.locadora_rdt_backend.modules.customers.validation.CustomerInsertValid;
-import org.hibernate.validator.constraints.br.CPF;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -16,7 +15,6 @@ public class CustomerInsertDTO implements Serializable {
     @Size(min = 3, max = 100, message = "Nome deve ter entre 3 e 100 caracteres")
     private String name;
 
-    //@CPF(message = "CPF inválido")
     @NotBlank(message = "CPF é obrigatório")
     private String cpf;
 
@@ -29,6 +27,8 @@ public class CustomerInsertDTO implements Serializable {
 
     @Size(max = 255, message = "Endereço deve ter no máximo 255 caracteres")
     private String address;
+
+    private Boolean active;
 
     public CustomerInsertDTO() {
     }
@@ -73,4 +73,11 @@ public class CustomerInsertDTO implements Serializable {
         this.address = address;
     }
 
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
 }

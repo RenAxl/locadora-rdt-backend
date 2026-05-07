@@ -4,12 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
 import com.locadora_rdt_backend.modules.customers.controller.CustomerController;
 import com.locadora_rdt_backend.modules.customers.dto.CustomerDTO;
+import com.locadora_rdt_backend.modules.customers.dto.CustomerDetailsDTO;
 import com.locadora_rdt_backend.modules.customers.dto.CustomerInsertDTO;
 import com.locadora_rdt_backend.modules.customers.dto.CustomerUpdateDTO;
 import com.locadora_rdt_backend.modules.customers.model.Customer;
 import com.locadora_rdt_backend.modules.customers.repository.CustomerRepository;
 import com.locadora_rdt_backend.modules.customers.service.CustomerService;
-import com.locadora_rdt_backend.tests.factories.CustomerFactory;
+import com.locadora_rdt_backend.tests.modules.customers.factory.CustomerFactory;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
@@ -32,9 +33,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(CustomerController.class)
@@ -60,7 +59,6 @@ public class CustomerControllerIT {
 
     @Test
     public void findAllPagedShouldReturnPagedCustomers() throws Exception {
-
         CustomerDTO dto = CustomerFactory.createCustomerDTO();
         Page<CustomerDTO> page = new PageImpl<>(List.of(dto));
 
@@ -83,13 +81,11 @@ public class CustomerControllerIT {
                 .andExpect(jsonPath("$.content[0].email", is("maria@email.com")))
                 .andExpect(jsonPath("$.totalElements", is(1)));
 
-        Mockito.verify(service, Mockito.times(1))
-                .findAllPaged(eq("Maria"), eq(expectedPageRequest));
+        Mockito.verify(service).findAllPaged(eq("Maria"), eq(expectedPageRequest));
     }
 
     @Test
     public void findAllPagedShouldUseDefaultParams() throws Exception {
-
         Page<CustomerDTO> page = new PageImpl<>(List.of());
 
         PageRequest expectedPageRequest =
@@ -103,13 +99,11 @@ public class CustomerControllerIT {
                 .andExpect(jsonPath("$.content").isArray())
                 .andExpect(jsonPath("$.totalElements", is(0)));
 
-        Mockito.verify(service, Mockito.times(1))
-                .findAllPaged(eq(""), eq(expectedPageRequest));
+        Mockito.verify(service).findAllPaged(eq(""), eq(expectedPageRequest));
     }
 
     @Test
     public void findAllPagedShouldTrimName() throws Exception {
-
         Page<CustomerDTO> page = new PageImpl<>(List.of());
 
         PageRequest expectedPageRequest =
@@ -122,27 +116,56 @@ public class CustomerControllerIT {
                         .param("name", "   João   "))
                 .andExpect(status().isOk());
 
-        Mockito.verify(service, Mockito.times(1))
-                .findAllPaged(eq("João"), eq(expectedPageRequest));
+        Mockito.verify(service).findAllPaged(eq("João"), eq(expectedPageRequest));
+    }
+
+    @Test
+    public void findByIdShouldReturnCustomerDetailsDTOWhenIdExists() throws Exception {
+        CustomerDetailsDTO dto = CustomerFactory.createCustomerDetailsDTO();
+
+        Mockito.when(service.findById(1L)).thenReturn(dto);
+
+        mockMvc.perform(get("/customers/{id}", 1L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(1)))
+                .andExpect(jsonPath("$.name", is("Maria Silva")))
+                .andExpect(jsonPath("$.cpf", is("12345678900")))
+                .andExpect(jsonPath("$.email", is("maria@email.com")));
+
+        Mockito.verify(service).findById(1L);
+    }
+
+    @Test
+    public void findByIdShouldReturnNotFoundWhenIdDoesNotExist() throws Exception {
+        Mockito.when(service.findById(999L))
+                .thenThrow(new ResourceNotFoundException("Id not found 999"));
+
+        mockMvc.perform(get("/customers/{id}", 999L))
+                .andExpect(status().isNotFound());
+
+        Mockito.verify(service).findById(999L);
+    }
+
+    @Test
+    public void findByIdShouldCallServiceWithCorrectId() throws Exception {
+        CustomerDetailsDTO dto = CustomerFactory.createCustomerDetailsDTO();
+
+        Mockito.when(service.findById(1L)).thenReturn(dto);
+
+        mockMvc.perform(get("/customers/{id}", 1L))
+                .andExpect(status().isOk());
+
+        Mockito.verify(service, Mockito.times(1)).findById(1L);
     }
 
     @Test
     @WithMockUser
     public void insertShouldReturnCreatedAndCustomerDTO() throws Exception {
-        CustomerInsertDTO insertDTO = new CustomerInsertDTO();
-        insertDTO.setName("Maria Silva");
-        insertDTO.setCpf("52998224725");
-        insertDTO.setEmail("maria@email.com");
-        insertDTO.setPhone("31999999999");
-        insertDTO.setAddress("Rua A, 100");
+        CustomerInsertDTO insertDTO = CustomerFactory.createCustomerInsertDTO();
+        CustomerDTO responseDTO = CustomerFactory.createCustomerDTO();
 
-        CustomerDTO responseDTO = new CustomerDTO();
-        responseDTO.setId(1L);
-        responseDTO.setName("Maria Silva");
-        responseDTO.setCpf("52998224725");
-        responseDTO.setEmail("maria@email.com");
-        responseDTO.setPhone("31999999999");
-        responseDTO.setAddress("Rua A, 100");
+        Mockito.when(repository.existsByCpf(insertDTO.getCpf())).thenReturn(false);
+        Mockito.when(repository.existsByEmail(insertDTO.getEmail())).thenReturn(false);
 
         Mockito.when(service.insert(ArgumentMatchers.any(CustomerInsertDTO.class)))
                 .thenReturn(responseDTO);
@@ -154,30 +177,20 @@ public class CustomerControllerIT {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.name", is("Maria Silva")))
-                .andExpect(jsonPath("$.cpf", is("52998224725")))
+                .andExpect(jsonPath("$.cpf", is("12345678900")))
                 .andExpect(jsonPath("$.email", is("maria@email.com")));
 
-        Mockito.verify(service, Mockito.times(1))
-                .insert(ArgumentMatchers.any(CustomerInsertDTO.class));
+        Mockito.verify(service).insert(ArgumentMatchers.any(CustomerInsertDTO.class));
     }
 
     @Test
     @WithMockUser
     public void insertShouldReturnLocationHeader() throws Exception {
-        CustomerInsertDTO insertDTO = new CustomerInsertDTO();
-        insertDTO.setName("Maria Silva");
-        insertDTO.setCpf("52998224725");
-        insertDTO.setEmail("maria@email.com");
-        insertDTO.setPhone("31999999999");
-        insertDTO.setAddress("Rua A, 100");
+        CustomerInsertDTO insertDTO = CustomerFactory.createCustomerInsertDTO();
+        CustomerDTO responseDTO = CustomerFactory.createCustomerDTO();
 
-        CustomerDTO responseDTO = new CustomerDTO();
-        responseDTO.setId(1L);
-        responseDTO.setName("Maria Silva");
-        responseDTO.setCpf("52998224725");
-        responseDTO.setEmail("maria@email.com");
-        responseDTO.setPhone("31999999999");
-        responseDTO.setAddress("Rua A, 100");
+        Mockito.when(repository.existsByCpf(insertDTO.getCpf())).thenReturn(false);
+        Mockito.when(repository.existsByEmail(insertDTO.getEmail())).thenReturn(false);
 
         Mockito.when(service.insert(ArgumentMatchers.any(CustomerInsertDTO.class)))
                 .thenReturn(responseDTO);
@@ -192,7 +205,87 @@ public class CustomerControllerIT {
 
     @Test
     @WithMockUser
-    public void updatePhotoShouldReturnNoContent() throws Exception {
+    public void insertShouldReturnUnprocessableEntityWhenInvalidData() throws Exception {
+        CustomerInsertDTO insertDTO = new CustomerInsertDTO();
+
+        mockMvc.perform(post("/customers")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(insertDTO)))
+                .andExpect(status().isUnprocessableEntity());
+
+        Mockito.verify(service, Mockito.never()).insert(ArgumentMatchers.any());
+    }
+
+    @Test
+    @WithMockUser
+    public void updateShouldReturnOkAndCustomerDTO() throws Exception {
+        Long existingId = 1L;
+
+        CustomerUpdateDTO updateDTO = CustomerFactory.createCustomerUpdateDTO();
+        CustomerDTO responseDTO = CustomerFactory.createCustomerDTO();
+        responseDTO.setName(updateDTO.getName());
+        responseDTO.setEmail(updateDTO.getEmail());
+
+        Mockito.when(repository.existsByCpf(updateDTO.getCpf())).thenReturn(false);
+        Mockito.when(repository.existsByEmail(updateDTO.getEmail())).thenReturn(false);
+
+        Mockito.when(service.update(eq(existingId), ArgumentMatchers.any(CustomerUpdateDTO.class)))
+                .thenReturn(responseDTO);
+
+        mockMvc.perform(put("/customers/{id}", existingId)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(existingId.intValue())))
+                .andExpect(jsonPath("$.name", is("Maria Atualizada")))
+                .andExpect(jsonPath("$.email", is("maria.atualizada@email.com")));
+
+        Mockito.verify(service).update(eq(existingId), ArgumentMatchers.any(CustomerUpdateDTO.class));
+    }
+
+    @Test
+    @WithMockUser
+    public void updateShouldReturnUnprocessableEntityWhenInvalidData() throws Exception {
+        Long existingId = 1L;
+
+        CustomerUpdateDTO updateDTO = new CustomerUpdateDTO();
+
+        mockMvc.perform(put("/customers/{id}", existingId)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateDTO)))
+                .andExpect(status().isUnprocessableEntity());
+
+        Mockito.verify(service, Mockito.never()).update(eq(existingId), ArgumentMatchers.any());
+    }
+
+    @Test
+    @WithMockUser
+    public void updateShouldReturnNotFoundWhenIdDoesNotExist() throws Exception {
+        Long nonExistingId = 999L;
+
+        CustomerUpdateDTO updateDTO = CustomerFactory.createCustomerUpdateDTO();
+
+        Mockito.when(repository.existsByCpf(updateDTO.getCpf())).thenReturn(false);
+        Mockito.when(repository.existsByEmail(updateDTO.getEmail())).thenReturn(false);
+
+        Mockito.when(service.update(eq(nonExistingId), ArgumentMatchers.any(CustomerUpdateDTO.class)))
+                .thenThrow(new ResourceNotFoundException("Id not found " + nonExistingId));
+
+        mockMvc.perform(put("/customers/{id}", nonExistingId)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateDTO)))
+                .andExpect(status().isNotFound());
+
+        Mockito.verify(service).update(eq(nonExistingId), ArgumentMatchers.any(CustomerUpdateDTO.class));
+    }
+
+    @Test
+    @WithMockUser
+    public void updatePhotoShouldReturnNoContentWhenFileExists() throws Exception {
         Long existingId = 1L;
 
         MockMultipartFile file = new MockMultipartFile(
@@ -213,123 +306,100 @@ public class CustomerControllerIT {
                         .with(csrf()))
                 .andExpect(status().isNoContent());
 
-        Mockito.verify(service, Mockito.times(1))
-                .updatePhoto(eq(existingId), ArgumentMatchers.any());
+        Mockito.verify(service).updatePhoto(eq(existingId), ArgumentMatchers.any());
+    }
+
+    @Test
+    @WithMockUser
+    public void updatePhotoShouldReturnNotFoundWhenCustomerDoesNotExist() throws Exception {
+        Long nonExistingId = 999L;
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "photo.jpg",
+                "image/jpeg",
+                "fake-image-content".getBytes()
+        );
+
+        Mockito.doThrow(new ResourceNotFoundException("Id not found " + nonExistingId))
+                .when(service).updatePhoto(eq(nonExistingId), ArgumentMatchers.any());
+
+        mockMvc.perform(multipart("/customers/{id}/photo", nonExistingId)
+                        .file(file)
+                        .with(request -> {
+                            request.setMethod("PUT");
+                            return request;
+                        })
+                        .with(csrf()))
+                .andExpect(status().isNotFound());
+
+        Mockito.verify(service).updatePhoto(eq(nonExistingId), ArgumentMatchers.any());
+    }
+
+    @Test
+    @WithMockUser
+    public void updatePhotoShouldReturnBadRequestWhenFileParamIsMissing() throws Exception {
+        Long existingId = 1L;
+
+        mockMvc.perform(multipart("/customers/{id}/photo", existingId)
+                        .with(request -> {
+                            request.setMethod("PUT");
+                            return request;
+                        })
+                        .with(csrf()))
+                .andExpect(status().isBadRequest());
+
+        Mockito.verify(service, Mockito.never()).updatePhoto(eq(existingId), ArgumentMatchers.any());
     }
 
     @Test
     public void getPhotoShouldReturnPhotoWhenExists() throws Exception {
         Long existingId = 1L;
 
-        Customer customer = new Customer();
-        customer.setId(existingId);
+        Customer customer = CustomerFactory.createCustomer(existingId);
         customer.setPhoto("fake-image-content".getBytes());
         customer.setPhotoContentType("image/jpeg");
 
-        Mockito.when(service.findEntityById(existingId))
-                .thenReturn(customer);
+        Mockito.when(service.findEntityById(existingId)).thenReturn(customer);
 
         mockMvc.perform(get("/customers/{id}/photo", existingId))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("image/jpeg"))
                 .andExpect(content().bytes("fake-image-content".getBytes()));
 
-        Mockito.verify(service, Mockito.times(1)).findEntityById(existingId);
+        Mockito.verify(service).findEntityById(existingId);
     }
 
     @Test
     public void getPhotoShouldReturnNoContentWhenPhotoIsNull() throws Exception {
         Long existingId = 1L;
 
-        Customer customer = new Customer();
-        customer.setId(existingId);
+        Customer customer = CustomerFactory.createCustomer(existingId);
         customer.setPhoto(null);
         customer.setPhotoContentType("image/jpeg");
 
-        Mockito.when(service.findEntityById(existingId))
-                .thenReturn(customer);
+        Mockito.when(service.findEntityById(existingId)).thenReturn(customer);
 
         mockMvc.perform(get("/customers/{id}/photo", existingId))
                 .andExpect(status().isNoContent());
 
-        Mockito.verify(service, Mockito.times(1)).findEntityById(existingId);
+        Mockito.verify(service).findEntityById(existingId);
     }
 
     @Test
-    @WithMockUser
-    public void updateShouldReturnOkAndCustomerDTO() throws Exception {
+    public void getPhotoShouldReturnNoContentWhenPhotoIsEmpty() throws Exception {
         Long existingId = 1L;
 
-        CustomerUpdateDTO updateDTO = new CustomerUpdateDTO();
-        updateDTO.setName("Maria Atualizada");
-        updateDTO.setCpf("52998224725");
-        updateDTO.setEmail("nova@email.com");
-        updateDTO.setPhone("31888888888");
-        updateDTO.setAddress("Rua B, 200");
+        Customer customer = CustomerFactory.createCustomer(existingId);
+        customer.setPhoto(new byte[0]);
+        customer.setPhotoContentType("image/jpeg");
 
-        CustomerDTO responseDTO = new CustomerDTO();
-        responseDTO.setId(existingId);
-        responseDTO.setName("Maria Atualizada");
-        responseDTO.setCpf("52998224725");
-        responseDTO.setEmail("nova@email.com");
-        responseDTO.setPhone("31888888888");
-        responseDTO.setAddress("Rua B, 200");
+        Mockito.when(service.findEntityById(existingId)).thenReturn(customer);
 
-        Mockito.when(service.update(eq(existingId), ArgumentMatchers.any(CustomerUpdateDTO.class)))
-                .thenReturn(responseDTO);
+        mockMvc.perform(get("/customers/{id}/photo", existingId))
+                .andExpect(status().isNoContent());
 
-        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/customers/{id}", existingId)
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateDTO)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(existingId.intValue())))
-                .andExpect(jsonPath("$.name", is("Maria Atualizada")))
-                .andExpect(jsonPath("$.email", is("nova@email.com")));
-
-        Mockito.verify(service, Mockito.times(1))
-                .update(eq(existingId), ArgumentMatchers.any(CustomerUpdateDTO.class));
-    }
-
-    @Test
-    @WithMockUser
-    public void updateShouldReturnUnprocessableEntityWhenInvalidData() throws Exception {
-        Long existingId = 1L;
-
-        CustomerUpdateDTO updateDTO = new CustomerUpdateDTO();
-        updateDTO.setName(""); // inválido (@NotBlank)
-
-        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/customers/{id}", existingId)
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateDTO)))
-                .andExpect(status().isUnprocessableEntity());
-
-        Mockito.verify(service, Mockito.never())
-                .update(eq(existingId), ArgumentMatchers.any());
-    }
-
-    @Test
-    @WithMockUser
-    public void updateShouldReturnNotFoundWhenIdDoesNotExist() throws Exception {
-        Long nonExistingId = 999L;
-
-        CustomerUpdateDTO updateDTO = new CustomerUpdateDTO();
-        updateDTO.setName("Maria");
-        updateDTO.setCpf("52998224725"); // ✅ obrigatório
-        updateDTO.setEmail("maria@email.com");
-
-        Mockito.when(service.update(eq(nonExistingId), ArgumentMatchers.any(CustomerUpdateDTO.class)))
-                .thenThrow(new ResourceNotFoundException("Id not found " + nonExistingId));
-
-        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/customers/{id}", nonExistingId)
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateDTO)))
-                .andExpect(status().isNotFound());
-
-        Mockito.verify(service, Mockito.times(1))
-                .update(eq(nonExistingId), ArgumentMatchers.any(CustomerUpdateDTO.class));
+        Mockito.verify(service).findEntityById(existingId);
     }
 
     @Test
@@ -339,12 +409,11 @@ public class CustomerControllerIT {
 
         Mockito.doNothing().when(service).delete(existingId);
 
-        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                        .delete("/customers/{id}", existingId)
+        mockMvc.perform(delete("/customers/{id}", existingId)
                         .with(csrf()))
                 .andExpect(status().isNoContent());
 
-        Mockito.verify(service, Mockito.times(1)).delete(existingId);
+        Mockito.verify(service).delete(existingId);
     }
 
     @Test
@@ -355,28 +424,13 @@ public class CustomerControllerIT {
         Mockito.doThrow(new ResourceNotFoundException("Id not found " + nonExistingId))
                 .when(service).delete(nonExistingId);
 
-        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                        .delete("/customers/{id}", nonExistingId)
+        mockMvc.perform(delete("/customers/{id}", nonExistingId)
                         .with(csrf()))
                 .andExpect(status().isNotFound());
 
-        Mockito.verify(service, Mockito.times(1)).delete(nonExistingId);
+        Mockito.verify(service).delete(nonExistingId);
     }
 
-    @Test
-    @WithMockUser
-    public void deleteShouldCallServiceDelete() throws Exception {
-        Long existingId = 1L;
-
-        Mockito.doNothing().when(service).delete(existingId);
-
-        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                        .delete("/customers/{id}", existingId)
-                        .with(csrf()))
-                .andExpect(status().isNoContent());
-
-        Mockito.verify(service, Mockito.times(1)).delete(existingId);
-    }
 
     @Test
     @WithMockUser
@@ -385,14 +439,13 @@ public class CustomerControllerIT {
 
         Mockito.doNothing().when(service).deleteAll(ids);
 
-        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                        .delete("/customers/all")
+        mockMvc.perform(delete("/customers/all")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(ids)))
                 .andExpect(status().isNoContent());
 
-        Mockito.verify(service, Mockito.times(1)).deleteAll(ids);
+        Mockito.verify(service).deleteAll(ids);
     }
 
     @Test
@@ -403,14 +456,13 @@ public class CustomerControllerIT {
         Mockito.doThrow(new IllegalArgumentException("Lista de ids vazia"))
                 .when(service).deleteAll(ids);
 
-        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                        .delete("/customers/all")
+        mockMvc.perform(delete("/customers/all")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(ids)))
                 .andExpect(status().isBadRequest());
 
-        Mockito.verify(service, Mockito.times(1)).deleteAll(ids);
+        Mockito.verify(service).deleteAll(ids);
     }
 
     @Test
@@ -421,14 +473,13 @@ public class CustomerControllerIT {
         Mockito.doThrow(new ResourceNotFoundException("Um ou mais IDs não existem"))
                 .when(service).deleteAll(ids);
 
-        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                        .delete("/customers/all")
+        mockMvc.perform(delete("/customers/all")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(ids)))
                 .andExpect(status().isNotFound());
 
-        Mockito.verify(service, Mockito.times(1)).deleteAll(ids);
+        Mockito.verify(service).deleteAll(ids);
     }
 
     @Test
@@ -439,15 +490,13 @@ public class CustomerControllerIT {
 
         Mockito.doNothing().when(service).changeActiveStatus(existingId, active);
 
-        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                        .patch("/customers/{id}/active", existingId)
+        mockMvc.perform(patch("/customers/{id}/active", existingId)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(active)))
                 .andExpect(status().isNoContent());
 
-        Mockito.verify(service, Mockito.times(1))
-                .changeActiveStatus(existingId, active);
+        Mockito.verify(service).changeActiveStatus(existingId, active);
     }
 
     @Test
@@ -459,15 +508,13 @@ public class CustomerControllerIT {
         Mockito.doThrow(new ResourceNotFoundException("Id not found " + nonExistingId))
                 .when(service).changeActiveStatus(nonExistingId, active);
 
-        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                        .patch("/customers/{id}/active", nonExistingId)
+        mockMvc.perform(patch("/customers/{id}/active", nonExistingId)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(active)))
                 .andExpect(status().isNotFound());
 
-        Mockito.verify(service, Mockito.times(1))
-                .changeActiveStatus(nonExistingId, active);
+        Mockito.verify(service).changeActiveStatus(nonExistingId, active);
     }
 
     @Test
@@ -476,18 +523,15 @@ public class CustomerControllerIT {
         Long existingId = 1L;
         boolean active = true;
 
-        Mockito.doThrow(new RuntimeException("Error changing user status."))
+        Mockito.doThrow(new RuntimeException("Error changing customer status."))
                 .when(service).changeActiveStatus(existingId, active);
 
-        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                        .patch("/customers/{id}/active", existingId)
+        mockMvc.perform(patch("/customers/{id}/active", existingId)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(active)))
                 .andExpect(status().isInternalServerError());
 
-        Mockito.verify(service, Mockito.times(1))
-                .changeActiveStatus(existingId, active);
+        Mockito.verify(service).changeActiveStatus(existingId, active);
     }
-
 }

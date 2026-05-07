@@ -1,13 +1,14 @@
 package com.locadora_rdt_backend.modules.employees.controller;
 
 import com.locadora_rdt_backend.modules.employees.dto.EmployeeDTO;
+import com.locadora_rdt_backend.modules.employees.dto.EmployeeDetailsDTO;
 import com.locadora_rdt_backend.modules.employees.dto.EmployeeInsertDTO;
 import com.locadora_rdt_backend.modules.employees.dto.EmployeeUpdateDTO;
 import com.locadora_rdt_backend.modules.employees.model.Employee;
 import com.locadora_rdt_backend.modules.employees.service.EmployeeService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,22 +35,23 @@ public class EmployeeController {
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "linesPerPage", defaultValue = "3") Integer linesPerPage,
             @RequestParam(value = "direction", defaultValue = "ASC") String direction,
-            @RequestParam(value = "orderBy", defaultValue = "name") String orderBy) {
-
+            @RequestParam(value = "orderBy", defaultValue = "name") String orderBy
+    ) {
         PageRequest pageRequest = PageRequest.of(
                 page,
                 linesPerPage,
-                Sort.Direction.valueOf(direction),
+                Direction.valueOf(direction),
                 orderBy
         );
 
         Page<EmployeeDTO> list = service.findAllPaged(name.trim(), pageRequest);
+
         return ResponseEntity.ok(list);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EmployeeDTO> findById(@PathVariable Long id) {
-        EmployeeDTO dto = service.findById(id);
+    public ResponseEntity<EmployeeDetailsDTO> findById(@PathVariable Long id) {
+        EmployeeDetailsDTO dto = service.findById(id);
         return ResponseEntity.ok(dto);
     }
 
@@ -68,17 +70,17 @@ public class EmployeeController {
     @PutMapping("/{id}")
     public ResponseEntity<EmployeeDTO> update(
             @PathVariable Long id,
-            @Valid @RequestBody EmployeeUpdateDTO dto) {
-
-        EmployeeDTO employeeDto = service.update(id, dto);
-        return ResponseEntity.ok(employeeDto);
+            @Valid @RequestBody EmployeeUpdateDTO dto
+    ) {
+        EmployeeDTO result = service.update(id, dto);
+        return ResponseEntity.ok(result);
     }
 
     @PutMapping(value = "/{id}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> updatePhoto(
             @PathVariable Long id,
-            @RequestParam("file") MultipartFile file) {
-
+            @RequestParam("file") MultipartFile file
+    ) {
         service.updatePhoto(id, file);
         return ResponseEntity.noContent().build();
     }
@@ -109,9 +111,11 @@ public class EmployeeController {
     }
 
     @PatchMapping("/{id}/active")
-    public ResponseEntity<EmployeeDTO> changeActive(@PathVariable Long id, @RequestBody boolean active) {
+    public ResponseEntity<Void> changeActive(
+            @PathVariable Long id,
+            @RequestBody boolean active
+    ) {
         service.changeActiveStatus(id, active);
         return ResponseEntity.noContent().build();
     }
-
 }

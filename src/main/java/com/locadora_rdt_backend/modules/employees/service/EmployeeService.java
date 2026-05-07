@@ -4,8 +4,10 @@ import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
 import com.locadora_rdt_backend.modules.employees.departments.model.Department;
 import com.locadora_rdt_backend.modules.employees.departments.repository.DepartmentRepository;
 import com.locadora_rdt_backend.modules.employees.dto.EmployeeDTO;
+import com.locadora_rdt_backend.modules.employees.dto.EmployeeDetailsDTO;
 import com.locadora_rdt_backend.modules.employees.dto.EmployeeInsertDTO;
 import com.locadora_rdt_backend.modules.employees.dto.EmployeeUpdateDTO;
+import com.locadora_rdt_backend.modules.employees.mapper.EmployeeMapper;
 import com.locadora_rdt_backend.modules.employees.model.Employee;
 import com.locadora_rdt_backend.modules.employees.positions.model.Position;
 import com.locadora_rdt_backend.modules.employees.positions.repository.PositionRepository;
@@ -14,14 +16,18 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
-import java.time.Instant;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,6 +36,7 @@ public class EmployeeService {
     private final EmployeeRepository repository;
     private final PositionRepository positionRepository;
     private final DepartmentRepository departmentRepository;
+    private final EmployeeMapper mapper;
 
     private static final Set<String> ALLOWED_TYPES = new HashSet<>(
             Arrays.asList("image/jpeg", "image/png", "image/webp")
@@ -40,45 +47,69 @@ public class EmployeeService {
     public EmployeeService(
             EmployeeRepository repository,
             PositionRepository positionRepository,
-            DepartmentRepository departmentRepository
+            DepartmentRepository departmentRepository,
+            EmployeeMapper mapper
     ) {
         this.repository = repository;
         this.positionRepository = positionRepository;
         this.departmentRepository = departmentRepository;
+        this.mapper = mapper;
     }
 
     @Transactional(readOnly = true)
     public Page<EmployeeDTO> findAllPaged(String name, PageRequest pageRequest) {
-        Page<Employee> list = repository.find(name, pageRequest);
-        return list.map(EmployeeDTO::new);
+        return repository.find(name, pageRequest)
+                .map(mapper::toDTO);
     }
 
     @Transactional(readOnly = true)
-    public EmployeeDTO findById(Long id) {
+    public EmployeeDetailsDTO findById(Long id) {
         Employee entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Funcionário não encontrado"));
-        return new EmployeeDTO(entity);
+
+        return mapper.toDetailsDTO(entity);
     }
 
     @Transactional
     public EmployeeDTO insert(EmployeeInsertDTO dto) {
-        Employee entity = new Employee();
-        copyInsertDtoToEntity(dto, entity);
-        entity = repository.save(entity);
-        return new EmployeeDTO(entity);
+        try {
+            Employee entity = mapper.toEntity(dto);
 
+            Position position = positionRepository.getOne(dto.getPositionId());
+            Department department = departmentRepository.getOne(dto.getDepartmentId());
+
+            entity.setPosition(position);
+            entity.setDepartment(department);
+            entity.setCreatedBy(getAuthenticatedUsername());
+
+            entity = repository.save(entity);
+
+            return mapper.toDTO(entity);
+        } catch (EntityNotFoundException e) {
+            throw new ResourceNotFoundException("Cargo ou setor não encontrado");
+        }
     }
 
     @Transactional
     public EmployeeDTO update(Long id, EmployeeUpdateDTO dto) {
         try {
             Employee entity = repository.getOne(id);
-            copyUpdateDtoToEntity(dto, entity);
+
+            mapper.updateEntity(entity, dto);
+
+            Position position = positionRepository.getOne(dto.getPositionId());
+            Department department = departmentRepository.getOne(dto.getDepartmentId());
+
+            entity.setPosition(position);
+            entity.setDepartment(department);
+            entity.setUpdatedBy(getAuthenticatedUsername());
+
             entity = repository.save(entity);
-            return new EmployeeDTO(entity);
+
+            return mapper.toDTO(entity);
 
         } catch (EntityNotFoundException e) {
-            throw new ResourceNotFoundException("Id not found " + id);
+            throw new ResourceNotFoundException("Funcionário, cargo ou setor não encontrado");
         }
     }
 
@@ -96,6 +127,7 @@ public class EmployeeService {
         try {
             entity.setPhoto(file.getBytes());
             entity.setPhotoContentType(file.getContentType());
+            entity.setUpdatedBy(getAuthenticatedUsername());
         } catch (IOException e) {
             throw new RuntimeException("Falha ao ler bytes do arquivo.", e);
         }
@@ -109,57 +141,6 @@ public class EmployeeService {
                 .orElseThrow(() -> new ResourceNotFoundException("Funcionário não encontrado"));
     }
 
-    private void validatePhoto(MultipartFile file) {
-        String contentType = file.getContentType();
-
-        if (contentType == null || !ALLOWED_TYPES.contains(contentType)) {
-            throw new IllegalArgumentException("Tipo de arquivo inválido. Use JPG, PNG ou WEBP.");
-        }
-
-        if (file.getSize() > MAX_PHOTO_SIZE) {
-            throw new IllegalArgumentException("Foto muito grande. Máximo: 2MB.");
-        }
-    }
-
-    private void copyInsertDtoToEntity(EmployeeInsertDTO dto, Employee entity) {
-        entity.setName(dto.getName());
-        entity.setEmployeeCode(dto.getEmployeeCode());
-        entity.setEmail(dto.getEmail());
-        entity.setPhone(dto.getPhone());
-        entity.setAddress(dto.getAddress());
-        entity.setSalary(dto.getSalary());
-        entity.setHireDate(dto.getHireDate());
-        entity.setTerminationDate(dto.getTerminationDate());
-        entity.setEmploymentType(dto.getEmploymentType());
-        entity.setCreatedAt(Instant.now());
-        entity.setActive(false);
-
-        Position position = positionRepository.getOne(dto.getPositionId());
-        entity.setPosition(position);
-
-        Department department = departmentRepository.getOne(dto.getDepartmentId());
-        entity.setDepartment(department);
-    }
-
-    private void copyUpdateDtoToEntity(EmployeeUpdateDTO dto, Employee entity) {
-        entity.setName(dto.getName());
-        entity.setEmployeeCode(dto.getEmployeeCode());
-        entity.setEmail(dto.getEmail());
-        entity.setPhone(dto.getPhone());
-        entity.setAddress(dto.getAddress());
-        entity.setSalary(dto.getSalary());
-        entity.setHireDate(dto.getHireDate());
-        entity.setTerminationDate(dto.getTerminationDate());
-        entity.setEmploymentType(dto.getEmploymentType());
-        entity.setUpdatedAt(Instant.now());
-
-        Position position = positionRepository.getOne(dto.getPositionId());
-        entity.setPosition(position);
-
-        Department department = departmentRepository.getOne(dto.getDepartmentId());
-        entity.setDepartment(department);
-    }
-
     public void delete(Long id) {
         try {
             repository.deleteById(id);
@@ -170,7 +151,6 @@ public class EmployeeService {
 
     @Transactional
     public void deleteAll(List<Long> ids) {
-
         if (ids == null || ids.isEmpty()) {
             throw new IllegalArgumentException("Lista de ids vazia");
         }
@@ -179,7 +159,6 @@ public class EmployeeService {
                 .stream()
                 .map(Employee::getId)
                 .collect(Collectors.toList());
-
 
         if (existingIds.size() != ids.size()) {
             throw new ResourceNotFoundException("Um ou mais IDs não existem");
@@ -196,10 +175,32 @@ public class EmployeeService {
             if (updated == 0) {
                 throw new ResourceNotFoundException("Id not found " + id);
             }
-
         } catch (DataAccessException e) {
-            throw new RuntimeException("Error changing user status.", e);
+            throw new RuntimeException("Error changing employee status.", e);
         }
     }
 
+    private void validatePhoto(MultipartFile file) {
+        String contentType = file.getContentType();
+
+        if (contentType == null || !ALLOWED_TYPES.contains(contentType)) {
+            throw new IllegalArgumentException("Tipo de arquivo inválido. Use JPG, PNG ou WEBP.");
+        }
+
+        if (file.getSize() > MAX_PHOTO_SIZE) {
+            throw new IllegalArgumentException("Foto muito grande. Máximo: 2MB.");
+        }
+    }
+
+    private String getAuthenticatedUsername() {
+        Authentication authentication = SecurityContextHolder
+                .getContext()
+                .getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "SYSTEM";
+        }
+
+        return authentication.getName();
+    }
 }

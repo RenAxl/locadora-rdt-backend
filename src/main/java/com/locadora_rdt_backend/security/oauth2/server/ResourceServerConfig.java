@@ -54,10 +54,30 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 
                 .antMatchers(HttpMethod.GET, "/permissions/**").hasAuthority("PERMISSION_READ")
 
-                //.antMatchers(HttpMethod.GET, "/customers/**").hasAuthority("CUSTOMER_READ")
-                //.antMatchers(HttpMethod.PUT, "/customers/**").hasAuthority("CUSTOMER_WRITE")
-                //.antMatchers(HttpMethod.DELETE, "/customers/**").hasAuthority("CUSTOMER_DELETE")
-                //.antMatchers(HttpMethod.PATCH, "/customers/*/active").hasAuthority("CUSTOMER_STATUS_CHANGE")
+                .antMatchers(HttpMethod.GET, "/customers/**").hasAuthority("CUSTOMER_READ")
+                .antMatchers(HttpMethod.PUT, "/customers/**").hasAuthority("CUSTOMER_WRITE")
+                .antMatchers(HttpMethod.DELETE, "/customers/**").hasAuthority("CUSTOMER_DELETE")
+                .antMatchers(HttpMethod.PATCH, "/customers/*/active").hasAuthority("CUSTOMER_STATUS_CHANGE")
+                .antMatchers(HttpMethod.GET, "/customers/*/files/**").hasAuthority("CUSTOMER_FILE_READ")
+                .antMatchers(HttpMethod.POST, "/customers/*/files/**").hasAuthority("CUSTOMER_FILE_WRITE")
+                .antMatchers(HttpMethod.DELETE, "/customers/*/files/**").hasAuthority("CUSTOMER_FILE_DELETE")
+
+
+               // .antMatchers(HttpMethod.GET, "/employees/**").hasAuthority("EMPLOYEE_READ")
+                //.antMatchers(HttpMethod.PUT, "/employees/**").hasAuthority("EMPLOYEE_WRITE")
+                //.antMatchers(HttpMethod.DELETE, "/employees/**").hasAuthority("EMPLOYEE_DELETE")
+               // .antMatchers(HttpMethod.PATCH, "/employees/*/active").hasAuthority("EMPLOYEE_STATUS_CHANGE")
+               // .antMatchers(HttpMethod.GET, "/employees/*/files/**").hasAuthority("EMPLOYEE_FILE_READ")
+               // .antMatchers(HttpMethod.POST, "/employees/*/files/**").hasAuthority("EMPLOYEE_FILE_WRITE")
+                //.antMatchers(HttpMethod.DELETE, "/employees/*/files/**").hasAuthority("EMPLOYEE_FILE_DELETE")
+
+                //.antMatchers(HttpMethod.GET, "/positions/**").hasAuthority("POSITION_READ")
+                //.antMatchers(HttpMethod.POST, "/positions/**").hasAuthority("POSITION_WRITE")
+                //.antMatchers(HttpMethod.PUT, "/positions/**").hasAuthority("POSITION_WRITE")
+
+                //.antMatchers(HttpMethod.GET, "/departments/**").hasAuthority("DEPARTMENT_READ")
+                //.antMatchers(HttpMethod.POST, "/departments/**").hasAuthority("DEPARTMENT_WRITE")
+                //.antMatchers(HttpMethod.PUT, "/departments/**").hasAuthority("DEPARTMENT_WRITE")
 
                 //.anyRequest().authenticated()
                 .and()

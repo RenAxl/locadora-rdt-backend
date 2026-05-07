@@ -32,6 +32,8 @@ public class CustomerUpdateDTO implements Serializable {
     @Size(max = 255, message = "Endereço deve ter no máximo 255 caracteres")
     private String address;
 
+    private Boolean active;
+
     public CustomerUpdateDTO() {
     }
 
@@ -81,5 +83,13 @@ public class CustomerUpdateDTO implements Serializable {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
     }
 }

@@ -2,11 +2,15 @@ package com.locadora_rdt_backend.tests.modules.customers.service;
 
 import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
 import com.locadora_rdt_backend.modules.customers.dto.CustomerDTO;
+import com.locadora_rdt_backend.modules.customers.dto.CustomerDetailsDTO;
 import com.locadora_rdt_backend.modules.customers.dto.CustomerInsertDTO;
 import com.locadora_rdt_backend.modules.customers.dto.CustomerUpdateDTO;
+import com.locadora_rdt_backend.modules.customers.mapper.CustomerMapper;
 import com.locadora_rdt_backend.modules.customers.model.Customer;
 import com.locadora_rdt_backend.modules.customers.repository.CustomerRepository;
 import com.locadora_rdt_backend.modules.customers.service.CustomerService;
+import com.locadora_rdt_backend.tests.modules.customers.factory.CustomerFactory;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,18 +20,23 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.time.Instant;
+import javax.persistence.EntityNotFoundException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
 public class CustomerServiceTests {
 
     @InjectMocks
@@ -36,213 +45,174 @@ public class CustomerServiceTests {
     @Mock
     private CustomerRepository repository;
 
-    private String existingName;
-    private String nonExistingName;
+    @Spy
+    private CustomerMapper mapper = new CustomerMapper();
+
+    private Long existingId;
+    private Long nonExistingId;
+
     private Customer customer;
-    private PageImpl<Customer> page;
-    private PageImpl<Customer> emptyPage;
     private CustomerInsertDTO insertDTO;
+    private CustomerUpdateDTO updateDTO;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
+        existingId = 1L;
+        nonExistingId = 999L;
 
-        existingName = "Maria";
-        nonExistingName = "João";
+        customer = CustomerFactory.createCustomer();
+        insertDTO = CustomerFactory.createCustomerInsertDTO();
+        updateDTO = CustomerFactory.createCustomerUpdateDTO();
+    }
 
-        customer = new Customer();
-        customer.setId(1L);
-        customer.setName("Maria Silva");
-        customer.setCpf("12345678900");
-        customer.setEmail("maria@email.com");
-        customer.setPhone("31999999999");
-        customer.setAddress("Rua A, 100");
-        customer.setActive(true);
-        customer.setCreatedAt(Instant.now());
-        customer.setUpdatedAt(Instant.now());
-
-        insertDTO = new CustomerInsertDTO();
-        insertDTO.setName("Maria Silva");
-        insertDTO.setCpf("12345678900");
-        insertDTO.setEmail("maria@email.com");
-        insertDTO.setPhone("31999999999");
-        insertDTO.setAddress("Rua A, 100");
-
-        page = new PageImpl<>(List.of(customer));
-        emptyPage = new PageImpl<>(List.of());
-
-        Mockito.when(repository.find(ArgumentMatchers.eq(existingName), ArgumentMatchers.any(PageRequest.class)))
-                .thenReturn(page);
-
-        Mockito.when(repository.find(ArgumentMatchers.eq(nonExistingName), ArgumentMatchers.any(PageRequest.class)))
-                .thenReturn(emptyPage);
-
-        Mockito.when(repository.find(ArgumentMatchers.eq(""), ArgumentMatchers.any(PageRequest.class)))
-                .thenReturn(page);
-
-        Mockito.when(repository.save(ArgumentMatchers.any(Customer.class)))
-                .thenAnswer(invocation -> {
-                    Customer entity = invocation.getArgument(0);
-                    entity.setId(1L);
-                    return entity;
-                });
+    @AfterEach
+    void tearDown() {
+        SecurityContextHolder.clearContext();
     }
 
     @Test
-    public void findAllPagedShouldReturnPageWhenNameExists() {
+    public void findAllPagedShouldReturnPageOfCustomerDTOWhenNameExists() {
+        String name = "Maria";
         PageRequest pageRequest = PageRequest.of(0, 10);
+        PageImpl<Customer> page = new PageImpl<>(List.of(customer));
 
-        Page<CustomerDTO> result = service.findAllPaged(existingName, pageRequest);
-
-        Assertions.assertNotNull(result);
-        Assertions.assertFalse(result.isEmpty());
-        Assertions.assertEquals(1, result.getTotalElements());
-        Mockito.verify(repository, Mockito.times(1)).find(existingName, pageRequest);
-    }
-
-    @Test
-    public void findAllPagedShouldReturnEmptyPageWhenNameDoesNotExist() {
-        PageRequest pageRequest = PageRequest.of(0, 10);
-
-        Page<CustomerDTO> result = service.findAllPaged(nonExistingName, pageRequest);
-
-        Assertions.assertNotNull(result);
-        Assertions.assertTrue(result.isEmpty());
-        Assertions.assertEquals(0, result.getTotalElements());
-        Mockito.verify(repository, Mockito.times(1)).find(nonExistingName, pageRequest);
-    }
-
-    @Test
-    public void findAllPagedShouldMapCustomerToCustomerDTO() {
-        String name = "";
-        PageRequest pageRequest = PageRequest.of(0, 10);
+        Mockito.when(repository.find(name, pageRequest)).thenReturn(page);
 
         Page<CustomerDTO> result = service.findAllPaged(name, pageRequest);
 
         Assertions.assertNotNull(result);
         Assertions.assertFalse(result.isEmpty());
+        Assertions.assertEquals(1, result.getTotalElements());
         Assertions.assertEquals(customer.getId(), result.getContent().get(0).getId());
         Assertions.assertEquals(customer.getName(), result.getContent().get(0).getName());
-        Assertions.assertEquals(customer.getCpf(), result.getContent().get(0).getCpf());
+
         Mockito.verify(repository, Mockito.times(1)).find(name, pageRequest);
+        Mockito.verify(mapper, Mockito.times(1)).toDTO(customer);
     }
 
     @Test
-    public void insertShouldSaveCustomerAndReturnDTO() {
+    public void findAllPagedShouldReturnEmptyPageWhenNameDoesNotExist() {
+        String name = "João";
+        PageRequest pageRequest = PageRequest.of(0, 10);
+        PageImpl<Customer> emptyPage = new PageImpl<>(Collections.emptyList());
+
+        Mockito.when(repository.find(name, pageRequest)).thenReturn(emptyPage);
+
+        Page<CustomerDTO> result = service.findAllPaged(name, pageRequest);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertTrue(result.isEmpty());
+        Assertions.assertEquals(0, result.getTotalElements());
+
+        Mockito.verify(repository, Mockito.times(1)).find(name, pageRequest);
+        Mockito.verify(mapper, Mockito.never()).toDTO(ArgumentMatchers.any(Customer.class));
+    }
+
+    @Test
+    public void findAllPagedShouldCallRepositoryWithEmptyName() {
+        String name = "";
+        PageRequest pageRequest = PageRequest.of(0, 10);
+        PageImpl<Customer> page = new PageImpl<>(List.of(customer));
+
+        Mockito.when(repository.find(name, pageRequest)).thenReturn(page);
+
+        Page<CustomerDTO> result = service.findAllPaged(name, pageRequest);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(1, result.getTotalElements());
+
+        Mockito.verify(repository, Mockito.times(1)).find(name, pageRequest);
+        Mockito.verify(mapper, Mockito.times(1)).toDTO(customer);
+    }
+
+    @Test
+    public void findByIdShouldReturnCustomerDetailsDTOWhenIdExists() {
+        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(customer));
+
+        CustomerDetailsDTO result = service.findById(existingId);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(existingId, result.getId());
+        Assertions.assertEquals(customer.getName(), result.getName());
+
+        Mockito.verify(repository, Mockito.times(1)).findById(existingId);
+        Mockito.verify(mapper, Mockito.times(1)).toDetailsDTO(customer);
+    }
+
+    @Test
+    public void findByIdShouldThrowResourceNotFoundExceptionWhenIdDoesNotExist() {
+        Mockito.when(repository.findById(nonExistingId)).thenReturn(Optional.empty());
+
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            service.findById(nonExistingId);
+        });
+
+        Mockito.verify(repository, Mockito.times(1)).findById(nonExistingId);
+        Mockito.verify(mapper, Mockito.never()).toDetailsDTO(ArgumentMatchers.any(Customer.class));
+    }
+
+    @Test
+    public void findByIdShouldNotUseToDTOBecauseUsesDetailsDTO() {
+        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(customer));
+
+        service.findById(existingId);
+
+        Mockito.verify(mapper, Mockito.times(1)).toDetailsDTO(customer);
+        Mockito.verify(mapper, Mockito.never()).toDTO(ArgumentMatchers.any(Customer.class));
+    }
+
+    @Test
+    public void insertShouldSaveCustomerAndReturnCustomerDTO() {
+        Mockito.when(repository.save(ArgumentMatchers.any(Customer.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
         CustomerDTO result = service.insert(insertDTO);
 
         Assertions.assertNotNull(result);
-        Assertions.assertEquals(1L, result.getId());
         Assertions.assertEquals(insertDTO.getName(), result.getName());
         Assertions.assertEquals(insertDTO.getCpf(), result.getCpf());
-        Assertions.assertEquals(insertDTO.getEmail(), result.getEmail());
-        Assertions.assertEquals(insertDTO.getPhone(), result.getPhone());
-        Assertions.assertEquals(insertDTO.getAddress(), result.getAddress());
 
+        Mockito.verify(mapper, Mockito.times(1)).toEntity(insertDTO);
         Mockito.verify(repository, Mockito.times(1)).save(ArgumentMatchers.any(Customer.class));
+        Mockito.verify(mapper, Mockito.times(1)).toDTO(ArgumentMatchers.any(Customer.class));
     }
 
     @Test
-    public void insertShouldSetActiveFalseAndCreatedAt() {
+    public void insertShouldSetCreatedByAsSystemWhenUserIsNotAuthenticated() {
+        Mockito.when(repository.save(ArgumentMatchers.any(Customer.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
         service.insert(insertDTO);
-
-        ArgumentCaptor<Customer> customerCaptor = ArgumentCaptor.forClass(Customer.class);
-        Mockito.verify(repository).save(customerCaptor.capture());
-
-        Customer savedEntity = customerCaptor.getValue();
-
-        Assertions.assertNotNull(savedEntity);
-        Assertions.assertFalse(savedEntity.getActive());
-        Assertions.assertNotNull(savedEntity.getCreatedAt());
-    }
-
-    @Test
-    public void insertShouldCopyInsertDtoDataToEntity() {
-        service.insert(insertDTO);
-
-        ArgumentCaptor<Customer> customerCaptor = ArgumentCaptor.forClass(Customer.class);
-        Mockito.verify(repository).save(customerCaptor.capture());
-
-        Customer savedEntity = customerCaptor.getValue();
-
-        Assertions.assertEquals(insertDTO.getName(), savedEntity.getName());
-        Assertions.assertEquals(insertDTO.getCpf(), savedEntity.getCpf());
-        Assertions.assertEquals(insertDTO.getEmail(), savedEntity.getEmail());
-        Assertions.assertEquals(insertDTO.getPhone(), savedEntity.getPhone());
-        Assertions.assertEquals(insertDTO.getAddress(), savedEntity.getAddress());
-    }
-
-    @Test
-    public void updatePhotoShouldUpdatePhotoWhenValidFile() throws Exception {
-        Long existingId = 1L;
-
-        MockMultipartFile file = new MockMultipartFile(
-                "file",
-                "photo.jpg",
-                "image/jpeg",
-                "fake-image-content".getBytes()
-        );
-
-        Mockito.when(repository.findById(existingId))
-                .thenReturn(Optional.of(customer));
-
-        service.updatePhoto(existingId, file);
 
         ArgumentCaptor<Customer> captor = ArgumentCaptor.forClass(Customer.class);
         Mockito.verify(repository).save(captor.capture());
 
-        Customer saved = captor.getValue();
-
-        Assertions.assertNotNull(saved.getPhoto());
-        Assertions.assertEquals("image/jpeg", saved.getPhotoContentType());
+        Assertions.assertEquals("SYSTEM", captor.getValue().getCreatedBy());
     }
 
     @Test
-    public void updatePhotoShouldThrowExceptionWhenFileIsEmpty() {
-        Long existingId = 1L;
+    public void insertShouldSetCreatedByWithAuthenticatedUsername() {
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken("renan", null, Collections.emptyList());
 
-        MockMultipartFile file = new MockMultipartFile(
-                "file",
-                "photo.jpg",
-                "image/jpeg",
-                new byte[]{} // vazio
-        );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        Mockito.when(repository.findById(existingId))
-                .thenReturn(Optional.of(customer));
+        Mockito.when(repository.save(ArgumentMatchers.any(Customer.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            service.updatePhoto(existingId, file);
-        });
+        service.insert(insertDTO);
 
-        Mockito.verify(repository, Mockito.never()).save(Mockito.any());
+        ArgumentCaptor<Customer> captor = ArgumentCaptor.forClass(Customer.class);
+        Mockito.verify(repository).save(captor.capture());
+
+        Assertions.assertEquals("renan", captor.getValue().getCreatedBy());
     }
 
     @Test
-    public void findEntityByIdShouldReturnCustomerWhenIdExists() {
-        Long existingId = 1L;
-
-        Mockito.when(repository.findById(existingId))
-                .thenReturn(Optional.of(customer));
-
-        Customer result = service.findEntityById(existingId);
-
-        Assertions.assertNotNull(result);
-        Assertions.assertEquals(existingId, result.getId());
-        Mockito.verify(repository).findById(existingId);
-    }
-
-    @Test
-    public void updateShouldUpdateCustomerWhenIdExists() {
-        Long existingId = 1L;
-
-        CustomerUpdateDTO updateDTO = new CustomerUpdateDTO();
-        updateDTO.setName("Maria Atualizada");
-        updateDTO.setCpf("12345678900");
-        updateDTO.setEmail("nova@email.com");
-        updateDTO.setPhone("31888888888");
-        updateDTO.setAddress("Rua B, 200");
-
+    public void updateShouldUpdateCustomerAndReturnCustomerDTOWhenIdExists() {
         Mockito.when(repository.getOne(existingId)).thenReturn(customer);
+        Mockito.when(repository.save(ArgumentMatchers.any(Customer.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         CustomerDTO result = service.update(existingId, updateDTO);
 
@@ -251,48 +221,132 @@ public class CustomerServiceTests {
         Assertions.assertEquals(updateDTO.getName(), result.getName());
         Assertions.assertEquals(updateDTO.getEmail(), result.getEmail());
 
-        Mockito.verify(repository).save(ArgumentMatchers.any(Customer.class));
+        Mockito.verify(repository, Mockito.times(1)).getOne(existingId);
+        Mockito.verify(mapper, Mockito.times(1)).updateEntity(customer, updateDTO);
+        Mockito.verify(repository, Mockito.times(1)).save(customer);
+        Mockito.verify(mapper, Mockito.times(1)).toDTO(customer);
     }
 
     @Test
-    public void updateShouldSetUpdatedAtWhenUpdatingCustomer() {
-        Long existingId = 1L;
-
-        CustomerUpdateDTO updateDTO = new CustomerUpdateDTO();
-        updateDTO.setName("Maria Atualizada");
-
+    public void updateShouldSetUpdatedByAsSystemWhenUserIsNotAuthenticated() {
         Mockito.when(repository.getOne(existingId)).thenReturn(customer);
+        Mockito.when(repository.save(ArgumentMatchers.any(Customer.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         service.update(existingId, updateDTO);
 
         ArgumentCaptor<Customer> captor = ArgumentCaptor.forClass(Customer.class);
         Mockito.verify(repository).save(captor.capture());
 
-        Customer savedEntity = captor.getValue();
-
-        Assertions.assertNotNull(savedEntity.getUpdatedAt());
+        Assertions.assertEquals("SYSTEM", captor.getValue().getUpdatedBy());
     }
 
     @Test
     public void updateShouldThrowResourceNotFoundExceptionWhenIdDoesNotExist() {
-        Long nonExistingId = 999L;
-
-        CustomerUpdateDTO updateDTO = new CustomerUpdateDTO();
-
-        Mockito.when(repository.getOne(nonExistingId))
-                .thenThrow(javax.persistence.EntityNotFoundException.class);
+        Mockito.when(repository.getOne(nonExistingId)).thenThrow(EntityNotFoundException.class);
 
         Assertions.assertThrows(ResourceNotFoundException.class, () -> {
             service.update(nonExistingId, updateDTO);
         });
 
-        Mockito.verify(repository, Mockito.never()).save(Mockito.any());
+        Mockito.verify(repository, Mockito.times(1)).getOne(nonExistingId);
+        Mockito.verify(repository, Mockito.never()).save(ArgumentMatchers.any(Customer.class));
+    }
+
+    @Test
+    public void updatePhotoShouldUpdatePhotoWhenValidFile() {
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "photo.jpg",
+                "image/jpeg",
+                "fake-image-content".getBytes()
+        );
+
+        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(customer));
+        Mockito.when(repository.save(customer)).thenReturn(customer);
+
+        service.updatePhoto(existingId, file);
+
+        ArgumentCaptor<Customer> captor = ArgumentCaptor.forClass(Customer.class);
+        Mockito.verify(repository).save(captor.capture());
+
+        Assertions.assertNotNull(captor.getValue().getPhoto());
+        Assertions.assertEquals("image/jpeg", captor.getValue().getPhotoContentType());
+    }
+
+    @Test
+    public void updatePhotoShouldThrowResourceNotFoundExceptionWhenCustomerDoesNotExist() {
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "photo.jpg",
+                "image/jpeg",
+                "fake-image-content".getBytes()
+        );
+
+        Mockito.when(repository.findById(nonExistingId)).thenReturn(Optional.empty());
+
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            service.updatePhoto(nonExistingId, file);
+        });
+
+        Mockito.verify(repository, Mockito.times(1)).findById(nonExistingId);
+        Mockito.verify(repository, Mockito.never()).save(ArgumentMatchers.any(Customer.class));
+    }
+
+    @Test
+    public void updatePhotoShouldThrowIllegalArgumentExceptionWhenFileTypeIsInvalid() {
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "photo.gif",
+                "image/gif",
+                "fake-image-content".getBytes()
+        );
+
+        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(customer));
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            service.updatePhoto(existingId, file);
+        });
+
+        Mockito.verify(repository, Mockito.times(1)).findById(existingId);
+        Mockito.verify(repository, Mockito.never()).save(ArgumentMatchers.any(Customer.class));
+    }
+
+    @Test
+    public void findEntityByIdShouldReturnCustomerWhenIdExists() {
+        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(customer));
+
+        Customer result = service.findEntityById(existingId);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(existingId, result.getId());
+
+        Mockito.verify(repository, Mockito.times(1)).findById(existingId);
+    }
+
+    @Test
+    public void findEntityByIdShouldThrowResourceNotFoundExceptionWhenIdDoesNotExist() {
+        Mockito.when(repository.findById(nonExistingId)).thenReturn(Optional.empty());
+
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            service.findEntityById(nonExistingId);
+        });
+
+        Mockito.verify(repository, Mockito.times(1)).findById(nonExistingId);
+    }
+
+    @Test
+    public void findEntityByIdShouldNotUseMapperBecauseReturnsEntity() {
+        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(customer));
+
+        service.findEntityById(existingId);
+
+        Mockito.verify(mapper, Mockito.never()).toDTO(ArgumentMatchers.any(Customer.class));
+        Mockito.verify(mapper, Mockito.never()).toDetailsDTO(ArgumentMatchers.any(Customer.class));
     }
 
     @Test
     public void deleteShouldDoNothingWhenIdExists() {
-        Long existingId = 1L;
-
         Mockito.doNothing().when(repository).deleteById(existingId);
 
         Assertions.assertDoesNotThrow(() -> {
@@ -303,20 +357,7 @@ public class CustomerServiceTests {
     }
 
     @Test
-    public void deleteShouldCallRepositoryDeleteById() {
-        Long existingId = 1L;
-
-        Mockito.doNothing().when(repository).deleteById(existingId);
-
-        service.delete(existingId);
-
-        Mockito.verify(repository, Mockito.times(1)).deleteById(existingId);
-    }
-
-    @Test
     public void deleteShouldThrowResourceNotFoundExceptionWhenIdDoesNotExist() {
-        Long nonExistingId = 999L;
-
         Mockito.doThrow(EmptyResultDataAccessException.class)
                 .when(repository).deleteById(nonExistingId);
 
@@ -328,103 +369,93 @@ public class CustomerServiceTests {
     }
 
     @Test
-    public void deleteAllShouldDeleteWhenIdsExist() {
+    public void deleteShouldNotCallFindByIdBeforeDelete() {
+        Mockito.doNothing().when(repository).deleteById(existingId);
+
+        service.delete(existingId);
+
+        Mockito.verify(repository, Mockito.times(1)).deleteById(existingId);
+        Mockito.verify(repository, Mockito.never()).findById(ArgumentMatchers.anyLong());
+    }
+
+    @Test
+    public void deleteAllShouldDeleteAllCustomersWhenAllIdsExist() {
         List<Long> ids = List.of(1L, 2L);
 
-        Customer c1 = new Customer();
-        c1.setId(1L);
+        Customer customer1 = CustomerFactory.createCustomer(1L);
+        Customer customer2 = CustomerFactory.createCustomer(2L);
 
-        Customer c2 = new Customer();
-        c2.setId(2L);
+        Mockito.when(repository.findAllById(ids)).thenReturn(List.of(customer1, customer2));
 
-        Mockito.when(repository.findAllById(ids))
-                .thenReturn(List.of(c1, c2));
-
-        Mockito.doNothing().when(repository).deleteAllByIds(ids);
-
-        Assertions.assertDoesNotThrow(() -> {
-            service.deleteAll(ids);
-        });
+        service.deleteAll(ids);
 
         Mockito.verify(repository, Mockito.times(1)).findAllById(ids);
         Mockito.verify(repository, Mockito.times(1)).deleteAllByIds(ids);
     }
 
     @Test
-    public void deleteAllShouldThrowIllegalArgumentExceptionWhenListIsEmpty() {
-        List<Long> ids = List.of();
-
+    public void deleteAllShouldThrowIllegalArgumentExceptionWhenIdsIsNull() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            service.deleteAll(ids);
+            service.deleteAll(null);
         });
 
-        Mockito.verify(repository, Mockito.never()).deleteAllByIds(Mockito.any());
+        Mockito.verify(repository, Mockito.never()).findAllById(ArgumentMatchers.anyList());
+        Mockito.verify(repository, Mockito.never()).deleteAllByIds(ArgumentMatchers.anyList());
     }
 
     @Test
-    public void deleteAllShouldThrowResourceNotFoundExceptionWhenIdsDoNotExist() {
+    public void deleteAllShouldThrowResourceNotFoundExceptionWhenSomeIdDoesNotExist() {
         List<Long> ids = List.of(1L, 2L);
 
-        Customer c1 = new Customer();
-        c1.setId(1L);
+        Customer customer1 = CustomerFactory.createCustomer(1L);
 
-        // Simula que só 1 ID existe
-        Mockito.when(repository.findAllById(ids))
-                .thenReturn(List.of(c1));
+        Mockito.when(repository.findAllById(ids)).thenReturn(List.of(customer1));
 
         Assertions.assertThrows(ResourceNotFoundException.class, () -> {
             service.deleteAll(ids);
         });
 
         Mockito.verify(repository, Mockito.times(1)).findAllById(ids);
-        Mockito.verify(repository, Mockito.never()).deleteAllByIds(Mockito.any());
+        Mockito.verify(repository, Mockito.never()).deleteAllByIds(ArgumentMatchers.anyList());
     }
 
     @Test
-    public void changeActiveStatusShouldUpdateWhenIdExists() {
-        Long existingId = 1L;
-        boolean active = true;
+    public void changeActiveStatusShouldUpdateStatusWhenIdExists() {
+        boolean active = false;
 
-        Mockito.when(repository.updateActiveById(existingId, active))
-                .thenReturn(1);
+        Mockito.when(repository.updateActiveById(existingId, active)).thenReturn(1);
 
         Assertions.assertDoesNotThrow(() -> {
             service.changeActiveStatus(existingId, active);
         });
 
-        Mockito.verify(repository, Mockito.times(1))
-                .updateActiveById(existingId, active);
+        Mockito.verify(repository, Mockito.times(1)).updateActiveById(existingId, active);
     }
 
     @Test
     public void changeActiveStatusShouldThrowResourceNotFoundExceptionWhenIdDoesNotExist() {
-        Long nonExistingId = 999L;
         boolean active = true;
 
-        Mockito.when(repository.updateActiveById(nonExistingId, active))
-                .thenReturn(0);
+        Mockito.when(repository.updateActiveById(nonExistingId, active)).thenReturn(0);
 
         Assertions.assertThrows(ResourceNotFoundException.class, () -> {
             service.changeActiveStatus(nonExistingId, active);
         });
 
-        Mockito.verify(repository, Mockito.times(1))
-                .updateActiveById(nonExistingId, active);
+        Mockito.verify(repository, Mockito.times(1)).updateActiveById(nonExistingId, active);
     }
 
     @Test
     public void changeActiveStatusShouldThrowRuntimeExceptionWhenDatabaseErrorOccurs() {
-        Long existingId = 1L;
         boolean active = true;
 
         Mockito.when(repository.updateActiveById(existingId, active))
-                .thenThrow(new org.springframework.dao.DataAccessException("DB error") {});
+                .thenThrow(new DataAccessException("Database error") {});
 
         Assertions.assertThrows(RuntimeException.class, () -> {
             service.changeActiveStatus(existingId, active);
         });
 
-        Mockito.verify(repository, Mockito.times(1))
-                .updateActiveById(existingId, active);
+        Mockito.verify(repository, Mockito.times(1)).updateActiveById(existingId, active);
     }
 }

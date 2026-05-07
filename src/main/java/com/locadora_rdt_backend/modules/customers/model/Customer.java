@@ -40,10 +40,17 @@ public class Customer implements Serializable {
     @Column(name = "photo_content_type")
     private String photoContentType;
 
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
+    @Column(name = "updated_at")
     private Instant updatedAt;
+
+    @Column(name = "created_by", length = 100, updatable = false)
+    private String createdBy;
+
+    @Column(name = "updated_by", length = 100)
+    private String updatedBy;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CustomerFile> files = new ArrayList<>();
@@ -52,7 +59,8 @@ public class Customer implements Serializable {
     }
 
     public Customer(Long id, String name, String cpf, String email, String phone,
-                    String address, byte[] photo, String photoContentType) {
+                    String address, byte[] photo, String photoContentType,
+                    String createdBy, String updatedBy) {
         this.id = id;
         this.name = name;
         this.cpf = cpf;
@@ -61,6 +69,22 @@ public class Customer implements Serializable {
         this.address = address;
         this.photo = photo;
         this.photoContentType = photoContentType;
+        this.createdBy = createdBy;
+        this.updatedBy = updatedBy;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        createdAt = Instant.now();
+
+        if (active == null) {
+            active = true;
+        }
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = Instant.now();
     }
 
     public Long getId() {
@@ -149,6 +173,30 @@ public class Customer implements Serializable {
 
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public String getUpdatedBy() {
+        return updatedBy;
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
+    }
+
+    public List<CustomerFile> getFiles() {
+        return files;
+    }
+
+    public void setFiles(List<CustomerFile> files) {
+        this.files = files;
     }
 
     @Override

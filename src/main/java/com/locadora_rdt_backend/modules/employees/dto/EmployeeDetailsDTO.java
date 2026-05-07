@@ -5,9 +5,10 @@ import com.locadora_rdt_backend.modules.employees.positions.dto.PositionDTO;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 
-public class EmployeeDTO implements Serializable {
+public class EmployeeDetailsDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long id;
@@ -15,16 +16,21 @@ public class EmployeeDTO implements Serializable {
     private String employeeCode;
     private String email;
     private String phone;
+    private String address;
     private BigDecimal salary;
     private LocalDate hireDate;
+    private LocalDate terminationDate;
     private String employmentType;
     private Boolean active;
     private String photoContentType;
+    private Instant createdAt;
+    private Instant updatedAt;
+    private String createdBy;
+    private String updatedBy;
     private PositionDTO position;
     private DepartmentDTO department;
 
-    public EmployeeDTO() {
-    }
+    public EmployeeDetailsDTO() {}
 
     public Long getId() {
         return id;
@@ -46,12 +52,20 @@ public class EmployeeDTO implements Serializable {
         return phone;
     }
 
+    public String getAddress() {
+        return address;
+    }
+
     public BigDecimal getSalary() {
         return salary;
     }
 
     public LocalDate getHireDate() {
         return hireDate;
+    }
+
+    public LocalDate getTerminationDate() {
+        return terminationDate;
     }
 
     public String getEmploymentType() {
@@ -64,6 +78,22 @@ public class EmployeeDTO implements Serializable {
 
     public String getPhotoContentType() {
         return photoContentType;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public String getUpdatedBy() {
+        return updatedBy;
     }
 
     public PositionDTO getPosition() {
@@ -94,12 +124,20 @@ public class EmployeeDTO implements Serializable {
         this.phone = phone;
     }
 
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
     public void setSalary(BigDecimal salary) {
         this.salary = salary;
     }
 
     public void setHireDate(LocalDate hireDate) {
         this.hireDate = hireDate;
+    }
+
+    public void setTerminationDate(LocalDate terminationDate) {
+        this.terminationDate = terminationDate;
     }
 
     public void setEmploymentType(String employmentType) {
@@ -114,6 +152,22 @@ public class EmployeeDTO implements Serializable {
         this.photoContentType = photoContentType;
     }
 
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
+    }
+
     public void setPosition(PositionDTO position) {
         this.position = position;
     }
@@ -121,4 +175,5 @@ public class EmployeeDTO implements Serializable {
     public void setDepartment(DepartmentDTO department) {
         this.department = department;
     }
+
 }

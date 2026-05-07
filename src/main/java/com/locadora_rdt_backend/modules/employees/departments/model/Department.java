@@ -47,6 +47,16 @@ public class Department implements Serializable {
         this.description = description;
     }
 
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = Instant.now();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = Instant.now();
+    }
+
     public Long getId() {
         return id;
     }
@@ -58,7 +68,6 @@ public class Department implements Serializable {
     public String getDescription() {
         return description;
     }
-
 
     public Instant getCreatedAt() {
         return createdAt;
@@ -116,7 +125,9 @@ public class Department implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Department)) return false;
+
         Department that = (Department) o;
+
         return id != null && id.equals(that.id);
     }
 

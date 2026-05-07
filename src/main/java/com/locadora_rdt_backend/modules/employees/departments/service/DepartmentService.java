@@ -3,63 +3,70 @@ package com.locadora_rdt_backend.modules.employees.departments.service;
 import com.locadora_rdt_backend.common.exception.DatabaseException;
 import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
 import com.locadora_rdt_backend.modules.employees.departments.dto.DepartmentDTO;
+import com.locadora_rdt_backend.modules.employees.departments.dto.DepartmentDetailsDTO;
+import com.locadora_rdt_backend.modules.employees.departments.dto.DepartmentInsertDTO;
+import com.locadora_rdt_backend.modules.employees.departments.dto.DepartmentUpdateDTO;
+import com.locadora_rdt_backend.modules.employees.departments.mapper.DepartmentMapper;
 import com.locadora_rdt_backend.modules.employees.departments.model.Department;
 import com.locadora_rdt_backend.modules.employees.departments.repository.DepartmentRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
-import java.time.Instant;
-
 
 @Service
 public class DepartmentService {
 
-    private final DepartmentRepository departmentRepository;
+    private final DepartmentRepository repository;
+    private final DepartmentMapper mapper;
 
-    public DepartmentService(DepartmentRepository departmentRepository) {
-        this.departmentRepository = departmentRepository;
+    public DepartmentService(DepartmentRepository repository, DepartmentMapper mapper) {
+        this.repository = repository;
+        this.mapper = mapper;
     }
 
     @Transactional(readOnly = true)
     public Page<DepartmentDTO> findAllPaged(String name, PageRequest pageRequest) {
-        Page<Department> list = departmentRepository.find(name, pageRequest);
-        Page<DepartmentDTO> listDto = list.map(department -> new DepartmentDTO(department));
-
-        return listDto;
+        return repository.find(name, pageRequest)
+                .map(mapper::toDTO);
     }
 
     @Transactional(readOnly = true)
-    public DepartmentDTO findById(Long id) {
-        Department entity = departmentRepository.findById(id)
+    public DepartmentDetailsDTO findById(Long id) {
+        Department entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Setor não encontrado"));
-        return new DepartmentDTO(entity);
+
+        return mapper.toDetailsDTO(entity);
     }
 
     @Transactional
-    public DepartmentDTO insert(DepartmentDTO dto) {
-        Department entity = new Department();
-        entity.setName(dto.getName());
-        entity.setDescription(dto.getDescription());
-        entity.setCreatedAt(Instant.now());
-        entity = departmentRepository.save(entity);
-        return new DepartmentDTO(entity);
+    public DepartmentDTO insert(DepartmentInsertDTO dto) {
+        Department entity = mapper.toEntity(dto);
+
+        entity.setCreatedBy(getAuthenticatedUsername());
+
+        entity = repository.save(entity);
+
+        return mapper.toDTO(entity);
     }
 
     @Transactional
-    public DepartmentDTO update(Long id, DepartmentDTO dto) {
+    public DepartmentDTO update(Long id, DepartmentUpdateDTO dto) {
         try {
-            Department entity = departmentRepository.getOne(id);
-            entity.setName(dto.getName());
-            entity.setDescription(dto.getDescription());
-            entity.setUpdatedAt(Instant.now());
-            entity = departmentRepository.save(entity);
+            Department entity = repository.getOne(id);
 
-            return new DepartmentDTO(entity);
+            mapper.updateEntity(entity, dto);
+            entity.setUpdatedBy(getAuthenticatedUsername());
+
+            entity = repository.save(entity);
+
+            return mapper.toDTO(entity);
         } catch (EntityNotFoundException e) {
             throw new ResourceNotFoundException("Id not found " + id);
         }
@@ -67,7 +74,7 @@ public class DepartmentService {
 
     public void delete(Long id) {
         try {
-            departmentRepository.deleteById(id);
+            repository.deleteById(id);
         } catch (EmptyResultDataAccessException e) {
             throw new ResourceNotFoundException("Id not found " + id);
         } catch (DataIntegrityViolationException e) {
@@ -75,5 +82,15 @@ public class DepartmentService {
         }
     }
 
+    private String getAuthenticatedUsername() {
+        Authentication authentication = SecurityContextHolder
+                .getContext()
+                .getAuthentication();
 
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "SYSTEM";
+        }
+
+        return authentication.getName();
+    }
 }
