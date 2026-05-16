@@ -1,7 +1,7 @@
 package com.locadora_rdt_backend.modules.customers.controller;
 
-import com.locadora_rdt_backend.modules.customers.dto.file.CustomerFileDTO;
-import com.locadora_rdt_backend.modules.customers.dto.file.CustomerFileViewDTO;
+import com.locadora_rdt_backend.modules.customers.dto.CustomerFileDTO;
+import com.locadora_rdt_backend.modules.customers.dto.CustomerFileViewDTO;
 import com.locadora_rdt_backend.modules.customers.service.CustomerFileService;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;

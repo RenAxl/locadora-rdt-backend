@@ -1,12 +1,12 @@
 package com.locadora_rdt_backend.modules.employees.mapper;
 
-import com.locadora_rdt_backend.modules.employees.departments.dto.DepartmentDTO;
+import com.locadora_rdt_backend.modules.departments.dto.DepartmentDTO;
 import com.locadora_rdt_backend.modules.employees.dto.EmployeeDTO;
 import com.locadora_rdt_backend.modules.employees.dto.EmployeeDetailsDTO;
 import com.locadora_rdt_backend.modules.employees.dto.EmployeeInsertDTO;
 import com.locadora_rdt_backend.modules.employees.dto.EmployeeUpdateDTO;
 import com.locadora_rdt_backend.modules.employees.model.Employee;
-import com.locadora_rdt_backend.modules.employees.positions.dto.PositionDTO;
+import com.locadora_rdt_backend.modules.positions.dto.PositionDTO;
 import org.springframework.stereotype.Component;
 
 @Component

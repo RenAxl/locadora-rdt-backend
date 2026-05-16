@@ -10,12 +10,7 @@ public class PermissionDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long id;
-
-    @Size(min = 5, max = 15, message = "O nome deve ter entre 5 a 15 caracteres")
-    @NotBlank(message = "Campo requerido")
     private String name;
-
-    @NotBlank(message = "Campo requerido")
     private String groupName;
 
     public PermissionDTO() {}

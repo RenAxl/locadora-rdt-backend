@@ -1,59 +1,43 @@
 package com.locadora_rdt_backend.modules.users.service;
 
-import com.locadora_rdt_backend.modules.identity.passwordreset.dto.ForgotPasswordDTO;
+import com.locadora_rdt_backend.modules.identity.activation.service.AccountActivationService;
 import com.locadora_rdt_backend.modules.identity.passwordreset.dto.NewPasswordDTO;
-import com.locadora_rdt_backend.modules.identity.passwordreset.model.PasswordResetToken;
-import com.locadora_rdt_backend.modules.roles.dto.RoleDTO;
 import com.locadora_rdt_backend.modules.roles.model.Role;
 import com.locadora_rdt_backend.modules.users.dto.*;
+import com.locadora_rdt_backend.modules.users.mapper.UserMapper;
 import com.locadora_rdt_backend.modules.users.model.User;
-import com.locadora_rdt_backend.modules.identity.passwordreset.model.enums.TokenType;
 import com.locadora_rdt_backend.modules.identity.passwordreset.repository.PasswordResetTokenRepository;
 import com.locadora_rdt_backend.modules.roles.repository.RoleRepository;
 import com.locadora_rdt_backend.modules.users.repository.UserRepository;
-import com.locadora_rdt_backend.modules.mail.service.EmailService;
 import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 public class UserService {
 
-    @Autowired
-    private UserRepository repository;
-
-    @Autowired
-    private RoleRepository roleRepository;
-
-    @Autowired
-    private EmailService emailService;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private PasswordResetTokenRepository tokenRepository;
+    private final UserRepository repository;
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final PasswordResetTokenRepository tokenRepository;
+    private final UserMapper mapper;
+    private final AccountActivationService accountActivationService;
 
     @Value("${app.frontend.base-url}")
     private String frontendBaseUrl;
@@ -63,44 +47,65 @@ public class UserService {
 
     private static final Set<String> ALLOWED_TYPES = Set.of("image/jpeg", "image/png", "image/webp");
 
-
-    @Transactional(readOnly = true)
-    public Page<UserDTO> findAllPaged(String name, PageRequest pageRequest) {
-        Page<User> list = repository.find(name, pageRequest);
-        Page<UserDTO> listDto = list.map(user -> new UserDTO(user));
-
-        return listDto;
+    public UserService(
+            UserRepository repository,
+            RoleRepository roleRepository,
+            PasswordEncoder passwordEncoder,
+            PasswordResetTokenRepository tokenRepository,
+            UserMapper mapper,
+            AccountActivationService accountActivationService
+    ) {
+        this.repository = repository;
+        this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.tokenRepository = tokenRepository;
+        this.mapper = mapper;
+        this.accountActivationService = accountActivationService;
     }
 
     @Transactional(readOnly = true)
-    public UserDTO findById(Long id) {
-        Optional<User> obj = repository.findById(id);
-        User entity = obj.orElseThrow(() -> new ResourceNotFoundException("Entity not found"));
+    public Page<UserDTO> findAllPaged(String name, PageRequest pageRequest) {
+        return repository.find(name, pageRequest)
+                .map(mapper::toDTO);
+    }
 
-        return new UserDTO(entity);
+    @Transactional(readOnly = true)
+    public UserDetailsDTO findById(Long id) {
+        User entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+        return mapper.toDetailsDTO(entity);
     }
 
     @Transactional
     public UserDTO insert(UserInsertDTO dto) {
-        User entity = new User();
-        copyDtoInsertToEntity(dto, entity);
+
+        User entity = mapper.toEntity(dto);
+
+        updateUserRoles(entity, dto.getRoleIds());
+
         entity.setPassword(null);
         entity.setActive(false);
+        entity.setCreatedBy(getAuthenticatedUsername());
+
         entity = repository.save(entity);
 
-        createActivationTokenAndSendEmail(entity);
+        accountActivationService
+                .createActivationTokenAndSendEmail(entity);
 
-        return new UserDTO(entity);
+        return mapper.toDTO(entity);
     }
 
     @Transactional
     public UserDTO update(Long id, UserUpdateDTO dto) {
         try {
             User entity = repository.getOne(id);
-            copyDtoUpdateToEntity(dto, entity);
+            mapper.updateEntity(entity, dto);
+            updateUserRoles(entity, dto.getRoleIds());
+            entity.setUpdatedBy(getAuthenticatedUsername());
             entity = repository.save(entity);
 
-            return new UserDTO(entity);
+            return mapper.toDTO(entity);
+
         } catch (EntityNotFoundException e) {
             throw new ResourceNotFoundException("Id not found " + id);
         }
@@ -149,108 +154,16 @@ public class UserService {
         }
     }
 
-    private void copyDtoInsertToEntity(UserInsertDTO dto, User entity) {
-        entity.setName(dto.getName());
-        entity.setEmail(dto.getEmail());
-        entity.setTelephone(dto.getTelephone());
-        entity.setAddress(dto.getAddress());
-
-        entity.getRoles().clear();
-        for (RoleDTO roleDto : dto.getRoles()) {
-            Role role = roleRepository.getOne(roleDto.getId());
-            entity.getRoles().add(role);
-        }
-    }
-
-    private void copyDtoUpdateToEntity(UserUpdateDTO dto, User entity) {
-        entity.setName(dto.getName());
-        entity.setEmail(dto.getEmail());
-        entity.setActive(dto.isActive());
-        entity.setTelephone(dto.getTelephone());
-        entity.setAddress(dto.getAddress());
-
-        entity.getRoles().clear();
-        for (RoleDTO roleDto : dto.getRoles()) {
-            Role role = roleRepository.getOne(roleDto.getId());
-            entity.getRoles().add(role);
-        }
-    }
-
-    private void createActivationTokenAndSendEmail(User user) {
-        String token = UUID.randomUUID().toString();
-        Instant expiration = Instant.now().plus(tokenMinutes, ChronoUnit.MINUTES);
-
-        tokenRepository.deleteByUserIdAndType(user.getId(), TokenType.ACTIVATION);
-
-        PasswordResetToken prt = new PasswordResetToken();
-        prt.setToken(token);
-        prt.setUser(user);
-        prt.setExpiration(expiration);
-        prt.setType(TokenType.ACTIVATION); // ✅ ESSENCIAL AGORA
-
-        tokenRepository.save(prt);
-
-        String link = UriComponentsBuilder
-                .fromHttpUrl(frontendBaseUrl)
-                .path("/auth/activate")
-                .queryParam("token", token)
-                .toUriString();
-
-        String html = buildActivationEmailHtml(user.getName(), link, tokenMinutes);
-
-        emailService.sendHtmlEmail(user.getEmail(), "Ative sua conta - Locadora RDT", html);
-    }
-
-    private String buildActivationEmailHtml(String name, String link, long minutes) {
-        return "<!DOCTYPE html>" +
-                "<html><head><meta charset='UTF-8'></head><body style='font-family: Arial, sans-serif;'>" +
-                "<h2>Bem-vindo à Locadora RDT 🚗</h2>" +
-                "<p>Olá, <b>" + escape(name) + "</b>!</p>" +
-                "<p>Seu cadastro foi criado. Clique no botão abaixo para definir sua senha:</p>" +
-                "<p style='margin: 24px 0;'>" +
-                "<a href='" + link + "' style='background:#0d6efd;color:#fff;padding:12px 18px;text-decoration:none;border-radius:6px;'>Criar minha senha</a>" +
-                "</p>" +
-                "<p>Este link expira em <b>" + minutes + " minutos</b>.</p>" +
-                "<p>Equipe <b>Locadora RDT</b></p>" +
-                "</body></html>";
-    }
-
-    private String escape(String value) {
-        if (value == null) return "";
-        return value.replace("&", "&amp;")
-                .replace("<", "&lt;")
-                .replace(">", "&gt;")
-                .replace("\"", "&quot;")
-                .replace("'", "&#39;");
-    }
-
-    @Transactional
-    public void activateAccount(String token, NewPasswordDTO dto) {
-
-        PasswordResetToken prt = tokenRepository
-                .findByTokenAndTypeAndExpirationAfter(token, TokenType.ACTIVATION, Instant.now())
-                .orElseThrow(() -> new RuntimeException("Token inválido ou expirado"));
-
-        User user = prt.getUser();
-
-        user.setPassword(passwordEncoder.encode(dto.getPassword()));
-        user.setActive(true);
-
-        repository.save(user);
-
-        tokenRepository.delete(prt);
-    }
-
     @Transactional(readOnly = true)
     public UserDTO getMe(Authentication authentication) {
         String username = authentication.getName(); // Busca o e-mail do usuário
 
-        User user = repository.findByEmail(username);
-        if (user == null) {
+        User entity = repository.findByEmail(username);
+        if (entity == null) {
             throw new UsernameNotFoundException("Usuário não encontrado");
         }
 
-        return new UserDTO(user);
+        return mapper.toDTO(entity);
     }
 
     @Transactional
@@ -295,30 +208,30 @@ public class UserService {
         }
 
         String currentEmail = authentication.getName(); // Busca o e-mail
-        User user = repository.findByEmail(currentEmail);
+        User entity = repository.findByEmail(currentEmail);
 
-        if (user == null) {
+        if (entity == null) {
             throw new UsernameNotFoundException("Usuário não encontrado");
         }
 
         String newEmail = dto.getEmail();
-        if (newEmail != null && !newEmail.equalsIgnoreCase(user.getEmail())) {
+        if (newEmail != null && !newEmail.equalsIgnoreCase(entity.getEmail())) {
 
             User existing = repository.findByEmail(newEmail);
-            if (existing != null && !existing.getId().equals(user.getId())) {
+            if (existing != null && !existing.getId().equals(entity.getId())) {
                 throw new IllegalArgumentException("Email já está em uso");
             }
 
-            user.setEmail(newEmail);
+            entity.setEmail(newEmail);
         }
 
-        user.setName(dto.getName());
-        user.setTelephone(dto.getTelephone());
-        user.setAddress(dto.getAddress());
+        entity.setName(dto.getName());
+        entity.setTelephone(dto.getTelephone());
+        entity.setAddress(dto.getAddress());
 
-        user = repository.save(user);
+        entity = repository.save(entity);
 
-        return new UserDTO(user);
+        return mapper.toDTO(entity);
     }
 
     @Transactional
@@ -374,7 +287,7 @@ public class UserService {
             throw new UsernameNotFoundException("Usuário não encontrado");
         }
 
-        // Sem foto retorna null, isto é para não erro no frontend quando não tiver foto.
+        // Sem foto retorna null, isto é para não dar erro no frontend quando não tiver foto.
         if (user.getPhoto() == null || user.getPhoto().length == 0) {
             return null;
         }
@@ -383,89 +296,6 @@ public class UserService {
                 user.getPhoto(),
                 user.getPhotoContentType()
         );
-    }
-
-    @Transactional
-    public void requestPasswordReset(ForgotPasswordDTO dto) {
-
-        if (dto == null || dto.getEmail() == null || dto.getEmail().isBlank()) {
-            return;
-        }
-
-        User user = repository.findByEmail(dto.getEmail().trim());
-
-        if (user == null) {
-            return;
-        }
-
-        if (!user.isActive()) {
-            return;
-        }
-
-        tokenRepository.deleteByUserIdAndType(user.getId(), TokenType.PASSWORD_RESET);
-
-        String token = UUID.randomUUID().toString();
-        Instant expiration = Instant.now().plus(tokenMinutes, ChronoUnit.MINUTES);
-
-        PasswordResetToken prt = new PasswordResetToken();
-        prt.setToken(token);
-        prt.setUser(user);
-        prt.setExpiration(expiration);
-        prt.setType(TokenType.PASSWORD_RESET);
-
-        tokenRepository.save(prt);
-
-        String link = UriComponentsBuilder
-                .fromHttpUrl(frontendBaseUrl)
-                .path("/auth/reset")
-                .queryParam("token", token)
-                .toUriString();
-
-        String html = buildPasswordResetEmailHtml(user.getName(), link, tokenMinutes);
-
-        emailService.sendHtmlEmail(user.getEmail(), "Recuperação de senha - Locadora RDT", html);
-    }
-
-    private String buildPasswordResetEmailHtml(String name, String link, long minutes) {
-        return "<!DOCTYPE html>" +
-                "<html><head><meta charset='UTF-8'></head><body style='font-family: Arial, sans-serif;'>" +
-                "<h2>Recuperação de senha 🔐</h2>" +
-                "<p>Olá, <b>" + escape(name) + "</b>!</p>" +
-                "<p>Recebemos uma solicitação para redefinir sua senha. Clique no botão abaixo:</p>" +
-                "<p style='margin: 24px 0;'>" +
-                "<a href='" + link + "' style='background:#0d6efd;color:#fff;padding:12px 18px;text-decoration:none;border-radius:6px;'>Redefinir minha senha</a>" +
-                "</p>" +
-                "<p>Este link expira em <b>" + minutes + " minutos</b>.</p>" +
-                "<p>Se você não solicitou, pode ignorar este e-mail.</p>" +
-                "<p>Equipe <b>Locadora RDT</b></p>" +
-                "</body></html>";
-    }
-
-    @Transactional
-    public void resetPassword(String token, NewPasswordDTO dto) {
-
-        if (token == null || token.isBlank()) {
-            throw new IllegalArgumentException("Token inválido");
-        }
-
-        if (dto == null || dto.getPassword() == null || dto.getPassword().isBlank()) {
-            throw new IllegalArgumentException("Senha inválida");
-        }
-
-        PasswordResetToken prt = tokenRepository
-                .findByTokenAndTypeAndExpirationAfter(token, TokenType.PASSWORD_RESET, Instant.now())
-                .orElseThrow(() -> new RuntimeException("Token inválido ou expirado"));
-
-        User user = prt.getUser();
-
-        if (user.getPassword() != null && passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("A nova senha não pode ser igual à senha atual");
-        }
-
-        user.setPassword(passwordEncoder.encode(dto.getPassword()));
-        repository.save(user);
-
-        tokenRepository.delete(prt);
     }
 
     @Transactional(readOnly = true)
@@ -487,6 +317,35 @@ public class UserService {
                 user.getPhoto(),
                 user.getPhotoContentType()
         );
+    }
+
+    private String getAuthenticatedUsername() {
+        Authentication authentication = SecurityContextHolder
+                .getContext()
+                .getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "SYSTEM";
+        }
+
+        return authentication.getName();
+    }
+
+    private void updateUserRoles(User user, List<Long> roleIds) {
+
+        user.getRoles().clear();
+
+        for (Long roleId : roleIds) {
+
+            Role role = roleRepository.findById(roleId)
+                    .orElseThrow(() ->
+                            new ResourceNotFoundException(
+                                    "Role not found: " + roleId
+                            )
+                    );
+
+            user.getRoles().add(role);
+        }
     }
 
 }

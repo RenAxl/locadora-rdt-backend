@@ -1,7 +1,8 @@
 package com.locadora_rdt_backend.modules.roles.controller;
 
 import com.locadora_rdt_backend.modules.roles.dto.RoleDTO;
-import com.locadora_rdt_backend.modules.roles.dto.RoleListDTO;
+import com.locadora_rdt_backend.modules.roles.dto.RoleDetailsDTO;
+import com.locadora_rdt_backend.modules.roles.dto.RoleInsertDTO;
 import com.locadora_rdt_backend.modules.roles.dto.RolePermissionsUpdateDTO;
 import com.locadora_rdt_backend.modules.roles.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ public class RoleController {
     private RoleService service;
 
     @GetMapping
-    public ResponseEntity<Page<RoleListDTO>> findAllPaged(
+    public ResponseEntity<Page<RoleDTO>> findAllPaged(
             @RequestParam(value = "authority", defaultValue = "") String authority,
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "linesPerPage", defaultValue = "12") Integer linesPerPage,
@@ -33,15 +34,15 @@ public class RoleController {
         PageRequest pageRequest =
                 PageRequest.of(page, linesPerPage, Sort.Direction.valueOf(direction), orderBy);
 
-        Page<RoleListDTO> list = service.findAllPaged(authority.trim(), pageRequest);
+        Page<RoleDTO> list = service.findAllPaged(authority.trim(), pageRequest);
 
         return ResponseEntity.ok().body(list);
     }
 
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<RoleDTO> findById(@PathVariable Long id) {
-        RoleDTO dto = service.findById(id);
+    public ResponseEntity<RoleDetailsDTO> findById(@PathVariable Long id) {
+        RoleDetailsDTO dto = service.findById(id);
         return ResponseEntity.ok().body(dto);
     }
 
@@ -56,7 +57,7 @@ public class RoleController {
 
 
     @PostMapping
-    public ResponseEntity<RoleDTO> insert(@Valid @RequestBody RoleDTO dto) {
+    public ResponseEntity<RoleDTO> insert(@Valid @RequestBody RoleInsertDTO dto) {
         RoleDTO created = service.insert(dto);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")

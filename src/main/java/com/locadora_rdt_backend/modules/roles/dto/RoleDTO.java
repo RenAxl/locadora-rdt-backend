@@ -1,8 +1,6 @@
 package com.locadora_rdt_backend.modules.roles.dto;
 
 import com.locadora_rdt_backend.modules.permissions.dto.PermissionDTO;
-import com.locadora_rdt_backend.modules.permissions.model.Permission;
-import com.locadora_rdt_backend.modules.roles.model.Role;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -13,44 +11,43 @@ public class RoleDTO implements Serializable {
 
     private Long id;
     private String authority;
+    private Long permissionsCount;
+
     private List<PermissionDTO> permissions = new ArrayList<>();
 
-    public RoleDTO() {}
-
-    public RoleDTO(Long id, String authority) {
-        this.id = id;
-        this.authority = authority;
-    }
-
-    public RoleDTO(Role entity) {
-        this.id = entity.getId();
-        this.authority = entity.getAuthority();
-        for (Permission p : entity.getPermissions()) {
-            this.permissions.add(new PermissionDTO(p));
-        }
+    public RoleDTO() {
     }
 
     public Long getId() {
         return id;
     }
 
-    public String getAuthority() {
-        return authority;
-    }
-
-    public List<PermissionDTO> getPermissions() {
-        return permissions;
-    }
-
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getAuthority() {
+        return authority;
     }
 
     public void setAuthority(String authority) {
         this.authority = authority;
     }
 
+    public Long getPermissionsCount() {
+        return permissionsCount;
+    }
+
+    public void setPermissionsCount(Long permissionsCount) {
+        this.permissionsCount = permissionsCount;
+    }
+
+    public List<PermissionDTO> getPermissions() {
+        return permissions;
+    }
+
     public void setPermissions(List<PermissionDTO> permissions) {
         this.permissions = permissions;
     }
+
 }

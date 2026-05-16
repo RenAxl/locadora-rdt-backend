@@ -1,65 +1,25 @@
 package com.locadora_rdt_backend.modules.users.dto;
 
 import com.locadora_rdt_backend.modules.roles.dto.RoleDTO;
-import com.locadora_rdt_backend.modules.roles.model.Role;
-import com.locadora_rdt_backend.modules.users.model.User;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import java.time.Instant;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserDTO {
+public class UserDTO implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     private Long id;
-
-    @Size(min = 5, max = 60, message = "O nome deve ter entre 5 a 60 caracteres")
-    @NotBlank(message = "Campo requerido")
     private String name;
-
-    @NotBlank(message = "Campo requerido")
-    @Email(message = "favor entrar um email válido")
     private String email;
-
-    @NotNull
-    private boolean active;
-
-    @NotBlank(message = "Campo requerido")
+    private Boolean active;
     private String telephone;
+    private String photoContentType;
     private String address;
-    private Instant date;
 
     private List<RoleDTO> roles = new ArrayList<>();
 
     public UserDTO() {
-    }
-
-    public UserDTO(Long id, String name, String email, boolean active,
-                   String telephone, String address, Instant date) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-        this.active = active;
-        this.telephone = telephone;
-        this.address = address;
-        this.date = date;
-    }
-
-    public UserDTO(User entity) {
-        this.id = entity.getId();
-        this.name = entity.getName();
-        this.email = entity.getEmail();
-        this.active = entity.isActive();
-        this.telephone = entity.getTelephone();
-        this.address = entity.getAddress();
-        this.date = entity.getDate();
-
-        for (Role role : entity.getRoles()) {
-            this.roles.add(new RoleDTO(role));
-        }
     }
 
     public Long getId() {
@@ -86,11 +46,11 @@ public class UserDTO {
         this.email = email;
     }
 
-    public boolean isActive() {
+    public Boolean getActive() {
         return active;
     }
 
-    public void setActive(boolean active) {
+    public void setActive(Boolean active) {
         this.active = active;
     }
 
@@ -102,20 +62,20 @@ public class UserDTO {
         this.telephone = telephone;
     }
 
+    public String getPhotoContentType() {
+        return photoContentType;
+    }
+
+    public void setPhotoContentType(String photoContentType) {
+        this.photoContentType = photoContentType;
+    }
+
     public String getAddress() {
         return address;
     }
 
     public void setAddress(String address) {
         this.address = address;
-    }
-
-    public Instant getDate() {
-        return date;
-    }
-
-    public void setDate(Instant date) {
-        this.date = date;
     }
 
     public List<RoleDTO> getRoles() {

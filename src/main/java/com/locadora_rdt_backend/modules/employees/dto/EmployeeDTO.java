@@ -1,7 +1,7 @@
 package com.locadora_rdt_backend.modules.employees.dto;
 
-import com.locadora_rdt_backend.modules.employees.departments.dto.DepartmentDTO;
-import com.locadora_rdt_backend.modules.employees.positions.dto.PositionDTO;
+import com.locadora_rdt_backend.modules.departments.dto.DepartmentDTO;
+import com.locadora_rdt_backend.modules.positions.dto.PositionDTO;
 
 import java.io.Serializable;
 import java.math.BigDecimal;

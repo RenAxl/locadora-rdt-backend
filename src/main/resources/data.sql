@@ -1,24 +1,33 @@
 INSERT INTO tb_user
-(name, email, password, active, telephone, address, photo_data, photo_content_type, date)
+(name, email, password, active, telephone, address, photo_data, photo_content_type, created_at, updated_at, created_by, updated_by)
 VALUES
-    ('Renan Duarte', 'renandt30@gmail.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990001', 'Rua Alfa, 100 - Belo Horizonte - MG', NULL, NULL, '2025-01-10 09:00:00'),
-    ('Ana Silva', 'ana.silva@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990002', 'Rua Beta, 200 - Belo Horizonte - MG', NULL, NULL, '2025-01-11 10:15:00'),
-    ('Bruno Costa', 'bruno.costa@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990003', 'Av. Amazonas, 300 - Belo Horizonte - MG', NULL, NULL, '2025-01-12 11:30:00'),
-    ('Carla Mendes', 'carla.mendes@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990004', 'Rua Gama, 400 - Belo Horizonte - MG', NULL, NULL, '2025-01-13 14:45:00'),
-    ('Daniel Rocha', 'daniel.rocha@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990005', 'Rua Delta, 500 - Belo Horizonte - MG', NULL, NULL, '2025-01-14 16:00:00'),
-    ('Eduarda Lima', 'eduarda.lima@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', false, '31999990006', 'Av. Brasil, 600 - Belo Horizonte - MG', NULL, NULL, '2025-01-15 09:20:00'),
-    ('Felipe Nogueira', 'felipe.nogueira@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990007', 'Rua Goiás, 700 - Belo Horizonte - MG', NULL, NULL, '2025-01-16 13:10:00'),
-    ('Gabriela Torres', 'gabriela.torres@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990008', 'Av. Contorno, 800 - Belo Horizonte - MG', NULL, NULL, '2025-01-17 15:35:00'),
-    ('Henrique Alves', 'henrique.alves@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', false, '31999990009', 'Rua da Bahia, 900 - Belo Horizonte - MG', NULL, NULL, '2025-01-18 17:50:00'),
-    ('Isabela Pires', 'isabela.pires@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990010', 'Av. Cristiano Machado, 1000 - Belo Horizonte - MG', NULL, NULL, '2025-01-19 18:30:00');
+    ('Renan Duarte', 'renandt30@gmail.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990001', 'Rua Alfa, 100 - Belo Horizonte - MG', NULL, NULL, '2025-01-10T09:00:00Z', NULL, 'SYSTEM', NULL),
+
+    ('Ana Silva', 'ana.silva@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990002', 'Rua Beta, 200 - Belo Horizonte - MG', NULL, NULL, '2025-01-11T10:15:00Z', NULL, 'SYSTEM', NULL),
+
+    ('Bruno Costa', 'bruno.costa@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990003', 'Av. Amazonas, 300 - Belo Horizonte - MG', NULL, NULL, '2025-01-12T11:30:00Z', NULL, 'SYSTEM', NULL),
+
+    ('Carla Mendes', 'carla.mendes@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990004', 'Rua Gama, 400 - Belo Horizonte - MG', NULL, NULL, '2025-01-13T14:45:00Z', NULL, 'SYSTEM', NULL),
+
+    ('Daniel Rocha', 'daniel.rocha@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990005', 'Rua Delta, 500 - Belo Horizonte - MG', NULL, NULL, '2025-01-14T16:00:00Z', NULL, 'SYSTEM', NULL),
+
+    ('Eduarda Lima', 'eduarda.lima@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', false, '31999990006', 'Av. Brasil, 600 - Belo Horizonte - MG', NULL, NULL, '2025-01-15T09:20:00Z', NULL, 'SYSTEM', NULL),
+
+    ('Felipe Nogueira', 'felipe.nogueira@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990007', 'Rua Goiás, 700 - Belo Horizonte - MG', NULL, NULL, '2025-01-16T13:10:00Z', NULL, 'SYSTEM', NULL),
+
+    ('Gabriela Torres', 'gabriela.torres@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990008', 'Av. Contorno, 800 - Belo Horizonte - MG', NULL, NULL, '2025-01-17T15:35:00Z', NULL, 'SYSTEM', NULL),
+
+    ('Henrique Alves', 'henrique.alves@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', false, '31999990009', 'Rua da Bahia, 900 - Belo Horizonte - MG', NULL, NULL, '2025-01-18T17:50:00Z', NULL, 'SYSTEM', NULL),
+
+    ('Isabela Pires', 'isabela.pires@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990010', 'Av. Cristiano Machado, 1000 - Belo Horizonte - MG', NULL, NULL, '2025-01-19T18:30:00Z', NULL, 'SYSTEM', NULL);
 
 
-INSERT INTO tb_role (authority) VALUES
-                                    ('ROLE_ADMINISTRADOR'),
-                                    ('ROLE_GERENTE'),
-                                    ('ROLE_ATENDENTE'),
-                                    ('ROLE_FINANCEIRO'),
-                                    ('ROLE_CLIENTE');
+INSERT INTO tb_role (authority, created_at, updated_at, created_by, updated_by) VALUES
+                                                                                    ('ROLE_ADMINISTRADOR', NOW(), NULL, 'SYSTEM', NULL),
+                                                                                    ('ROLE_GERENTE', NOW(), NULL, 'SYSTEM', NULL),
+                                                                                    ('ROLE_ATENDENTE', NOW(), NULL, 'SYSTEM', NULL),
+                                                                                    ('ROLE_FINANCEIRO', NOW(), NULL, 'SYSTEM', NULL),
+                                                                                    ('ROLE_CLIENTE', NOW(), NULL, 'SYSTEM', NULL);
 
 
 INSERT INTO tb_permission (name, group_name) VALUES
@@ -52,7 +61,7 @@ INSERT INTO tb_permission (name, group_name) VALUES
                                                  ('EMPLOYEE_READ',          'EMPLOYEES'),
                                                  ('EMPLOYEE_WRITE',         'EMPLOYEES'),
                                                  ('EMPLOYEE_DELETE',        'EMPLOYEES'),
-                                                 ('EMPLOYEE_STATUS_CHANGE', 'EMPLOYEE'),
+                                                 ('EMPLOYEE_STATUS_CHANGE', 'EMPLOYEES'),
                                                  ('EMPLOYEE_FILE_READ',     'EMPLOYEES'),
                                                  ('EMPLOYEE_FILE_WRITE',    'EMPLOYEES'),
                                                  ('EMPLOYEE_FILE_DELETE',   'EMPLOYEES');

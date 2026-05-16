@@ -2,7 +2,6 @@ package com.locadora_rdt_backend.modules.users.model;
 
 import com.locadora_rdt_backend.modules.identity.passwordreset.model.PasswordResetToken;
 import com.locadora_rdt_backend.modules.roles.model.Role;
-import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -29,7 +28,7 @@ public class User implements UserDetails, Serializable {
     private String password;
 
     @Column(nullable = false)
-    private boolean active;
+    private Boolean active;
     private String telephone;
     private String address;
 
@@ -42,10 +41,18 @@ public class User implements UserDetails, Serializable {
     @Column(name = "photo_content_type")
     private String photoContentType;
 
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
 
-    @CreationTimestamp
-    @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
-    private Instant date;
+    @Column(name = "updated_at")
+    private Instant updatedAt;
+
+    @Column(name = "created_by", length = 100, updatable = false)
+    private String createdBy;
+
+    @Column(name = "updated_by", length = 100)
+    private String updatedBy;
+
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -63,7 +70,7 @@ public class User implements UserDetails, Serializable {
 
     public User(Long id, String name, String email, String password, boolean active,
                 String telephone, String address, byte[] photo,
-                String photoContentType, Instant date) {
+                String photoContentType, String createdBy, String updatedBy) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -73,7 +80,22 @@ public class User implements UserDetails, Serializable {
         this.address = address;
         this.photo = photo;
         this.photoContentType = photoContentType;
-        this.date = date;
+        this.createdBy = createdBy;
+        this.updatedBy = updatedBy;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        createdAt = Instant.now();
+
+        if (active == null) {
+            active = true;
+        }
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = Instant.now();
     }
 
     public Long getId() {
@@ -147,16 +169,48 @@ public class User implements UserDetails, Serializable {
         this.photoContentType = photoContentType;
     }
 
-    public Instant getDate() {
-        return date;
-    }
-
-    public void setDate(Instant date) {
-        this.date = date;
-    }
-
     public Set<Role> getRoles() {
         return roles;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public String getUpdatedBy() {
+        return updatedBy;
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
     }
 
     @Override

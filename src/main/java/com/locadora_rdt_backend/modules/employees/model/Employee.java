@@ -1,7 +1,7 @@
 package com.locadora_rdt_backend.modules.employees.model;
 
-import com.locadora_rdt_backend.modules.employees.departments.model.Department;
-import com.locadora_rdt_backend.modules.employees.positions.model.Position;
+import com.locadora_rdt_backend.modules.departments.model.Department;
+import com.locadora_rdt_backend.modules.positions.model.Position;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;

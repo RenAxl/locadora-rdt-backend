@@ -2,8 +2,8 @@ package com.locadora_rdt_backend.modules.customers.service;
 
 import com.locadora_rdt_backend.common.exception.FileException;
 import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
-import com.locadora_rdt_backend.modules.customers.dto.file.CustomerFileDTO;
-import com.locadora_rdt_backend.modules.customers.dto.file.CustomerFileViewDTO;
+import com.locadora_rdt_backend.modules.customers.dto.CustomerFileDTO;
+import com.locadora_rdt_backend.modules.customers.dto.CustomerFileViewDTO;
 import com.locadora_rdt_backend.modules.customers.model.Customer;
 import com.locadora_rdt_backend.modules.customers.model.CustomerFile;
 import com.locadora_rdt_backend.modules.customers.repository.CustomerFileRepository;

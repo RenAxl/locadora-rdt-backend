@@ -3,6 +3,7 @@ package com.locadora_rdt_backend.modules.roles.model;
 import com.locadora_rdt_backend.modules.permissions.model.Permission;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,6 +21,18 @@ public class Role implements Serializable {
     @Column(unique = true, nullable = false)
     private String authority;
 
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
+
+    @Column(name = "updated_at")
+    private Instant updatedAt;
+
+    @Column(name = "created_by", nullable = false, updatable = false)
+    private String createdBy;
+
+    @Column(name = "updated_by")
+    private String updatedBy;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "tb_role_permission",
@@ -31,9 +44,21 @@ public class Role implements Serializable {
     public Role() {
     }
 
-    public Role(Long id, String authority) {
+    public Role(Long id, String authority, String createdBy, String updatedBy) {
         this.id = id;
         this.authority = authority;
+        this.createdBy = createdBy;
+        this.updatedBy = updatedBy;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        createdAt = Instant.now();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = Instant.now();
     }
 
     public Long getId() {
@@ -54,6 +79,38 @@ public class Role implements Serializable {
 
     public void setAuthority(String authority) {
         this.authority = authority;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public String getUpdatedBy() {
+        return updatedBy;
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
     }
 
     @Override

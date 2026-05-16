@@ -43,8 +43,8 @@ public class UserController {
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<UserDTO> findById(@PathVariable Long id) {
-        UserDTO userDto = service.findById(id);
+    public ResponseEntity<UserDetailsDTO> findById(@PathVariable Long id) {
+        UserDetailsDTO userDto = service.findById(id);
         return ResponseEntity.ok().body(userDto);
     }
 
@@ -54,12 +54,6 @@ public class UserController {
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(userDto.getId())
                 .toUri();
         return ResponseEntity.created(uri).body(userDto);
-    }
-
-    @PostMapping("/activate")
-    public ResponseEntity<Void> activate(@RequestParam String token, @Valid @RequestBody NewPasswordDTO dto) {
-        service.activateAccount(token, dto);
-        return ResponseEntity.noContent().build();
     }
 
     @PutMapping(value = "/{id}")
@@ -133,17 +127,6 @@ public class UserController {
                 .body(dto.getPhoto());
     }
 
-    @PostMapping("/forgot-password")
-    public ResponseEntity<Void> forgotPassword(@Valid @RequestBody ForgotPasswordDTO dto) {
-        service.requestPasswordReset(dto);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PostMapping("/reset-password")
-    public ResponseEntity<Void> resetPassword(@RequestParam String token, @Valid @RequestBody NewPasswordDTO dto) {
-        service.resetPassword(token, dto);
-        return ResponseEntity.noContent().build();
-    }
 
     @GetMapping(value = "/{id}/photo")
     public ResponseEntity<byte[]> getUserPhotoById(@PathVariable Long id) {

@@ -2,8 +2,8 @@ package com.locadora_rdt_backend.modules.employees.service;
 
 import com.locadora_rdt_backend.common.exception.FileException;
 import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
-import com.locadora_rdt_backend.modules.employees.dto.file.EmployeeFileDTO;
-import com.locadora_rdt_backend.modules.employees.dto.file.EmployeeFileViewDTO;
+import com.locadora_rdt_backend.modules.employees.dto.EmployeeFileDTO;
+import com.locadora_rdt_backend.modules.employees.dto.EmployeeFileViewDTO;
 import com.locadora_rdt_backend.modules.employees.model.Employee;
 import com.locadora_rdt_backend.modules.employees.model.EmployeeFile;
 import com.locadora_rdt_backend.modules.employees.repository.EmployeeFileRepository;

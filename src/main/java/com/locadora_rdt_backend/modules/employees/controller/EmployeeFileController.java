@@ -1,7 +1,7 @@
 package com.locadora_rdt_backend.modules.employees.controller;
 
-import com.locadora_rdt_backend.modules.employees.dto.file.EmployeeFileDTO;
-import com.locadora_rdt_backend.modules.employees.dto.file.EmployeeFileViewDTO;
+import com.locadora_rdt_backend.modules.employees.dto.EmployeeFileDTO;
+import com.locadora_rdt_backend.modules.employees.dto.EmployeeFileViewDTO;
 import com.locadora_rdt_backend.modules.employees.service.EmployeeFileService;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
