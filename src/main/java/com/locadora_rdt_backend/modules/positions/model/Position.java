@@ -17,7 +17,11 @@ public class Position implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Version
+    @Column(nullable = false)
+    private Long version;
+
+    @Column(unique = true, nullable = false, length = 60)
     private String name;
 
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -26,16 +30,17 @@ public class Position implements Serializable {
     @Column(name = "updated_at")
     private Instant updatedAt;
 
-    @Column(name = "created_by", nullable = false, updatable = false)
+    @Column(name = "created_by", nullable = false, updatable = false, length = 100)
     private String createdBy;
 
-    @Column(name = "updated_by")
+    @Column(name = "updated_by", length = 100)
     private String updatedBy;
 
-    @OneToMany(mappedBy = "position")
+    @OneToMany(mappedBy = "position", fetch = FetchType.LAZY)
     private List<Employee> employees = new ArrayList<>();
 
-    public Position() {}
+    public Position() {
+    }
 
     public Position(Long id, String name) {
         this.id = id;
@@ -56,44 +61,56 @@ public class Position implements Serializable {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public Long getVersion() {
+        return version;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public Instant getCreatedAt() {
         return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
     }
 
     public Instant getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
     public String getCreatedBy() {
         return createdBy;
     }
 
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
-
     public String getUpdatedBy() {
         return updatedBy;
+    }
+
+    public List<Employee> getEmployees() {
+        return employees;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
     }
 
     public void setUpdatedBy(String updatedBy) {

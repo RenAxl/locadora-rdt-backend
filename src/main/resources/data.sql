@@ -117,16 +117,24 @@ INSERT INTO tb_customer (name, cpf, email, phone, address, active, photo_data, p
     ('Patricia Gomes', '10101010101', 'patricia.gomes@email.com', '31999990010', 'Rua J, 1000 - Belo Horizonte', true, NULL, NULL, NOW(), NULL, 'system', NULL);
 
 
-INSERT INTO tb_position (name, created_at, updated_at, created_by, updated_by)
+INSERT INTO tb_position
+(name, version, created_at, updated_at, created_by, updated_by)
 VALUES
-    ('Atendente', NOW(), NOW(), 'SYSTEM', 'SYSTEM'),
-    ('Gerente', NOW(), NOW(), 'SYSTEM', 'SYSTEM'),
-    ('Auxiliar Administrativo', NOW(), NOW(), 'SYSTEM', 'SYSTEM'),
-    ('Assistente Financeiro', NOW(), NOW(), 'SYSTEM', 'SYSTEM'),
-    ('Analista Financeiro', NOW(), NOW(), 'SYSTEM', 'SYSTEM'),
-    ('Motorista', NOW(), NOW(), 'SYSTEM', 'SYSTEM'),
-    ('Lavador de Veículos', NOW(), NOW(), 'SYSTEM', 'SYSTEM'),
-    ('Supervisor de Operações', NOW(), NOW(), 'SYSTEM', 'SYSTEM');
+    ('Atendente', 0, NOW(), NOW(), 'SYSTEM', 'SYSTEM'),
+
+    ('Gerente', 0, NOW(), NOW(), 'SYSTEM', 'SYSTEM'),
+
+    ('Auxiliar Administrativo', 0, NOW(), NOW(), 'SYSTEM', 'SYSTEM'),
+
+    ('Assistente Financeiro', 0, NOW(), NOW(), 'SYSTEM', 'SYSTEM'),
+
+    ('Analista Financeiro', 0, NOW(), NOW(), 'SYSTEM', 'SYSTEM'),
+
+    ('Motorista', 0, NOW(), NOW(), 'SYSTEM', 'SYSTEM'),
+
+    ('Lavador de Veículos', 0, NOW(), NOW(), 'SYSTEM', 'SYSTEM'),
+
+    ('Supervisor de Operações', 0, NOW(), NOW(), 'SYSTEM', 'SYSTEM');
 
 
 INSERT INTO tb_department

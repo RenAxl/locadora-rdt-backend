@@ -28,6 +28,7 @@ public class PositionMapper {
 
         PositionDetailsDTO dto = new PositionDetailsDTO();
         dto.setId(entity.getId());
+        dto.setVersion(entity.getVersion());
         dto.setName(entity.getName());
         dto.setCreatedAt(entity.getCreatedAt());
         dto.setUpdatedAt(entity.getUpdatedAt());
@@ -48,7 +49,11 @@ public class PositionMapper {
         return entity;
     }
 
-    public void updateEntity(Position entity, PositionUpdateDTO dto) {
+    public void copyToEntity(PositionUpdateDTO dto, Position entity) {
+        if (dto == null || entity == null) {
+            return;
+        }
+
         entity.setName(dto.getName());
     }
 }

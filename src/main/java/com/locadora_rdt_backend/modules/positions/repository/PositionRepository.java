@@ -8,7 +8,21 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface PositionRepository extends JpaRepository<Position, Long> {
 
-    @Query("select position from Position position where position.name like %?1%")
-    Page<Position> find(String name, Pageable pageable);
+    @Query(
+            value =
+                    "SELECT * " +
+                            "FROM tb_position " +
+                            "WHERE LOWER(name) LIKE LOWER(CONCAT('%', :name, '%'))",
 
+            countQuery =
+                    "SELECT COUNT(*) " +
+                            "FROM tb_position " +
+                            "WHERE LOWER(name) LIKE LOWER(CONCAT('%', :name, '%'))",
+
+            nativeQuery = true
+    )
+    Page<Position> searchByName(
+            String name,
+            Pageable pageable
+    );
 }

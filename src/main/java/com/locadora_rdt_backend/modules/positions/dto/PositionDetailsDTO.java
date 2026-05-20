@@ -7,6 +7,7 @@ public class PositionDetailsDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long id;
+    private Long version;
     private String name;
     private Instant createdAt;
     private Instant updatedAt;
@@ -18,6 +19,10 @@ public class PositionDetailsDTO implements Serializable {
 
     public Long getId() {
         return id;
+    }
+
+    public Long getVersion() {
+        return version;
     }
 
     public String getName() {
@@ -42,6 +47,10 @@ public class PositionDetailsDTO implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     public void setName(String name) {

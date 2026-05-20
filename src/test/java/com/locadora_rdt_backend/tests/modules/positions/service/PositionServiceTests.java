@@ -9,7 +9,7 @@ import com.locadora_rdt_backend.modules.positions.dto.PositionUpdateDTO;
 import com.locadora_rdt_backend.modules.positions.mapper.PositionMapper;
 import com.locadora_rdt_backend.modules.positions.model.Position;
 import com.locadora_rdt_backend.modules.positions.repository.PositionRepository;
-import com.locadora_rdt_backend.modules.positions.service.PositionService;
+import com.locadora_rdt_backend.modules.positions.service.PositionServiceImpl;
 
 
 import com.locadora_rdt_backend.tests.modules.positions.factory.PositionFactory;
@@ -35,7 +35,7 @@ import java.util.Optional;
 public class PositionServiceTests {
 
     @InjectMocks
-    private PositionService service;
+    private PositionServiceImpl service;
 
     @Mock
     private PositionRepository repository;

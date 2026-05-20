@@ -6,7 +6,7 @@ import com.locadora_rdt_backend.modules.positions.dto.PositionDTO;
 import com.locadora_rdt_backend.modules.positions.dto.PositionDetailsDTO;
 import com.locadora_rdt_backend.modules.positions.dto.PositionInsertDTO;
 import com.locadora_rdt_backend.modules.positions.dto.PositionUpdateDTO;
-import com.locadora_rdt_backend.modules.positions.service.PositionService;
+import com.locadora_rdt_backend.modules.positions.service.PositionServiceImpl;
 import com.locadora_rdt_backend.tests.modules.positions.factory.PositionFactory;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -36,7 +36,7 @@ public class PositionControllerIT {
     private ObjectMapper objectMapper;
 
     @MockBean
-    private PositionService service;
+    private PositionServiceImpl service;
 
     @MockBean
     private BCryptPasswordEncoder passwordEncoder;
