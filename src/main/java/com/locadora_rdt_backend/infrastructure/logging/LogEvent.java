@@ -9,24 +9,21 @@ public class LogEvent {
     private Instant timestamp;
     private LogLevel level;
     private String message;
-
     private String correlationId;
     private String traceId;
     private String username;
-
     private String method;
     private String path;
     private String clientIp;
     private String userAgent;
-
     private String resource;
     private String operation;
     private String status;
-
     private Long durationMs;
-
     private String exceptionName;
     private String exceptionMessage;
+    private String className;
+    private String methodName;
 
     private Map<String, Object> attributes = new LinkedHashMap<>();
 
@@ -169,4 +166,21 @@ public class LogEvent {
     public void addAttribute(String key, Object value) {
         this.attributes.put(key, value);
     }
+
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
+
+    public String getMethodName() {
+        return methodName;
+    }
+
+    public void setMethodName(String methodName) {
+        this.methodName = methodName;
+    }
+
 }

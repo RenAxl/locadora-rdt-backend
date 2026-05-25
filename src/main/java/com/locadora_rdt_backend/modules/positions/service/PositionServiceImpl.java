@@ -8,6 +8,7 @@ import com.locadora_rdt_backend.modules.positions.dto.PositionDTO;
 import com.locadora_rdt_backend.modules.positions.dto.PositionDetailsDTO;
 import com.locadora_rdt_backend.modules.positions.dto.PositionInsertDTO;
 import com.locadora_rdt_backend.modules.positions.dto.PositionUpdateDTO;
+import com.locadora_rdt_backend.modules.positions.logging.PositionLogger;
 import com.locadora_rdt_backend.modules.positions.mapper.PositionMapper;
 import com.locadora_rdt_backend.modules.positions.model.Position;
 import com.locadora_rdt_backend.modules.positions.repository.PositionRepository;
@@ -23,35 +24,52 @@ public class PositionServiceImpl implements PositionService {
     private final PositionRepository repository;
     private final PositionMapper mapper;
     private final AuthenticationFacade authenticationFacade;
+    private final PositionLogger positionLogger;
 
     public PositionServiceImpl(
             PositionRepository repository,
             PositionMapper mapper,
-            AuthenticationFacade authenticationFacade
+            AuthenticationFacade authenticationFacade,
+            PositionLogger positionLogger
     ) {
         this.repository = repository;
         this.mapper = mapper;
         this.authenticationFacade = authenticationFacade;
+        this.positionLogger = positionLogger;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<PositionDTO> findAllPaged(String name, PageRequest pageRequest) {
-
+    public Page<PositionDTO> findAllPaged(
+            String name,
+            PageRequest pageRequest
+    ) {
         String normalizedName = normalizeName(name);
 
-        return repository.searchByName(normalizedName, pageRequest).map(mapper::toDTO);
+        positionLogger.logSearchStarted(normalizedName);
+
+        Page<PositionDTO> result = repository
+                .searchByName(normalizedName, pageRequest)
+                .map(mapper::toDTO);
+
+        positionLogger.logSearchFinished(normalizedName);
+
+        return result;
     }
 
     @Override
     @Transactional(readOnly = true)
     public PositionDetailsDTO findById(Long id) {
+        positionLogger.logDetailsStarted(id);
+
         Position entity = repository.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
                                 PositionErrorMessages.POSITION_NOT_FOUND
                         )
                 );
+
+        positionLogger.logDetailsFinished(id);
 
         return mapper.toDetailsDTO(entity);
     }
@@ -66,6 +84,11 @@ public class PositionServiceImpl implements PositionService {
         );
 
         entity = repository.save(entity);
+
+        positionLogger.logCreated(
+                entity.getId(),
+                entity.getName()
+        );
 
         return mapper.toDTO(entity);
     }
@@ -91,6 +114,11 @@ public class PositionServiceImpl implements PositionService {
 
         entity = repository.save(entity);
 
+        positionLogger.logUpdated(
+                entity.getId(),
+                entity.getName()
+        );
+
         return mapper.toDTO(entity);
     }
 
@@ -103,9 +131,16 @@ public class PositionServiceImpl implements PositionService {
                                 PositionErrorMessages.POSITION_NOT_FOUND
                         )
                 );
+
         try {
             repository.delete(entity);
+            repository.flush();
+
+            positionLogger.logDeleted(id);
+
         } catch (DataIntegrityViolationException e) {
+            positionLogger.logDeleteFailed(id, e);
+
             throw new DatabaseException(
                     PositionErrorMessages.DATABASE_INTEGRITY_VIOLATION
             );
