@@ -1,5 +1,6 @@
 package com.locadora_rdt_backend.infrastructure.web.filter;
 
+import com.locadora_rdt_backend.infrastructure.web.filter.logging.HttpRequestLogger;
 import com.locadora_rdt_backend.shared.context.RequestContext;
 import com.locadora_rdt_backend.shared.context.RequestContextFactory;
 import com.locadora_rdt_backend.shared.context.RequestContextProvider;
@@ -18,15 +19,18 @@ public class RequestObservabilityFilter extends OncePerRequestFilter {
     private final HttpRequestDataExtractor requestDataExtractor;
     private final RequestContextFactory requestContextFactory;
     private final RequestContextProvider requestContextProvider;
+    private final HttpRequestLogger httpRequestLogger;
 
     public RequestObservabilityFilter(
             HttpRequestDataExtractor requestDataExtractor,
             RequestContextFactory requestContextFactory,
-            RequestContextProvider requestContextProvider
+            RequestContextProvider requestContextProvider,
+            HttpRequestLogger httpRequestLogger
     ) {
         this.requestDataExtractor = requestDataExtractor;
         this.requestContextFactory = requestContextFactory;
         this.requestContextProvider = requestContextProvider;
+        this.httpRequestLogger = httpRequestLogger;
     }
 
     @Override
@@ -36,33 +40,51 @@ public class RequestObservabilityFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        RequestContext context = null;
+        HttpRequestData requestData =
+                requestDataExtractor.extract(request);
+
+        RequestContext context =
+                requestContextFactory.create(
+                        requestData.getCorrelationId(),
+                        requestData.getTraceId(),
+                        requestData.getUsername(),
+                        requestData.getMethod(),
+                        requestData.getPath(),
+                        requestData.getClientIp(),
+                        requestData.getUserAgent()
+                );
+
+        requestContextProvider.set(context);
+
+        httpRequestLogger.logRequestStarted(
+                request.getMethod(),
+                request.getRequestURI()
+        );
 
         try {
-            HttpRequestData data = requestDataExtractor.extract(request);
-
-            context = requestContextFactory.create(
-                    data.getCorrelationId(),
-                    data.getTraceId(),
-                    data.getUsername(),
-                    data.getMethod(),
-                    data.getPath(),
-                    data.getClientIp(),
-                    data.getUserAgent()
-            );
-
-            requestContextProvider.set(context);
-
-            response.setHeader(WebFilterConstants.CORRELATION_ID_HEADER, context.getCorrelationId());
-            response.setHeader(WebFilterConstants.TRACE_ID_HEADER, context.getTraceId());
-
             filterChain.doFilter(request, response);
 
-        } finally {
-            if (context != null) {
-                requestContextFactory.finish(context);
-            }
+            requestContextFactory.finish(context);
 
+            httpRequestLogger.logRequestFinished(
+                    request.getMethod(),
+                    request.getRequestURI(),
+                    response.getStatus(),
+                    context.getDurationMs()
+            );
+
+        } catch (Exception exception) {
+            requestContextFactory.finish(context);
+
+            httpRequestLogger.logRequestFailed(
+                    request.getMethod(),
+                    request.getRequestURI(),
+                    exception
+            );
+
+            throw exception;
+
+        } finally {
             requestContextProvider.clear();
         }
     }

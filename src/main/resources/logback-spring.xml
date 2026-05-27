@@ -5,8 +5,11 @@
     <property name="LOG_PATH" value="logs"/>
     <property name="APP_NAME" value="locadora-rdt-backend"/>
 
+    <!-- Console para logs da aplicação: a mensagem já vem em JSON pelo JsonLogFormatter -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+        <encoder>
+            <pattern>%msg%n</pattern>
+        </encoder>
     </appender>
 
     <appender name="APPLICATION_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -14,18 +17,21 @@
 
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>${LOG_PATH}/application/archived/%d{yyyy/MM}/${APP_NAME}-application.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+
             <!--
-                Eu fiz configuração temporária para testar
-                o funcionamento da rotação e arquivamento de logs.
-                Mantém histórico de apenas 1 dia para fins de teste.
-                Para mais testes eu posso diminuir o tamanho do arquivo para 10KB também.
+                Configuração temporária para validar
+                o funcionamento da rotação e do arquivamento de logs.
+                Mantém apenas 1 dia de histórico para fins de teste.
+                Para testes adicionais, o maxFileSize pode ser reduzido para 10KB.
             -->
             <maxFileSize>10MB</maxFileSize>
             <maxHistory>1</maxHistory>
             <totalSizeCap>1GB</totalSizeCap>
         </rollingPolicy>
 
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+        <encoder>
+            <pattern>%msg%n</pattern>
+        </encoder>
     </appender>
 
     <appender name="INFRA_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -47,7 +53,6 @@
     </logger>
 
     <logger name="org.springframework" level="WARN" additivity="false">
-        <appender-ref ref="CONSOLE"/>
         <appender-ref ref="INFRA_FILE"/>
     </logger>
 
@@ -64,7 +69,6 @@
     </logger>
 
     <root level="WARN">
-        <appender-ref ref="CONSOLE"/>
         <appender-ref ref="INFRA_FILE"/>
     </root>
 
