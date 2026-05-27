@@ -14,6 +14,7 @@ import com.locadora_rdt_backend.modules.positions.mapper.PositionMapper;
 import com.locadora_rdt_backend.modules.positions.metrics.PositionMetricsService;
 import com.locadora_rdt_backend.modules.positions.model.Position;
 import com.locadora_rdt_backend.modules.positions.repository.PositionRepository;
+import com.locadora_rdt_backend.modules.positions.tracing.PositionTracingService;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,19 +29,22 @@ public class PositionServiceImpl implements PositionService {
     private final AuthenticationFacade authenticationFacade;
     private final PositionLogger positionLogger;
     private final PositionMetricsService positionMetricsService;
+    private final PositionTracingService positionTracingService;
 
     public PositionServiceImpl(
             PositionRepository repository,
             PositionMapper mapper,
             AuthenticationFacade authenticationFacade,
             PositionLogger positionLogger,
-            PositionMetricsService positionMetricsService
+            PositionMetricsService positionMetricsService,
+            PositionTracingService positionTracingService
     ) {
         this.repository = repository;
         this.mapper = mapper;
         this.authenticationFacade = authenticationFacade;
         this.positionLogger = positionLogger;
         this.positionMetricsService = positionMetricsService;
+        this.positionTracingService = positionTracingService;
     }
 
     @Override
@@ -49,67 +53,73 @@ public class PositionServiceImpl implements PositionService {
             String name,
             PageRequest pageRequest
     ) {
-        return positionMetricsService.recordExecutionTime(
-                MetricOperation.FIND_ALL,
-                () -> {
-                    String normalizedName = normalizeName(name);
+        return positionTracingService.traceFindAll(() ->
+                positionMetricsService.recordExecutionTime(
+                        MetricOperation.FIND_ALL,
+                        () -> {
+                            String normalizedName = normalizeName(name);
 
-                    positionLogger.logSearchStarted(normalizedName);
+                            positionLogger.logSearchStarted(normalizedName);
 
-                    Page<PositionDTO> result = repository
-                            .searchByName(normalizedName, pageRequest)
-                            .map(mapper::toDTO);
+                            Page<PositionDTO> result = repository
+                                    .searchByName(normalizedName, pageRequest)
+                                    .map(mapper::toDTO);
 
-                    positionLogger.logSearchFinished(normalizedName);
+                            positionLogger.logSearchFinished(normalizedName);
 
-                    return result;
-                }
+                            return result;
+                        }
+                )
         );
     }
 
     @Override
     @Transactional(readOnly = true)
     public PositionDetailsDTO findById(Long id) {
-        return positionMetricsService.recordExecutionTime(
-                MetricOperation.FIND_BY_ID,
-                () -> {
-                    positionLogger.logDetailsStarted(id);
+        return positionTracingService.traceFindById(() ->
+                positionMetricsService.recordExecutionTime(
+                        MetricOperation.FIND_BY_ID,
+                        () -> {
+                            positionLogger.logDetailsStarted(id);
 
-                    Position entity = repository.findById(id)
-                            .orElseThrow(() ->
-                                    new ResourceNotFoundException(
-                                            PositionErrorMessages.POSITION_NOT_FOUND
-                                    )
-                            );
+                            Position entity = repository.findById(id)
+                                    .orElseThrow(() ->
+                                            new ResourceNotFoundException(
+                                                    PositionErrorMessages.POSITION_NOT_FOUND
+                                            )
+                                    );
 
-                    positionLogger.logDetailsFinished(id);
+                            positionLogger.logDetailsFinished(id);
 
-                    return mapper.toDetailsDTO(entity);
-                }
+                            return mapper.toDetailsDTO(entity);
+                        }
+                )
         );
     }
 
     @Override
     @Transactional
     public PositionDTO insert(PositionInsertDTO dto) {
-        return positionMetricsService.recordExecutionTime(
-                MetricOperation.CREATE,
-                () -> {
-                    Position entity = mapper.toEntity(dto);
+        return positionTracingService.traceCreate(() ->
+                positionMetricsService.recordExecutionTime(
+                        MetricOperation.CREATE,
+                        () -> {
+                            Position entity = mapper.toEntity(dto);
 
-                    entity.setCreatedBy(
-                            authenticationFacade.getAuthenticatedUsername()
-                    );
+                            entity.setCreatedBy(
+                                    authenticationFacade.getAuthenticatedUsername()
+                            );
 
-                    entity = repository.save(entity);
+                            entity = repository.save(entity);
 
-                    positionLogger.logCreated(
-                            entity.getId(),
-                            entity.getName()
-                    );
+                            positionLogger.logCreated(
+                                    entity.getId(),
+                                    entity.getName()
+                            );
 
-                    return mapper.toDTO(entity);
-                }
+                            return mapper.toDTO(entity);
+                        }
+                )
         );
     }
 
@@ -119,61 +129,65 @@ public class PositionServiceImpl implements PositionService {
             Long id,
             PositionUpdateDTO dto
     ) {
-        return positionMetricsService.recordExecutionTime(
-                MetricOperation.UPDATE,
-                () -> {
-                    Position entity = repository.findById(id)
-                            .orElseThrow(() ->
-                                    new ResourceNotFoundException(
-                                            PositionErrorMessages.POSITION_NOT_FOUND
-                                    )
+        return positionTracingService.traceUpdate(() ->
+                positionMetricsService.recordExecutionTime(
+                        MetricOperation.UPDATE,
+                        () -> {
+                            Position entity = repository.findById(id)
+                                    .orElseThrow(() ->
+                                            new ResourceNotFoundException(
+                                                    PositionErrorMessages.POSITION_NOT_FOUND
+                                            )
+                                    );
+
+                            mapper.copyToEntity(dto, entity);
+
+                            entity.setUpdatedBy(
+                                    authenticationFacade.getAuthenticatedUsername()
                             );
 
-                    mapper.copyToEntity(dto, entity);
+                            entity = repository.save(entity);
 
-                    entity.setUpdatedBy(
-                            authenticationFacade.getAuthenticatedUsername()
-                    );
+                            positionLogger.logUpdated(
+                                    entity.getId(),
+                                    entity.getName()
+                            );
 
-                    entity = repository.save(entity);
-
-                    positionLogger.logUpdated(
-                            entity.getId(),
-                            entity.getName()
-                    );
-
-                    return mapper.toDTO(entity);
-                }
+                            return mapper.toDTO(entity);
+                        }
+                )
         );
     }
 
     @Override
     @Transactional
     public void delete(Long id) {
-        positionMetricsService.recordExecutionTime(
-                MetricOperation.DELETE,
-                () -> {
-                    Position entity = repository.findById(id)
-                            .orElseThrow(() ->
-                                    new ResourceNotFoundException(
-                                            PositionErrorMessages.POSITION_NOT_FOUND
-                                    )
-                            );
+        positionTracingService.traceDelete(() ->
+                positionMetricsService.recordExecutionTime(
+                        MetricOperation.DELETE,
+                        () -> {
+                            Position entity = repository.findById(id)
+                                    .orElseThrow(() ->
+                                            new ResourceNotFoundException(
+                                                    PositionErrorMessages.POSITION_NOT_FOUND
+                                            )
+                                    );
 
-                    try {
-                        repository.delete(entity);
-                        repository.flush();
+                            try {
+                                repository.delete(entity);
+                                repository.flush();
 
-                        positionLogger.logDeleted(id);
+                                positionLogger.logDeleted(id);
 
-                    } catch (DataIntegrityViolationException e) {
-                        positionLogger.logDeleteFailed(id, e);
+                            } catch (DataIntegrityViolationException e) {
+                                positionLogger.logDeleteFailed(id, e);
 
-                        throw new DatabaseException(
-                                PositionErrorMessages.DATABASE_INTEGRITY_VIOLATION
-                        );
-                    }
-                }
+                                throw new DatabaseException(
+                                        PositionErrorMessages.DATABASE_INTEGRITY_VIOLATION
+                                );
+                            }
+                        }
+                )
         );
     }
 
