@@ -3,9 +3,7 @@ package com.locadora_rdt_backend.infrastructure.tracing.service;
 import com.locadora_rdt_backend.infrastructure.tracing.model.SpanType;
 import com.locadora_rdt_backend.infrastructure.tracing.model.TraceSpan;
 
-import java.util.function.Supplier;
-
-public interface ApplicationTracingService {
+public interface SpanLifecycleService {
 
     TraceSpan startSpan(
             SpanType spanType,
@@ -19,21 +17,5 @@ public interface ApplicationTracingService {
     void finishSpanWithError(
             TraceSpan span,
             Throwable throwable
-    );
-
-    <T> T trace(
-            SpanType spanType,
-            String module,
-            String resource,
-            String operation,
-            Supplier<T> supplier
-    );
-
-    void trace(
-            SpanType spanType,
-            String module,
-            String resource,
-            String operation,
-            Runnable runnable
     );
 }

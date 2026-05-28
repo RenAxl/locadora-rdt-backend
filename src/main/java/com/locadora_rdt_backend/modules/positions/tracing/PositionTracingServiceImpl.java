@@ -1,6 +1,6 @@
 package com.locadora_rdt_backend.modules.positions.tracing;
 
-import com.locadora_rdt_backend.infrastructure.tracing.service.ApplicationTracingService;
+import com.locadora_rdt_backend.infrastructure.tracing.span.ServiceSpanService;
 import org.springframework.stereotype.Service;
 
 import java.util.function.Supplier;
@@ -8,15 +8,15 @@ import java.util.function.Supplier;
 @Service
 public class PositionTracingServiceImpl implements PositionTracingService {
 
-    private final ApplicationTracingService applicationTracingService;
+    private final ServiceSpanService serviceSpanService;
 
-    public PositionTracingServiceImpl(ApplicationTracingService applicationTracingService) {
-        this.applicationTracingService = applicationTracingService;
+    public PositionTracingServiceImpl(ServiceSpanService serviceSpanService) {
+        this.serviceSpanService = serviceSpanService;
     }
 
     @Override
     public <T> T traceFindAll(Supplier<T> supplier) {
-        return applicationTracingService.trace(
+        return serviceSpanService.trace(
                 PositionTracingConstants.MODULE,
                 PositionTracingConstants.RESOURCE,
                 PositionTracingConstants.OPERATION_FIND_ALL,
@@ -26,7 +26,7 @@ public class PositionTracingServiceImpl implements PositionTracingService {
 
     @Override
     public <T> T traceFindById(Supplier<T> supplier) {
-        return applicationTracingService.trace(
+        return serviceSpanService.trace(
                 PositionTracingConstants.MODULE,
                 PositionTracingConstants.RESOURCE,
                 PositionTracingConstants.OPERATION_FIND_BY_ID,
@@ -36,7 +36,7 @@ public class PositionTracingServiceImpl implements PositionTracingService {
 
     @Override
     public <T> T traceCreate(Supplier<T> supplier) {
-        return applicationTracingService.trace(
+        return serviceSpanService.trace(
                 PositionTracingConstants.MODULE,
                 PositionTracingConstants.RESOURCE,
                 PositionTracingConstants.OPERATION_CREATE,
@@ -46,7 +46,7 @@ public class PositionTracingServiceImpl implements PositionTracingService {
 
     @Override
     public <T> T traceUpdate(Supplier<T> supplier) {
-        return applicationTracingService.trace(
+        return serviceSpanService.trace(
                 PositionTracingConstants.MODULE,
                 PositionTracingConstants.RESOURCE,
                 PositionTracingConstants.OPERATION_UPDATE,
@@ -56,7 +56,7 @@ public class PositionTracingServiceImpl implements PositionTracingService {
 
     @Override
     public void traceDelete(Runnable runnable) {
-        applicationTracingService.trace(
+        serviceSpanService.trace(
                 PositionTracingConstants.MODULE,
                 PositionTracingConstants.RESOURCE,
                 PositionTracingConstants.OPERATION_DELETE,

@@ -8,10 +8,31 @@ import java.util.Optional;
 
 public final class TraceContextHolder {
 
+    private static final ThreadLocal<TraceContext> CONTEXT = new ThreadLocal<>();
+
     private static final ThreadLocal<Deque<TraceSpan>> CURRENT_SPANS =
             ThreadLocal.withInitial(ArrayDeque::new);
 
     private TraceContextHolder() {
+    }
+
+    public static void set(TraceContext context) {
+        CONTEXT.set(context);
+    }
+
+    public static TraceContext get() {
+        return CONTEXT.get();
+    }
+
+    public static TraceContext getOrCreate() {
+        TraceContext context = CONTEXT.get();
+
+        if (context == null) {
+            context = new TraceContext();
+            CONTEXT.set(context);
+        }
+
+        return context;
     }
 
     public static Optional<TraceSpan> getCurrentSpan() {
@@ -26,6 +47,10 @@ public final class TraceContextHolder {
 
     public static void push(TraceSpan span) {
         CURRENT_SPANS.get().push(span);
+
+        TraceContext context = getOrCreate();
+        context.setCurrentSpanId(span.getSpanId());
+        context.setParentSpanId(span.getParentSpanId());
     }
 
     public static void pop() {
@@ -35,12 +60,26 @@ public final class TraceContextHolder {
             spans.pop();
         }
 
+        TraceContext context = get();
+
+        if (context != null) {
+            if (spans.isEmpty()) {
+                context.setCurrentSpanId(null);
+                context.setParentSpanId(null);
+            } else {
+                TraceSpan currentSpan = spans.peek();
+                context.setCurrentSpanId(currentSpan.getSpanId());
+                context.setParentSpanId(currentSpan.getParentSpanId());
+            }
+        }
+
         if (spans.isEmpty()) {
             CURRENT_SPANS.remove();
         }
     }
 
     public static void clear() {
+        CONTEXT.remove();
         CURRENT_SPANS.remove();
     }
 }

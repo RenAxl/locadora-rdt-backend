@@ -41,3 +41,11 @@ management:
     web:
       exposure:
         include: "*"
+
+tracing:
+  exporter:
+    enabled: false
+    type: noop
+    service-name: locadora-rdt-backend
+    endpoint:
+    sampling-rate: 1.0

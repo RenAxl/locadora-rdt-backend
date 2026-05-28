@@ -1,5 +1,6 @@
 package com.locadora_rdt_backend.infrastructure.tracing.model;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -11,38 +12,66 @@ public class TraceSpan {
     private String spanId;
     private String parentSpanId;
 
+    private SpanType spanType;
+
     private String module;
     private String resource;
     private String operation;
 
     private TraceStatus status;
 
-    private Instant startedAt;
-    private Instant finishedAt;
+    private String correlationId;
+    private String username;
 
-    private Long durationInMillis;
+    private String method;
+    private String path;
+
+    private Instant startedAt;
+    private Instant endedAt;
+
+    private Long durationMs;
+    private Long durationNs;
 
     private String errorType;
     private String errorMessage;
 
-    private final Map<String, String> tags = new LinkedHashMap<>();
+    private final Map<String, Object> attributes = new LinkedHashMap<>();
 
     public TraceSpan() {
         this.spanId = UUID.randomUUID().toString();
-        this.startedAt = Instant.now();
         this.status = TraceStatus.STARTED;
+        this.startedAt = Instant.now();
+        this.spanType = SpanType.UNKNOWN;
     }
 
-    public void finishSuccess(long durationInMillis) {
+    public static TraceSpan create(
+            String traceId,
+            String parentSpanId,
+            SpanType spanType,
+            String module,
+            String resource,
+            String operation
+    ) {
+        TraceSpan span = new TraceSpan();
+        span.setTraceId(traceId);
+        span.setParentSpanId(parentSpanId);
+        span.setSpanType(spanType);
+        span.setModule(module);
+        span.setResource(resource);
+        span.setOperation(operation);
+        return span;
+    }
+
+    public void finishSuccess() {
         this.status = TraceStatus.SUCCESS;
-        this.finishedAt = Instant.now();
-        this.durationInMillis = durationInMillis;
+        this.endedAt = Instant.now();
+        calculateDuration();
     }
 
-    public void finishError(Throwable throwable, long durationInMillis) {
+    public void finishError(Throwable throwable) {
         this.status = TraceStatus.ERROR;
-        this.finishedAt = Instant.now();
-        this.durationInMillis = durationInMillis;
+        this.endedAt = Instant.now();
+        calculateDuration();
 
         if (throwable != null) {
             this.errorType = throwable.getClass().getSimpleName();
@@ -50,9 +79,21 @@ public class TraceSpan {
         }
     }
 
-    public void addTag(String key, String value) {
-        if (key != null && value != null) {
-            this.tags.put(key, value);
+    public void addAttribute(String key, Object value) {
+        if (key != null && !key.trim().isEmpty() && value != null) {
+            this.attributes.put(key, value);
+        }
+    }
+
+    public Object getAttribute(String key) {
+        return this.attributes.get(key);
+    }
+
+    private void calculateDuration() {
+        if (startedAt != null && endedAt != null) {
+            Duration duration = Duration.between(startedAt, endedAt);
+            this.durationMs = duration.toMillis();
+            this.durationNs = duration.toNanos();
         }
     }
 
@@ -78,6 +119,22 @@ public class TraceSpan {
 
     public void setParentSpanId(String parentSpanId) {
         this.parentSpanId = parentSpanId;
+    }
+
+    public SpanType getSpanType() {
+        return spanType;
+    }
+
+    public void setSpanType(SpanType spanType) {
+        this.spanType = spanType;
+    }
+
+    public String getSpanTypeValue() {
+        if (spanType == null) {
+            return SpanType.UNKNOWN.getValue();
+        }
+
+        return spanType.getValue();
     }
 
     public String getModule() {
@@ -112,16 +169,68 @@ public class TraceSpan {
         this.status = status;
     }
 
+    public String getStatusValue() {
+        if (status == null) {
+            return TraceStatus.UNKNOWN.getValue();
+        }
+
+        return status.getValue();
+    }
+
+    public String getCorrelationId() {
+        return correlationId;
+    }
+
+    public void setCorrelationId(String correlationId) {
+        this.correlationId = correlationId;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
+    public void setMethod(String method) {
+        this.method = method;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
     public Instant getStartedAt() {
         return startedAt;
     }
 
-    public Instant getFinishedAt() {
-        return finishedAt;
+    public void setStartedAt(Instant startedAt) {
+        this.startedAt = startedAt;
     }
 
-    public Long getDurationInMillis() {
-        return durationInMillis;
+    public Instant getEndedAt() {
+        return endedAt;
+    }
+
+    public void setEndedAt(Instant endedAt) {
+        this.endedAt = endedAt;
+    }
+
+    public Long getDurationMs() {
+        return durationMs;
+    }
+
+    public Long getDurationNs() {
+        return durationNs;
     }
 
     public String getErrorType() {
@@ -132,7 +241,7 @@ public class TraceSpan {
         return errorMessage;
     }
 
-    public Map<String, String> getTags() {
-        return tags;
+    public Map<String, Object> getAttributes() {
+        return attributes;
     }
 }

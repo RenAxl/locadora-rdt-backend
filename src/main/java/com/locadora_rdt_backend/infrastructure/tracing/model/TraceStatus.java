@@ -4,7 +4,9 @@ public enum TraceStatus {
 
     STARTED("started"),
     SUCCESS("success"),
-    ERROR("error");
+    ERROR("error"),
+    CANCELLED("cancelled"),
+    UNKNOWN("unknown");
 
     private final String value;
 

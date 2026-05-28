@@ -14,7 +14,11 @@ import com.locadora_rdt_backend.modules.positions.mapper.PositionMapper;
 import com.locadora_rdt_backend.modules.positions.metrics.PositionMetricsService;
 import com.locadora_rdt_backend.modules.positions.model.Position;
 import com.locadora_rdt_backend.modules.positions.repository.PositionRepository;
+import com.locadora_rdt_backend.modules.positions.tracing.PositionMapperTracingService;
+import com.locadora_rdt_backend.modules.positions.tracing.PositionMetricsTracingService;
+import com.locadora_rdt_backend.modules.positions.tracing.PositionRepositoryTracingService;
 import com.locadora_rdt_backend.modules.positions.tracing.PositionTracingService;
+import com.locadora_rdt_backend.modules.positions.tracing.PositionValidationTracingService;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -29,7 +33,12 @@ public class PositionServiceImpl implements PositionService {
     private final AuthenticationFacade authenticationFacade;
     private final PositionLogger positionLogger;
     private final PositionMetricsService positionMetricsService;
+
     private final PositionTracingService positionTracingService;
+    private final PositionRepositoryTracingService positionRepositoryTracingService;
+    private final PositionMapperTracingService positionMapperTracingService;
+    private final PositionValidationTracingService positionValidationTracingService;
+    private final PositionMetricsTracingService positionMetricsTracingService;
 
     public PositionServiceImpl(
             PositionRepository repository,
@@ -37,7 +46,11 @@ public class PositionServiceImpl implements PositionService {
             AuthenticationFacade authenticationFacade,
             PositionLogger positionLogger,
             PositionMetricsService positionMetricsService,
-            PositionTracingService positionTracingService
+            PositionTracingService positionTracingService,
+            PositionRepositoryTracingService positionRepositoryTracingService,
+            PositionMapperTracingService positionMapperTracingService,
+            PositionValidationTracingService positionValidationTracingService,
+            PositionMetricsTracingService positionMetricsTracingService
     ) {
         this.repository = repository;
         this.mapper = mapper;
@@ -45,6 +58,10 @@ public class PositionServiceImpl implements PositionService {
         this.positionLogger = positionLogger;
         this.positionMetricsService = positionMetricsService;
         this.positionTracingService = positionTracingService;
+        this.positionRepositoryTracingService = positionRepositoryTracingService;
+        this.positionMapperTracingService = positionMapperTracingService;
+        this.positionValidationTracingService = positionValidationTracingService;
+        this.positionMetricsTracingService = positionMetricsTracingService;
     }
 
     @Override
@@ -54,21 +71,27 @@ public class PositionServiceImpl implements PositionService {
             PageRequest pageRequest
     ) {
         return positionTracingService.traceFindAll(() ->
-                positionMetricsService.recordExecutionTime(
-                        MetricOperation.FIND_ALL,
-                        () -> {
-                            String normalizedName = normalizeName(name);
+                positionMetricsTracingService.traceMetricsRecord(() ->
+                        positionMetricsService.recordExecutionTime(
+                                MetricOperation.FIND_ALL,
+                                () -> {
+                                    String normalizedName = normalizeName(name);
 
-                            positionLogger.logSearchStarted(normalizedName);
+                                    positionLogger.logSearchStarted(normalizedName);
 
-                            Page<PositionDTO> result = repository
-                                    .searchByName(normalizedName, pageRequest)
-                                    .map(mapper::toDTO);
+                                    Page<PositionDTO> result = positionRepositoryTracingService
+                                            .traceSearchByName(() ->
+                                                    repository.searchByName(normalizedName, pageRequest)
+                                            )
+                                            .map(position -> positionMapperTracingService
+                                                    .traceToDTO(() -> mapper.toDTO(position))
+                                            );
 
-                            positionLogger.logSearchFinished(normalizedName);
+                                    positionLogger.logSearchFinished(normalizedName);
 
-                            return result;
-                        }
+                                    return result;
+                                }
+                        )
                 )
         );
     }
@@ -77,22 +100,29 @@ public class PositionServiceImpl implements PositionService {
     @Transactional(readOnly = true)
     public PositionDetailsDTO findById(Long id) {
         return positionTracingService.traceFindById(() ->
-                positionMetricsService.recordExecutionTime(
-                        MetricOperation.FIND_BY_ID,
-                        () -> {
-                            positionLogger.logDetailsStarted(id);
+                positionMetricsTracingService.traceMetricsRecord(() ->
+                        positionMetricsService.recordExecutionTime(
+                                MetricOperation.FIND_BY_ID,
+                                () -> {
+                                    positionLogger.logDetailsStarted(id);
 
-                            Position entity = repository.findById(id)
-                                    .orElseThrow(() ->
-                                            new ResourceNotFoundException(
-                                                    PositionErrorMessages.POSITION_NOT_FOUND
-                                            )
+                                    Position entity = positionRepositoryTracingService.traceFindById(() ->
+                                            repository.findById(id)
+                                                    .orElseThrow(() ->
+                                                            new ResourceNotFoundException(
+                                                                    PositionErrorMessages.POSITION_NOT_FOUND
+                                                            )
+                                                    )
                                     );
 
-                            positionLogger.logDetailsFinished(id);
+                                    PositionDetailsDTO dto = positionMapperTracingService
+                                            .traceToDetailsDTO(() -> mapper.toDetailsDTO(entity));
 
-                            return mapper.toDetailsDTO(entity);
-                        }
+                                    positionLogger.logDetailsFinished(id);
+
+                                    return dto;
+                                }
+                        )
                 )
         );
     }
@@ -101,24 +131,36 @@ public class PositionServiceImpl implements PositionService {
     @Transactional
     public PositionDTO insert(PositionInsertDTO dto) {
         return positionTracingService.traceCreate(() ->
-                positionMetricsService.recordExecutionTime(
-                        MetricOperation.CREATE,
-                        () -> {
-                            Position entity = mapper.toEntity(dto);
+                positionMetricsTracingService.traceMetricsRecord(() ->
+                        positionMetricsService.recordExecutionTime(
+                                MetricOperation.CREATE,
+                                () -> {
+                                    positionValidationTracingService.traceValidateCreate(() -> {
+                                        // Espaço reservado para validações de criação.
+                                    });
 
-                            entity.setCreatedBy(
-                                    authenticationFacade.getAuthenticatedUsername()
-                            );
+                                    Position entity = positionMapperTracingService.traceToEntity(() ->
+                                            mapper.toEntity(dto)
+                                    );
 
-                            entity = repository.save(entity);
+                                    entity.setCreatedBy(
+                                            authenticationFacade.getAuthenticatedUsername()
+                                    );
 
-                            positionLogger.logCreated(
-                                    entity.getId(),
-                                    entity.getName()
-                            );
+                                    Position savedEntity = positionRepositoryTracingService.traceSave(() ->
+                                            repository.save(entity)
+                                    );
 
-                            return mapper.toDTO(entity);
-                        }
+                                    positionLogger.logCreated(
+                                            savedEntity.getId(),
+                                            savedEntity.getName()
+                                    );
+
+                                    return positionMapperTracingService.traceToDTO(() ->
+                                            mapper.toDTO(savedEntity)
+                                    );
+                                }
+                        )
                 )
         );
     }
@@ -130,31 +172,45 @@ public class PositionServiceImpl implements PositionService {
             PositionUpdateDTO dto
     ) {
         return positionTracingService.traceUpdate(() ->
-                positionMetricsService.recordExecutionTime(
-                        MetricOperation.UPDATE,
-                        () -> {
-                            Position entity = repository.findById(id)
-                                    .orElseThrow(() ->
-                                            new ResourceNotFoundException(
-                                                    PositionErrorMessages.POSITION_NOT_FOUND
-                                            )
+                positionMetricsTracingService.traceMetricsRecord(() ->
+                        positionMetricsService.recordExecutionTime(
+                                MetricOperation.UPDATE,
+                                () -> {
+                                    positionValidationTracingService.traceValidateUpdate(() -> {
+                                        // Espaço reservado para validações de atualização.
+                                    });
+
+                                    Position entity = positionRepositoryTracingService.traceFindById(() ->
+                                            repository.findById(id)
+                                                    .orElseThrow(() ->
+                                                            new ResourceNotFoundException(
+                                                                    PositionErrorMessages.POSITION_NOT_FOUND
+                                                            )
+                                                    )
                                     );
 
-                            mapper.copyToEntity(dto, entity);
+                                    positionMapperTracingService.traceCopyToEntity(() ->
+                                            mapper.copyToEntity(dto, entity)
+                                    );
 
-                            entity.setUpdatedBy(
-                                    authenticationFacade.getAuthenticatedUsername()
-                            );
+                                    entity.setUpdatedBy(
+                                            authenticationFacade.getAuthenticatedUsername()
+                                    );
 
-                            entity = repository.save(entity);
+                                    Position savedEntity = positionRepositoryTracingService.traceSave(() ->
+                                            repository.save(entity)
+                                    );
 
-                            positionLogger.logUpdated(
-                                    entity.getId(),
-                                    entity.getName()
-                            );
+                                    positionLogger.logUpdated(
+                                            savedEntity.getId(),
+                                            savedEntity.getName()
+                                    );
 
-                            return mapper.toDTO(entity);
-                        }
+                                    return positionMapperTracingService.traceToDTO(() ->
+                                            mapper.toDTO(savedEntity)
+                                    );
+                                }
+                        )
                 )
         );
     }
@@ -163,30 +219,41 @@ public class PositionServiceImpl implements PositionService {
     @Transactional
     public void delete(Long id) {
         positionTracingService.traceDelete(() ->
-                positionMetricsService.recordExecutionTime(
-                        MetricOperation.DELETE,
-                        () -> {
-                            Position entity = repository.findById(id)
-                                    .orElseThrow(() ->
-                                            new ResourceNotFoundException(
-                                                    PositionErrorMessages.POSITION_NOT_FOUND
-                                            )
+                positionMetricsTracingService.traceMetricsRecord(() ->
+                        positionMetricsService.recordExecutionTime(
+                                MetricOperation.DELETE,
+                                () -> {
+                                    Position entity = positionRepositoryTracingService.traceFindById(() ->
+                                            repository.findById(id)
+                                                    .orElseThrow(() ->
+                                                            new ResourceNotFoundException(
+                                                                    PositionErrorMessages.POSITION_NOT_FOUND
+                                                            )
+                                                    )
                                     );
 
-                            try {
-                                repository.delete(entity);
-                                repository.flush();
+                                    positionValidationTracingService.traceValidateDelete(() -> {
+                                        // Espaço reservado para validações de exclusão.
+                                    });
 
-                                positionLogger.logDeleted(id);
+                                    try {
+                                        positionRepositoryTracingService.traceDelete(() ->
+                                                repository.delete(entity)
+                                        );
 
-                            } catch (DataIntegrityViolationException e) {
-                                positionLogger.logDeleteFailed(id, e);
+                                        positionRepositoryTracingService.traceFlush(repository::flush);
 
-                                throw new DatabaseException(
-                                        PositionErrorMessages.DATABASE_INTEGRITY_VIOLATION
-                                );
-                            }
-                        }
+                                        positionLogger.logDeleted(id);
+
+                                    } catch (DataIntegrityViolationException e) {
+                                        positionLogger.logDeleteFailed(id, e);
+
+                                        throw new DatabaseException(
+                                                PositionErrorMessages.DATABASE_INTEGRITY_VIOLATION
+                                        );
+                                    }
+                                }
+                        )
                 )
         );
     }

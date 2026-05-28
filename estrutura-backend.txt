@@ -1,0 +1,345 @@
+src/main/java/com/locadora_rdt_backend
+├── common
+│   ├── error
+│   │   ├── FieldMessage.java
+│   │   ├── StandardError.java
+│   │   └── ValidationError.java
+│   ├── exception
+│   │   ├── DatabaseException.java
+│   │   ├── FileException.java
+│   │   └── ResourceNotFoundException.java
+│   └── handler
+│       └── ResourceExceptionHandler.java
+├── config
+│   ├── cors
+│   │   └── CorsConfig.java
+│   ├── documentation
+│   │   └── ApiDocumentationConfig.java
+│   └── security
+│       ├── core
+│       │   ├── PasswordEncoderConfig.java
+│       │   └── WebSecurityConfig.java
+│       ├── jwt
+│       │   ├── JwtAccessTokenConverterConfig.java
+│       │   └── JwtTokenStoreConfig.java
+│       └── oauth2
+│           ├── AuthorizationServerConfig.java
+│           └── ResourceServerConfig.java
+├── infrastructure
+│   ├── audit
+│   ├── logging
+│   │   ├── ApplicationLoggerImpl.java
+│   │   ├── ApplicationLogger.java
+│   │   ├── DefaultLogFormatter.java
+│   │   ├── ErrorLogBuilder.java
+│   │   ├── JsonLogFormatter.java
+│   │   ├── LogEventFactory.java
+│   │   ├── LogEvent.java
+│   │   ├── LogFormatter.java
+│   │   ├── LoggingConstants.java
+│   │   ├── LogLevel.java
+│   │   ├── RequestLogBuilder.java
+│   │   └── sensitive
+│   │       ├── MaskingUtils.java
+│   │       ├── SensitiveDataMaskerImpl.java
+│   │       ├── SensitiveDataMasker.java
+│   │       ├── SensitiveDataPatterns.java
+│   │       └── SensitiveFields.java
+│   ├── mail
+│   │   ├── service
+│   │   │   ├── EmailService.java
+│   │   │   └── SmtpEmailService.java
+│   │   └── template
+│   │       ├── ActivationEmailTemplateService.java
+│   │       └── PasswordResetEmailTemplateService.java
+│   ├── metrics
+│   │   ├── builder
+│   │   │   └── MetricsTagsBuilder.java
+│   │   ├── constants
+│   │   │   ├── MetricsConstants.java
+│   │   │   └── MetricsTagConstants.java
+│   │   ├── model
+│   │   │   ├── MetricOperation.java
+│   │   │   └── MetricStatus.java
+│   │   └── service
+│   │       ├── ApplicationMetricsService.java
+│   │       └── MicrometerApplicationMetricsService.java
+│   ├── security
+│   │   ├── AuthenticationFacade.java
+│   │   └── SpringSecurityAuthenticationFacade.java
+│   ├── storage
+│   ├── tracing
+│   │   ├── constants
+│   │   │   └── TracingConstants.java
+│   │   ├── context
+│   │   │   ├── ThreadLocalTraceContextProvider.java
+│   │   │   ├── TraceContextFactory.java
+│   │   │   ├── TraceContextHolder.java
+│   │   │   ├── TraceContext.java
+│   │   │   └── TraceContextProvider.java
+│   │   ├── exporter
+│   │   │   ├── NoOpTraceExporter.java
+│   │   │   ├── OpenTelemetryTraceExporter.java
+│   │   │   ├── TraceExporter.java
+│   │   │   └── TraceExportProperties.java
+│   │   ├── logger
+│   │   │   ├── StructuredTraceLogger.java
+│   │   │   ├── TraceLogEventFactory.java
+│   │   │   ├── TraceLogEvent.java
+│   │   │   └── TraceLogger.java
+│   │   ├── model
+│   │   │   ├── SpanType.java
+│   │   │   ├── TraceAttribute.java
+│   │   │   ├── TraceSpan.java
+│   │   │   └── TraceStatus.java
+│   │   ├── service
+│   │   │   ├── ApplicationTracingService.java
+│   │   │   ├── DefaultApplicationTracingService.java
+│   │   │   ├── DefaultSpanLifecycleService.java
+│   │   │   └── SpanLifecycleService.java
+│   │   └── span
+│   │       ├── AbstractSpanService.java
+│   │       ├── AuditSpanService.java
+│   │       ├── ControllerSpanService.java
+│   │       ├── DatabaseSpanService.java
+│   │       ├── DefaultAuditSpanService.java
+│   │       ├── DefaultControllerSpanService.java
+│   │       ├── DefaultDatabaseSpanService.java
+│   │       ├── DefaultHttpSpanService.java
+│   │       ├── DefaultMapperSpanService.java
+│   │       ├── DefaultMetricsSpanService.java
+│   │       ├── DefaultRepositorySpanService.java
+│   │       ├── DefaultServiceSpanService.java
+│   │       ├── DefaultValidationSpanService.java
+│   │       ├── HttpSpanService.java
+│   │       ├── MapperSpanService.java
+│   │       ├── MetricsSpanService.java
+│   │       ├── RepositorySpanService.java
+│   │       ├── ServiceSpanService.java
+│   │       └── ValidationSpanService.java
+│   └── web
+│       └── filter
+│           ├── AuthenticatedUsernameResolver.java
+│           ├── ClientIpResolver.java
+│           ├── DefaultClientIpResolver.java
+│           ├── HttpRequestDataExtractor.java
+│           ├── HttpRequestData.java
+│           ├── logging
+│           │   ├── HttpRequestLogContext.java
+│           │   ├── HttpRequestLogEventFactory.java
+│           │   ├── HttpRequestLoggerImpl.java
+│           │   ├── HttpRequestLogger.java
+│           │   ├── HttpRequestLogMessages.java
+│           │   ├── HttpRequestLogOperations.java
+│           │   └── HttpRequestLogStatus.java
+│           ├── RequestIdGenerator.java
+│           ├── RequestObservabilityFilter.java
+│           ├── ServletHttpRequestDataExtractor.java
+│           ├── SpringSecurityAuthenticatedUsernameResolver.java
+│           ├── UuidRequestIdGenerator.java
+│           └── WebFilterConstants.java
+├── LocadoraRdtBackendApplication.java
+├── modules
+│   ├── customers
+│   │   ├── controller
+│   │   │   ├── CustomerController.java
+│   │   │   └── CustomerFileController.java
+│   │   ├── dto
+│   │   │   ├── CustomerDetailsDTO.java
+│   │   │   ├── CustomerDTO.java
+│   │   │   ├── CustomerFileDTO.java
+│   │   │   ├── CustomerFileViewDTO.java
+│   │   │   ├── CustomerInsertDTO.java
+│   │   │   └── CustomerUpdateDTO.java
+│   │   ├── mapper
+│   │   │   └── CustomerMapper.java
+│   │   ├── model
+│   │   │   ├── CustomerFile.java
+│   │   │   └── Customer.java
+│   │   ├── repository
+│   │   │   ├── CustomerFileRepository.java
+│   │   │   └── CustomerRepository.java
+│   │   ├── service
+│   │   │   ├── CustomerFileService.java
+│   │   │   └── CustomerService.java
+│   │   └── validation
+│   │       ├── CustomerInsertValidator.java
+│   │       ├── CustomerInsertValid.java
+│   │       ├── CustomerUpdateValidator.java
+│   │       └── CustomerUpdateValid.java
+│   ├── departments
+│   │   ├── controller
+│   │   │   └── DepartmentController.java
+│   │   ├── dto
+│   │   │   ├── DepartmentDetailsDTO.java
+│   │   │   ├── DepartmentDTO.java
+│   │   │   ├── DepartmentInsertDTO.java
+│   │   │   └── DepartmentUpdateDTO.java
+│   │   ├── mapper
+│   │   │   └── DepartmentMapper.java
+│   │   ├── model
+│   │   │   └── Department.java
+│   │   ├── repository
+│   │   │   └── DepartmentRepository.java
+│   │   └── service
+│   │       └── DepartmentService.java
+│   ├── employees
+│   │   ├── controller
+│   │   │   ├── EmployeeController.java
+│   │   │   └── EmployeeFileController.java
+│   │   ├── dto
+│   │   │   ├── EmployeeDetailsDTO.java
+│   │   │   ├── EmployeeDTO.java
+│   │   │   ├── EmployeeFileDTO.java
+│   │   │   ├── EmployeeFileViewDTO.java
+│   │   │   ├── EmployeeInsertDTO.java
+│   │   │   └── EmployeeUpdateDTO.java
+│   │   ├── mapper
+│   │   │   └── EmployeeMapper.java
+│   │   ├── model
+│   │   │   ├── EmployeeFile.java
+│   │   │   └── Employee.java
+│   │   ├── repository
+│   │   │   ├── EmployeeFileRepository.java
+│   │   │   └── EmployeeRepository.java
+│   │   ├── service
+│   │   │   ├── EmployeeFileService.java
+│   │   │   └── EmployeeService.java
+│   │   └── validation
+│   │       ├── EmployeeInsertValidator.java
+│   │       ├── EmployeeInsertValid.java
+│   │       ├── EmployeeUpdateValidator.java
+│   │       └── EmployeeUpdateValid.java
+│   ├── identity
+│   │   ├── activation
+│   │   │   ├── controller
+│   │   │   │   └── AccountActivationController.java
+│   │   │   └── service
+│   │   │       └── AccountActivationService.java
+│   │   ├── auth
+│   │   │   └── security
+│   │   │       ├── CustomUserDetailsService.java
+│   │   │       └── JwtClaimsTokenEnhancer.java
+│   │   ├── passwordreset
+│   │   │   ├── controller
+│   │   │   │   └── PasswordResetController.java
+│   │   │   ├── dto
+│   │   │   │   ├── ForgotPasswordDTO.java
+│   │   │   │   └── NewPasswordDTO.java
+│   │   │   ├── model
+│   │   │   │   ├── enums
+│   │   │   │   │   └── TokenType.java
+│   │   │   │   └── PasswordResetToken.java
+│   │   │   ├── repository
+│   │   │   │   └── PasswordResetTokenRepository.java
+│   │   │   └── service
+│   │   │       └── PasswordResetService.java
+│   │   └── token
+│   │       └── service
+│   │           └── IdentityTokenService.java
+│   ├── permissions
+│   │   ├── controller
+│   │   │   └── PermissionController.java
+│   │   ├── dto
+│   │   │   └── PermissionDTO.java
+│   │   ├── model
+│   │   │   └── Permission.java
+│   │   ├── repository
+│   │   │   └── PermissionRepository.java
+│   │   └── service
+│   │       └── PermissionService.java
+│   ├── positions
+│   │   ├── constants
+│   │   │   └── PositionErrorMessages.java
+│   │   ├── controller
+│   │   │   └── PositionController.java
+│   │   ├── dto
+│   │   │   ├── PositionDetailsDTO.java
+│   │   │   ├── PositionDTO.java
+│   │   │   ├── PositionInsertDTO.java
+│   │   │   └── PositionUpdateDTO.java
+│   │   ├── logging
+│   │   │   ├── PositionLogContext.java
+│   │   │   ├── PositionLogEventFactory.java
+│   │   │   ├── PositionLoggerImpl.java
+│   │   │   ├── PositionLogger.java
+│   │   │   ├── PositionLogMessages.java
+│   │   │   ├── PositionLogOperations.java
+│   │   │   └── PositionLogStatus.java
+│   │   ├── mapper
+│   │   │   └── PositionMapper.java
+│   │   ├── metrics
+│   │   │   ├── PositionMetricsConstants.java
+│   │   │   ├── PositionMetricsServiceImpl.java
+│   │   │   └── PositionMetricsService.java
+│   │   ├── model
+│   │   │   └── Position.java
+│   │   ├── repository
+│   │   │   └── PositionRepository.java
+│   │   ├── service
+│   │   │   ├── PositionServiceImpl.java
+│   │   │   └── PositionService.java
+│   │   └── tracing
+│   │       ├── PositionAuditTracingServiceImpl.java
+│   │       ├── PositionAuditTracingService.java
+│   │       ├── PositionMapperTracingServiceImpl.java
+│   │       ├── PositionMapperTracingService.java
+│   │       ├── PositionMetricsTracingServiceImpl.java
+│   │       ├── PositionMetricsTracingService.java
+│   │       ├── PositionRepositoryTracingServiceImpl.java
+│   │       ├── PositionRepositoryTracingService.java
+│   │       ├── PositionTracingConstants.java
+│   │       ├── PositionTracingServiceImpl.java
+│   │       ├── PositionTracingService.java
+│   │       ├── PositionValidationTracingServiceImpl.java
+│   │       └── PositionValidationTracingService.java
+│   ├── roles
+│   │   ├── controller
+│   │   │   └── RoleController.java
+│   │   ├── dto
+│   │   │   ├── RoleDetailsDTO.java
+│   │   │   ├── RoleDTO.java
+│   │   │   ├── RoleInsertDTO.java
+│   │   │   └── RolePermissionsUpdateDTO.java
+│   │   ├── mapper
+│   │   │   └── RoleMapper.java
+│   │   ├── model
+│   │   │   └── Role.java
+│   │   ├── repository
+│   │   │   └── RoleRepository.java
+│   │   └── service
+│   │       └── RoleService.java
+│   └── users
+│       ├── controller
+│       │   └── UserController.java
+│       ├── dto
+│       │   ├── ChangePasswordDTO.java
+│       │   ├── UserDetailsDTO.java
+│       │   ├── UserDTO.java
+│       │   ├── UserInsertDTO.java
+│       │   ├── UserMeUpdateDTO.java
+│       │   ├── UserPhotoDTO.java
+│       │   └── UserUpdateDTO.java
+│       ├── mapper
+│       │   └── UserMapper.java
+│       ├── model
+│       │   └── User.java
+│       ├── repository
+│       │   └── UserRepository.java
+│       ├── service
+│       │   └── UserService.java
+│       └── validation
+│           ├── UserInsertValidator.java
+│           ├── UserInsertValid.java
+│           ├── UserUpdateValidator.java
+│           └── UserUpdateValid.java
+└── shared
+    ├── constants
+    └── context
+        ├── RequestContextFactory.java
+        ├── RequestContextHolder.java
+        ├── RequestContext.java
+        ├── RequestContextProvider.java
+        └── ThreadLocalRequestContextProvider.java
+
+111 directories, 232 files

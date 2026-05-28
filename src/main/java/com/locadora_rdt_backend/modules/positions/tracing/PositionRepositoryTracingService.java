@@ -2,15 +2,15 @@ package com.locadora_rdt_backend.modules.positions.tracing;
 
 import java.util.function.Supplier;
 
-public interface PositionTracingService {
+public interface PositionRepositoryTracingService {
 
-    <T> T traceFindAll(Supplier<T> supplier);
+    <T> T traceSearchByName(Supplier<T> supplier);
 
     <T> T traceFindById(Supplier<T> supplier);
 
-    <T> T traceCreate(Supplier<T> supplier);
-
-    <T> T traceUpdate(Supplier<T> supplier);
+    <T> T traceSave(Supplier<T> supplier);
 
     void traceDelete(Runnable runnable);
+
+    void traceFlush(Runnable runnable);
 }
