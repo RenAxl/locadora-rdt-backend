@@ -88,6 +88,15 @@ public class PositionServiceImpl implements PositionService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public Position findEntityById(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        PositionErrorMessages.POSITION_NOT_FOUND
+                ));
+    }
+
+    @Override
     @Transactional
     public PositionDTO insert(PositionInsertDTO dto) {
         log.info("POSITION_CREATE_STARTED positionName={}", dto.getName());

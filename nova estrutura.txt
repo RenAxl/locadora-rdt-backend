@@ -1,0 +1,299 @@
+NOVA ESTRUTURA ENTERPRISE COMPATIVEL COM O PROJETO
+
+Stack atual considerada:
+
+- Java 11
+- Spring Boot 2.4.1
+- Spring MVC
+- Spring Data JPA
+- Spring Security com OAuth2 legado
+- Maven
+- PostgreSQL em desenvolvimento e producao
+- H2 para testes
+
+
+ARQUITETURA RECOMENDADA
+
+Utilizar um monolito modular orientado ao dominio, com organizacao por
+funcionalidade. Cada modulo deve possuir suas proprias camadas internas.
+
+Esta estrutura e compativel com Java 11 e Spring Boot 2.4.1. Ela nao exige
+Spring Modulith, Jakarta EE, records, sealed classes ou outros recursos de
+versoes mais recentes.
+
+Nao e recomendado separar o projeto em microservicos neste momento. A
+separacao por modulos permite evoluir o sistema com menor complexidade
+operacional e facilita uma eventual extracao futura de algum modulo.
+
+
+ESTRUTURA COMPLETA RECOMENDADA
+
+locadora-rdt-backend
+|-- pom.xml
+|-- mvnw
+|-- mvnw.cmd
+|-- .mvn
+|   `-- wrapper
+|-- src
+|   |-- main
+|   |   |-- java
+|   |   |   `-- com
+|   |   |       `-- locadora_rdt_backend
+|   |   |           |-- LocadoraRdtBackendApplication.java
+|   |   |           |
+|   |   |           |-- common
+|   |   |           |   |-- error
+|   |   |           |   |   |-- FieldMessage.java
+|   |   |           |   |   |-- StandardError.java
+|   |   |           |   |   `-- ValidationError.java
+|   |   |           |   |-- exception
+|   |   |           |   |   |-- DatabaseException.java
+|   |   |           |   |   |-- FileException.java
+|   |   |           |   |   `-- ResourceNotFoundException.java
+|   |   |           |   `-- handler
+|   |   |           |       `-- ResourceExceptionHandler.java
+|   |   |           |
+|   |   |           |-- config
+|   |   |           |   |-- cors
+|   |   |           |   |   `-- CorsConfig.java
+|   |   |           |   |-- documentation
+|   |   |           |   |   `-- ApiDocumentationConfig.java
+|   |   |           |   `-- security
+|   |   |           |       |-- core
+|   |   |           |       |   |-- PasswordEncoderConfig.java
+|   |   |           |       |   `-- WebSecurityConfig.java
+|   |   |           |       |-- jwt
+|   |   |           |       |   |-- JwtAccessTokenConverterConfig.java
+|   |   |           |       |   `-- JwtTokenStoreConfig.java
+|   |   |           |       `-- oauth2
+|   |   |           |           |-- AuthorizationServerConfig.java
+|   |   |           |           `-- ResourceServerConfig.java
+|   |   |           |
+|   |   |           |-- infrastructure
+|   |   |           |   |-- mail
+|   |   |           |   |   |-- service
+|   |   |           |   |   |   |-- EmailService.java
+|   |   |           |   |   |   `-- SmtpEmailService.java
+|   |   |           |   |   `-- template
+|   |   |           |   |       |-- ActivationEmailTemplateService.java
+|   |   |           |   |       `-- PasswordResetEmailTemplateService.java
+|   |   |           |   `-- security
+|   |   |           |       |-- AuthenticationFacade.java
+|   |   |           |       `-- SpringSecurityAuthenticationFacade.java
+|   |   |           |
+|   |   |           |-- shared
+|   |   |           |   `-- context
+|   |   |           |       |-- RequestContext.java
+|   |   |           |       |-- RequestContextFactory.java
+|   |   |           |       |-- RequestContextHolder.java
+|   |   |           |       |-- RequestContextProvider.java
+|   |   |           |       `-- ThreadLocalRequestContextProvider.java
+|   |   |           |
+|   |   |           `-- modules
+|   |   |               |-- customers
+|   |   |               |-- departments
+|   |   |               |-- employees
+|   |   |               |-- identity
+|   |   |               |-- permissions
+|   |   |               |-- positions
+|   |   |               |-- roles
+|   |   |               |-- suppliers
+|   |   |               `-- users
+|   |   |
+|   |   `-- resources
+|   |       |-- db
+|   |       |   `-- migration
+|   |       |       |-- V1__create_initial_schema.sql
+|   |       |       `-- V2__insert_initial_data.sql
+|   |       |-- templates
+|   |       |   |-- activation-email.html
+|   |       |   `-- password-reset-email.html
+|   |       |-- application.yaml
+|   |       |-- application-dev.yaml
+|   |       |-- application-test.yaml
+|   |       `-- application-prod.yaml
+|   |
+|   `-- test
+|       `-- java
+|           `-- com
+|               `-- locadora_rdt_backend
+|                   |-- tests
+|                   |   `-- modules
+|                   |       `-- positions
+|                   |           |-- controller
+|                   |           |-- factory
+|                   |           |-- repository
+|                   |           `-- service
+|                   `-- integration
+|                       `-- LocadoraRdtBackendApplicationTests.java
+|
+|-- Dockerfile
+|-- docker-compose.yml
+`-- README.md
+
+
+ESTRUTURA PADRAO DE CADA MODULO
+
+Utilizar a mesma organizacao interna em customers, departments, employees,
+permissions, positions, roles, suppliers e users:
+
+modules
+`-- suppliers
+    |-- constants
+    |   `-- SupplierErrorMessages.java
+    |-- controller
+    |   |-- SupplierController.java
+    |   `-- SupplierFileController.java
+    |-- dto
+    |   |-- SupplierDTO.java
+    |   |-- SupplierDetailsDTO.java
+    |   |-- SupplierInsertDTO.java
+    |   |-- SupplierUpdateDTO.java
+    |   |-- SupplierFileDTO.java
+    |   `-- SupplierFileViewDTO.java
+    |-- mapper
+    |   `-- SupplierMapper.java
+    |-- model
+    |   |-- Supplier.java
+    |   `-- SupplierFile.java
+    |-- repository
+    |   |-- SupplierRepository.java
+    |   `-- SupplierFileRepository.java
+    |-- service
+    |   |-- SupplierService.java
+    |   |-- SupplierServiceImpl.java
+    |   |-- SupplierFileService.java
+    |   `-- SupplierFileServiceImpl.java
+    `-- validation
+        |-- SupplierInsertValid.java
+        |-- SupplierInsertValidator.java
+        |-- SupplierUpdateValid.java
+        `-- SupplierUpdateValidator.java
+
+
+RESPONSABILIDADE DE CADA PACOTE
+
+- controller:
+  Receber requisicoes HTTP, validar DTOs de entrada, chamar servicos e devolver
+  respostas HTTP. Nao deve possuir regra de negocio nem acessar repositorios.
+
+- dto:
+  Definir contratos de entrada e saida da API. Nao expor entidades JPA
+  diretamente nas respostas HTTP.
+
+- mapper:
+  Converter DTOs em entidades e entidades em DTOs. Evitar regra de negocio.
+
+- model:
+  Conter entidades JPA, enums e comportamento diretamente relacionado ao
+  dominio do modulo.
+
+- repository:
+  Conter interfaces Spring Data JPA e consultas relacionadas ao modulo.
+
+- service:
+  Implementar casos de uso, regras de negocio, transacoes e orquestracao.
+  Preferir uma interface e uma implementacao para cada servico relevante.
+
+- validation:
+  Implementar validacoes customizadas dos DTOs quando Bean Validation nao for
+  suficiente.
+
+- constants:
+  Centralizar mensagens e constantes realmente pertencentes ao modulo.
+
+
+REGRAS DE DEPENDENCIA
+
+O fluxo esperado e:
+
+controller -> service -> repository -> model
+                 |
+                 +-> mapper
+                 +-> infrastructure
+
+Regras:
+
+1. Controller nao acessa repository diretamente.
+2. Repository nao depende de controller, dto ou service.
+3. Um modulo nao acessa diretamente o repository interno de outro modulo.
+4. Integracoes externas ficam em infrastructure.
+5. Codigo reutilizado por poucos modulos nao deve ir automaticamente para
+   shared. Primeiro verificar se ele pertence a um dominio especifico.
+6. common deve conter somente tratamento transversal da API, como excecoes e
+   erros HTTP.
+7. Servicos devem receber dependencias pelo construtor.
+8. Transacoes devem ser abertas na camada service com @Transactional.
+
+
+MODULO IDENTITY
+
+Identity possui uma estrutura diferente porque representa autenticacao,
+ativacao de conta e recuperacao de senha:
+
+modules
+`-- identity
+    |-- activation
+    |   |-- controller
+    |   `-- service
+    |-- auth
+    |   `-- security
+    |-- passwordreset
+    |   |-- controller
+    |   |-- dto
+    |   |-- model
+    |   |-- repository
+    |   `-- service
+    `-- token
+        `-- service
+
+As configuracoes especificas do framework Spring Security permanecem em:
+
+config/security
+
+Classes reutilizaveis que abstraem o framework permanecem em:
+
+infrastructure/security
+
+
+COMPATIBILIDADE COM JAVA 11 E SPRING BOOT 2.4.1
+
+Ao implementar esta estrutura:
+
+1. Manter imports javax.persistence e javax.validation.
+2. Nao migrar imports para jakarta.persistence ou jakarta.validation.
+3. Nao utilizar records para DTOs. Utilizar classes Java convencionais.
+4. Nao utilizar sealed classes, pattern matching moderno ou text blocks.
+5. Manter a configuracao de seguranca compativel com o OAuth2 legado atual
+   durante a reorganizacao.
+6. Nao adicionar Spring Modulith nesta etapa.
+7. Utilizar Flyway em uma versao compativel com Spring Boot 2.4.1 caso sejam
+   adotadas migrations.
+
+
+AJUSTES PRIORITARIOS NO CODIGO ATUAL
+
+1. Utilizar suppliers como referencia para novos modulos.
+2. Padronizar servicos com interface e implementacao.
+3. Substituir acessos diretos ao SecurityContextHolder por
+   AuthenticationFacade.
+4. Padronizar mensagens de erro em constants por modulo.
+5. Adicionar testes unitarios de service e testes de controller por modulo.
+6. Adicionar testes de repository somente para consultas customizadas.
+7. Substituir gradualmente data.sql por migrations versionadas.
+8. Adicionar Maven Wrapper para executar builds sem depender de Maven
+   instalado globalmente.
+9. Criar perfil prod separado e nao usar o perfil test como fallback padrao.
+10. Adicionar Docker Compose para PostgreSQL e pipeline de integracao continua.
+
+
+ORDEM PRATICA DE MIGRACAO
+
+1. Manter o sistema como monolito Maven.
+2. Consolidar suppliers como modulo modelo.
+3. Padronizar positions.
+4. Migrar customers e employees.
+5. Padronizar departments, users, roles e permissions.
+6. Revisar identity e seguranca sem alterar o protocolo atual.
+7. Introduzir migrations, testes automatizados e CI.
+8. Planejar separadamente a atualizacao futura do Java e Spring Boot.

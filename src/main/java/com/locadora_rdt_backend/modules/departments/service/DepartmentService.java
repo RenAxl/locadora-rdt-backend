@@ -1,96 +1,24 @@
 package com.locadora_rdt_backend.modules.departments.service;
 
-import com.locadora_rdt_backend.common.exception.DatabaseException;
-import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
 import com.locadora_rdt_backend.modules.departments.dto.DepartmentDTO;
 import com.locadora_rdt_backend.modules.departments.dto.DepartmentDetailsDTO;
 import com.locadora_rdt_backend.modules.departments.dto.DepartmentInsertDTO;
 import com.locadora_rdt_backend.modules.departments.dto.DepartmentUpdateDTO;
-import com.locadora_rdt_backend.modules.departments.mapper.DepartmentMapper;
 import com.locadora_rdt_backend.modules.departments.model.Department;
-import com.locadora_rdt_backend.modules.departments.repository.DepartmentRepository;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
+public interface DepartmentService {
 
-@Service
-public class DepartmentService {
+    Page<DepartmentDTO> findAllPaged(String name, PageRequest pageRequest);
 
-    private final DepartmentRepository repository;
-    private final DepartmentMapper mapper;
+    DepartmentDetailsDTO findById(Long id);
 
-    public DepartmentService(DepartmentRepository repository, DepartmentMapper mapper) {
-        this.repository = repository;
-        this.mapper = mapper;
-    }
+    Department findEntityById(Long id);
 
-    @Transactional(readOnly = true)
-    public Page<DepartmentDTO> findAllPaged(String name, PageRequest pageRequest) {
-        return repository.find(name, pageRequest)
-                .map(mapper::toDTO);
-    }
+    DepartmentDTO insert(DepartmentInsertDTO dto);
 
-    @Transactional(readOnly = true)
-    public DepartmentDetailsDTO findById(Long id) {
-        Department entity = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Setor não encontrado"));
+    DepartmentDTO update(Long id, DepartmentUpdateDTO dto);
 
-        return mapper.toDetailsDTO(entity);
-    }
-
-    @Transactional
-    public DepartmentDTO insert(DepartmentInsertDTO dto) {
-        Department entity = mapper.toEntity(dto);
-
-        entity.setCreatedBy(getAuthenticatedUsername());
-
-        entity = repository.save(entity);
-
-        return mapper.toDTO(entity);
-    }
-
-    @Transactional
-    public DepartmentDTO update(Long id, DepartmentUpdateDTO dto) {
-        try {
-            Department entity = repository.getOne(id);
-
-            mapper.updateEntity(entity, dto);
-            entity.setUpdatedBy(getAuthenticatedUsername());
-
-            entity = repository.save(entity);
-
-            return mapper.toDTO(entity);
-        } catch (EntityNotFoundException e) {
-            throw new ResourceNotFoundException("Id not found " + id);
-        }
-    }
-
-    public void delete(Long id) {
-        try {
-            repository.deleteById(id);
-        } catch (EmptyResultDataAccessException e) {
-            throw new ResourceNotFoundException("Id not found " + id);
-        } catch (DataIntegrityViolationException e) {
-            throw new DatabaseException("Integrity violation");
-        }
-    }
-
-    private String getAuthenticatedUsername() {
-        Authentication authentication = SecurityContextHolder
-                .getContext()
-                .getAuthentication();
-
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return "SYSTEM";
-        }
-
-        return authentication.getName();
-    }
+    void delete(Long id);
 }

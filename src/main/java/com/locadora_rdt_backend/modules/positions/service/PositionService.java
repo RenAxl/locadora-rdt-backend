@@ -4,6 +4,7 @@ import com.locadora_rdt_backend.modules.positions.dto.PositionDTO;
 import com.locadora_rdt_backend.modules.positions.dto.PositionDetailsDTO;
 import com.locadora_rdt_backend.modules.positions.dto.PositionInsertDTO;
 import com.locadora_rdt_backend.modules.positions.dto.PositionUpdateDTO;
+import com.locadora_rdt_backend.modules.positions.model.Position;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
@@ -15,6 +16,8 @@ public interface PositionService {
     );
 
     PositionDetailsDTO findById(Long id);
+
+    Position findEntityById(Long id);
 
     PositionDTO insert(PositionInsertDTO dto);
 

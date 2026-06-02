@@ -5,7 +5,6 @@ import com.locadora_rdt_backend.modules.roles.dto.RoleDetailsDTO;
 import com.locadora_rdt_backend.modules.roles.dto.RoleInsertDTO;
 import com.locadora_rdt_backend.modules.roles.dto.RolePermissionsUpdateDTO;
 import com.locadora_rdt_backend.modules.roles.service.RoleService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -20,8 +19,11 @@ import java.net.URI;
 @RequestMapping(value = "/roles")
 public class RoleController {
 
-    @Autowired
-    private RoleService service;
+    private final RoleService service;
+
+    public RoleController(RoleService service) {
+        this.service = service;
+    }
 
     @GetMapping
     public ResponseEntity<Page<RoleDTO>> findAllPaged(

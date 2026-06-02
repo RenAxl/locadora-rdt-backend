@@ -2,6 +2,7 @@ package com.locadora_rdt_backend.tests.modules.positions.service;
 
 import com.locadora_rdt_backend.common.exception.DatabaseException;
 import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
+import com.locadora_rdt_backend.infrastructure.security.AuthenticationFacade;
 import com.locadora_rdt_backend.modules.positions.dto.PositionDTO;
 import com.locadora_rdt_backend.modules.positions.dto.PositionDetailsDTO;
 import com.locadora_rdt_backend.modules.positions.dto.PositionInsertDTO;
@@ -24,10 +25,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.*;
-
-import javax.persistence.EntityNotFoundException;
 
 import java.util.Optional;
 
@@ -42,6 +40,9 @@ public class PositionServiceTests {
 
     @Mock
     private PositionMapper mapper;
+
+    @Mock
+    private AuthenticationFacade authenticationFacade;
 
     private Long existingId;
     private Long nonExistingId;
@@ -72,7 +73,7 @@ public class PositionServiceTests {
     void findAllPagedShouldReturnPage() {
         PageRequest pageRequest = PageRequest.of(0, 10);
 
-        Mockito.when(repository.find("", pageRequest)).thenReturn(page);
+        Mockito.when(repository.searchByName("", pageRequest)).thenReturn(page);
         Mockito.when(mapper.toDTO(position)).thenReturn(positionDTO);
 
         Page<PositionDTO> result = service.findAllPaged("", pageRequest);
@@ -86,7 +87,7 @@ public class PositionServiceTests {
         PageRequest pageRequest = PageRequest.of(0, 10);
         PageImpl<Position> emptyPage = new PageImpl<>(java.util.List.of());
 
-        Mockito.when(repository.find("", pageRequest)).thenReturn(emptyPage);
+        Mockito.when(repository.searchByName("", pageRequest)).thenReturn(emptyPage);
 
         Page<PositionDTO> result = service.findAllPaged("", pageRequest);
 
@@ -97,12 +98,12 @@ public class PositionServiceTests {
     void findAllPagedShouldCallRepository() {
         PageRequest pageRequest = PageRequest.of(0, 10);
 
-        Mockito.when(repository.find("", pageRequest)).thenReturn(page);
+        Mockito.when(repository.searchByName("", pageRequest)).thenReturn(page);
         Mockito.when(mapper.toDTO(position)).thenReturn(positionDTO);
 
         service.findAllPaged("", pageRequest);
 
-        Mockito.verify(repository).find("", pageRequest);
+        Mockito.verify(repository).searchByName("", pageRequest);
     }
 
     @Test
@@ -179,7 +180,7 @@ public class PositionServiceTests {
 
     @Test
     void updateShouldReturnDTOWhenIdExists() {
-        Mockito.when(repository.getOne(existingId)).thenReturn(position);
+        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(position));
         Mockito.when(repository.save(position)).thenReturn(position);
         Mockito.when(mapper.toDTO(position)).thenReturn(positionDTO);
 
@@ -190,8 +191,7 @@ public class PositionServiceTests {
 
     @Test
     void updateShouldThrowExceptionWhenIdDoesNotExist() {
-        Mockito.when(repository.getOne(nonExistingId))
-                .thenThrow(EntityNotFoundException.class);
+        Mockito.when(repository.findById(nonExistingId)).thenReturn(Optional.empty());
 
         Assertions.assertThrows(ResourceNotFoundException.class, () -> {
             service.update(nonExistingId, updateDTO);
@@ -200,26 +200,25 @@ public class PositionServiceTests {
 
     @Test
     void updateShouldCallMapperUpdateEntity() {
-        Mockito.when(repository.getOne(existingId)).thenReturn(position);
+        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(position));
         Mockito.when(repository.save(position)).thenReturn(position);
         Mockito.when(mapper.toDTO(position)).thenReturn(positionDTO);
 
         service.update(existingId, updateDTO);
 
-        Mockito.verify(mapper).updateEntity(position, updateDTO);
+        Mockito.verify(mapper).copyToEntity(updateDTO, position);
     }
 
     @Test
     void deleteShouldDoNothingWhenIdExists() {
-        Mockito.doNothing().when(repository).deleteById(existingId);
+        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(position));
 
         Assertions.assertDoesNotThrow(() -> service.delete(existingId));
     }
 
     @Test
     void deleteShouldThrowResourceNotFoundWhenIdDoesNotExist() {
-        Mockito.doThrow(EmptyResultDataAccessException.class)
-                .when(repository).deleteById(nonExistingId);
+        Mockito.when(repository.findById(nonExistingId)).thenReturn(Optional.empty());
 
         Assertions.assertThrows(ResourceNotFoundException.class, () -> {
             service.delete(nonExistingId);
@@ -228,8 +227,9 @@ public class PositionServiceTests {
 
     @Test
     void deleteShouldThrowDatabaseExceptionWhenIntegrityViolation() {
+        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(position));
         Mockito.doThrow(DataIntegrityViolationException.class)
-                .when(repository).deleteById(existingId);
+                .when(repository).flush();
 
         Assertions.assertThrows(DatabaseException.class, () -> {
             service.delete(existingId);

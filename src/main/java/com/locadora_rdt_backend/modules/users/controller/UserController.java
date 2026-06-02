@@ -1,10 +1,7 @@
 package com.locadora_rdt_backend.modules.users.controller;
 
-import com.locadora_rdt_backend.modules.identity.passwordreset.dto.ForgotPasswordDTO;
-import com.locadora_rdt_backend.modules.identity.passwordreset.dto.NewPasswordDTO;
 import com.locadora_rdt_backend.modules.users.dto.*;
 import com.locadora_rdt_backend.modules.users.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -24,8 +21,11 @@ import java.util.List;
 @RequestMapping(value = "/users")
 public class UserController {
 
-    @Autowired
-    private UserService service;
+    private final UserService service;
+
+    public UserController(UserService service) {
+        this.service = service;
+    }
 
     @GetMapping
     public ResponseEntity<Page<UserDTO>> findAllPaged(
@@ -147,7 +147,6 @@ public class UserController {
     }
 
 }
-
 
 
 
