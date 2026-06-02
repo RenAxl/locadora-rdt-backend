@@ -64,7 +64,15 @@ INSERT INTO tb_permission (name, group_name) VALUES
                                                  ('EMPLOYEE_STATUS_CHANGE', 'EMPLOYEES'),
                                                  ('EMPLOYEE_FILE_READ',     'EMPLOYEES'),
                                                  ('EMPLOYEE_FILE_WRITE',    'EMPLOYEES'),
-                                                 ('EMPLOYEE_FILE_DELETE',   'EMPLOYEES');
+                                                 ('EMPLOYEE_FILE_DELETE',   'EMPLOYEES'),
+
+                                                 ('SUPPLIER_READ',          'SUPPLIERS'),
+                                                 ('SUPPLIER_WRITE',         'SUPPLIERS'),
+                                                 ('SUPPLIER_DELETE',        'SUPPLIERS'),
+                                                 ('SUPPLIER_IMAGE_WRITE',   'SUPPLIERS'),
+                                                 ('SUPPLIER_FILE_READ',     'SUPPLIERS'),
+                                                 ('SUPPLIER_FILE_WRITE',    'SUPPLIERS'),
+                                                 ('SUPPLIER_FILE_DELETE',   'SUPPLIERS');
 
 
 
@@ -92,7 +100,9 @@ INSERT INTO tb_role_permission (role_id, permission_id) VALUES
                                                             (1, 13),(1, 14),(1, 15),(1, 16),
                                                             (1, 17),(1, 18),(1, 19), (1, 20),
                                                             (1, 21),(1, 22),(1, 23), (1, 24),
-                                                            (1, 25),(1, 26),(1, 27), (1, 28);
+                                                            (1, 25),(1, 26),(1, 27), (1, 28),
+                                                            (1, 29),(1, 30),(1, 31), (1, 32),
+                                                            (1, 33),(1, 34),(1, 35);
 
 
 INSERT INTO tb_role_permission (role_id, permission_id) VALUES
@@ -187,3 +197,16 @@ INSERT INTO tb_employee (
 
       ('Juliana Castro', 'EMP010', 'juliana@empresa.com', '31999990010', 'BH - MG', 6100.00,
        '2022-06-05', NULL, 'CLT', true, NOW(), NOW(), 'SYSTEM', 'SYSTEM', 2, 8);
+
+INSERT INTO tb_supplier (version, name, trade_name, company_name, cnpj, address, email, phone_number, image_data, image_content_type, created_at, updated_at, created_by, updated_by)
+VALUES
+    (0, 'Fornecedor de Veículos Premium', 'Premium Motors', 'Premium Motors LTDA', '12345678000101', 'Av. Amazonas, 1000 - Belo Horizonte/MG', '[contato@premiummotors.com.br](mailto:contato@premiummotors.com.br)', '3133331001', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Auto Peças Brasil', 'AP Brasil', 'Auto Peças Brasil LTDA', '12345678000102', 'Rua dos Andradas, 250 - Belo Horizonte/MG', '[vendas@apbrasil.com.br](mailto:vendas@apbrasil.com.br)', '3133331002', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Loca Pneus', 'Loca Pneus', 'Loca Pneus Comércio LTDA', '12345678000103', 'Av. Cristiano Machado, 4500 - Belo Horizonte/MG', '[contato@locapneus.com.br](mailto:contato@locapneus.com.br)', '3133331003', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Lubrificantes Gerais', 'Lub Gerais', 'Lubrificantes Gerais LTDA', '12345678000104', 'Rua Tupis, 800 - Belo Horizonte/MG', '[comercial@lubgerais.com.br](mailto:comercial@lubgerais.com.br)', '3133331004', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Baterias Energia', 'Energia Baterias', 'Energia Baterias S.A.', '12345678000105', 'Av. Antônio Carlos, 1500 - Belo Horizonte/MG', '[vendas@energiabaterias.com.br](mailto:vendas@energiabaterias.com.br)', '3133331005', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Oficina Mecânica Central', 'Mecânica Central', 'Oficina Mecânica Central LTDA', '12345678000106', 'Rua Espírito Santo, 900 - Belo Horizonte/MG', '[contato@mecanicacentral.com.br](mailto:contato@mecanicacentral.com.br)', '3133331006', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Vidros Automotivos BH', 'Vidros BH', 'Vidros Automotivos BH LTDA', '12345678000107', 'Av. Tereza Cristina, 2100 - Belo Horizonte/MG', '[atendimento@vidrosbh.com.br](mailto:atendimento@vidrosbh.com.br)', '3133331007', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Seguradora Protege', 'Protege Seguros', 'Protege Seguros S.A.', '12345678000108', 'Av. Afonso Pena, 3500 - Belo Horizonte/MG', '[contato@protegeseguros.com.br](mailto:contato@protegeseguros.com.br)', '3133331008', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Higienização Express', 'Express Clean', 'Express Clean Serviços LTDA', '12345678000109', 'Rua Goiás, 1200 - Belo Horizonte/MG', '[comercial@expressclean.com.br](mailto:comercial@expressclean.com.br)', '3133331009', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Tecnologia Veicular', 'Tech Car', 'Tech Car Tecnologia LTDA', '12345678000110', 'Av. Raja Gabaglia, 5000 - Belo Horizonte/MG', '[contato@techcar.com.br](mailto:contato@techcar.com.br)', '3133331010', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL);
