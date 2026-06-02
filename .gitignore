@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Runtime logs and local observability agent
+logs/
+observability/.agent/

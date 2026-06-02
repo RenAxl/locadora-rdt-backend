@@ -9,8 +9,3 @@ spring:
       enabled: true
       path: /h2-console
 
-  level:
-    com.locadora_rdt_backend: INFO
-    org.springframework: WARN
-    org.hibernate: WARN
-    org.apache: WARN
