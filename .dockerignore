@@ -1,0 +1,9 @@
+.git
+.idea
+.mvn
+logs
+
+*.iml
+
+target/*
+!target/locadora-rdt-backend-0.0.1-SNAPSHOT.jar
