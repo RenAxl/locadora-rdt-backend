@@ -1,0 +1,40 @@
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/locadora-rdt}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:root}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+
+  h2:
+    console:
+      enabled: false
+
+management:
+  health:
+    mail:
+      enabled: false
+
+server:
+  port: ${SERVER_PORT:8080}
+
+security:
+  oauth2:
+    client:
+      client-id: ${OAUTH_CLIENT_ID:locadora-client}
+      client-secret: ${OAUTH_CLIENT_SECRET:locadora-secret}
+
+jwt:
+  secret: ${JWT_SECRET:locadora-docker-secret}
+  duration: ${JWT_DURATION:86400}
+
+app:
+  frontend:
+    base-url: ${APP_FRONTEND_BASE_URL:http://localhost:4200}
+  activation:
+    token-minutes: ${APP_ACTIVATION_TOKEN_MINUTES:30}
