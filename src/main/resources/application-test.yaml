@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:testdb-locadora
+    url: jdbc:h2:mem:testdb-locadora;DB_CLOSE_ON_EXIT=FALSE
     username: sa
     password:
 
@@ -9,3 +9,19 @@ spring:
       enabled: true
       path: /h2-console
 
+  mail:
+    username: test@example.com
+    password: test
+
+security:
+  oauth2:
+    client:
+      client-id: test-client
+      client-secret: test-secret
+
+jwt:
+  secret: test-jwt-secret
+
+OAUTH_CLIENT_ID: test-client
+OAUTH_CLIENT_SECRET: test-secret
+JWT_SECRET: test-jwt-secret
