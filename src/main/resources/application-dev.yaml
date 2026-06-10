@@ -1,6 +1,15 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/locadora-rdt
+    url: jdbc:postgresql://localhost:5432/locadora_rdt
     username: postgres
     password: root
 
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQL10Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+    properties:
+      hibernate:
+        format_sql: true

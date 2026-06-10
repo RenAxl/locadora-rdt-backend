@@ -1,0 +1,48 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: locadora-rdt-postgres
+    environment:
+      POSTGRES_DB: locadora_rdt
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+    volumes:
+      - locadora_rdt_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d locadora_rdt"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - locadora_rdt_network
+
+  backend:
+    build:
+      context: .
+    image: locadora-rdt-backend:0.0.1
+    container_name: locadora-rdt-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/locadora_rdt
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: root
+      JWT_SECRET: local-jwt-secret
+      MANAGEMENT_HEALTH_MAIL_ENABLED: "false"
+      EMAIL_USERNAME: local@example.com
+      EMAIL_PASSWORD: local
+      OAUTH_CLIENT_ID: locadorardt
+      OAUTH_CLIENT_SECRET: locadorardt123
+      APP_FRONTEND_BASE_URL: http://localhost:4200
+    ports:
+      - "8080:8080"
+    networks:
+      - locadora_rdt_network
+
+volumes:
+  locadora_rdt_postgres_data:
+
+networks:
+  locadora_rdt_network:
