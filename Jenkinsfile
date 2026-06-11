@@ -100,9 +100,7 @@ pipeline {
                         PR_LIST_URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls?state=open&head=RenAxl:dev&base=main"
                         PR_CREATE_URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls"
 
-                        docker run --rm \
-                          -e GITHUB_TOKEN="${GITHUB_TOKEN}" \
-                          curlimages/curl:8.11.1 \
+                        curl \
                           -fsS \
                           -H "Authorization: Bearer ${GITHUB_TOKEN}" \
                           -H "Accept: application/vnd.github+json" \
@@ -123,17 +121,14 @@ pipeline {
 }
 EOF
 
-                        docker run --rm \
-                          -v "$PWD/pr-body.json:/tmp/pr-body.json:ro" \
-                          -e GITHUB_TOKEN="${GITHUB_TOKEN}" \
-                          curlimages/curl:8.11.1 \
+                        curl \
                           -fsS \
                           -X POST \
                           -H "Authorization: Bearer ${GITHUB_TOKEN}" \
                           -H "Accept: application/vnd.github+json" \
                           -H "X-GitHub-Api-Version: 2022-11-28" \
                           "${PR_CREATE_URL}" \
-                          --data @/tmp/pr-body.json > created-pr.json
+                          --data @pr-body.json > created-pr.json
 
                         echo "Pull Request dev -> main criado com sucesso."
                     '''
