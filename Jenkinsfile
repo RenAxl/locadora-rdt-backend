@@ -14,11 +14,10 @@ pipeline {
 
     environment {
         APP_NAME = 'locadora-rdt-backend'
-        IMAGE_TAG = "${env.BUILD_NUMBER}"
+        DEV_IMAGE_TAG = "dev-${env.BUILD_NUMBER}"
+        PROD_IMAGE_TAG = "prod-${env.BUILD_NUMBER}"
         COMPOSE_PROJECT_DIR = '/workspace/locadora-rdt/locadora-rdt-devops'
-        GIT_SSH_URL = 'git@github.com:RenAxl/locadora-rdt-backend.git'
-        GIT_AUTHOR_NAME = 'Jenkins CI'
-        GIT_AUTHOR_EMAIL = 'jenkins@locadora-rdt.local'
+        GITHUB_REPOSITORY = 'RenAxl/locadora-rdt-backend'
     }
 
     stages {
@@ -26,7 +25,6 @@ pipeline {
             when {
                 anyOf {
                     branch 'dev'
-                    branch 'developer'
                     branch 'main'
                 }
             }
@@ -40,7 +38,6 @@ pipeline {
             when {
                 anyOf {
                     branch 'dev'
-                    branch 'developer'
                     branch 'main'
                 }
             }
@@ -66,7 +63,6 @@ pipeline {
             when {
                 anyOf {
                     branch 'dev'
-                    branch 'developer'
                     branch 'main'
                 }
             }
@@ -77,52 +73,64 @@ pipeline {
 
         stage('Docker Build - Dev') {
             when {
-                anyOf {
-                    branch 'dev'
-                    branch 'developer'
-                }
+                branch 'dev'
             }
             steps {
                 sh '''
                     docker build \
-                      -t ${APP_NAME}:${IMAGE_TAG} \
+                      -t ${APP_NAME}:${DEV_IMAGE_TAG} \
                       -t ${APP_NAME}:latest \
                       .
                 '''
             }
         }
 
-        stage('Merge Dev Into Main') {
+        stage('Open Pull Request Dev To Main') {
             when {
-                anyOf {
-                    branch 'dev'
-                    branch 'developer'
-                }
+                branch 'dev'
             }
             steps {
-                withCredentials([sshUserPrivateKey(
-                    credentialsId: 'github-ssh-locadora-rdt-backend',
-                    keyFileVariable: 'GIT_SSH_KEY',
-                    usernameVariable: 'GIT_SSH_USER'
+                withCredentials([string(
+                    credentialsId: 'github-token-locadora-rdt-backend',
+                    variable: 'GITHUB_TOKEN'
                 )]) {
                     sh '''
                         set -e
 
-                        mkdir -p "$WORKSPACE/.ssh"
-                        ssh-keyscan github.com > "$WORKSPACE/.ssh/known_hosts"
-                        chmod 700 "$WORKSPACE/.ssh"
-                        chmod 600 "$WORKSPACE/.ssh/known_hosts"
+                        PR_LIST_URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls?state=open&head=RenAxl:dev&base=main"
+                        PR_CREATE_URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls"
 
-                        export GIT_SSH_COMMAND="ssh -i $GIT_SSH_KEY -o UserKnownHostsFile=$WORKSPACE/.ssh/known_hosts -o StrictHostKeyChecking=yes"
+                        curl \
+                          -fsS \
+                          -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+                          -H "Accept: application/vnd.github+json" \
+                          -H "X-GitHub-Api-Version: 2022-11-28" \
+                          "${PR_LIST_URL}" > open-prs.json
 
-                        git config user.name "${GIT_AUTHOR_NAME}"
-                        git config user.email "${GIT_AUTHOR_EMAIL}"
-                        git remote set-url origin "${GIT_SSH_URL}"
+                        if grep -q '"number"' open-prs.json; then
+                          echo "Ja existe Pull Request aberto de dev para main."
+                          exit 0
+                        fi
 
-                        git fetch origin main ${BRANCH_NAME}
-                        git checkout -B main origin/main
-                        git merge --no-ff origin/${BRANCH_NAME} -m "Merge ${BRANCH_NAME} into main by Jenkins build ${BUILD_NUMBER}"
-                        git push origin main
+                        cat > pr-body.json <<EOF
+{
+  "title": "Merge dev into main - build ${BUILD_NUMBER}",
+  "head": "dev",
+  "base": "main",
+  "body": "Pull Request aberto automaticamente pelo Jenkins apos sucesso da pipeline da branch dev.\\n\\nBuild: ${BUILD_NUMBER}\\nImagem validada: ${APP_NAME}:${DEV_IMAGE_TAG}"
+}
+EOF
+
+                        curl \
+                          -fsS \
+                          -X POST \
+                          -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+                          -H "Accept: application/vnd.github+json" \
+                          -H "X-GitHub-Api-Version: 2022-11-28" \
+                          "${PR_CREATE_URL}" \
+                          --data @pr-body.json > created-pr.json
+
+                        echo "Pull Request dev -> main criado com sucesso."
                     '''
                 }
             }
@@ -135,7 +143,7 @@ pipeline {
             steps {
                 sh '''
                     docker build \
-                      -t ${APP_NAME}:${IMAGE_TAG} \
+                      -t ${APP_NAME}:${PROD_IMAGE_TAG} \
                       -t ${APP_NAME}:latest \
                       .
                 '''
@@ -148,9 +156,9 @@ pipeline {
             }
             steps {
                 sh '''
-                    IMAGE_TAG=${IMAGE_TAG} docker compose \
+                    IMAGE_TAG=${PROD_IMAGE_TAG} docker compose \
                       -f ${COMPOSE_PROJECT_DIR}/docker-compose.yml \
-                      up -d --no-deps --force-recreate --no-build backend
+                      up -d --build backend
                 '''
             }
         }
@@ -181,7 +189,7 @@ pipeline {
 
     post {
         failure {
-            echo 'Pipeline FAILED. Merge/deploy nao sera executado apos falha em etapa anterior.'
+            echo 'Pipeline FAILED. Pull Request/deploy nao sera executado apos falha em etapa anterior.'
         }
         success {
             echo 'Pipeline SUCCESS.'
