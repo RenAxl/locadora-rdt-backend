@@ -9,23 +9,40 @@ pipeline {
     }
 
     triggers {
-        pollSCM('H/2 * * * *')
+        githubPush()
     }
 
     environment {
         APP_NAME = 'locadora-rdt-backend'
         IMAGE_TAG = "${env.BUILD_NUMBER}"
         COMPOSE_PROJECT_DIR = '/workspace/locadora-rdt/locadora-rdt-devops'
+        GIT_SSH_URL = 'git@github.com:RenAxl/locadora-rdt-backend.git'
+        GIT_SSH_CREDENTIALS_ID = 'github-ssh-locadora-rdt-backend'
+        GIT_AUTHOR_NAME = 'Jenkins CI'
+        GIT_AUTHOR_EMAIL = 'jenkins@locadora-rdt.local'
     }
 
     stages {
         stage('Checkout') {
+            when {
+                anyOf {
+                    branch 'developer'
+                    branch 'main'
+                }
+            }
             steps {
                 checkout scm
+                sh 'git status --short --branch'
             }
         }
 
-        stage('Build Maven') {
+        stage('Maven Clean Package') {
+            when {
+                anyOf {
+                    branch 'developer'
+                    branch 'main'
+                }
+            }
             agent {
                 docker {
                     image 'maven:3.8.8-eclipse-temurin-11'
@@ -37,15 +54,76 @@ pipeline {
                 sh 'chmod +x ./mvnw'
                 sh './mvnw clean package'
             }
+            post {
+                always {
+                    junit allowEmptyResults: false, testResults: 'target/surefire-reports/*.xml'
+                }
+            }
         }
 
         stage('Archive JAR') {
+            when {
+                anyOf {
+                    branch 'developer'
+                    branch 'main'
+                }
+            }
             steps {
                 archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
             }
         }
 
-        stage('Prepare Docker Image') {
+        stage('Docker Build - Developer') {
+            when {
+                branch 'developer'
+            }
+            steps {
+                sh '''
+                    docker build \
+                      -t ${APP_NAME}:${IMAGE_TAG} \
+                      -t ${APP_NAME}:latest \
+                      .
+                '''
+            }
+        }
+
+        stage('Merge Developer Into Main') {
+            when {
+                branch 'developer'
+            }
+            steps {
+                withCredentials([sshUserPrivateKey(
+                    credentialsId: 'github-ssh-locadora-rdt-backend',
+                    keyFileVariable: 'GIT_SSH_KEY',
+                    usernameVariable: 'GIT_SSH_USER'
+                )]) {
+                    sh '''
+                        set -e
+
+                        mkdir -p "$WORKSPACE/.ssh"
+                        ssh-keyscan github.com > "$WORKSPACE/.ssh/known_hosts"
+                        chmod 700 "$WORKSPACE/.ssh"
+                        chmod 600 "$WORKSPACE/.ssh/known_hosts"
+
+                        export GIT_SSH_COMMAND="ssh -i $GIT_SSH_KEY -o UserKnownHostsFile=$WORKSPACE/.ssh/known_hosts -o StrictHostKeyChecking=yes"
+
+                        git config user.name "${GIT_AUTHOR_NAME}"
+                        git config user.email "${GIT_AUTHOR_EMAIL}"
+                        git remote set-url origin "${GIT_SSH_URL}"
+
+                        git fetch origin main developer
+                        git checkout -B main origin/main
+                        git merge --no-ff origin/developer -m "Merge developer into main by Jenkins build ${BUILD_NUMBER}"
+                        git push origin main
+                    '''
+                }
+            }
+        }
+
+        stage('Docker Build - Main') {
+            when {
+                branch 'main'
+            }
             steps {
                 sh '''
                     docker build \
@@ -57,9 +135,12 @@ pipeline {
         }
 
         stage('Deploy Local Backend') {
+            when {
+                branch 'main'
+            }
             steps {
                 sh '''
-                    docker compose \
+                    IMAGE_TAG=${IMAGE_TAG} docker compose \
                       -f ${COMPOSE_PROJECT_DIR}/docker-compose.yml \
                       up -d --no-deps --force-recreate --no-build backend
                 '''
@@ -67,6 +148,9 @@ pipeline {
         }
 
         stage('Backend Health Check') {
+            when {
+                branch 'main'
+            }
             steps {
                 sh '''
                     for attempt in $(seq 1 30); do
@@ -88,6 +172,12 @@ pipeline {
     }
 
     post {
+        failure {
+            echo 'Pipeline FAILED. Merge/deploy nao sera executado apos falha em etapa anterior.'
+        }
+        success {
+            echo 'Pipeline SUCCESS.'
+        }
         always {
             cleanWs()
         }
