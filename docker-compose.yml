@@ -19,7 +19,7 @@ services:
   backend:
     build:
       context: .
-    image: locadora-rdt-backend:0.0.1
+    image: locadora-rdt-backend:${IMAGE_TAG:-0.0.1}
     container_name: locadora-rdt-backend
     depends_on:
       postgres:

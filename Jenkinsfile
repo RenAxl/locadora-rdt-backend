@@ -51,7 +51,6 @@ pipeline {
                     docker build \
                       -t ${APP_NAME}:${IMAGE_TAG} \
                       -t ${APP_NAME}:latest \
-                      -t ${APP_NAME}:0.0.1 \
                       .
                 '''
             }
@@ -62,7 +61,7 @@ pipeline {
                 sh '''
                     docker compose \
                       -f ${COMPOSE_PROJECT_DIR}/docker-compose.yml \
-                      up -d --no-deps --force-recreate backend
+                      up -d --no-deps --force-recreate --no-build backend
                 '''
             }
         }
