@@ -17,7 +17,6 @@ pipeline {
         IMAGE_TAG = "${env.BUILD_NUMBER}"
         COMPOSE_PROJECT_DIR = '/workspace/locadora-rdt/locadora-rdt-devops'
         GIT_SSH_URL = 'git@github.com:RenAxl/locadora-rdt-backend.git'
-        GIT_SSH_CREDENTIALS_ID = 'github-ssh-locadora-rdt-backend'
         GIT_AUTHOR_NAME = 'Jenkins CI'
         GIT_AUTHOR_EMAIL = 'jenkins@locadora-rdt.local'
     }
@@ -26,6 +25,7 @@ pipeline {
         stage('Checkout') {
             when {
                 anyOf {
+                    branch 'dev'
                     branch 'developer'
                     branch 'main'
                 }
@@ -39,6 +39,7 @@ pipeline {
         stage('Maven Clean Package') {
             when {
                 anyOf {
+                    branch 'dev'
                     branch 'developer'
                     branch 'main'
                 }
@@ -64,6 +65,7 @@ pipeline {
         stage('Archive JAR') {
             when {
                 anyOf {
+                    branch 'dev'
                     branch 'developer'
                     branch 'main'
                 }
@@ -73,9 +75,12 @@ pipeline {
             }
         }
 
-        stage('Docker Build - Developer') {
+        stage('Docker Build - Dev') {
             when {
-                branch 'developer'
+                anyOf {
+                    branch 'dev'
+                    branch 'developer'
+                }
             }
             steps {
                 sh '''
@@ -87,9 +92,12 @@ pipeline {
             }
         }
 
-        stage('Merge Developer Into Main') {
+        stage('Merge Dev Into Main') {
             when {
-                branch 'developer'
+                anyOf {
+                    branch 'dev'
+                    branch 'developer'
+                }
             }
             steps {
                 withCredentials([sshUserPrivateKey(
@@ -111,9 +119,9 @@ pipeline {
                         git config user.email "${GIT_AUTHOR_EMAIL}"
                         git remote set-url origin "${GIT_SSH_URL}"
 
-                        git fetch origin main developer
+                        git fetch origin main ${BRANCH_NAME}
                         git checkout -B main origin/main
-                        git merge --no-ff origin/developer -m "Merge developer into main by Jenkins build ${BUILD_NUMBER}"
+                        git merge --no-ff origin/${BRANCH_NAME} -m "Merge ${BRANCH_NAME} into main by Jenkins build ${BUILD_NUMBER}"
                         git push origin main
                     '''
                 }
