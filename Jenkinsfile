@@ -8,6 +8,10 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr: '10'))
     }
 
+    triggers {
+        pollSCM('H/2 * * * *')
+    }
+
     environment {
         APP_NAME = 'locadora-rdt-backend'
         IMAGE_TAG = "${env.BUILD_NUMBER}"
