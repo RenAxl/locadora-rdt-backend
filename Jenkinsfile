@@ -99,6 +99,7 @@ pipeline {
 
                         PR_LIST_URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls?state=open&head=RenAxl:dev&base=main"
                         PR_CREATE_URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls"
+                        COMPARE_URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/compare/main...dev"
 
                         curl \
                           -fsS \
@@ -109,6 +110,18 @@ pipeline {
 
                         if grep -q '"number"' open-prs.json; then
                           echo "Ja existe Pull Request aberto de dev para main."
+                          exit 0
+                        fi
+
+                        curl \
+                          -fsS \
+                          -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+                          -H "Accept: application/vnd.github+json" \
+                          -H "X-GitHub-Api-Version: 2022-11-28" \
+                          "${COMPARE_URL}" > compare.json
+
+                        if grep -q '"ahead_by": 0' compare.json; then
+                          echo "Branch dev nao possui commits novos para enviar a main. Pull Request nao sera criado."
                           exit 0
                         fi
 
