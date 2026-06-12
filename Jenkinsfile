@@ -158,7 +158,7 @@ EOF
                 sh '''
                     IMAGE_TAG=${PROD_IMAGE_TAG} docker compose \
                       -f ${COMPOSE_PROJECT_DIR}/docker-compose.yml \
-                      up -d --build backend
+                      up -d --no-build backend
                 '''
             }
         }
