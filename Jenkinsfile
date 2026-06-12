@@ -14,8 +14,6 @@ pipeline {
 
     environment {
         APP_NAME = 'locadora-rdt-backend'
-        DEV_IMAGE_TAG = "dev-${env.BUILD_NUMBER}"
-        PROD_IMAGE_TAG = "prod-${env.BUILD_NUMBER}"
         COMPOSE_PROJECT_DIR = '/workspace/locadora-rdt/locadora-rdt-devops'
         GITHUB_REPOSITORY = 'RenAxl/locadora-rdt-backend'
     }
@@ -78,8 +76,8 @@ pipeline {
             steps {
                 sh '''
                     docker build \
-                      -t ${APP_NAME}:${DEV_IMAGE_TAG} \
                       -t ${APP_NAME}:dev-latest \
+                      -t ${APP_NAME}:latest \
                       .
                 '''
             }
@@ -130,7 +128,7 @@ pipeline {
   "title": "Merge dev into main - build ${BUILD_NUMBER}",
   "head": "dev",
   "base": "main",
-  "body": "Pull Request aberto automaticamente pelo Jenkins apos sucesso da pipeline da branch dev.\\n\\nBuild: ${BUILD_NUMBER}\\nImagem validada: ${APP_NAME}:${DEV_IMAGE_TAG}"
+  "body": "Pull Request aberto automaticamente pelo Jenkins apos sucesso da pipeline da branch dev.\\n\\nBuild: ${BUILD_NUMBER}\\nImagem validada: ${APP_NAME}:dev-latest"
 }
 EOF
 
@@ -156,8 +154,8 @@ EOF
             steps {
                 sh '''
                     docker build \
-                      -t ${APP_NAME}:${PROD_IMAGE_TAG} \
                       -t ${APP_NAME}:prod-latest \
+                      -t ${APP_NAME}:latest \
                       .
                 '''
             }
@@ -169,7 +167,7 @@ EOF
             }
             steps {
                 sh '''
-                    IMAGE_TAG=${PROD_IMAGE_TAG} docker compose \
+                    IMAGE_TAG=prod-latest docker compose \
                       -f ${COMPOSE_PROJECT_DIR}/docker-compose.yml \
                       up -d --no-build backend
                 '''
