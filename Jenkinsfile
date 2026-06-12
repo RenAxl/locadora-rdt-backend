@@ -14,8 +14,8 @@ pipeline {
 
     environment {
         APP_NAME = 'locadora-rdt-backend'
+        PROD_IMAGE_TAG = "prod-${env.BUILD_NUMBER}"
         COMPOSE_PROJECT_DIR = '/workspace/locadora-rdt/locadora-rdt-devops'
-        GITHUB_REPOSITORY = 'RenAxl/locadora-rdt-backend'
     }
 
     stages {
@@ -69,84 +69,6 @@ pipeline {
             }
         }
 
-        stage('Docker Build - Dev') {
-            when {
-                branch 'dev'
-            }
-            steps {
-                sh '''
-                    docker build \
-                      -t ${APP_NAME}:dev-latest \
-                      -t ${APP_NAME}:latest \
-                      .
-                '''
-            }
-        }
-
-        stage('Open Pull Request Dev To Main') {
-            when {
-                branch 'dev'
-            }
-            steps {
-                withCredentials([string(
-                    credentialsId: 'github-token-locadora-rdt-backend',
-                    variable: 'GITHUB_TOKEN'
-                )]) {
-                    sh '''
-                        set -e
-
-                        PR_LIST_URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls?state=open&head=RenAxl:dev&base=main"
-                        PR_CREATE_URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls"
-                        COMPARE_URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/compare/main...dev"
-
-                        curl \
-                          -fsS \
-                          -H "Authorization: Bearer ${GITHUB_TOKEN}" \
-                          -H "Accept: application/vnd.github+json" \
-                          -H "X-GitHub-Api-Version: 2022-11-28" \
-                          "${PR_LIST_URL}" > open-prs.json
-
-                        if grep -q '"number"' open-prs.json; then
-                          echo "Ja existe Pull Request aberto de dev para main."
-                          exit 0
-                        fi
-
-                        curl \
-                          -fsS \
-                          -H "Authorization: Bearer ${GITHUB_TOKEN}" \
-                          -H "Accept: application/vnd.github+json" \
-                          -H "X-GitHub-Api-Version: 2022-11-28" \
-                          "${COMPARE_URL}" > compare.json
-
-                        if grep -q '"ahead_by": 0' compare.json; then
-                          echo "Branch dev nao possui commits novos para enviar a main. Pull Request nao sera criado."
-                          exit 0
-                        fi
-
-                        cat > pr-body.json <<EOF
-{
-  "title": "Merge dev into main - build ${BUILD_NUMBER}",
-  "head": "dev",
-  "base": "main",
-  "body": "Pull Request aberto automaticamente pelo Jenkins apos sucesso da pipeline da branch dev.\\n\\nBuild: ${BUILD_NUMBER}\\nImagem validada: ${APP_NAME}:dev-latest"
-}
-EOF
-
-                        curl \
-                          -fsS \
-                          -X POST \
-                          -H "Authorization: Bearer ${GITHUB_TOKEN}" \
-                          -H "Accept: application/vnd.github+json" \
-                          -H "X-GitHub-Api-Version: 2022-11-28" \
-                          "${PR_CREATE_URL}" \
-                          --data @pr-body.json > created-pr.json
-
-                        echo "Pull Request dev -> main criado com sucesso."
-                    '''
-                }
-            }
-        }
-
         stage('Docker Build - Main') {
             when {
                 branch 'main'
@@ -154,6 +76,7 @@ EOF
             steps {
                 sh '''
                     docker build \
+                      -t ${APP_NAME}:${PROD_IMAGE_TAG} \
                       -t ${APP_NAME}:prod-latest \
                       -t ${APP_NAME}:latest \
                       .
@@ -167,7 +90,7 @@ EOF
             }
             steps {
                 sh '''
-                    IMAGE_TAG=prod-latest docker compose \
+                    IMAGE_TAG=${PROD_IMAGE_TAG} docker compose \
                       -f ${COMPOSE_PROJECT_DIR}/docker-compose.yml \
                       up -d --no-build backend
                 '''
@@ -200,7 +123,7 @@ EOF
 
     post {
         failure {
-            echo 'Pipeline FAILED. Pull Request/deploy nao sera executado apos falha em etapa anterior.'
+            echo 'Pipeline FAILED. Etapas posteriores nao serao executadas apos falha anterior.'
         }
         success {
             echo 'Pipeline SUCCESS.'
