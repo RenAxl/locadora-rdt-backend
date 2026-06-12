@@ -8,6 +8,10 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr: '10'))
     }
 
+    triggers {
+        githubPush()
+    }
+
     environment {
         APP_NAME = 'locadora-rdt-backend'
         PROD_IMAGE_TAG = "prod-${env.BUILD_NUMBER}"
