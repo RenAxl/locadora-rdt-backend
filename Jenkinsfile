@@ -79,7 +79,7 @@ pipeline {
                 sh '''
                     docker build \
                       -t ${APP_NAME}:${DEV_IMAGE_TAG} \
-                      -t ${APP_NAME}:latest \
+                      -t ${APP_NAME}:dev-latest \
                       .
                 '''
             }
@@ -144,7 +144,7 @@ EOF
                 sh '''
                     docker build \
                       -t ${APP_NAME}:${PROD_IMAGE_TAG} \
-                      -t ${APP_NAME}:latest \
+                      -t ${APP_NAME}:prod-latest \
                       .
                 '''
             }
