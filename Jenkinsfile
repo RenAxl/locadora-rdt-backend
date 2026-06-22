@@ -70,7 +70,7 @@ pipeline {
             }
             steps {
                 sh 'chmod +x ./mvnw'
-                sh './mvnw test'
+                sh './mvnw verify'
             }
             post {
                 always {
@@ -93,7 +93,7 @@ pipeline {
             steps {
                 withSonarQubeEnv('SonarQube') {
                     sh 'chmod +x ./mvnw'
-                    sh './mvnw sonar:sonar -Dsonar.projectKey=locadora-rdt-backend -Dsonar.projectName=locadora-rdt-backend'
+                    sh './mvnw sonar:sonar -Dsonar.projectKey=locadora-rdt-backend -Dsonar.projectName=locadora-rdt-backend -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml'
                 }
             }
         }
