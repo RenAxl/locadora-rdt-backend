@@ -57,6 +57,28 @@ pipeline {
             }
         }
 
+        stage('Testes Automatizados') {
+            when {
+                branch 'dev'
+            }
+            agent {
+                docker {
+                    image 'maven:3.8.8-eclipse-temurin-11'
+                    args '-v maven_repository:/root/.m2'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh 'chmod +x ./mvnw'
+                sh './mvnw test'
+            }
+            post {
+                always {
+                    junit allowEmptyResults: false, testResults: 'target/surefire-reports/*.xml'
+                }
+            }
+        }
+
         stage('Archive JAR') {
             when {
                 branch 'main'
