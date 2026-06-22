@@ -73,3 +73,4 @@ public class PositionDetailsDTO implements Serializable {
         this.updatedBy = updatedBy;
     }
 }
+
