@@ -59,10 +59,7 @@ pipeline {
 
         stage('Archive JAR') {
             when {
-                anyOf {
-                    branch 'dev'
-                    branch 'main'
-                }
+                branch 'main'
             }
             steps {
                 archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
