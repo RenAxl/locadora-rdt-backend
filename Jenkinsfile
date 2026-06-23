@@ -93,26 +93,7 @@ pipeline {
             steps {
                 withSonarQubeEnv('SonarQube') {
                     sh 'chmod +x ./mvnw'
-                    sh './mvnw sonar:sonar -Dsonar.projectKey=locadora-rdt-backend -Dsonar.projectName=locadora-rdt-backend -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml'
-                }
-            }
-        }
-
-        stage('Quality Gate') {
-            when {
-                branch 'dev'
-            }
-            steps {
-                timeout(time: 5, unit: 'MINUTES') {
-                    script {
-                        def qualityGate = waitForQualityGate abortPipeline: false
-
-                        if (qualityGate.status != 'OK') {
-                            error "Quality Gate reprovado: ${qualityGate.status}. Verifique New Code Coverage >= 80% e New Duplicated Lines <= 3% no SonarQube."
-                        }
-
-                        echo "Quality Gate aprovado: ${qualityGate.status}."
-                    }
+                    sh './mvnw sonar:sonar -Dsonar.projectKey=locadora-rdt-backend -Dsonar.projectName=locadora-rdt-backend -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml -Dsonar.qualitygate.wait=true -Dsonar.qualitygate.timeout=300'
                 }
             }
         }
