@@ -154,16 +154,31 @@ pipeline {
 
                         qg_response="$(curl -fsS ${auth_args} "${SONAR_HOST_URL}/api/qualitygates/project_status?analysisId=${analysis_id}")"
                         qg_status="$(printf '%s' "${qg_response}" | sed -n 's/.*"status":"\\([^"]*\\)".*/\\1/p')"
+                        coverage_condition="$(printf '%s' "${qg_response}" | tr '{' '\\n' | grep '"metricKey":"new_coverage"' || true)"
+                        duplication_condition="$(printf '%s' "${qg_response}" | tr '{' '\\n' | grep '"metricKey":"new_duplicated_lines_density"' || true)"
 
-                        echo "Quality Gate status: ${qg_status}"
+                        coverage_status="$(printf '%s' "${coverage_condition}" | sed -n 's/.*"status":"\\([^"]*\\)".*/\\1/p')"
+                        duplication_status="$(printf '%s' "${duplication_condition}" | sed -n 's/.*"status":"\\([^"]*\\)".*/\\1/p')"
+                        coverage_value="$(printf '%s' "${coverage_condition}" | sed -n 's/.*"actualValue":"\\([^"]*\\)".*/\\1/p')"
+                        duplication_value="$(printf '%s' "${duplication_condition}" | sed -n 's/.*"actualValue":"\\([^"]*\\)".*/\\1/p')"
 
-                        if [ "${qg_status}" != "OK" ]; then
-                          echo "Quality Gate reprovado. Verifique New Code Coverage >= 80% e New Duplicated Lines <= 3% no SonarQube."
+                        echo "SonarQube Quality Gate status geral: ${qg_status}"
+                        echo "New Code Coverage: ${coverage_value:-N/A}% (status: ${coverage_status:-MISSING}, minimo: 80%)"
+                        echo "New Duplicated Lines: ${duplication_value:-N/A}% (status: ${duplication_status:-MISSING}, maximo: 3%)"
+
+                        if [ "${coverage_status}" != "OK" ]; then
+                          echo "Quality Gate reprovado: New Code Coverage deve ser >= 80%."
                           printf '%s\\n' "${qg_response}"
                           exit 1
                         fi
 
-                        echo "Quality Gate aprovado."
+                        if [ "${duplication_status}" != "OK" ]; then
+                          echo "Quality Gate reprovado: New Duplicated Lines deve ser <= 3%."
+                          printf '%s\\n' "${qg_response}"
+                          exit 1
+                        fi
+
+                        echo "Quality Gate aprovado para as metricas configuradas na pipeline."
                     '''
                 }
             }
