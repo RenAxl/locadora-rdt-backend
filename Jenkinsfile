@@ -98,6 +98,25 @@ pipeline {
             }
         }
 
+        stage('Quality Gate') {
+            when {
+                branch 'dev'
+            }
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    script {
+                        def qualityGate = waitForQualityGate abortPipeline: false
+
+                        if (qualityGate.status != 'OK') {
+                            error "Quality Gate reprovado: ${qualityGate.status}. Verifique New Code Coverage >= 80% e New Duplicated Lines <= 3% no SonarQube."
+                        }
+
+                        echo "Quality Gate aprovado: ${qualityGate.status}."
+                    }
+                }
+            }
+        }
+
         stage('Archive JAR') {
             when {
                 branch 'main'
