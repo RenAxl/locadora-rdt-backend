@@ -45,7 +45,8 @@ import java.util.List;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
-public class UserServiceTests {
+@SuppressWarnings("java:S5778")
+class UserServiceTests {
 
     @InjectMocks
     private UserServiceImpl service;

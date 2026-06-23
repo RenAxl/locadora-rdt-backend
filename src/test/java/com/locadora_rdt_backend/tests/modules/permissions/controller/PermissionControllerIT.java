@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(PermissionController.class)
 @AutoConfigureMockMvc(addFilters = false)
-public class PermissionControllerIT {
+class PermissionControllerIT {
 
     @Autowired
     private MockMvc mockMvc;

@@ -25,6 +25,7 @@ public class Permission implements Serializable {
     private String groupName;
 
     public Permission() {
+        // Required by frameworks and serializers.
     }
 
     public Permission(Long id, String name, String groupName) {

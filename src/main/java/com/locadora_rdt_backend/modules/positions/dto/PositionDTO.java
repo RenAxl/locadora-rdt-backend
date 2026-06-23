@@ -9,6 +9,7 @@ public class PositionDTO implements Serializable {
     private String name;
 
     public PositionDTO() {
+        // Required by frameworks and serializers.
     }
 
     public PositionDTO(Long id, String name) {

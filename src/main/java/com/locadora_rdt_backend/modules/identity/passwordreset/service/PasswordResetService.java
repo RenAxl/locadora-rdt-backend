@@ -142,7 +142,7 @@ public class PasswordResetService {
                                 Instant.now()
                         )
                         .orElseThrow(() ->
-                                new RuntimeException(
+                                new IllegalArgumentException(
                                         "Token inválido ou expirado"
                                 )
                         );

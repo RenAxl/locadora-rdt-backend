@@ -26,6 +26,7 @@ public class CustomerUpdateValidator implements ConstraintValidator<CustomerUpda
 
     @Override
     public void initialize(CustomerUpdateValid ann) {
+        // No initialization required.
     }
 
     @Override

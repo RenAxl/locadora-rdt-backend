@@ -19,6 +19,7 @@ public class EmployeeFileDTO implements Serializable {
     private Long employeeId;
 
     public EmployeeFileDTO() {
+        // Required by frameworks and serializers.
     }
 
     public EmployeeFileDTO(EmployeeFile entity) {

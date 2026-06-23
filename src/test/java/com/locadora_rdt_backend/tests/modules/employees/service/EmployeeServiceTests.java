@@ -34,11 +34,13 @@ import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.List;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
-public class EmployeeServiceTests {
+@SuppressWarnings("java:S5778")
+class EmployeeServiceTests {
 
     @InjectMocks
     private EmployeeServiceImpl service;
@@ -84,7 +86,7 @@ public class EmployeeServiceTests {
         employee.setPhone("11999999999");
         employee.setAddress("Rua A");
         employee.setSalary(BigDecimal.valueOf(5000));
-        employee.setHireDate(LocalDate.of(2026, 1, 1));
+        employee.setHireDate(LocalDate.of(2026, Month.JANUARY, 1));
         employee.setEmploymentType("CLT");
         employee.setActive(true);
         employee.setPosition(position);
@@ -347,7 +349,7 @@ public class EmployeeServiceTests {
         dto.setPhone("11999999999");
         dto.setAddress("Rua A");
         dto.setSalary(BigDecimal.valueOf(5000));
-        dto.setHireDate(LocalDate.of(2026, 1, 1));
+        dto.setHireDate(LocalDate.of(2026, Month.JANUARY, 1));
         dto.setEmploymentType("CLT");
         dto.setActive(true);
         dto.setPositionId(1L);
@@ -361,7 +363,7 @@ public class EmployeeServiceTests {
         dto.setPhone("11888888888");
         dto.setAddress("Rua B");
         dto.setSalary(BigDecimal.valueOf(6000));
-        dto.setHireDate(LocalDate.of(2026, 1, 1));
+        dto.setHireDate(LocalDate.of(2026, Month.JANUARY, 1));
         dto.setEmploymentType("CLT");
         dto.setActive(true);
         dto.setPositionId(1L);

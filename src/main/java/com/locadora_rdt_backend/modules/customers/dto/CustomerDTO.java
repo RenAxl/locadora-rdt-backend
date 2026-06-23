@@ -16,6 +16,7 @@ public class CustomerDTO implements Serializable {
     private String photoContentType;
 
     public CustomerDTO() {
+        // Required by frameworks and serializers.
     }
 
     public Long getId() {

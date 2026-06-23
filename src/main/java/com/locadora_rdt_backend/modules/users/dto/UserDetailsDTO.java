@@ -27,6 +27,7 @@ public class UserDetailsDTO implements Serializable {
     private String updatedBy;
 
     public UserDetailsDTO() {
+        // Required by frameworks and serializers.
     }
 
     public Long getId() {

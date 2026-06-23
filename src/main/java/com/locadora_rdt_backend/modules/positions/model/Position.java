@@ -40,6 +40,7 @@ public class Position implements Serializable {
     private List<Employee> employees = new ArrayList<>();
 
     public Position() {
+        // Required by frameworks and serializers.
     }
 
     public Position(Long id, String name) {

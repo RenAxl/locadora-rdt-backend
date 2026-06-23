@@ -10,6 +10,7 @@ public class SupplierFileViewDTO implements Serializable {
     private byte[] data;
 
     public SupplierFileViewDTO() {
+        // Required by frameworks and serializers.
     }
 
     public SupplierFileViewDTO(String fileName, String contentType, byte[] data) {

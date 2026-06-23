@@ -9,7 +9,9 @@ public class RolePermissionsUpdateDTO {
     @NotEmpty(message = "Informe pelo menos uma permissão")
     private List<Long> permissionIds = new ArrayList<>();
 
-    public RolePermissionsUpdateDTO() {}
+    public RolePermissionsUpdateDTO() {
+        // Required by frameworks and serializers.
+    }
 
     public List<Long> getPermissionIds() {
         return permissionIds;

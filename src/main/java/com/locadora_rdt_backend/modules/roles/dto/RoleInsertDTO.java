@@ -12,6 +12,7 @@ public class RoleInsertDTO implements Serializable {
     private String authority;
 
     public RoleInsertDTO() {
+        // Required by frameworks and serializers.
     }
 
     public String getAuthority() {

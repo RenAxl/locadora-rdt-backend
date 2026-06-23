@@ -67,6 +67,7 @@ public class Supplier implements Serializable {
     private List<SupplierFile> files = new ArrayList<>();
 
     public Supplier() {
+        // Required by frameworks and serializers.
     }
 
     @PrePersist

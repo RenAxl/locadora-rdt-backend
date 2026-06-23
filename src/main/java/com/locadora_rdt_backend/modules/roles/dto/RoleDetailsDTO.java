@@ -23,6 +23,7 @@ public class RoleDetailsDTO implements Serializable {
     private String updatedBy;
 
     public RoleDetailsDTO() {
+        // Required by frameworks and serializers.
     }
 
     public Long getId() {

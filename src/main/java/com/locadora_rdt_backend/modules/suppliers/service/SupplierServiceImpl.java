@@ -54,12 +54,16 @@ public class SupplierServiceImpl implements SupplierService {
     @Override
     @Transactional(readOnly = true)
     public SupplierDetailsDTO findById(Long id) {
-        return mapper.toDetailsDTO(findEntityById(id));
+        return mapper.toDetailsDTO(getEntityById(id));
     }
 
     @Override
     @Transactional(readOnly = true)
     public Supplier findEntityById(Long id) {
+        return getEntityById(id);
+    }
+
+    private Supplier getEntityById(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         SupplierErrorMessages.SUPPLIER_NOT_FOUND
@@ -78,7 +82,7 @@ public class SupplierServiceImpl implements SupplierService {
     @Override
     @Transactional
     public SupplierDTO update(Long id, SupplierUpdateDTO dto) {
-        Supplier entity = findEntityById(id);
+        Supplier entity = getEntityById(id);
         mapper.copyToEntity(dto, entity);
         validateUniqueFields(entity, id);
         entity.setUpdatedBy(authenticationFacade.getAuthenticatedUsername());
@@ -88,7 +92,7 @@ public class SupplierServiceImpl implements SupplierService {
     @Override
     @Transactional
     public void updateImage(Long id, MultipartFile file) {
-        Supplier entity = findEntityById(id);
+        Supplier entity = getEntityById(id);
         validateImage(file);
 
         try {
@@ -104,7 +108,7 @@ public class SupplierServiceImpl implements SupplierService {
     @Override
     @Transactional
     public void delete(Long id) {
-        Supplier entity = findEntityById(id);
+        Supplier entity = getEntityById(id);
 
         try {
             repository.delete(entity);

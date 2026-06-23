@@ -13,7 +13,7 @@ public class StandardError implements Serializable{
     private String path;
 
     public StandardError() {
-
+        // Required by frameworks and serializers.
     }
 
     public Instant getTimestamp() {

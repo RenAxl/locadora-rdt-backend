@@ -44,7 +44,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     @Transactional(readOnly = true)
     public DepartmentDetailsDTO findById(Long id) {
-        return mapper.toDetailsDTO(findEntityById(id));
+        return mapper.toDetailsDTO(getEntityById(id));
     }
 
     @Override
@@ -58,7 +58,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     @Transactional
     public DepartmentDTO update(Long id, DepartmentUpdateDTO dto) {
-        Department entity = findEntityById(id);
+        Department entity = getEntityById(id);
         mapper.updateEntity(entity, dto);
         entity.setUpdatedBy(authenticationFacade.getAuthenticatedUsername());
         return mapper.toDTO(repository.save(entity));
@@ -67,7 +67,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     @Transactional
     public void delete(Long id) {
-        Department entity = findEntityById(id);
+        Department entity = getEntityById(id);
         try {
             repository.delete(entity);
             repository.flush();
@@ -79,6 +79,10 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     @Transactional(readOnly = true)
     public Department findEntityById(Long id) {
+        return getEntityById(id);
+    }
+
+    private Department getEntityById(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         DepartmentErrorMessages.DEPARTMENT_NOT_FOUND

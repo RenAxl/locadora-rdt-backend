@@ -15,6 +15,7 @@ public class DepartmentInsertDTO implements Serializable {
     private String description;
 
     public DepartmentInsertDTO() {
+        // Required by frameworks and serializers.
     }
 
     public String getName() {

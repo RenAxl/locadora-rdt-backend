@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(RoleController.class)
 @AutoConfigureMockMvc(addFilters = false)
-public class RoleControllerIT {
+class RoleControllerIT {
 
     @Autowired
     private MockMvc mockMvc;

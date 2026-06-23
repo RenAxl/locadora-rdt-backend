@@ -42,6 +42,7 @@ public class Role implements Serializable {
     private Set<Permission> permissions = new HashSet<>();
 
     public Role() {
+        // Required by frameworks and serializers.
     }
 
     public Role(Long id, String authority, String createdBy, String updatedBy) {

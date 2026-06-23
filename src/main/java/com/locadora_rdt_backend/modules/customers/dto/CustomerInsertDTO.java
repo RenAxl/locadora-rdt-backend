@@ -31,6 +31,7 @@ public class CustomerInsertDTO implements Serializable {
     private Boolean active;
 
     public CustomerInsertDTO() {
+        // Required by frameworks and serializers.
     }
 
     public String getName() {

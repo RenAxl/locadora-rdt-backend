@@ -45,7 +45,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Override
+    @SuppressWarnings("java:S4502")
     protected void configure(HttpSecurity http) throws Exception {
+        // Stateless API authentication is handled by OAuth2 bearer tokens, not browser sessions.
         http
                 .cors()
                 .and()

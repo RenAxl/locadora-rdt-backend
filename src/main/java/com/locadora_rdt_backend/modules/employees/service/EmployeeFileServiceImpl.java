@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @Service
 public class EmployeeFileServiceImpl implements EmployeeFileService {
 
-    private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+    private static final long MAX_FILE_SIZE = 10L * 1024 * 1024; // 10MB
 
     private static final List<String> ALLOWED_CONTENT_TYPES = Arrays.asList(
             "image/jpeg",
@@ -52,14 +52,15 @@ public class EmployeeFileServiceImpl implements EmployeeFileService {
 
     @Transactional
     public EmployeeFileDTO upload(Long employeeId, String name, MultipartFile file) {
-        Employee employee = findEmployeeById(employeeId);
+        Employee employee = getEmployeeById(employeeId);
         validateFile(file);
+        String originalFilename = file.getOriginalFilename();
 
         EmployeeFile entity = new EmployeeFile();
         entity.setEmployee(employee);
         entity.setName(name.trim());
-        entity.setOriginalFileName(file.getOriginalFilename());
-        entity.setStoredFileName(generateStoredFileName(file.getOriginalFilename()));
+        entity.setOriginalFileName(originalFilename);
+        entity.setStoredFileName(generateStoredFileName(originalFilename));
         entity.setContentType(file.getContentType());
         entity.setSize(file.getSize());
 
@@ -75,7 +76,7 @@ public class EmployeeFileServiceImpl implements EmployeeFileService {
 
     @Transactional(readOnly = true)
     public List<EmployeeFileDTO> findAllByEmployee(Long employeeId) {
-        findEmployeeById(employeeId);
+        getEmployeeById(employeeId);
 
         return employeeFileRepository.findByEmployeeIdOrderByIdDesc(employeeId)
                 .stream()
@@ -103,7 +104,7 @@ public class EmployeeFileServiceImpl implements EmployeeFileService {
 
     @Transactional(readOnly = true)
     public EmployeeFile findFileBelongsToEmployee(Long employeeId, Long fileId) {
-        findEmployeeById(employeeId);
+        getEmployeeById(employeeId);
 
         EmployeeFile entity = employeeFileRepository.findById(fileId)
                 .orElseThrow(() -> new ResourceNotFoundException("Arquivo não encontrado. Id: " + fileId));
@@ -117,6 +118,10 @@ public class EmployeeFileServiceImpl implements EmployeeFileService {
 
     @Transactional(readOnly = true)
     public Employee findEmployeeById(Long employeeId) {
+        return getEmployeeById(employeeId);
+    }
+
+    private Employee getEmployeeById(Long employeeId) {
         return employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado. Id: " + employeeId));
     }

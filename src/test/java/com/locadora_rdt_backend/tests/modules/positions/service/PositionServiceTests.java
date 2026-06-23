@@ -30,7 +30,7 @@ import org.springframework.data.domain.*;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
-public class PositionServiceTests {
+class PositionServiceTests {
 
     @InjectMocks
     private PositionServiceImpl service;

@@ -15,6 +15,7 @@ public class DepartmentDetailsDTO implements Serializable {
     private String updatedBy;
 
     public DepartmentDetailsDTO() {
+        // Required by frameworks and serializers.
     }
 
     public Long getId() {

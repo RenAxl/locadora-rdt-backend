@@ -51,12 +51,13 @@ public class SupplierFileServiceImpl implements SupplierFileService {
         Supplier supplier = findSupplierById(supplierId);
         validateName(name);
         validateFile(file);
+        String originalFilename = file.getOriginalFilename();
 
         SupplierFile entity = new SupplierFile();
         entity.setSupplier(supplier);
         entity.setName(name.trim());
-        entity.setOriginalFileName(file.getOriginalFilename());
-        entity.setStoredFileName(generateStoredFileName(file.getOriginalFilename()));
+        entity.setOriginalFileName(originalFilename);
+        entity.setStoredFileName(generateStoredFileName(originalFilename));
         entity.setContentType(file.getContentType());
         entity.setSize(file.getSize());
 
@@ -138,7 +139,8 @@ public class SupplierFileServiceImpl implements SupplierFileService {
             throw new FileException("O arquivo excede o tamanho máximo permitido de 10MB.");
         }
 
-        if (!ALLOWED_CONTENT_TYPES.contains(file.getContentType())) {
+        String contentType = file.getContentType();
+        if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
             throw new FileException("Tipo de arquivo não permitido.");
         }
     }

@@ -1,5 +1,7 @@
 package com.locadora_rdt_backend.modules.employees.service;
 
+import com.locadora_rdt_backend.common.exception.DatabaseException;
+import com.locadora_rdt_backend.common.exception.FileException;
 import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
 import com.locadora_rdt_backend.infrastructure.security.AuthenticationFacade;
 import com.locadora_rdt_backend.modules.employees.constants.EmployeeErrorMessages;
@@ -132,7 +134,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             entity.setPhotoContentType(file.getContentType());
             entity.setUpdatedBy(authenticationFacade.getAuthenticatedUsername());
         } catch (IOException e) {
-            throw new RuntimeException("Falha ao ler bytes do arquivo.", e);
+            throw new FileException("Falha ao ler bytes do arquivo.");
         }
 
         repository.save(entity);
@@ -180,7 +182,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 throw new ResourceNotFoundException("Id not found " + id);
             }
         } catch (DataAccessException e) {
-            throw new RuntimeException("Error changing employee status.", e);
+            throw new DatabaseException("Error changing employee status.");
         }
     }
 

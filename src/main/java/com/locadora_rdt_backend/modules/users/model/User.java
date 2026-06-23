@@ -66,22 +66,7 @@ public class User implements UserDetails, Serializable {
     private List<PasswordResetToken> passwordResetTokens = new ArrayList<>();
 
     public User() {
-    }
-
-    public User(Long id, String name, String email, String password, boolean active,
-                String telephone, String address, byte[] photo,
-                String photoContentType, String createdBy, String updatedBy) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-        this.password = password;
-        this.active = active;
-        this.telephone = telephone;
-        this.address = address;
-        this.photo = photo;
-        this.photoContentType = photoContentType;
-        this.createdBy = createdBy;
-        this.updatedBy = updatedBy;
+        // Required by frameworks and serializers.
     }
 
     @PrePersist
@@ -131,7 +116,7 @@ public class User implements UserDetails, Serializable {
     }
 
     public boolean isActive() {
-        return active;
+        return Boolean.TRUE.equals(active);
     }
 
     public void setActive(boolean active) {
@@ -230,7 +215,7 @@ public class User implements UserDetails, Serializable {
 
     @Override
     public String getUsername() {
-        return email;
+        return getEmail();
     }
 
     @Override

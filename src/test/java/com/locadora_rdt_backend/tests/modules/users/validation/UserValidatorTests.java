@@ -13,7 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.servlet.HandlerMapping;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,7 +20,7 @@ import javax.validation.ConstraintValidatorContext;
 import java.util.Map;
 
 @ExtendWith(MockitoExtension.class)
-public class UserValidatorTests {
+class UserValidatorTests {
 
     @Mock
     private UserRepository repository;
@@ -43,12 +42,8 @@ public class UserValidatorTests {
 
     @BeforeEach
     void setUp() {
-        insertValidator = new UserInsertValidator();
-        ReflectionTestUtils.setField(insertValidator, "repository", repository);
-
-        updateValidator = new UserUpdateValidator();
-        ReflectionTestUtils.setField(updateValidator, "repository", repository);
-        ReflectionTestUtils.setField(updateValidator, "request", request);
+        insertValidator = new UserInsertValidator(repository);
+        updateValidator = new UserUpdateValidator(request, repository);
     }
 
     @Test

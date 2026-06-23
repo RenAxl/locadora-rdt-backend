@@ -19,6 +19,7 @@ public class SupplierFileDTO implements Serializable {
     private Long supplierId;
 
     public SupplierFileDTO() {
+        // Required by frameworks and serializers.
     }
 
     public SupplierFileDTO(SupplierFile entity) {

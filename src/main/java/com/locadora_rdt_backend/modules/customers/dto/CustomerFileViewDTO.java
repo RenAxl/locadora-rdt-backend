@@ -10,6 +10,7 @@ public class CustomerFileViewDTO implements Serializable {
     private byte[] data;
 
     public CustomerFileViewDTO() {
+        // Required by frameworks and serializers.
     }
 
     public CustomerFileViewDTO(String fileName, String contentType, byte[] data) {

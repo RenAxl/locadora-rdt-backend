@@ -67,6 +67,7 @@ import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -74,7 +75,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-public class PojoCoverageTests {
+class PojoCoverageTests {
 
     static Stream<Class<?>> pojoClasses() {
         return Stream.of(
@@ -283,7 +284,7 @@ public class PojoCoverageTests {
             return Instant.parse("2026-01-01T10:00:00Z");
         }
         if (LocalDate.class.equals(type)) {
-            return LocalDate.of(2026, 1, 1);
+            return LocalDate.of(2026, Month.JANUARY, 1);
         }
         if (LocalDateTime.class.equals(type)) {
             return LocalDateTime.of(2026, 1, 1, 10, 0);

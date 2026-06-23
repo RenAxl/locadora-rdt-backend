@@ -73,31 +73,7 @@ public class Employee implements Serializable {
     private List<EmployeeFile> files = new ArrayList<>();
 
     public Employee() {
-    }
-
-    public Employee(Long id, String name, String employeeCode, String email, String phone,
-                    String address, BigDecimal salary, LocalDate hireDate,
-                    LocalDate terminationDate, String employmentType,
-                    byte[] photo, String photoContentType, Boolean active,
-                    String createdBy, String updatedBy, Position position,
-                    Department department) {
-        this.id = id;
-        this.name = name;
-        this.employeeCode = employeeCode;
-        this.email = email;
-        this.phone = phone;
-        this.address = address;
-        this.salary = salary;
-        this.hireDate = hireDate;
-        this.terminationDate = terminationDate;
-        this.employmentType = employmentType;
-        this.photo = photo;
-        this.photoContentType = photoContentType;
-        this.active = active;
-        this.createdBy = createdBy;
-        this.updatedBy = updatedBy;
-        this.position = position;
-        this.department = department;
+        // Required by frameworks and serializers.
     }
 
     @PrePersist

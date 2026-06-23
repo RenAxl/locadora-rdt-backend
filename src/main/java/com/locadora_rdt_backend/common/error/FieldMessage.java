@@ -9,6 +9,7 @@ public class FieldMessage implements Serializable {
     private String message;
 
     public FieldMessage() {
+        // Required by frameworks and serializers.
     }
 
     public FieldMessage(String fieldName, String message) {

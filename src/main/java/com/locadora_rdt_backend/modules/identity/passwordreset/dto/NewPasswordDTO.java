@@ -9,7 +9,9 @@ public class NewPasswordDTO {
     @Size(min = 6, message = "A senha deve ter no mínimo 6 caracteres")
     private String password;
 
-    public NewPasswordDTO() {}
+    public NewPasswordDTO() {
+        // Required by frameworks and serializers.
+    }
 
     public NewPasswordDTO(String password) {
         this.password = password;

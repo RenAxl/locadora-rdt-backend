@@ -15,6 +15,7 @@ public class PositionDetailsDTO implements Serializable {
     private String updatedBy;
 
     public PositionDetailsDTO() {
+        // Required by frameworks and serializers.
     }
 
     public Long getId() {

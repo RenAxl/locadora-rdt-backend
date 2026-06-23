@@ -25,6 +25,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -33,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(EmployeeController.class)
 @AutoConfigureMockMvc(addFilters = false)
-public class EmployeeControllerIT {
+class EmployeeControllerIT {
 
     @Autowired
     private MockMvc mockMvc;
@@ -183,7 +184,7 @@ public class EmployeeControllerIT {
         dto.setPhone("11999999999");
         dto.setAddress("Rua A");
         dto.setSalary(BigDecimal.TEN);
-        dto.setHireDate(LocalDate.of(2026, 1, 1));
+        dto.setHireDate(LocalDate.of(2026, Month.JANUARY, 1));
         dto.setEmploymentType("CLT");
         dto.setPositionId(1L);
         dto.setDepartmentId(1L);
@@ -196,7 +197,7 @@ public class EmployeeControllerIT {
         dto.setPhone("11999999999");
         dto.setAddress("Rua A");
         dto.setSalary(BigDecimal.TEN);
-        dto.setHireDate(LocalDate.of(2026, 1, 1));
+        dto.setHireDate(LocalDate.of(2026, Month.JANUARY, 1));
         dto.setEmploymentType("CLT");
         dto.setActive(true);
         dto.setPositionId(1L);

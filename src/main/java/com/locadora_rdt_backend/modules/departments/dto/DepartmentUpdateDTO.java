@@ -15,6 +15,7 @@ public class DepartmentUpdateDTO implements Serializable {
     private String description;
 
     public DepartmentUpdateDTO() {
+        // Required by frameworks and serializers.
     }
 
     public String getName() {

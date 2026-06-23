@@ -33,9 +33,10 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.List;
 
-public class MapperTests {
+class MapperTests {
 
     @Test
     void customerMapperShouldMapAllDirections() {
@@ -255,8 +256,8 @@ public class MapperTests {
         entity.setPhone("11999999999");
         entity.setAddress("Rua A");
         entity.setSalary(BigDecimal.TEN);
-        entity.setHireDate(LocalDate.of(2026, 1, 1));
-        entity.setTerminationDate(LocalDate.of(2026, 12, 31));
+        entity.setHireDate(LocalDate.of(2026, Month.JANUARY, 1));
+        entity.setTerminationDate(LocalDate.of(2026, Month.DECEMBER, 31));
         entity.setEmploymentType("CLT");
         entity.setActive(true);
         entity.setPhotoContentType("image/png");
@@ -330,8 +331,8 @@ public class MapperTests {
         dto.setPhone("11999999999");
         dto.setAddress("Rua A");
         dto.setSalary(BigDecimal.TEN);
-        dto.setHireDate(LocalDate.of(2026, 1, 1));
-        dto.setTerminationDate(LocalDate.of(2026, 12, 31));
+        dto.setHireDate(LocalDate.of(2026, Month.JANUARY, 1));
+        dto.setTerminationDate(LocalDate.of(2026, Month.DECEMBER, 31));
         dto.setEmploymentType("CLT");
     }
 
@@ -342,8 +343,8 @@ public class MapperTests {
         dto.setPhone("11888888888");
         dto.setAddress("Rua B");
         dto.setSalary(BigDecimal.ONE);
-        dto.setHireDate(LocalDate.of(2026, 2, 1));
-        dto.setTerminationDate(LocalDate.of(2026, 12, 31));
+        dto.setHireDate(LocalDate.of(2026, Month.FEBRUARY, 1));
+        dto.setTerminationDate(LocalDate.of(2026, Month.DECEMBER, 31));
         dto.setEmploymentType("PJ");
     }
 }

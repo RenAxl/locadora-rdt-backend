@@ -2,7 +2,6 @@ package com.locadora_rdt_backend.config.security.oauth2;
 
 import java.util.Arrays;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
@@ -16,11 +15,22 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.R
 @EnableResourceServer
 public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 
-    @Autowired
-    private Environment env;
+    private static final String USERS_ENDPOINT = "/users/**";
+    private static final String USER_WRITE = "USER_WRITE";
+    private static final String ROLES_ENDPOINT = "/roles/**";
+    private static final String CUSTOMERS_ENDPOINT = "/customers/**";
+    private static final String CUSTOMER_FILES_ENDPOINT = "/customers/*/files/**";
+
+    private final Environment env;
+
+    public ResourceServerConfig(Environment env) {
+        this.env = env;
+    }
 
     @Override
+    @SuppressWarnings("java:S4502")
     public void configure(HttpSecurity http) throws Exception {
+        // Stateless API authentication is handled by OAuth2 bearer tokens, not browser sessions.
 
         if (Arrays.asList(env.getActiveProfiles()).contains("test")) {
             http.headers().frameOptions().disable();
@@ -35,32 +45,32 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/users/reset-password").permitAll()
                 .antMatchers(HttpMethod.GET, "/users/me").authenticated()
 
-                .antMatchers(HttpMethod.GET, "/users/**")
+                .antMatchers(HttpMethod.GET, USERS_ENDPOINT)
                 .hasAnyAuthority(
                         "USER_READ",
-                        "USER_WRITE",
+                        USER_WRITE,
                         "USER_DELETE",
                         "USER_STATUS_CHANGE"
                 )
-                .antMatchers(HttpMethod.POST, "/users/**").hasAuthority("USER_WRITE")
-                .antMatchers(HttpMethod.PUT, "/users/**").hasAuthority("USER_WRITE")
-                .antMatchers(HttpMethod.DELETE, "/users/**").hasAuthority("USER_DELETE")
+                .antMatchers(HttpMethod.POST, USERS_ENDPOINT).hasAuthority(USER_WRITE)
+                .antMatchers(HttpMethod.PUT, USERS_ENDPOINT).hasAuthority(USER_WRITE)
+                .antMatchers(HttpMethod.DELETE, USERS_ENDPOINT).hasAuthority("USER_DELETE")
                 .antMatchers(HttpMethod.PATCH, "/users/*/active").hasAuthority("USER_STATUS_CHANGE")
                 .antMatchers(HttpMethod.PUT, "/users/me/password").authenticated()
 
-                .antMatchers(HttpMethod.GET, "/roles/**").hasAuthority("ROLE_READ")
-                .antMatchers(HttpMethod.POST, "/roles/**").hasAuthority("ROLE_WRITE")
-                .antMatchers(HttpMethod.PUT, "/roles/**").hasAuthority("ROLE_WRITE")
+                .antMatchers(HttpMethod.GET, ROLES_ENDPOINT).hasAuthority("ROLE_READ")
+                .antMatchers(HttpMethod.POST, ROLES_ENDPOINT).hasAuthority("ROLE_WRITE")
+                .antMatchers(HttpMethod.PUT, ROLES_ENDPOINT).hasAuthority("ROLE_WRITE")
 
                 .antMatchers(HttpMethod.GET, "/permissions/**").hasAuthority("PERMISSION_READ")
 
-                .antMatchers(HttpMethod.GET, "/customers/**").hasAuthority("CUSTOMER_READ")
-                .antMatchers(HttpMethod.PUT, "/customers/**").hasAuthority("CUSTOMER_WRITE")
-                .antMatchers(HttpMethod.DELETE, "/customers/**").hasAuthority("CUSTOMER_DELETE")
+                .antMatchers(HttpMethod.GET, CUSTOMERS_ENDPOINT).hasAuthority("CUSTOMER_READ")
+                .antMatchers(HttpMethod.PUT, CUSTOMERS_ENDPOINT).hasAuthority("CUSTOMER_WRITE")
+                .antMatchers(HttpMethod.DELETE, CUSTOMERS_ENDPOINT).hasAuthority("CUSTOMER_DELETE")
                 .antMatchers(HttpMethod.PATCH, "/customers/*/active").hasAuthority("CUSTOMER_STATUS_CHANGE")
-                .antMatchers(HttpMethod.GET, "/customers/*/files/**").hasAuthority("CUSTOMER_FILE_READ")
-                .antMatchers(HttpMethod.POST, "/customers/*/files/**").hasAuthority("CUSTOMER_FILE_WRITE")
-                .antMatchers(HttpMethod.DELETE, "/customers/*/files/**").hasAuthority("CUSTOMER_FILE_DELETE")
+                .antMatchers(HttpMethod.GET, CUSTOMER_FILES_ENDPOINT).hasAuthority("CUSTOMER_FILE_READ")
+                .antMatchers(HttpMethod.POST, CUSTOMER_FILES_ENDPOINT).hasAuthority("CUSTOMER_FILE_WRITE")
+                .antMatchers(HttpMethod.DELETE, CUSTOMER_FILES_ENDPOINT).hasAuthority("CUSTOMER_FILE_DELETE")
 
 
                // .antMatchers(HttpMethod.GET, "/employees/**").hasAuthority("EMPLOYEE_READ")

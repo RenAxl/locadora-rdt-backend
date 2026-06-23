@@ -1,5 +1,7 @@
 package com.locadora_rdt_backend.modules.customers.service;
 
+import com.locadora_rdt_backend.common.exception.DatabaseException;
+import com.locadora_rdt_backend.common.exception.FileException;
 import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
 import com.locadora_rdt_backend.infrastructure.security.AuthenticationFacade;
 import com.locadora_rdt_backend.modules.customers.constants.CustomerErrorMessages;
@@ -102,7 +104,7 @@ public class CustomerServiceImpl implements CustomerService {
             entity.setPhotoContentType(file.getContentType());
             entity.setUpdatedBy(authenticationFacade.getAuthenticatedUsername());
         } catch (IOException e) {
-            throw new RuntimeException("Falha ao ler bytes do arquivo.", e);
+            throw new FileException("Falha ao ler bytes do arquivo.");
         }
 
         repository.save(entity);
@@ -156,7 +158,7 @@ public class CustomerServiceImpl implements CustomerService {
             }
 
         } catch (DataAccessException e) {
-            throw new RuntimeException("Error changing user status.", e);
+            throw new DatabaseException("Error changing customer status.");
         }
     }
 

@@ -39,6 +39,7 @@ public class SupplierInsertDTO implements Serializable {
     private String phoneNumber;
 
     public SupplierInsertDTO() {
+        // Required by frameworks and serializers.
     }
 
     public String getName() { return name; }

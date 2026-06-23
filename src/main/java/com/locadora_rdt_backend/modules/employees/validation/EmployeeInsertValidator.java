@@ -20,6 +20,7 @@ public class EmployeeInsertValidator implements ConstraintValidator<EmployeeInse
 
     @Override
     public void initialize(EmployeeInsertValid ann) {
+        // No initialization required.
     }
 
     @Override

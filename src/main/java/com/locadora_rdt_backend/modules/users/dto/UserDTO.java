@@ -20,6 +20,7 @@ public class UserDTO implements Serializable {
     private List<RoleDTO> roles = new ArrayList<>();
 
     public UserDTO() {
+        // Required by frameworks and serializers.
     }
 
     public Long getId() {

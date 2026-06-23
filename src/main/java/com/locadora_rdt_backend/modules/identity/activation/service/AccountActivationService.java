@@ -109,7 +109,7 @@ public class AccountActivationService {
                         Instant.now()
                 )
                 .orElseThrow(() ->
-                        new RuntimeException("Token inválido ou expirado")
+                        new IllegalArgumentException("Token inválido ou expirado")
                 );
 
         User user = entity.getUser();

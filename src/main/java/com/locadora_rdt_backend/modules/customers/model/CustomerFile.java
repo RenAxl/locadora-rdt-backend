@@ -3,6 +3,7 @@ package com.locadora_rdt_backend.modules.customers.model;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Entity
 @Table(name = "tb_customer_file")
@@ -44,16 +45,17 @@ public class CustomerFile implements Serializable {
     private Customer customer;
 
     public CustomerFile() {
+        // Required by frameworks and serializers.
     }
 
     @PrePersist
     public void prePersist() {
-        createdAt = LocalDateTime.now();
+        createdAt = LocalDateTime.now(ZoneId.systemDefault());
     }
 
     @PreUpdate
     public void preUpdate() {
-        updatedAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now(ZoneId.systemDefault());
     }
 
     public Long getId() {

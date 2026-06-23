@@ -9,6 +9,7 @@ public class DepartmentDTO implements Serializable {
     private String name;
 
     public DepartmentDTO() {
+        // Required by frameworks and serializers.
     }
 
     public DepartmentDTO(Long id, String name) {

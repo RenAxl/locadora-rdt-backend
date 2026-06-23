@@ -52,7 +52,7 @@ public class CustomerMapper {
         entity.setEmail(dto.getEmail());
         entity.setPhone(dto.getPhone());
         entity.setAddress(dto.getAddress());
-        entity.setActive(dto.getActive() != null ? dto.getActive() : true);
+        entity.setActive(dto.getActive() == null || dto.getActive());
 
         return entity;
 
@@ -64,7 +64,7 @@ public class CustomerMapper {
         entity.setEmail(dto.getEmail());
         entity.setPhone(dto.getPhone());
         entity.setAddress(dto.getAddress());
-        entity.setActive(dto.getActive() != null ? dto.getActive() : true);
+        entity.setActive(dto.getActive() == null || dto.getActive());
 
         if (dto.getActive() != null) {
             entity.setActive(dto.getActive());
