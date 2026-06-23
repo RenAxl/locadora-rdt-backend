@@ -93,7 +93,78 @@ pipeline {
             steps {
                 withSonarQubeEnv('SonarQube') {
                     sh 'chmod +x ./mvnw'
-                    sh './mvnw sonar:sonar -Dsonar.projectKey=locadora-rdt-backend -Dsonar.projectName=locadora-rdt-backend -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml -Dsonar.qualitygate.wait=true -Dsonar.qualitygate.timeout=300'
+                    sh './mvnw sonar:sonar -Dsonar.projectKey=locadora-rdt-backend -Dsonar.projectName=locadora-rdt-backend -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml'
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            when {
+                branch 'dev'
+            }
+            agent {
+                docker {
+                    image 'curlimages/curl:8.11.1'
+                    args '--network locadora-rdt-network'
+                    reuseNode true
+                }
+            }
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh '''
+                        set -eu
+
+                        if [ ! -f target/sonar/report-task.txt ]; then
+                          echo "Arquivo target/sonar/report-task.txt nao encontrado. A analise SonarQube nao foi executada corretamente."
+                          exit 1
+                        fi
+
+                        ce_task_url="$(grep '^ceTaskUrl=' target/sonar/report-task.txt | cut -d= -f2-)"
+
+                        auth_args=""
+                        if [ -n "${SONAR_AUTH_TOKEN:-}" ]; then
+                          auth_args="-u ${SONAR_AUTH_TOKEN}:"
+                        fi
+
+                        analysis_id=""
+
+                        for attempt in $(seq 1 60); do
+                          ce_response="$(curl -fsS ${auth_args} "${ce_task_url}")"
+                          ce_status="$(printf '%s' "${ce_response}" | sed -n 's/.*"status":"\\([^"]*\\)".*/\\1/p')"
+
+                          echo "SonarQube Compute Engine status: ${ce_status} (${attempt}/60)"
+
+                          if [ "${ce_status}" = "SUCCESS" ]; then
+                            analysis_id="$(printf '%s' "${ce_response}" | sed -n 's/.*"analysisId":"\\([^"]*\\)".*/\\1/p')"
+                            break
+                          fi
+
+                          if [ "${ce_status}" = "FAILED" ] || [ "${ce_status}" = "CANCELED" ]; then
+                            echo "Processamento da analise SonarQube falhou: ${ce_status}"
+                            exit 1
+                          fi
+
+                          sleep 5
+                        done
+
+                        if [ -z "${analysis_id}" ]; then
+                          echo "Timeout aguardando processamento da analise SonarQube."
+                          exit 1
+                        fi
+
+                        qg_response="$(curl -fsS ${auth_args} "${SONAR_HOST_URL}/api/qualitygates/project_status?analysisId=${analysis_id}")"
+                        qg_status="$(printf '%s' "${qg_response}" | sed -n 's/.*"status":"\\([^"]*\\)".*/\\1/p')"
+
+                        echo "Quality Gate status: ${qg_status}"
+
+                        if [ "${qg_status}" != "OK" ]; then
+                          echo "Quality Gate reprovado. Verifique New Code Coverage >= 80% e New Duplicated Lines <= 3% no SonarQube."
+                          printf '%s\\n' "${qg_response}"
+                          exit 1
+                        fi
+
+                        echo "Quality Gate aprovado."
+                    '''
                 }
             }
         }
