@@ -57,6 +57,47 @@ pipeline {
             }
         }
 
+        stage('Testes Automatizados') {
+            when {
+                branch 'dev'
+            }
+            agent {
+                docker {
+                    image 'maven:3.8.8-eclipse-temurin-11'
+                    args '-v maven_repository:/root/.m2'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh 'chmod +x ./mvnw'
+                sh './mvnw verify'
+            }
+            post {
+                always {
+                    junit allowEmptyResults: false, testResults: 'target/surefire-reports/*.xml'
+                }
+            }
+        }
+
+        stage('SonarQube') {
+            when {
+                branch 'dev'
+            }
+            agent {
+                docker {
+                    image 'maven:3.9.9-eclipse-temurin-17'
+                    args '-v maven_repository:/root/.m2 --network locadora-rdt-network'
+                    reuseNode true
+                }
+            }
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh 'chmod +x ./mvnw'
+                    sh './mvnw sonar:sonar -Dsonar.projectKey=locadora-rdt-backend -Dsonar.projectName=locadora-rdt-backend -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml'
+                }
+            }
+        }
+
         stage('Archive JAR') {
             when {
                 branch 'main'
