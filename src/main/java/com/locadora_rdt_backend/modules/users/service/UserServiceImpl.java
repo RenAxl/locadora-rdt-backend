@@ -15,6 +15,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -156,11 +157,17 @@ public class UserServiceImpl implements UserService {
 
     @Transactional(readOnly = true)
     public UserDTO getMe(Authentication authentication) {
-        String username = authentication.getName(); // Busca o e-mail do usuário
 
-        User entity = repository.findByEmail(username);
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new AccessDeniedException("Acesso não autorizado");
+        }
+
+        String email = authentication.getName();
+
+        User entity = repository.findByEmail(email);
+
         if (entity == null) {
-            throw new UsernameNotFoundException("Usuário não encontrado");
+            throw new AccessDeniedException("Acesso não autorizado");
         }
 
         return mapper.toDTO(entity);
@@ -169,23 +176,24 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void changePassword(Authentication authentication, ChangePasswordDTO dto) {
 
-        if (authentication == null) {
-            throw new NullPointerException("authentication is null");
-        }
-
-        String username = authentication.getName(); // Busca email do usuário
-        User user = repository.findByEmail(username);
-
-        if (user == null) {
-            throw new UsernameNotFoundException("Usuário não encontrado");
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new AccessDeniedException("Acesso não autorizado");
         }
 
         if (dto == null) {
             throw new IllegalArgumentException("Dados inválidos");
         }
 
+        String email = authentication.getName();
+
+        User user = repository.findByEmail(email);
+
+        if (user == null) {
+            throw new AccessDeniedException("Acesso não autorizado");
+        }
+
         if (!passwordEncoder.matches(dto.getCurrentPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("Senha atual incorreta");
+            throw new AccessDeniedException("Acesso não autorizado");
         }
 
         if (passwordEncoder.matches(dto.getNewPassword(), user.getPassword())) {
@@ -199,27 +207,29 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDTO updateMe(Authentication authentication, UserMeUpdateDTO dto) {
 
-        if (authentication == null) {
-            throw new NullPointerException("authentication is null");
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new AccessDeniedException("Acesso não autorizado");
         }
 
         if (dto == null) {
             throw new IllegalArgumentException("Dados inválidos");
         }
 
-        String currentEmail = authentication.getName(); // Busca o e-mail
+        String currentEmail = authentication.getName();
+
         User entity = repository.findByEmail(currentEmail);
 
         if (entity == null) {
-            throw new UsernameNotFoundException("Usuário não encontrado");
+            throw new AccessDeniedException("Acesso não autorizado");
         }
 
         String newEmail = dto.getEmail();
-        if (newEmail != null && !newEmail.equalsIgnoreCase(entity.getEmail())) {
 
+        if (newEmail != null && !newEmail.equalsIgnoreCase(entity.getEmail())) {
             User existing = repository.findByEmail(newEmail);
+
             if (existing != null && !existing.getId().equals(entity.getId())) {
-                throw new IllegalArgumentException("Email já está em uso");
+                throw new IllegalArgumentException("Dados inválidos");
             }
 
             entity.setEmail(newEmail);
@@ -237,15 +247,16 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void updateMyPhoto(Authentication authentication, MultipartFile file) {
 
-        if (authentication == null) {
-            throw new NullPointerException("authentication is null");
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new AccessDeniedException("Acesso não autorizado");
         }
 
-        String username = authentication.getName(); // email do usuário logado
-        User user = repository.findByEmail(username);
+        String email = authentication.getName();
+
+        User user = repository.findByEmail(email);
 
         if (user == null) {
-            throw new UsernameNotFoundException("Usuário não encontrado");
+            throw new AccessDeniedException("Acesso não autorizado");
         }
 
         if (file == null || file.isEmpty()) {
@@ -253,11 +264,13 @@ public class UserServiceImpl implements UserService {
         }
 
         String contentType = file.getContentType();
+
         if (contentType == null || !ALLOWED_TYPES.contains(contentType)) {
             throw new IllegalArgumentException("Tipo de arquivo inválido. Use JPG, PNG ou WEBP.");
         }
 
         long maxBytes = 2L * 1024 * 1024;
+
         if (file.getSize() > maxBytes) {
             throw new IllegalArgumentException("Foto muito grande. Máximo: 2MB.");
         }
@@ -266,7 +279,7 @@ public class UserServiceImpl implements UserService {
             user.setPhoto(file.getBytes());
             user.setPhotoContentType(contentType);
         } catch (IOException e) {
-            throw new RuntimeException("Falha ao ler bytes do arquivo.", e);
+            throw new RuntimeException("Falha ao processar o arquivo enviado.", e);
         }
 
         repository.save(user);
@@ -275,19 +288,18 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public UserPhotoDTO getMyPhoto(Authentication authentication) {
 
-        if (authentication == null) {
-            throw new UsernameNotFoundException("Usuário não autenticado");
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new AccessDeniedException("Acesso não autorizado");
         }
 
-        String username = authentication.getName(); // email do usuário logado
+        String email = authentication.getName();
 
-        User user = repository.findByEmail(username);
+        User user = repository.findByEmail(email);
 
         if (user == null) {
-            throw new UsernameNotFoundException("Usuário não encontrado");
+            throw new AccessDeniedException("Acesso não autorizado");
         }
 
-        // Sem foto retorna null, isto é para não dar erro no frontend quando não tiver foto.
         if (user.getPhoto() == null || user.getPhoto().length == 0) {
             return null;
         }
