@@ -1,5 +1,6 @@
 package com.locadora_rdt_backend.modules.users.service;
 
+import com.locadora_rdt_backend.common.exception.FileException;
 import com.locadora_rdt_backend.infrastructure.security.AuthenticationFacade;
 import com.locadora_rdt_backend.modules.identity.activation.service.AccountActivationService;
 import com.locadora_rdt_backend.modules.roles.model.Role;
@@ -17,7 +18,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -279,7 +279,7 @@ public class UserServiceImpl implements UserService {
             user.setPhoto(file.getBytes());
             user.setPhotoContentType(contentType);
         } catch (IOException e) {
-            throw new RuntimeException("Falha ao processar o arquivo enviado.", e);
+            throw new FileException("Falha ao processar o arquivo enviado.");
         }
 
         repository.save(user);
