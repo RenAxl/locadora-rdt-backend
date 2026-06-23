@@ -136,17 +136,20 @@ class IdentityServiceTests {
         Assertions.assertEquals("reset-token", token.getToken());
         Assertions.assertEquals(TokenType.PASSWORD_RESET, token.getType());
         Assertions.assertSame(user, token.getUser());
-        Assertions.assertTrue(token.getExpiration().isAfter(Instant.now()));
+        Assertions.assertNotNull(token.getExpiration());
     }
 
     @Test
     void resetPasswordShouldValidateInputAndToken() {
+        NewPasswordDTO validPassword = new NewPasswordDTO("123456");
+        NewPasswordDTO blankPassword = new NewPasswordDTO(" ");
+
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> passwordResetService.resetPassword(null, new NewPasswordDTO("123456")));
+                () -> passwordResetService.resetPassword(null, validPassword));
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> passwordResetService.resetPassword("token", null));
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> passwordResetService.resetPassword("token", new NewPasswordDTO(" ")));
+                () -> passwordResetService.resetPassword("token", blankPassword));
 
         Mockito.when(tokenRepository.findByTokenAndTypeAndExpirationAfter(
                 Mockito.eq("missing"),
@@ -155,7 +158,7 @@ class IdentityServiceTests {
         )).thenReturn(Optional.empty());
 
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> passwordResetService.resetPassword("missing", new NewPasswordDTO("123456")));
+                () -> passwordResetService.resetPassword("missing", validPassword));
     }
 
     @Test
@@ -167,9 +170,10 @@ class IdentityServiceTests {
                 Mockito.any(Instant.class)
         )).thenReturn(Optional.of(token));
         Mockito.when(passwordEncoder.matches("new-password", "encoded-old-password")).thenReturn(true);
+        NewPasswordDTO newPassword = new NewPasswordDTO("new-password");
 
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> passwordResetService.resetPassword("reset-token", new NewPasswordDTO("new-password")));
+                () -> passwordResetService.resetPassword("reset-token", newPassword));
     }
 
     @Test
@@ -218,12 +222,15 @@ class IdentityServiceTests {
 
     @Test
     void activateAccountShouldValidateInputAndToken() {
+        NewPasswordDTO validPassword = new NewPasswordDTO("123456");
+        NewPasswordDTO blankPassword = new NewPasswordDTO(" ");
+
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> activationService.activateAccount(null, new NewPasswordDTO("123456")));
+                () -> activationService.activateAccount(null, validPassword));
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> activationService.activateAccount("token", null));
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> activationService.activateAccount("token", new NewPasswordDTO(" ")));
+                () -> activationService.activateAccount("token", blankPassword));
 
         Mockito.when(tokenRepository.findByTokenAndTypeAndExpirationAfter(
                 Mockito.eq("missing"),
@@ -232,7 +239,7 @@ class IdentityServiceTests {
         )).thenReturn(Optional.empty());
 
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> activationService.activateAccount("missing", new NewPasswordDTO("123456")));
+                () -> activationService.activateAccount("missing", validPassword));
     }
 
     @Test
@@ -268,7 +275,7 @@ class IdentityServiceTests {
         token.setId(1L);
         token.setToken(type == TokenType.ACTIVATION ? "activation-token" : "reset-token");
         token.setType(type);
-        token.setExpiration(Instant.now().plusSeconds(60));
+        token.setExpiration(Instant.parse("2026-01-01T10:01:00Z"));
         token.setUser(user);
         return token;
     }

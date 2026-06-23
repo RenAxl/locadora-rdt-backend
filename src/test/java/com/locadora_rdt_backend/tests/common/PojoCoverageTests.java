@@ -56,7 +56,9 @@ import com.locadora_rdt_backend.modules.users.dto.UserMeUpdateDTO;
 import com.locadora_rdt_backend.modules.users.dto.UserPhotoDTO;
 import com.locadora_rdt_backend.modules.users.dto.UserUpdateDTO;
 import com.locadora_rdt_backend.modules.users.model.User;
+import com.locadora_rdt_backend.shared.model.StoredFile;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -202,6 +204,40 @@ class PojoCoverageTests {
         Assertions.assertEquals("name", validationError.getErrors().get(0).getFieldName());
     }
 
+    @Test
+    void storedFileShouldExposeCommonFieldsAndLifecycleCallbacks() {
+        StoredFile file = new StoredFileTestEntity();
+        LocalDateTime createdAt = LocalDateTime.of(2026, Month.JANUARY, 1, 10, 0);
+        LocalDateTime updatedAt = LocalDateTime.of(2026, Month.JANUARY, 2, 10, 0);
+        byte[] data = new byte[]{1, 2, 3};
+
+        file.setId(1L);
+        file.setName("Contrato");
+        file.setOriginalFileName("contrato.pdf");
+        file.setStoredFileName("uuid-contrato.pdf");
+        file.setContentType("application/pdf");
+        file.setSize(3L);
+        file.setData(data);
+        file.setCreatedAt(createdAt);
+        file.setUpdatedAt(updatedAt);
+
+        Assertions.assertEquals(1L, file.getId());
+        Assertions.assertEquals("Contrato", file.getName());
+        Assertions.assertEquals("contrato.pdf", file.getOriginalFileName());
+        Assertions.assertEquals("uuid-contrato.pdf", file.getStoredFileName());
+        Assertions.assertEquals("application/pdf", file.getContentType());
+        Assertions.assertEquals(3L, file.getSize());
+        Assertions.assertArrayEquals(data, file.getData());
+        Assertions.assertEquals(createdAt, file.getCreatedAt());
+        Assertions.assertEquals(updatedAt, file.getUpdatedAt());
+
+        file.prePersist();
+        file.preUpdate();
+
+        Assertions.assertNotNull(file.getCreatedAt());
+        Assertions.assertNotNull(file.getUpdatedAt());
+    }
+
     private static Object instantiate(Class<?> type) throws Exception {
         Constructor<?> constructor;
         try {
@@ -287,7 +323,7 @@ class PojoCoverageTests {
             return LocalDate.of(2026, Month.JANUARY, 1);
         }
         if (LocalDateTime.class.equals(type)) {
-            return LocalDateTime.of(2026, 1, 1, 10, 0);
+            return LocalDateTime.of(2026, Month.JANUARY, 1, 10, 0);
         }
         if (List.class.equals(type)) {
             return new ArrayList<>();
@@ -355,5 +391,9 @@ class PojoCoverageTests {
             return supplier;
         }
         return null;
+    }
+
+    private static class StoredFileTestEntity extends StoredFile {
+        private static final long serialVersionUID = 1L;
     }
 }
