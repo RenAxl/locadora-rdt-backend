@@ -98,7 +98,7 @@ pipeline {
             }
         }
 
-        stage('Quality Gate') {
+        stage('Quality Gate - Locadora RDT') {
             when {
                 branch 'dev'
             }
@@ -120,6 +120,11 @@ pipeline {
                         fi
 
                         ce_task_url="$(grep '^ceTaskUrl=' target/sonar/report-task.txt | cut -d= -f2-)"
+                        project_key="$(grep '^projectKey=' target/sonar/report-task.txt | cut -d= -f2- || true)"
+
+                        if [ -z "${project_key}" ]; then
+                          project_key="locadora-rdt-backend"
+                        fi
 
                         auth_args=""
                         if [ -n "${SONAR_AUTH_TOKEN:-}" ]; then
@@ -152,33 +157,105 @@ pipeline {
                           exit 1
                         fi
 
-                        qg_response="$(curl -fsS ${auth_args} "${SONAR_HOST_URL}/api/qualitygates/project_status?analysisId=${analysis_id}")"
-                        qg_status="$(printf '%s' "${qg_response}" | sed -n 's/.*"status":"\\([^"]*\\)".*/\\1/p')"
-                        coverage_condition="$(printf '%s' "${qg_response}" | tr '{' '\\n' | grep '"metricKey":"new_coverage"' || true)"
-                        duplication_condition="$(printf '%s' "${qg_response}" | tr '{' '\\n' | grep '"metricKey":"new_duplicated_lines_density"' || true)"
+                        quality_gate_failed=0
 
-                        coverage_status="$(printf '%s' "${coverage_condition}" | sed -n 's/.*"status":"\\([^"]*\\)".*/\\1/p')"
-                        duplication_status="$(printf '%s' "${duplication_condition}" | sed -n 's/.*"status":"\\([^"]*\\)".*/\\1/p')"
-                        coverage_value="$(printf '%s' "${coverage_condition}" | sed -n 's/.*"actualValue":"\\([^"]*\\)".*/\\1/p')"
-                        duplication_value="$(printf '%s' "${duplication_condition}" | sed -n 's/.*"actualValue":"\\([^"]*\\)".*/\\1/p')"
+                        measures_response="$(curl -fsS ${auth_args} "${SONAR_HOST_URL}/api/measures/component?component=${project_key}&metricKeys=new_bugs,new_vulnerabilities,new_security_hotspots,new_security_hotspots_reviewed,new_coverage,new_duplicated_lines_density,new_reliability_rating,new_software_quality_reliability_rating")"
 
-                        echo "SonarQube Quality Gate status geral: ${qg_status}"
-                        echo "New Code Coverage: ${coverage_value:-N/A}% (status: ${coverage_status:-MISSING}, minimo: 80%)"
-                        echo "New Duplicated Lines: ${duplication_value:-N/A}% (status: ${duplication_status:-MISSING}, maximo: 3%)"
+                        get_measure() {
+                          metric_key="$1"
+                          printf '%s' "${measures_response}" | tr '{' '\\n' | grep "\\\"metric\\\":\\\"${metric_key}\\\"" | sed -n 's/.*"value":"\\([^"]*\\)".*/\\1/p' | head -n 1
+                        }
 
-                        if [ "${coverage_status}" != "OK" ]; then
-                          echo "Quality Gate reprovado: New Code Coverage deve ser >= 80%."
-                          printf '%s\\n' "${qg_response}"
+                        check_number_equals() {
+                          metric_key="$1"
+                          label="$2"
+                          expected="$3"
+                          actual_value="$(get_measure "${metric_key}" || true)"
+
+                          if [ -z "${actual_value}" ] && [ "${expected}" = "0" ]; then
+                            actual_value="0"
+                          fi
+
+                          echo "${label}: ${actual_value:-N/A} (esperado: ${expected})"
+
+                          if [ -z "${actual_value}" ] || ! awk "BEGIN { exit !(${actual_value} == ${expected}) }"; then
+                            quality_gate_failed=1
+                          fi
+                        }
+
+                        check_number_at_least() {
+                          metric_key="$1"
+                          label="$2"
+                          expected="$3"
+                          actual_value="$(get_measure "${metric_key}" || true)"
+
+                          echo "${label}: ${actual_value:-N/A} (esperado: >= ${expected})"
+
+                          if [ -z "${actual_value}" ] || ! awk "BEGIN { exit !(${actual_value} >= ${expected}) }"; then
+                            quality_gate_failed=1
+                          fi
+                        }
+
+                        check_number_at_most() {
+                          metric_key="$1"
+                          label="$2"
+                          expected="$3"
+                          actual_value="$(get_measure "${metric_key}" || true)"
+
+                          echo "${label}: ${actual_value:-N/A} (esperado: <= ${expected})"
+
+                          if [ -z "${actual_value}" ] || ! awk "BEGIN { exit !(${actual_value} <= ${expected}) }"; then
+                            quality_gate_failed=1
+                          fi
+                        }
+
+                        check_security_hotspots_reviewed() {
+                          reviewed_value="$(get_measure "new_security_hotspots_reviewed" || true)"
+                          hotspots_value="$(get_measure "new_security_hotspots" || true)"
+
+                          if [ -z "${hotspots_value}" ]; then
+                            hotspots_value="0"
+                          fi
+
+                          if [ -z "${reviewed_value}" ] && awk "BEGIN { exit !(${hotspots_value} == 0) }"; then
+                            reviewed_value="100"
+                          fi
+
+                          echo "Security Hotspots Reviewed on New Code: ${reviewed_value:-N/A} (esperado: >= 100)"
+
+                          if [ -z "${reviewed_value}" ] || ! awk "BEGIN { exit !(${reviewed_value} >= 100) }"; then
+                            quality_gate_failed=1
+                          fi
+                        }
+
+                        check_reliability_rating() {
+                          actual_value="$(get_measure "new_reliability_rating" || true)"
+
+                          if [ -z "${actual_value}" ]; then
+                            actual_value="$(get_measure "new_software_quality_reliability_rating" || true)"
+                          fi
+
+                          echo "Reliability Rating on New Code: ${actual_value:-N/A} (esperado: A)"
+
+                          if [ -z "${actual_value}" ] || ! awk "BEGIN { exit !(${actual_value} <= 1) }"; then
+                            quality_gate_failed=1
+                          fi
+                        }
+
+                        check_number_equals "new_bugs" "New Bugs" "0"
+                        check_number_equals "new_vulnerabilities" "New Vulnerabilities" "0"
+                        check_security_hotspots_reviewed
+                        check_number_at_least "new_coverage" "Coverage on New Code" "80"
+                        check_number_at_most "new_duplicated_lines_density" "Duplicated Lines on New Code" "3"
+                        check_reliability_rating
+
+                        if [ "${quality_gate_failed}" -ne 0 ]; then
+                          echo "Quality Gate - Locadora RDT reprovado para metricas de New Code."
+                          printf '%s\\n' "${measures_response}"
                           exit 1
                         fi
 
-                        if [ "${duplication_status}" != "OK" ]; then
-                          echo "Quality Gate reprovado: New Duplicated Lines deve ser <= 3%."
-                          printf '%s\\n' "${qg_response}"
-                          exit 1
-                        fi
-
-                        echo "Quality Gate aprovado para as metricas configuradas na pipeline."
+                        echo "Quality Gate - Locadora RDT aprovado para metricas de New Code."
                     '''
                 }
             }
