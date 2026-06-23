@@ -9,7 +9,9 @@ public class ForgotPasswordDTO {
     @Email(message = "Email inválido")
     private String email;
 
-    public ForgotPasswordDTO() {}
+    public ForgotPasswordDTO() {
+        // Required by frameworks and serializers.
+    }
 
     public String getEmail() {
         return email;

@@ -35,6 +35,7 @@ public class UserUpdateDTO implements Serializable {
     private List<Long> roleIds = new ArrayList<>();
 
     public UserUpdateDTO() {
+        // Required by frameworks and serializers.
     }
 
     public String getName() {

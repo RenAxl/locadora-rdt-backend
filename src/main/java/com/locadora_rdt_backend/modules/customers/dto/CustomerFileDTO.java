@@ -19,6 +19,7 @@ public class CustomerFileDTO implements Serializable {
     private Long customerId;
 
     public CustomerFileDTO() {
+        // Required by frameworks and serializers.
     }
 
     public CustomerFileDTO(CustomerFile entity) {

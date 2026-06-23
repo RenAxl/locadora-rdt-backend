@@ -39,6 +39,7 @@ public class Department implements Serializable {
     private List<Employee> employees = new ArrayList<>();
 
     public Department() {
+        // Required by frameworks and serializers.
     }
 
     public Department(Long id, String name, String description) {

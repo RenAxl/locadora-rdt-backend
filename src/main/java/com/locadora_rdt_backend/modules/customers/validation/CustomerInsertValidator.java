@@ -20,6 +20,7 @@ public class CustomerInsertValidator implements ConstraintValidator<CustomerInse
 
     @Override
     public void initialize(CustomerInsertValid ann) {
+        // No initialization required.
     }
 
     @Override

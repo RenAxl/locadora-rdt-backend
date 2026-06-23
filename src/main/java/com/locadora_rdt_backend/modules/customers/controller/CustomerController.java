@@ -6,7 +6,6 @@ import com.locadora_rdt_backend.modules.customers.dto.CustomerInsertDTO;
 import com.locadora_rdt_backend.modules.customers.dto.CustomerUpdateDTO;
 import com.locadora_rdt_backend.modules.customers.model.Customer;
 import com.locadora_rdt_backend.modules.customers.service.CustomerService;
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

@@ -24,6 +24,7 @@ public class EmployeeDTO implements Serializable {
     private DepartmentDTO department;
 
     public EmployeeDTO() {
+        // Required by frameworks and serializers.
     }
 
     public Long getId() {

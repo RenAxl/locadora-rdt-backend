@@ -31,7 +31,8 @@ import java.util.List;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
-public class SupplierServiceTests {
+@SuppressWarnings("java:S5778")
+class SupplierServiceTests {
 
     @InjectMocks
     private SupplierServiceImpl service;

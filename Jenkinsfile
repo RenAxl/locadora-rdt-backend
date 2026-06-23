@@ -98,6 +98,92 @@ pipeline {
             }
         }
 
+        stage('Quality Gate') {
+            when {
+                branch 'dev'
+            }
+            agent {
+                docker {
+                    image 'curlimages/curl:8.11.1'
+                    args '--network locadora-rdt-network'
+                    reuseNode true
+                }
+            }
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh '''
+                        set -eu
+
+                        if [ ! -f target/sonar/report-task.txt ]; then
+                          echo "Arquivo target/sonar/report-task.txt nao encontrado. A analise SonarQube nao foi executada corretamente."
+                          exit 1
+                        fi
+
+                        ce_task_url="$(grep '^ceTaskUrl=' target/sonar/report-task.txt | cut -d= -f2-)"
+
+                        auth_args=""
+                        if [ -n "${SONAR_AUTH_TOKEN:-}" ]; then
+                          auth_args="-u ${SONAR_AUTH_TOKEN}:"
+                        fi
+
+                        analysis_id=""
+
+                        for attempt in $(seq 1 60); do
+                          ce_response="$(curl -fsS ${auth_args} "${ce_task_url}")"
+                          ce_status="$(printf '%s' "${ce_response}" | sed -n 's/.*"status":"\\([^"]*\\)".*/\\1/p')"
+
+                          echo "SonarQube Compute Engine status: ${ce_status} (${attempt}/60)"
+
+                          if [ "${ce_status}" = "SUCCESS" ]; then
+                            analysis_id="$(printf '%s' "${ce_response}" | sed -n 's/.*"analysisId":"\\([^"]*\\)".*/\\1/p')"
+                            break
+                          fi
+
+                          if [ "${ce_status}" = "FAILED" ] || [ "${ce_status}" = "CANCELED" ]; then
+                            echo "Processamento da analise SonarQube falhou: ${ce_status}"
+                            exit 1
+                          fi
+
+                          sleep 5
+                        done
+
+                        if [ -z "${analysis_id}" ]; then
+                          echo "Timeout aguardando processamento da analise SonarQube."
+                          exit 1
+                        fi
+
+                        qg_response="$(curl -fsS ${auth_args} "${SONAR_HOST_URL}/api/qualitygates/project_status?analysisId=${analysis_id}")"
+                        qg_status="$(printf '%s' "${qg_response}" | sed -n 's/.*"status":"\\([^"]*\\)".*/\\1/p')"
+                        coverage_condition="$(printf '%s' "${qg_response}" | tr '{' '\\n' | grep '"metricKey":"new_coverage"' || true)"
+                        duplication_condition="$(printf '%s' "${qg_response}" | tr '{' '\\n' | grep '"metricKey":"new_duplicated_lines_density"' || true)"
+
+                        coverage_status="$(printf '%s' "${coverage_condition}" | sed -n 's/.*"status":"\\([^"]*\\)".*/\\1/p')"
+                        duplication_status="$(printf '%s' "${duplication_condition}" | sed -n 's/.*"status":"\\([^"]*\\)".*/\\1/p')"
+                        coverage_value="$(printf '%s' "${coverage_condition}" | sed -n 's/.*"actualValue":"\\([^"]*\\)".*/\\1/p')"
+                        duplication_value="$(printf '%s' "${duplication_condition}" | sed -n 's/.*"actualValue":"\\([^"]*\\)".*/\\1/p')"
+
+                        echo "SonarQube Quality Gate status geral: ${qg_status}"
+                        echo "New Code Coverage: ${coverage_value:-N/A}% (status: ${coverage_status:-MISSING}, minimo: 80%)"
+                        echo "New Duplicated Lines: ${duplication_value:-N/A}% (status: ${duplication_status:-MISSING}, maximo: 3%)"
+
+                        if [ "${coverage_status}" != "OK" ]; then
+                          echo "Quality Gate reprovado: New Code Coverage deve ser >= 80%."
+                          printf '%s\\n' "${qg_response}"
+                          exit 1
+                        fi
+
+                        if [ "${duplication_status}" != "OK" ]; then
+                          echo "Quality Gate reprovado: New Duplicated Lines deve ser <= 3%."
+                          printf '%s\\n' "${qg_response}"
+                          exit 1
+                        fi
+
+                        echo "Quality Gate aprovado para as metricas configuradas na pipeline."
+                    '''
+                }
+            }
+        }
+
         stage('Archive JAR') {
             when {
                 branch 'main'

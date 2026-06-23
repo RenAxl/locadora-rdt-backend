@@ -5,7 +5,6 @@ import org.hibernate.annotations.Type;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,21 +55,7 @@ public class Customer implements Serializable {
     private List<CustomerFile> files = new ArrayList<>();
 
     public Customer() {
-    }
-
-    public Customer(Long id, String name, String cpf, String email, String phone,
-                    String address, byte[] photo, String photoContentType,
-                    String createdBy, String updatedBy) {
-        this.id = id;
-        this.name = name;
-        this.cpf = cpf;
-        this.email = email;
-        this.phone = phone;
-        this.address = address;
-        this.photo = photo;
-        this.photoContentType = photoContentType;
-        this.createdBy = createdBy;
-        this.updatedBy = updatedBy;
+        // Required by frameworks and serializers.
     }
 
     @PrePersist

@@ -28,7 +28,7 @@ import org.springframework.data.domain.PageRequest;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
-public class DepartmentServiceTests {
+class DepartmentServiceTests {
 
     @InjectMocks
     private DepartmentServiceImpl service;

@@ -51,6 +51,7 @@ public class EmployeeInsertDTO implements Serializable {
     private Long departmentId;
 
     public EmployeeInsertDTO() {
+        // Required by frameworks and serializers.
     }
 
 

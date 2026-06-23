@@ -92,7 +92,7 @@ public class EmployeeMapper {
         entity.setHireDate(dto.getHireDate());
         entity.setTerminationDate(dto.getTerminationDate());
         entity.setEmploymentType(dto.getEmploymentType());
-        entity.setActive(dto.getActive() != null ? dto.getActive() : true);
+        entity.setActive(dto.getActive() == null || dto.getActive());
 
         return entity;
     }

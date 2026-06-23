@@ -5,6 +5,7 @@ import com.locadora_rdt_backend.modules.employees.model.Employee;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Entity
 @Table(name = "tb_employee_file")
@@ -46,16 +47,17 @@ public class EmployeeFile implements Serializable {
     private Employee employee;
 
     public EmployeeFile() {
+        // Required by frameworks and serializers.
     }
 
     @PrePersist
     public void prePersist() {
-        createdAt = LocalDateTime.now();
+        createdAt = LocalDateTime.now(ZoneId.systemDefault());
     }
 
     @PreUpdate
     public void preUpdate() {
-        updatedAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now(ZoneId.systemDefault());
     }
 
     public Long getId() {

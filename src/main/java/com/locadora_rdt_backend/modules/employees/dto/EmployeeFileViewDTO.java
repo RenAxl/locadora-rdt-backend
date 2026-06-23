@@ -10,6 +10,7 @@ public class EmployeeFileViewDTO implements Serializable {
     private byte[] data;
 
     public EmployeeFileViewDTO() {
+        // Required by frameworks and serializers.
     }
 
     public EmployeeFileViewDTO(String fileName, String contentType, byte[] data) {

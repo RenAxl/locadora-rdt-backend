@@ -10,16 +10,19 @@ import javax.validation.ConstraintValidatorContext;
 import com.locadora_rdt_backend.common.error.FieldMessage;
 import com.locadora_rdt_backend.modules.users.dto.UserInsertDTO;
 import com.locadora_rdt_backend.modules.users.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 
 
 public class UserInsertValidator implements ConstraintValidator<UserInsertValid, UserInsertDTO> {
 
-    @Autowired
-    private UserRepository repository;
+    private final UserRepository repository;
+
+    public UserInsertValidator(UserRepository repository) {
+        this.repository = repository;
+    }
 
     @Override
     public void initialize(UserInsertValid ann) {
+        // No initialization required.
     }
 
     @Override

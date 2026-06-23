@@ -13,6 +13,7 @@ public class SupplierDetailsDTO extends SupplierDTO implements Serializable {
     private String updatedBy;
 
     public SupplierDetailsDTO() {
+        // Required by frameworks and serializers.
     }
 
     public Long getVersion() { return version; }

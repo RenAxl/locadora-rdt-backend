@@ -1,6 +1,7 @@
 package com.locadora_rdt_backend.modules.users.mapper;
 
 import com.locadora_rdt_backend.modules.roles.mapper.RoleMapper;
+import com.locadora_rdt_backend.modules.roles.model.Role;
 import com.locadora_rdt_backend.modules.users.dto.UserDTO;
 import com.locadora_rdt_backend.modules.users.dto.UserDetailsDTO;
 import com.locadora_rdt_backend.modules.users.dto.UserInsertDTO;
@@ -62,7 +63,7 @@ public class UserMapper {
         dto.setRoles(
                 entity.getRoles()
                         .stream()
-                        .map(role -> role.getAuthority())
+                        .map(Role::getAuthority)
                         .collect(Collectors.toList())
         );
 

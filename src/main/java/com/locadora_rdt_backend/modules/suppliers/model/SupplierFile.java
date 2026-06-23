@@ -3,6 +3,7 @@ package com.locadora_rdt_backend.modules.suppliers.model;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Entity
 @Table(name = "tb_supplier_file")
@@ -44,13 +45,14 @@ public class SupplierFile implements Serializable {
     private Supplier supplier;
 
     public SupplierFile() {
+        // Required by frameworks and serializers.
     }
 
     @PrePersist
-    public void prePersist() { createdAt = LocalDateTime.now(); }
+    public void prePersist() { createdAt = LocalDateTime.now(ZoneId.systemDefault()); }
 
     @PreUpdate
-    public void preUpdate() { updatedAt = LocalDateTime.now(); }
+    public void preUpdate() { updatedAt = LocalDateTime.now(ZoneId.systemDefault()); }
 
     public Long getId() { return id; }
     public String getName() { return name; }

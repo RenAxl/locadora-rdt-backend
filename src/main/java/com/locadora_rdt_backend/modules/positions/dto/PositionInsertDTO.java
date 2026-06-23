@@ -12,6 +12,7 @@ public class PositionInsertDTO implements Serializable {
     private String name;
 
     public PositionInsertDTO() {
+        // Required by frameworks and serializers.
     }
 
     public String getName() {

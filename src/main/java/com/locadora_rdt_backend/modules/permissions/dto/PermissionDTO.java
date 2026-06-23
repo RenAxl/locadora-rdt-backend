@@ -2,8 +2,6 @@ package com.locadora_rdt_backend.modules.permissions.dto;
 
 import com.locadora_rdt_backend.modules.permissions.model.Permission;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 import java.io.Serializable;
 
 public class PermissionDTO implements Serializable {
@@ -13,7 +11,9 @@ public class PermissionDTO implements Serializable {
     private String name;
     private String groupName;
 
-    public PermissionDTO() {}
+    public PermissionDTO() {
+        // Required by frameworks and serializers.
+    }
 
     public PermissionDTO(Long id, String name, String groupName) {
         this.id = id;

@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @Service
 public class CustomerFileServiceImpl implements CustomerFileService {
 
-    private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+    private static final long MAX_FILE_SIZE = 10L * 1024 * 1024; // 10MB
 
     private static final List<String> ALLOWED_CONTENT_TYPES = Arrays.asList(
             "image/jpeg",
@@ -52,14 +52,15 @@ public class CustomerFileServiceImpl implements CustomerFileService {
 
     @Transactional
     public CustomerFileDTO upload(Long customerId, String name, MultipartFile file) {
-        Customer customer = findCustomerById(customerId);
+        Customer customer = getCustomerById(customerId);
         validateFile(file);
+        String originalFilename = file.getOriginalFilename();
 
         CustomerFile entity = new CustomerFile();
         entity.setCustomer(customer);
         entity.setName(name.trim());
-        entity.setOriginalFileName(file.getOriginalFilename());
-        entity.setStoredFileName(generateStoredFileName(file.getOriginalFilename()));
+        entity.setOriginalFileName(originalFilename);
+        entity.setStoredFileName(generateStoredFileName(originalFilename));
         entity.setContentType(file.getContentType());
         entity.setSize(file.getSize());
 
@@ -75,7 +76,7 @@ public class CustomerFileServiceImpl implements CustomerFileService {
 
     @Transactional(readOnly = true)
     public List<CustomerFileDTO> findAllByCustomer(Long customerId) {
-        findCustomerById(customerId);
+        getCustomerById(customerId);
 
         return customerFileRepository.findByCustomerIdOrderByIdDesc(customerId)
                 .stream()
@@ -103,7 +104,7 @@ public class CustomerFileServiceImpl implements CustomerFileService {
 
     @Transactional(readOnly = true)
     public CustomerFile findFileBelongsToCustomer(Long customerId, Long fileId) {
-        findCustomerById(customerId);
+        getCustomerById(customerId);
 
         CustomerFile entity = customerFileRepository.findById(fileId)
                 .orElseThrow(() -> new ResourceNotFoundException("Arquivo não encontrado. Id: " + fileId));
@@ -117,6 +118,10 @@ public class CustomerFileServiceImpl implements CustomerFileService {
 
     @Transactional(readOnly = true)
     public Customer findCustomerById(Long customerId) {
+        return getCustomerById(customerId);
+    }
+
+    private Customer getCustomerById(Long customerId) {
         return customerRepository.findById(customerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado. Id: " + customerId));
     }

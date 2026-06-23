@@ -12,7 +12,9 @@ public class ChangePasswordDTO {
     @Size(min = 6, message = "A nova senha deve ter no mínimo 6 caracteres")
     private String newPassword;
 
-    public ChangePasswordDTO() {}
+    public ChangePasswordDTO() {
+        // Required by frameworks and serializers.
+    }
 
     public ChangePasswordDTO(String currentPassword, String newPassword) {
         this.currentPassword = currentPassword;

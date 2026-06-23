@@ -19,7 +19,9 @@ public class CustomerDetailsDTO implements Serializable {
     private String createdBy;
     private String updatedBy;
 
-    public CustomerDetailsDTO() {}
+    public CustomerDetailsDTO() {
+        // Required by frameworks and serializers.
+    }
 
     public Long getId() {
         return id;

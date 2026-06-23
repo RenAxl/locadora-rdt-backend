@@ -16,6 +16,7 @@ public class UserMeUpdateDTO {
     private String address;
 
     public UserMeUpdateDTO() {
+        // Required by frameworks and serializers.
     }
 
     public UserMeUpdateDTO(String name, String email, String telephone, String address) {

@@ -10,20 +10,23 @@ import javax.validation.ConstraintValidatorContext;
 
 import com.locadora_rdt_backend.common.error.FieldMessage;
 import com.locadora_rdt_backend.modules.users.dto.UserUpdateDTO;
+import com.locadora_rdt_backend.modules.users.model.User;
 import com.locadora_rdt_backend.modules.users.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.HandlerMapping;
 
 public class UserUpdateValidator implements ConstraintValidator<UserUpdateValid, UserUpdateDTO> {
 
-    @Autowired
-    private HttpServletRequest request;
+    private final HttpServletRequest request;
+    private final UserRepository repository;
 
-    @Autowired
-    private UserRepository repository;
+    public UserUpdateValidator(HttpServletRequest request, UserRepository repository) {
+        this.request = request;
+        this.repository = repository;
+    }
 
     @Override
     public void initialize(UserUpdateValid ann) {
+        // No initialization required.
     }
 
     @Override
@@ -37,11 +40,13 @@ public class UserUpdateValidator implements ConstraintValidator<UserUpdateValid,
 
         List<FieldMessage> list = new ArrayList<>();
 
-        if (repository.findByEmail(dto.getEmail()) != null && repository.findByEmail(dto.getEmail()).getId() != userId) {
+        User userWithEmail = repository.findByEmail(dto.getEmail());
+        if (userWithEmail != null && !userWithEmail.getId().equals(userId)) {
             list.add(new FieldMessage("email", "Email já existe"));
         }
 
-        if (repository.findByTelephone(dto.getTelephone()) != null && repository.findByTelephone(dto.getTelephone()).getId() != userId) {
+        User userWithTelephone = repository.findByTelephone(dto.getTelephone());
+        if (userWithTelephone != null && !userWithTelephone.getId().equals(userId)) {
             list.add(new FieldMessage("telephone", "Telefone já existe"));
         }
 

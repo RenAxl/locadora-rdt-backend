@@ -12,6 +12,7 @@ public class PositionUpdateDTO implements Serializable {
     private String name;
 
     public PositionUpdateDTO() {
+        // Required by frameworks and serializers.
     }
 
     public String getName() {

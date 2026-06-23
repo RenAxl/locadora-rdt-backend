@@ -3,12 +3,14 @@ package com.locadora_rdt_backend.modules.identity.passwordreset.model;
 import com.locadora_rdt_backend.modules.identity.passwordreset.model.enums.TokenType;
 import com.locadora_rdt_backend.modules.users.model.User;
 
+import java.io.Serializable;
 import java.time.Instant;
 import javax.persistence.*;
 
 @Entity
 @Table(name = "tb_password_reset_token")
-public class PasswordResetToken {
+public class PasswordResetToken implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,7 +30,9 @@ public class PasswordResetToken {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public PasswordResetToken() {}
+    public PasswordResetToken() {
+        // Required by frameworks and serializers.
+    }
 
     public Long getId() {
         return id;

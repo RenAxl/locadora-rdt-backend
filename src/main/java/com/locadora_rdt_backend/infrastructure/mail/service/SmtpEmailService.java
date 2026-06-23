@@ -1,9 +1,10 @@
 package com.locadora_rdt_backend.infrastructure.mail.service;
 
+import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailSendException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -12,11 +13,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class SmtpEmailService implements EmailService {
 
-    @Autowired
-    private JavaMailSender mailSender;
+    private final JavaMailSender mailSender;
 
     @Value("${spring.mail.username}")
     private String from;
+
+    public SmtpEmailService(JavaMailSender mailSender) {
+        this.mailSender = mailSender;
+    }
 
     @Override
     public void sendEmail(String to, String subject, String body) {
@@ -40,8 +44,8 @@ public class SmtpEmailService implements EmailService {
             helper.setText(htmlBody, true);
 
             mailSender.send(message);
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao enviar email", e);
+        } catch (MessagingException e) {
+            throw new MailSendException("Erro ao enviar email", e);
         }
     }
 }

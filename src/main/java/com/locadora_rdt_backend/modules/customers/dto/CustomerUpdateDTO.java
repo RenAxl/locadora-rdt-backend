@@ -1,7 +1,6 @@
 package com.locadora_rdt_backend.modules.customers.dto;
 
 import com.locadora_rdt_backend.modules.customers.validation.CustomerUpdateValid;
-import org.hibernate.validator.constraints.br.CPF;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -35,6 +34,7 @@ public class CustomerUpdateDTO implements Serializable {
     private Boolean active;
 
     public CustomerUpdateDTO() {
+        // Required by frameworks and serializers.
     }
 
     public Long getId() {

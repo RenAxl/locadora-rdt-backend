@@ -31,6 +31,7 @@ public class UserInsertDTO implements Serializable {
     private List<Long> roleIds = new ArrayList<>();
 
     public UserInsertDTO() {
+        // Required by frameworks and serializers.
     }
 
     public String getName() {

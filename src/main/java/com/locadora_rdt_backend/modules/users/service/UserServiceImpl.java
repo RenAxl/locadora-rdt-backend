@@ -1,5 +1,6 @@
 package com.locadora_rdt_backend.modules.users.service;
 
+import com.locadora_rdt_backend.common.exception.DatabaseException;
 import com.locadora_rdt_backend.common.exception.FileException;
 import com.locadora_rdt_backend.infrastructure.security.AuthenticationFacade;
 import com.locadora_rdt_backend.modules.identity.activation.service.AccountActivationService;
@@ -151,7 +152,7 @@ public class UserServiceImpl implements UserService {
                 }
 
         } catch (DataAccessException e) {
-                throw new RuntimeException("Error changing user status.", e);
+                throw new DatabaseException("Error changing user status.");
         }
     }
 

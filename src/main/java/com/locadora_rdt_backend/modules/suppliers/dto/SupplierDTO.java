@@ -16,6 +16,7 @@ public class SupplierDTO implements Serializable {
     private String imageContentType;
 
     public SupplierDTO() {
+        // Required by frameworks and serializers.
     }
 
     public Long getId() { return id; }

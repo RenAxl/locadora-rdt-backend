@@ -2,6 +2,7 @@ package com.locadora_rdt_backend.modules.employees.validation;
 
 import com.locadora_rdt_backend.common.error.FieldMessage;
 import com.locadora_rdt_backend.modules.employees.dto.EmployeeUpdateDTO;
+import com.locadora_rdt_backend.modules.employees.model.Employee;
 import com.locadora_rdt_backend.modules.employees.repository.EmployeeRepository;
 import org.springframework.web.servlet.HandlerMapping;
 
@@ -11,6 +12,7 @@ import javax.validation.ConstraintValidatorContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 public class EmployeeUpdateValidator implements ConstraintValidator<EmployeeUpdateValid, EmployeeUpdateDTO> {
 
@@ -27,6 +29,7 @@ public class EmployeeUpdateValidator implements ConstraintValidator<EmployeeUpda
 
     @Override
     public void initialize(EmployeeUpdateValid ann) {
+        // No initialization required.
     }
 
     @Override
@@ -40,39 +43,11 @@ public class EmployeeUpdateValidator implements ConstraintValidator<EmployeeUpda
 
         List<FieldMessage> list = new ArrayList<>();
 
-        // EMAIL
-        if (dto.getEmail() != null && !dto.getEmail().trim().isEmpty()) {
-            var employee = repository.findByEmail(dto.getEmail());
-            if (employee != null && employee.getId() != employeeId) {
-                list.add(new FieldMessage("email", "Email já existe"));
-            }
-        }
-
-        // TELEFONE
-        if (dto.getPhone() != null && !dto.getPhone().trim().isEmpty()) {
-            var employee = repository.findByPhone(dto.getPhone());
-            if (employee != null && employee.getId() != employeeId) {
-                list.add(new FieldMessage("phone", "Telefone já existe"));
-            }
-        }
-
-        // MATRÍCULA
-        if (dto.getEmployeeCode() != null && !dto.getEmployeeCode().trim().isEmpty()) {
-            var employee = repository.findByEmployeeCode(dto.getEmployeeCode());
-            if (employee != null && employee.getId() != employeeId) {
-                list.add(new FieldMessage("employeeCode", "Matrícula já existe"));
-            }
-        }
-
-        // ✅ REGRA DE NEGÓCIO: DATA
-        if (dto.getHireDate() != null && dto.getTerminationDate() != null
-                && dto.getTerminationDate().isBefore(dto.getHireDate())) {
-
-            list.add(new FieldMessage(
-                    "terminationDate",
-                    "A data de desligamento não pode ser menor que a data de admissão"
-            ));
-        }
+        addDuplicateMessage(list, "email", "Email já existe", employeeId, dto.getEmail(), repository::findByEmail);
+        addDuplicateMessage(list, "phone", "Telefone já existe", employeeId, dto.getPhone(), repository::findByPhone);
+        addDuplicateMessage(list, "employeeCode", "Matrícula já existe", employeeId,
+                dto.getEmployeeCode(), repository::findByEmployeeCode);
+        addInvalidTerminationDateMessage(list, dto);
 
         for (FieldMessage e : list) {
             context.disableDefaultConstraintViolation();
@@ -82,5 +57,33 @@ public class EmployeeUpdateValidator implements ConstraintValidator<EmployeeUpda
         }
 
         return list.isEmpty();
+    }
+
+    private void addDuplicateMessage(
+            List<FieldMessage> list,
+            String field,
+            String message,
+            long currentEmployeeId,
+            String value,
+            Function<String, Employee> finder
+    ) {
+        if (value == null || value.trim().isEmpty()) {
+            return;
+        }
+
+        Employee employee = finder.apply(value);
+        if (employee != null && !employee.getId().equals(currentEmployeeId)) {
+            list.add(new FieldMessage(field, message));
+        }
+    }
+
+    private void addInvalidTerminationDateMessage(List<FieldMessage> list, EmployeeUpdateDTO dto) {
+        if (dto.getHireDate() != null && dto.getTerminationDate() != null
+                && dto.getTerminationDate().isBefore(dto.getHireDate())) {
+            list.add(new FieldMessage(
+                    "terminationDate",
+                    "A data de desligamento não pode ser menor que a data de admissão"
+            ));
+        }
     }
 }

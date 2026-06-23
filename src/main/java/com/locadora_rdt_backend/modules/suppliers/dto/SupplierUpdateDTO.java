@@ -4,5 +4,6 @@ public class SupplierUpdateDTO extends SupplierInsertDTO {
     private static final long serialVersionUID = 1L;
 
     public SupplierUpdateDTO() {
+        // Required by frameworks and serializers.
     }
 }
