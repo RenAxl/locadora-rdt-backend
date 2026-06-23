@@ -163,7 +163,13 @@ pipeline {
 
                         get_measure() {
                           metric_key="$1"
-                          printf '%s' "${measures_response}" | tr '{' '\\n' | grep "\\\"metric\\\":\\\"${metric_key}\\\"" | sed -n 's/.*"value":"\\([^"]*\\)".*/\\1/p' | head -n 1
+                          printf '%s' "${measures_response}" | awk -v key="${metric_key}" '
+                            BEGIN { RS="\\{\"metric\":\"" }
+                            index($0, key "\"") == 1 && match($0, /"value":"[^"]+"/) {
+                              print substr($0, RSTART + 9, RLENGTH - 10)
+                              exit
+                            }
+                          '
                         }
 
                         check_number_equals() {
