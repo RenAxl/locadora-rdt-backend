@@ -39,7 +39,8 @@ public final class ImageUploadSupport {
             throw new FileException("É obrigatório enviar uma imagem.");
         }
 
-        if (!ALLOWED_TYPES.contains(file.getContentType())) {
+        String contentType = file.getContentType();
+        if (contentType == null || !ALLOWED_TYPES.contains(contentType)) {
             throw new FileException("Tipo de imagem inválido. Use JPG, PNG ou WEBP.");
         }
 
@@ -49,6 +50,10 @@ public final class ImageUploadSupport {
     }
 
     public static byte[] readBytes(MultipartFile file, String errorMessage) {
+        if (file == null) {
+            throw new FileException(errorMessage);
+        }
+
         try {
             return file.getBytes();
         } catch (IOException e) {

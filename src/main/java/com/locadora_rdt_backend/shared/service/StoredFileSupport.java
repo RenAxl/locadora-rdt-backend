@@ -44,7 +44,8 @@ public final class StoredFileSupport {
             throw new FileException("É obrigatório enviar um arquivo.");
         }
 
-        if (file.getOriginalFilename() == null || file.getOriginalFilename().trim().isEmpty()) {
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null || originalFilename.trim().isEmpty()) {
             throw new FileException("Nome original do arquivo é inválido.");
         }
 
@@ -59,7 +60,18 @@ public final class StoredFileSupport {
     }
 
     public static void fillFileData(StoredFile entity, String name, MultipartFile file) {
+        if (entity == null) {
+            throw new FileException("Entidade de arquivo inválida.");
+        }
+
+        validateName(name);
+        validateUpload(file);
+
         String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null || originalFilename.trim().isEmpty()) {
+            throw new FileException("Nome original do arquivo é inválido.");
+        }
+
         entity.setName(name.trim());
         entity.setOriginalFileName(originalFilename);
         entity.setStoredFileName(generateStoredFileName(originalFilename));
