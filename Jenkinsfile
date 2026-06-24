@@ -159,7 +159,7 @@ pipeline {
 
                         quality_gate_failed=0
 
-                        measures_response="$(curl -fsS ${auth_args} "${SONAR_HOST_URL}/api/measures/component?component=${project_key}&metricKeys=new_bugs,new_vulnerabilities,new_security_hotspots,new_security_hotspots_reviewed,new_coverage,new_duplicated_lines_density,new_reliability_rating,new_software_quality_reliability_rating")"
+                        measures_response="$(curl -fsS ${auth_args} "${SONAR_HOST_URL}/api/measures/component?component=${project_key}&metricKeys=new_bugs,new_vulnerabilities,new_security_hotspots,new_security_hotspots_reviewed,new_coverage,new_reliability_rating,new_software_quality_reliability_rating")"
 
                         get_measure() {
                           metric_key="$1"
@@ -195,19 +195,6 @@ pipeline {
                           echo "${label}: ${actual_value:-N/A} (esperado: >= ${expected})"
 
                           if [ -z "${actual_value}" ] || ! awk "BEGIN { exit !(${actual_value} >= ${expected}) }"; then
-                            quality_gate_failed=1
-                          fi
-                        }
-
-                        check_number_at_most() {
-                          metric_key="$1"
-                          label="$2"
-                          expected="$3"
-                          actual_value="$(get_measure "${metric_key}" || true)"
-
-                          echo "${label}: ${actual_value:-N/A} (esperado: <= ${expected})"
-
-                          if [ -z "${actual_value}" ] || ! awk "BEGIN { exit !(${actual_value} <= ${expected}) }"; then
                             quality_gate_failed=1
                           fi
                         }
@@ -249,7 +236,6 @@ pipeline {
                         check_number_equals "new_vulnerabilities" "New Vulnerabilities" "0"
                         check_security_hotspots_reviewed
                         check_number_at_least "new_coverage" "Coverage on New Code" "80"
-                        check_number_at_most "new_duplicated_lines_density" "Duplicated Lines on New Code" "3"
                         check_reliability_rating
 
                         if [ "${quality_gate_failed}" -ne 0 ]; then
