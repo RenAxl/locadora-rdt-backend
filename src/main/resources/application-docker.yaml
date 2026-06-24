@@ -34,6 +34,8 @@ jwt:
   duration: ${JWT_DURATION:86400}
 
 app:
+  mail:
+    enabled: ${APP_MAIL_ENABLED:false}
   frontend:
     base-url: ${APP_FRONTEND_BASE_URL:http://localhost:4200}
   activation:

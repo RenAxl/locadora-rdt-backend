@@ -22,6 +22,10 @@ security:
 jwt:
   secret: test-jwt-secret
 
+app:
+  mail:
+    enabled: false
+
 OAUTH_CLIENT_ID: test-client
 OAUTH_CLIENT_SECRET: test-secret
 JWT_SECRET: test-jwt-secret
