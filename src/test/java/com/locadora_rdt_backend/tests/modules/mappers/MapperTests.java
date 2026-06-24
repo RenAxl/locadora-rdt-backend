@@ -17,6 +17,10 @@ import com.locadora_rdt_backend.modules.positions.dto.PositionInsertDTO;
 import com.locadora_rdt_backend.modules.positions.dto.PositionUpdateDTO;
 import com.locadora_rdt_backend.modules.positions.mapper.PositionMapper;
 import com.locadora_rdt_backend.modules.positions.model.Position;
+import com.locadora_rdt_backend.modules.receivables.dto.ReceivableInsertDTO;
+import com.locadora_rdt_backend.modules.receivables.mapper.ReceivableMapper;
+import com.locadora_rdt_backend.modules.receivables.model.Receivable;
+import com.locadora_rdt_backend.modules.receivables.model.ReceivableStatus;
 import com.locadora_rdt_backend.modules.roles.dto.RoleInsertDTO;
 import com.locadora_rdt_backend.modules.roles.mapper.RoleMapper;
 import com.locadora_rdt_backend.modules.roles.model.Role;
@@ -142,6 +146,57 @@ class MapperTests {
 
         mapper.copyToEntity(null, entity);
         mapper.copyToEntity(updateDTO, null);
+    }
+
+    @Test
+    void receivableMapperShouldMapAllDirectionsAndNormalizeFields() {
+        ReceivableMapper mapper = new ReceivableMapper();
+        Receivable entity = createReceivable();
+
+        Assertions.assertEquals(1L, mapper.toDTO(entity).getId());
+        Assertions.assertEquals(ReceivableStatus.PAID, mapper.toDTO(entity).getStatus());
+        Assertions.assertEquals("admin", mapper.toDTO(entity).getCreatedBy());
+
+        ReceivableInsertDTO insertDTO = new ReceivableInsertDTO();
+        insertDTO.setCustomerId(1L);
+        insertDTO.setDescription(" Mensalidade ");
+        insertDTO.setAmount(new BigDecimal("200.00"));
+        insertDTO.setDueDate(LocalDate.of(2026, Month.JULY, 10));
+        insertDTO.setPaymentDate(LocalDate.of(2026, Month.JULY, 11));
+        insertDTO.setPaymentMethodId(2L);
+        insertDTO.setFrequencyId(3L);
+        insertDTO.setNote(" Observacao ");
+        insertDTO.setFileName(" recibo.pdf ");
+
+        Receivable mapped = mapper.toEntity(insertDTO);
+
+        Assertions.assertEquals(1L, mapped.getCustomerId());
+        Assertions.assertEquals("Mensalidade", mapped.getDescription());
+        Assertions.assertEquals(2L, mapped.getPaymentMethodId());
+        Assertions.assertEquals(3L, mapped.getFrequencyId());
+        Assertions.assertEquals("Observacao", mapped.getNote());
+        Assertions.assertEquals("recibo.pdf", mapped.getFileName());
+        Assertions.assertEquals(ReceivableStatus.PAID, mapped.getStatus());
+
+        ReceivableInsertDTO blankDTO = new ReceivableInsertDTO();
+        blankDTO.setCustomerId(0L);
+        blankDTO.setDescription(" ");
+        blankDTO.setAmount(new BigDecimal("50.00"));
+        blankDTO.setDueDate(LocalDate.of(2026, Month.AUGUST, 1));
+        blankDTO.setPaymentMethodId(-1L);
+        blankDTO.setFrequencyId(null);
+        blankDTO.setNote(null);
+        blankDTO.setFileName(" ");
+
+        Receivable blankMapped = mapper.toEntity(blankDTO);
+
+        Assertions.assertEquals(0L, blankMapped.getCustomerId());
+        Assertions.assertNull(blankMapped.getDescription());
+        Assertions.assertEquals(0L, blankMapped.getPaymentMethodId());
+        Assertions.assertEquals(0L, blankMapped.getFrequencyId());
+        Assertions.assertNull(blankMapped.getNote());
+        Assertions.assertNull(blankMapped.getFileName());
+        Assertions.assertEquals(ReceivableStatus.PENDING, blankMapped.getStatus());
     }
 
     @Test
@@ -277,6 +332,24 @@ class MapperTests {
         entity.setUpdatedAt(Instant.parse("2026-01-02T10:00:00Z"));
         entity.setCreatedBy("admin");
         entity.setUpdatedBy("admin");
+        return entity;
+    }
+
+    private Receivable createReceivable() {
+        Receivable entity = new Receivable();
+        entity.setId(1L);
+        entity.setCustomerId(2L);
+        entity.setDescription("Receita");
+        entity.setAmount(new BigDecimal("100.00"));
+        entity.setDueDate(LocalDate.of(2026, Month.JULY, 10));
+        entity.setPaymentDate(LocalDate.of(2026, Month.JULY, 11));
+        entity.setPaymentMethodId(3L);
+        entity.setFrequencyId(4L);
+        entity.setNote("Observacao");
+        entity.setFileName("recibo.pdf");
+        entity.setStatus(ReceivableStatus.PAID);
+        entity.setCreatedAt(Instant.parse("2026-01-01T10:00:00Z"));
+        entity.setCreatedBy("admin");
         return entity;
     }
 
