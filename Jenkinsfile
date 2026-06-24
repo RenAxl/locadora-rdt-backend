@@ -163,10 +163,7 @@ pipeline {
 
                         get_measure() {
                           metric_key="$1"
-                          printf '%s' "${measures_response}" \
-                            | sed 's/},{/}\
-{/g' \
-                            | grep "metric.*${metric_key}" \
+                          curl -fsS ${auth_args} "${SONAR_HOST_URL}/api/measures/component?component=${project_key}&metricKeys=${metric_key}" \
                             | grep -o 'value[^,}]*' \
                             | cut -d '"' -f 3 \
                             | head -n 1
