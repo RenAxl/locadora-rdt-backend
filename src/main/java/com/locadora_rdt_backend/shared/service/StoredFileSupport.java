@@ -69,7 +69,7 @@ public final class StoredFileSupport {
         try {
             entity.setData(file.getBytes());
         } catch (IOException e) {
-            throw new FileException("Erro ao ler o arquivo enviado.");
+            throw new FileException("Erro ao ler o arquivo enviado.", e);
         }
     }
 

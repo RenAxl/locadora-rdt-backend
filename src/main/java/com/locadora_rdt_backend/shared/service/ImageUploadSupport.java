@@ -52,7 +52,7 @@ public final class ImageUploadSupport {
         try {
             return file.getBytes();
         } catch (IOException e) {
-            throw new FileException(errorMessage);
+            throw new FileException(errorMessage, e);
         }
     }
 }
