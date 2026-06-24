@@ -164,9 +164,11 @@ pipeline {
                         get_measure() {
                           metric_key="$1"
                           printf '%s' "${measures_response}" \
-                            | grep -o "\"metric\":\"${metric_key}\"[^}]*}[^}]*}" \
-                            | grep -o '"value":"[^"]*"' \
-                            | cut -d '"' -f 4 \
+                            | sed 's/},{/}\
+{/g' \
+                            | grep "metric.*${metric_key}" \
+                            | grep -o 'value[^,}]*' \
+                            | cut -d '"' -f 3 \
                             | head -n 1
                         }
 
