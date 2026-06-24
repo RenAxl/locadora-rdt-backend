@@ -3,7 +3,7 @@ server:
 
 app:
   mail:
-    enabled: false
+    enabled: ${APP_MAIL_ENABLED:true}
 
 spring:
   datasource:
