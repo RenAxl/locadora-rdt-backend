@@ -20,7 +20,7 @@ class RequestContextTests {
     @Test
     void requestContextShouldStoreAttributesAndFinishRequest() {
         RequestContext context = new RequestContext();
-        Instant startedAt = Instant.now().minusMillis(10);
+        Instant startedAt = Instant.parse("2026-01-01T10:00:00Z");
         context.setStartedAt(startedAt);
 
         context.addAttribute("key", "value");

@@ -17,12 +17,15 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+
+import static com.locadora_rdt_backend.tests.common.TestFileFactory.emptyPdfFile;
+import static com.locadora_rdt_backend.tests.common.TestFileFactory.file;
+import static com.locadora_rdt_backend.tests.common.TestFileFactory.pdfFile;
 
 @ExtendWith(MockitoExtension.class)
 class SupplierFileServiceTests {
@@ -56,12 +59,7 @@ class SupplierFileServiceTests {
 
     @Test
     void uploadShouldSaveNormalizedFile() {
-        MockMultipartFile file = new MockMultipartFile(
-                "file",
-                "contrato á.pdf",
-                "application/pdf",
-                new byte[]{1, 2, 3}
-        );
+        MultipartFile file = pdfFile("contrato á.pdf");
         Mockito.when(supplierRepository.findById(1L)).thenReturn(Optional.of(supplier));
         Mockito.when(fileRepository.save(Mockito.any(SupplierFile.class))).thenAnswer(invocation -> {
             SupplierFile entity = invocation.getArgument(0);
@@ -140,16 +138,15 @@ class SupplierFileServiceTests {
     @Test
     void uploadShouldValidateNameAndFile() {
         Mockito.when(supplierRepository.findById(1L)).thenReturn(Optional.of(supplier));
+        MultipartFile validFile = pdfFile("file.pdf");
+        MultipartFile emptyFile = emptyPdfFile("empty.pdf");
+        MultipartFile invalidExtensionFile = file("file.exe", "application/octet-stream", new byte[]{1});
 
-        Assertions.assertThrows(FileException.class, () -> service.upload(1L, null,
-                new MockMultipartFile("file", "file.pdf", "application/pdf", new byte[]{1})));
-        Assertions.assertThrows(FileException.class, () -> service.upload(1L, " ",
-                new MockMultipartFile("file", "file.pdf", "application/pdf", new byte[]{1})));
+        Assertions.assertThrows(FileException.class, () -> service.upload(1L, null, validFile));
+        Assertions.assertThrows(FileException.class, () -> service.upload(1L, " ", validFile));
         Assertions.assertThrows(FileException.class, () -> service.upload(1L, "Contrato", null));
-        Assertions.assertThrows(FileException.class, () -> service.upload(1L, "Contrato",
-                new MockMultipartFile("file", "empty.pdf", "application/pdf", new byte[]{})));
-        Assertions.assertThrows(FileException.class, () -> service.upload(1L, "Contrato",
-                new MockMultipartFile("file", "file.exe", "application/octet-stream", new byte[]{1})));
+        Assertions.assertThrows(FileException.class, () -> service.upload(1L, "Contrato", emptyFile));
+        Assertions.assertThrows(FileException.class, () -> service.upload(1L, "Contrato", invalidExtensionFile));
     }
 
     @Test
