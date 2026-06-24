@@ -1,7 +1,6 @@
 package com.locadora_rdt_backend.modules.customers.service;
 
 import com.locadora_rdt_backend.common.exception.DatabaseException;
-import com.locadora_rdt_backend.common.exception.FileException;
 import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
 import com.locadora_rdt_backend.infrastructure.security.AuthenticationFacade;
 import com.locadora_rdt_backend.modules.customers.constants.CustomerErrorMessages;
@@ -12,6 +11,7 @@ import com.locadora_rdt_backend.modules.customers.dto.CustomerUpdateDTO;
 import com.locadora_rdt_backend.modules.customers.mapper.CustomerMapper;
 import com.locadora_rdt_backend.modules.customers.model.Customer;
 import com.locadora_rdt_backend.modules.customers.repository.CustomerRepository;
+import com.locadora_rdt_backend.shared.service.ImageUploadSupport;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
@@ -21,8 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityNotFoundException;
-import java.io.IOException;
-import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,12 +31,6 @@ public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerMapper mapper;
     private final AuthenticationFacade authenticationFacade;
-
-    private static final Set<String> ALLOWED_TYPES = new HashSet<>(
-            Arrays.asList("image/jpeg", "image/png", "image/webp")
-    );
-
-    private static final long MAX_PHOTO_SIZE = 2L * 1024 * 1024;
 
     public CustomerServiceImpl(
             CustomerRepository repository,
@@ -93,19 +86,10 @@ public class CustomerServiceImpl implements CustomerService {
         Customer entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(CustomerErrorMessages.CUSTOMER_NOT_FOUND));
 
-        if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException("Arquivo de foto vazio.");
-        }
-
-        validatePhoto(file);
-
-        try {
-            entity.setPhoto(file.getBytes());
-            entity.setPhotoContentType(file.getContentType());
-            entity.setUpdatedBy(authenticationFacade.getAuthenticatedUsername());
-        } catch (IOException e) {
-            throw new FileException("Falha ao ler bytes do arquivo.");
-        }
+        ImageUploadSupport.validatePhoto(file);
+        entity.setPhoto(ImageUploadSupport.readBytes(file, "Falha ao ler bytes do arquivo."));
+        entity.setPhotoContentType(file.getContentType());
+        entity.setUpdatedBy(authenticationFacade.getAuthenticatedUsername());
 
         repository.save(entity);
     }
@@ -159,18 +143,6 @@ public class CustomerServiceImpl implements CustomerService {
 
         } catch (DataAccessException e) {
             throw new DatabaseException("Error changing customer status.");
-        }
-    }
-
-    private void validatePhoto(MultipartFile file) {
-        String contentType = file.getContentType();
-
-        if (contentType == null || !ALLOWED_TYPES.contains(contentType)) {
-            throw new IllegalArgumentException("Tipo de arquivo inválido. Use JPG, PNG ou WEBP.");
-        }
-
-        if (file.getSize() > MAX_PHOTO_SIZE) {
-            throw new IllegalArgumentException("Foto muito grande. Máximo: 2MB.");
         }
     }
 

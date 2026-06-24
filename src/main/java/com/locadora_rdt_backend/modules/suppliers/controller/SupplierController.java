@@ -3,17 +3,16 @@ package com.locadora_rdt_backend.modules.suppliers.controller;
 import com.locadora_rdt_backend.modules.suppliers.dto.*;
 import com.locadora_rdt_backend.modules.suppliers.model.Supplier;
 import com.locadora_rdt_backend.modules.suppliers.service.SupplierService;
+import com.locadora_rdt_backend.shared.web.BinaryResponseBuilder;
+import com.locadora_rdt_backend.shared.web.ControllerResponseBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
-import java.net.URI;
 
 @RestController
 @RequestMapping("/suppliers")
@@ -33,12 +32,7 @@ public class SupplierController {
             @RequestParam(value = "direction", defaultValue = "ASC") String direction,
             @RequestParam(value = "orderBy", defaultValue = "name") String orderBy
     ) {
-        PageRequest pageRequest = PageRequest.of(
-                page,
-                linesPerPage,
-                Direction.valueOf(direction),
-                orderBy
-        );
+        PageRequest pageRequest = ControllerResponseBuilder.pageRequest(page, linesPerPage, direction, orderBy);
         return ResponseEntity.ok(service.findAllPaged(name, pageRequest));
     }
 
@@ -50,11 +44,7 @@ public class SupplierController {
     @PostMapping
     public ResponseEntity<SupplierDTO> insert(@Valid @RequestBody SupplierInsertDTO dto) {
         SupplierDTO result = service.insert(dto);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(result.getId())
-                .toUri();
-        return ResponseEntity.created(uri).body(result);
+        return ControllerResponseBuilder.created(result.getId(), result);
     }
 
     @PutMapping("/{id}")
@@ -78,13 +68,7 @@ public class SupplierController {
     public ResponseEntity<byte[]> getImage(@PathVariable Long id) {
         Supplier entity = service.findEntityById(id);
 
-        if (entity.getImage() == null || entity.getImage().length == 0) {
-            return ResponseEntity.noContent().build();
-        }
-
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(entity.getImageContentType()))
-                .body(entity.getImage());
+        return BinaryResponseBuilder.media(entity.getImage(), entity.getImageContentType());
     }
 
     @DeleteMapping("/{id}")

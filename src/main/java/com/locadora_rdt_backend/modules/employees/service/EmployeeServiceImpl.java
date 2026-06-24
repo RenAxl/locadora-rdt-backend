@@ -1,7 +1,6 @@
 package com.locadora_rdt_backend.modules.employees.service;
 
 import com.locadora_rdt_backend.common.exception.DatabaseException;
-import com.locadora_rdt_backend.common.exception.FileException;
 import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
 import com.locadora_rdt_backend.infrastructure.security.AuthenticationFacade;
 import com.locadora_rdt_backend.modules.employees.constants.EmployeeErrorMessages;
@@ -16,6 +15,7 @@ import com.locadora_rdt_backend.modules.employees.model.Employee;
 import com.locadora_rdt_backend.modules.positions.model.Position;
 import com.locadora_rdt_backend.modules.positions.service.PositionService;
 import com.locadora_rdt_backend.modules.employees.repository.EmployeeRepository;
+import com.locadora_rdt_backend.shared.service.ImageUploadSupport;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
@@ -25,11 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityNotFoundException;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,12 +36,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final DepartmentService departmentService;
     private final EmployeeMapper mapper;
     private final AuthenticationFacade authenticationFacade;
-
-    private static final Set<String> ALLOWED_TYPES = new HashSet<>(
-            Arrays.asList("image/jpeg", "image/png", "image/webp")
-    );
-
-    private static final long MAX_PHOTO_SIZE = 2L * 1024 * 1024;
 
     public EmployeeServiceImpl(
             EmployeeRepository repository,
@@ -123,19 +113,10 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(EmployeeErrorMessages.EMPLOYEE_NOT_FOUND));
 
-        if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException("Arquivo de foto vazio.");
-        }
-
-        validatePhoto(file);
-
-        try {
-            entity.setPhoto(file.getBytes());
-            entity.setPhotoContentType(file.getContentType());
-            entity.setUpdatedBy(authenticationFacade.getAuthenticatedUsername());
-        } catch (IOException e) {
-            throw new FileException("Falha ao ler bytes do arquivo.");
-        }
+        ImageUploadSupport.validatePhoto(file);
+        entity.setPhoto(ImageUploadSupport.readBytes(file, "Falha ao ler bytes do arquivo."));
+        entity.setPhotoContentType(file.getContentType());
+        entity.setUpdatedBy(authenticationFacade.getAuthenticatedUsername());
 
         repository.save(entity);
     }
@@ -183,18 +164,6 @@ public class EmployeeServiceImpl implements EmployeeService {
             }
         } catch (DataAccessException e) {
             throw new DatabaseException("Error changing employee status.");
-        }
-    }
-
-    private void validatePhoto(MultipartFile file) {
-        String contentType = file.getContentType();
-
-        if (contentType == null || !ALLOWED_TYPES.contains(contentType)) {
-            throw new IllegalArgumentException("Tipo de arquivo inválido. Use JPG, PNG ou WEBP.");
-        }
-
-        if (file.getSize() > MAX_PHOTO_SIZE) {
-            throw new IllegalArgumentException("Foto muito grande. Máximo: 2MB.");
         }
     }
 

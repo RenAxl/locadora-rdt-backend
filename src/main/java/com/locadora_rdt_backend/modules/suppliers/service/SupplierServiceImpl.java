@@ -1,7 +1,6 @@
 package com.locadora_rdt_backend.modules.suppliers.service;
 
 import com.locadora_rdt_backend.common.exception.DatabaseException;
-import com.locadora_rdt_backend.common.exception.FileException;
 import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
 import com.locadora_rdt_backend.infrastructure.security.AuthenticationFacade;
 import com.locadora_rdt_backend.modules.suppliers.constants.SupplierErrorMessages;
@@ -9,6 +8,7 @@ import com.locadora_rdt_backend.modules.suppliers.dto.*;
 import com.locadora_rdt_backend.modules.suppliers.mapper.SupplierMapper;
 import com.locadora_rdt_backend.modules.suppliers.model.Supplier;
 import com.locadora_rdt_backend.modules.suppliers.repository.SupplierRepository;
+import com.locadora_rdt_backend.shared.service.ImageUploadSupport;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,17 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
 @Service
 public class SupplierServiceImpl implements SupplierService {
 
-    private static final Set<String> ALLOWED_IMAGE_TYPES =
-            new HashSet<>(Arrays.asList("image/jpeg", "image/png", "image/webp"));
-    private static final long MAX_IMAGE_SIZE = 2L * 1024 * 1024;
     private static final Long NEW_ENTITY_ID = -1L;
 
     private final SupplierRepository repository;
@@ -93,16 +85,11 @@ public class SupplierServiceImpl implements SupplierService {
     @Transactional
     public void updateImage(Long id, MultipartFile file) {
         Supplier entity = getEntityById(id);
-        validateImage(file);
-
-        try {
-            entity.setImage(file.getBytes());
-            entity.setImageContentType(file.getContentType());
-            entity.setUpdatedBy(authenticationFacade.getAuthenticatedUsername());
-            repository.save(entity);
-        } catch (IOException e) {
-            throw new FileException("Erro ao ler a imagem enviada.");
-        }
+        ImageUploadSupport.validateRequiredImage(file);
+        entity.setImage(ImageUploadSupport.readBytes(file, "Erro ao ler a imagem enviada."));
+        entity.setImageContentType(file.getContentType());
+        entity.setUpdatedBy(authenticationFacade.getAuthenticatedUsername());
+        repository.save(entity);
     }
 
     @Override
@@ -134,17 +121,4 @@ public class SupplierServiceImpl implements SupplierService {
         }
     }
 
-    private void validateImage(MultipartFile file) {
-        if (file == null || file.isEmpty()) {
-            throw new FileException("É obrigatório enviar uma imagem.");
-        }
-
-        if (!ALLOWED_IMAGE_TYPES.contains(file.getContentType())) {
-            throw new FileException("Tipo de imagem inválido. Use JPG, PNG ou WEBP.");
-        }
-
-        if (file.getSize() > MAX_IMAGE_SIZE) {
-            throw new FileException("Imagem muito grande. Máximo: 2MB.");
-        }
-    }
 }

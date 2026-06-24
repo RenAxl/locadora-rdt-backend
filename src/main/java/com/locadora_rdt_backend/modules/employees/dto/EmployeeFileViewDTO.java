@@ -1,45 +1,15 @@
 package com.locadora_rdt_backend.modules.employees.dto;
 
-import java.io.Serializable;
+import com.locadora_rdt_backend.shared.dto.FileViewDTO;
 
-public class EmployeeFileViewDTO implements Serializable {
+public class EmployeeFileViewDTO extends FileViewDTO {
     private static final long serialVersionUID = 1L;
 
-    private String fileName;
-    private String contentType;
-    private byte[] data;
-
     public EmployeeFileViewDTO() {
-        // Required by frameworks and serializers.
+        super();
     }
 
     public EmployeeFileViewDTO(String fileName, String contentType, byte[] data) {
-        this.fileName = fileName;
-        this.contentType = contentType;
-        this.data = data;
-    }
-
-    public String getFileName() {
-        return fileName;
-    }
-
-    public String getContentType() {
-        return contentType;
-    }
-
-    public byte[] getData() {
-        return data;
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
-
-    public void setContentType(String contentType) {
-        this.contentType = contentType;
-    }
-
-    public void setData(byte[] data) {
-        this.data = data;
+        super(fileName, contentType, data);
     }
 }

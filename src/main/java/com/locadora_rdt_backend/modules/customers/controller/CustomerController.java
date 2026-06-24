@@ -6,18 +6,17 @@ import com.locadora_rdt_backend.modules.customers.dto.CustomerInsertDTO;
 import com.locadora_rdt_backend.modules.customers.dto.CustomerUpdateDTO;
 import com.locadora_rdt_backend.modules.customers.model.Customer;
 import com.locadora_rdt_backend.modules.customers.service.CustomerService;
+import com.locadora_rdt_backend.shared.web.BinaryResponseBuilder;
+import com.locadora_rdt_backend.shared.web.ControllerResponseBuilder;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
-import java.net.URI;
 import java.util.List;
 
 @Tag(name = "Customers", description = "Endpoints for customer management")
@@ -39,12 +38,7 @@ public class CustomerController {
             @RequestParam(value = "direction", defaultValue = "ASC") String direction,
             @RequestParam(value = "orderBy", defaultValue = "name") String orderBy) {
 
-        PageRequest pageRequest = PageRequest.of(
-                page,
-                linesPerPage,
-                Sort.Direction.valueOf(direction),
-                orderBy
-        );
+        PageRequest pageRequest = ControllerResponseBuilder.pageRequest(page, linesPerPage, direction, orderBy);
 
         Page<CustomerDTO> list = service.findAllPaged(name.trim(), pageRequest);
         return ResponseEntity.ok(list);
@@ -61,12 +55,7 @@ public class CustomerController {
     public ResponseEntity<CustomerDTO> insert(@Valid @RequestBody CustomerInsertDTO dto) {
         CustomerDTO result = service.insert(dto);
 
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(result.getId())
-                .toUri();
-
-        return ResponseEntity.created(uri).body(result);
+        return ControllerResponseBuilder.created(result.getId(), result);
     }
 
     @PutMapping("/{id}")
@@ -91,13 +80,7 @@ public class CustomerController {
     public ResponseEntity<byte[]> getPhoto(@PathVariable Long id) {
         Customer entity = service.findEntityById(id);
 
-        if (entity.getPhoto() == null || entity.getPhoto().length == 0) {
-            return ResponseEntity.noContent().build();
-        }
-
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(entity.getPhotoContentType()))
-                .body(entity.getPhoto());
+        return BinaryResponseBuilder.media(entity.getPhoto(), entity.getPhotoContentType());
     }
 
     @DeleteMapping("/{id}")

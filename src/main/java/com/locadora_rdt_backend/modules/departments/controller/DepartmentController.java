@@ -5,15 +5,13 @@ import com.locadora_rdt_backend.modules.departments.dto.DepartmentDetailsDTO;
 import com.locadora_rdt_backend.modules.departments.dto.DepartmentInsertDTO;
 import com.locadora_rdt_backend.modules.departments.dto.DepartmentUpdateDTO;
 import com.locadora_rdt_backend.modules.departments.service.DepartmentService;
+import com.locadora_rdt_backend.shared.web.ControllerResponseBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
-import java.net.URI;
 
 @RestController
 @RequestMapping(value = "/departments")
@@ -33,12 +31,7 @@ public class DepartmentController {
             @RequestParam(value = "direction", defaultValue = "ASC") String direction,
             @RequestParam(value = "orderBy", defaultValue = "name") String orderBy
     ) {
-        PageRequest pageRequest = PageRequest.of(
-                page,
-                linesPerPage,
-                Direction.valueOf(direction),
-                orderBy
-        );
+        PageRequest pageRequest = ControllerResponseBuilder.pageRequest(page, linesPerPage, direction, orderBy);
 
         Page<DepartmentDTO> list = service.findAllPaged(name.trim(), pageRequest);
 
@@ -55,12 +48,7 @@ public class DepartmentController {
     public ResponseEntity<DepartmentDTO> insert(@Valid @RequestBody DepartmentInsertDTO dto) {
         DepartmentDTO result = service.insert(dto);
 
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(result.getId())
-                .toUri();
-
-        return ResponseEntity.created(uri).body(result);
+        return ControllerResponseBuilder.created(result.getId(), result);
     }
 
     @PutMapping("/{id}")

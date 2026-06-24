@@ -5,15 +5,13 @@ import com.locadora_rdt_backend.modules.roles.dto.RoleDetailsDTO;
 import com.locadora_rdt_backend.modules.roles.dto.RoleInsertDTO;
 import com.locadora_rdt_backend.modules.roles.dto.RolePermissionsUpdateDTO;
 import com.locadora_rdt_backend.modules.roles.service.RoleService;
+import com.locadora_rdt_backend.shared.web.ControllerResponseBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
-import java.net.URI;
 
 @RestController
 @RequestMapping(value = "/roles")
@@ -33,8 +31,7 @@ public class RoleController {
             @RequestParam(value = "direction", defaultValue = "ASC") String direction,
             @RequestParam(value = "orderBy", defaultValue = "authority") String orderBy
     ) {
-        PageRequest pageRequest =
-                PageRequest.of(page, linesPerPage, Sort.Direction.valueOf(direction), orderBy);
+        PageRequest pageRequest = ControllerResponseBuilder.pageRequest(page, linesPerPage, direction, orderBy);
 
         Page<RoleDTO> list = service.findAllPaged(authority.trim(), pageRequest);
 
@@ -61,10 +58,6 @@ public class RoleController {
     @PostMapping
     public ResponseEntity<RoleDTO> insert(@Valid @RequestBody RoleInsertDTO dto) {
         RoleDTO created = service.insert(dto);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(created.getId())
-                .toUri();
-        return ResponseEntity.created(uri).body(created);
+        return ControllerResponseBuilder.created(created.getId(), created);
     }
 }
