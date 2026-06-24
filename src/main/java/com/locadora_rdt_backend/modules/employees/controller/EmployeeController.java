@@ -6,17 +6,16 @@ import com.locadora_rdt_backend.modules.employees.dto.EmployeeInsertDTO;
 import com.locadora_rdt_backend.modules.employees.dto.EmployeeUpdateDTO;
 import com.locadora_rdt_backend.modules.employees.model.Employee;
 import com.locadora_rdt_backend.modules.employees.service.EmployeeService;
+import com.locadora_rdt_backend.shared.web.BinaryResponseBuilder;
+import com.locadora_rdt_backend.shared.web.ControllerResponseBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
-import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -37,12 +36,7 @@ public class EmployeeController {
             @RequestParam(value = "direction", defaultValue = "ASC") String direction,
             @RequestParam(value = "orderBy", defaultValue = "name") String orderBy
     ) {
-        PageRequest pageRequest = PageRequest.of(
-                page,
-                linesPerPage,
-                Direction.valueOf(direction),
-                orderBy
-        );
+        PageRequest pageRequest = ControllerResponseBuilder.pageRequest(page, linesPerPage, direction, orderBy);
 
         Page<EmployeeDTO> list = service.findAllPaged(name.trim(), pageRequest);
 
@@ -59,12 +53,7 @@ public class EmployeeController {
     public ResponseEntity<EmployeeDTO> insert(@Valid @RequestBody EmployeeInsertDTO dto) {
         EmployeeDTO result = service.insert(dto);
 
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(result.getId())
-                .toUri();
-
-        return ResponseEntity.created(uri).body(result);
+        return ControllerResponseBuilder.created(result.getId(), result);
     }
 
     @PutMapping("/{id}")
@@ -89,13 +78,7 @@ public class EmployeeController {
     public ResponseEntity<byte[]> getPhoto(@PathVariable Long id) {
         Employee entity = service.findEntityById(id);
 
-        if (entity.getPhoto() == null || entity.getPhoto().length == 0) {
-            return ResponseEntity.noContent().build();
-        }
-
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(entity.getPhotoContentType()))
-                .body(entity.getPhoto());
+        return BinaryResponseBuilder.media(entity.getPhoto(), entity.getPhotoContentType());
     }
 
     @DeleteMapping("/{id}")

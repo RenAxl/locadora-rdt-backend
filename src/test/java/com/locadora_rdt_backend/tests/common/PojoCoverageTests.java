@@ -56,6 +56,8 @@ import com.locadora_rdt_backend.modules.users.dto.UserMeUpdateDTO;
 import com.locadora_rdt_backend.modules.users.dto.UserPhotoDTO;
 import com.locadora_rdt_backend.modules.users.dto.UserUpdateDTO;
 import com.locadora_rdt_backend.modules.users.model.User;
+import com.locadora_rdt_backend.shared.dto.FileViewDTO;
+import com.locadora_rdt_backend.shared.dto.StoredFileDTO;
 import com.locadora_rdt_backend.shared.model.StoredFile;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -84,6 +86,8 @@ class PojoCoverageTests {
                 StandardError.class,
                 FieldMessage.class,
                 ValidationError.class,
+                StoredFileDTOTestEntity.class,
+                FileViewDTOTestEntity.class,
                 CustomerDTO.class,
                 CustomerDetailsDTO.class,
                 CustomerFileDTO.class,
@@ -352,6 +356,19 @@ class PojoCoverageTests {
         if (Permission.class.equals(type)) {
             return new Permission(1L, "PERMISSION", "Group");
         }
+        if (StoredFile.class.equals(type)) {
+            StoredFile file = new StoredFileTestEntity();
+            file.setId(1L);
+            file.setName("Arquivo");
+            file.setOriginalFileName("arquivo.txt");
+            file.setStoredFileName("uuid-arquivo.txt");
+            file.setContentType("text/plain");
+            file.setSize(3L);
+            file.setData(new byte[]{1, 2, 3});
+            file.setCreatedAt(LocalDateTime.of(2026, Month.JANUARY, 1, 10, 0));
+            file.setUpdatedAt(LocalDateTime.of(2026, Month.JANUARY, 2, 10, 0));
+            return file;
+        }
         if (CustomerFile.class.equals(type)) {
             CustomerFile file = new CustomerFile();
             file.setId(1L);
@@ -395,5 +412,29 @@ class PojoCoverageTests {
 
     private static class StoredFileTestEntity extends StoredFile {
         private static final long serialVersionUID = 1L;
+    }
+
+    private static class StoredFileDTOTestEntity extends StoredFileDTO {
+        private static final long serialVersionUID = 1L;
+
+        StoredFileDTOTestEntity() {
+            super();
+        }
+
+        StoredFileDTOTestEntity(StoredFile entity) {
+            super(entity);
+        }
+    }
+
+    private static class FileViewDTOTestEntity extends FileViewDTO {
+        private static final long serialVersionUID = 1L;
+
+        FileViewDTOTestEntity() {
+            super();
+        }
+
+        FileViewDTOTestEntity(String fileName, String contentType, byte[] data) {
+            super(fileName, contentType, data);
+        }
     }
 }

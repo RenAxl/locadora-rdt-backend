@@ -3,15 +3,13 @@ package com.locadora_rdt_backend.modules.customers.controller;
 import com.locadora_rdt_backend.modules.customers.dto.CustomerFileDTO;
 import com.locadora_rdt_backend.modules.customers.dto.CustomerFileViewDTO;
 import com.locadora_rdt_backend.modules.customers.service.CustomerFileService;
-import org.springframework.http.ContentDisposition;
-import org.springframework.http.HttpHeaders;
+import com.locadora_rdt_backend.shared.web.BinaryResponseBuilder;
+import com.locadora_rdt_backend.shared.web.ControllerResponseBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -32,12 +30,7 @@ public class CustomerFileController {
 
         CustomerFileDTO dto = service.upload(customerId, name, file);
 
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{fileId}")
-                .buildAndExpand(dto.getId())
-                .toUri();
-
-        return ResponseEntity.created(uri).body(dto);
+        return ControllerResponseBuilder.created("/{fileId}", dto.getId(), dto);
     }
 
     @GetMapping
@@ -53,15 +46,7 @@ public class CustomerFileController {
 
         CustomerFileViewDTO dto = service.download(customerId, fileId);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.parseMediaType(dto.getContentType()));
-        headers.setContentDisposition(ContentDisposition.inline()
-                .filename(dto.getFileName())
-                .build());
-
-        return ResponseEntity.ok()
-                .headers(headers)
-                .body(dto.getData());
+        return BinaryResponseBuilder.inlineFile(dto);
     }
 
     @GetMapping("/{fileId}/download")
@@ -71,15 +56,7 @@ public class CustomerFileController {
 
         CustomerFileViewDTO dto = service.download(customerId, fileId);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.parseMediaType(dto.getContentType()));
-        headers.setContentDisposition(ContentDisposition.attachment()
-                .filename(dto.getFileName())
-                .build());
-
-        return ResponseEntity.ok()
-                .headers(headers)
-                .body(dto.getData());
+        return BinaryResponseBuilder.attachmentFile(dto);
     }
 
     @DeleteMapping("/{fileId}")

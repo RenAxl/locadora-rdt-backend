@@ -1,17 +1,14 @@
 package com.locadora_rdt_backend.modules.suppliers.controller;
 
 import com.locadora_rdt_backend.modules.suppliers.dto.SupplierFileDTO;
-import com.locadora_rdt_backend.modules.suppliers.dto.SupplierFileViewDTO;
 import com.locadora_rdt_backend.modules.suppliers.service.SupplierFileService;
-import org.springframework.http.ContentDisposition;
-import org.springframework.http.HttpHeaders;
+import com.locadora_rdt_backend.shared.web.BinaryResponseBuilder;
+import com.locadora_rdt_backend.shared.web.ControllerResponseBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -31,11 +28,7 @@ public class SupplierFileController {
             @RequestParam("file") MultipartFile file
     ) {
         SupplierFileDTO dto = service.upload(supplierId, name, file);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{fileId}")
-                .buildAndExpand(dto.getId())
-                .toUri();
-        return ResponseEntity.created(uri).body(dto);
+        return ControllerResponseBuilder.created("/{fileId}", dto.getId(), dto);
     }
 
     @GetMapping
@@ -50,7 +43,7 @@ public class SupplierFileController {
             @PathVariable Long supplierId,
             @PathVariable Long fileId
     ) {
-        return buildFileResponse(service.download(supplierId, fileId), false);
+        return BinaryResponseBuilder.inlineFile(service.download(supplierId, fileId));
     }
 
     @GetMapping("/{fileId}/download")
@@ -58,7 +51,7 @@ public class SupplierFileController {
             @PathVariable Long supplierId,
             @PathVariable Long fileId
     ) {
-        return buildFileResponse(service.download(supplierId, fileId), true);
+        return BinaryResponseBuilder.attachmentFile(service.download(supplierId, fileId));
     }
 
     @DeleteMapping("/{fileId}")
@@ -68,22 +61,5 @@ public class SupplierFileController {
     ) {
         service.delete(supplierId, fileId);
         return ResponseEntity.noContent().build();
-    }
-
-    private ResponseEntity<byte[]> buildFileResponse(
-            SupplierFileViewDTO dto,
-            boolean attachment
-    ) {
-        ContentDisposition disposition = attachment
-                ? ContentDisposition.attachment().filename(dto.getFileName()).build()
-                : ContentDisposition.inline().filename(dto.getFileName()).build();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.parseMediaType(dto.getContentType()));
-        headers.setContentDisposition(disposition);
-
-        return ResponseEntity.ok()
-                .headers(headers)
-                .body(dto.getData());
     }
 }

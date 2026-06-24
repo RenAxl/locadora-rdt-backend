@@ -5,15 +5,13 @@ import com.locadora_rdt_backend.modules.positions.dto.PositionDetailsDTO;
 import com.locadora_rdt_backend.modules.positions.dto.PositionInsertDTO;
 import com.locadora_rdt_backend.modules.positions.dto.PositionUpdateDTO;
 import com.locadora_rdt_backend.modules.positions.service.PositionService;
+import com.locadora_rdt_backend.shared.web.ControllerResponseBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
-import java.net.URI;
 
 @RestController
 @RequestMapping("/positions")
@@ -33,12 +31,7 @@ public class PositionController {
             @RequestParam(value = "direction", defaultValue = "ASC") String direction,
             @RequestParam(value = "orderBy", defaultValue = "name") String orderBy
     ) {
-        PageRequest pageRequest = PageRequest.of(
-                page,
-                linesPerPage,
-                Direction.valueOf(direction),
-                orderBy
-        );
+        PageRequest pageRequest = ControllerResponseBuilder.pageRequest(page, linesPerPage, direction, orderBy);
 
         Page<PositionDTO> list = service.findAllPaged(name, pageRequest);
 
@@ -56,12 +49,7 @@ public class PositionController {
     public ResponseEntity<PositionDTO> insert(@Valid @RequestBody PositionInsertDTO dto) {
         PositionDTO result = service.insert(dto);
 
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(result.getId())
-                .toUri();
-
-        return ResponseEntity.created(uri).body(result);
+        return ControllerResponseBuilder.created(result.getId(), result);
     }
 
     @PutMapping("/{id}")

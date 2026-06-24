@@ -2,19 +2,17 @@ package com.locadora_rdt_backend.modules.users.controller;
 
 import com.locadora_rdt_backend.modules.users.dto.*;
 import com.locadora_rdt_backend.modules.users.service.UserService;
+import com.locadora_rdt_backend.shared.web.BinaryResponseBuilder;
+import com.locadora_rdt_backend.shared.web.ControllerResponseBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import org.springframework.http.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.MediaType;
 
 import javax.validation.Valid;
-import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -35,7 +33,7 @@ public class UserController {
             @RequestParam(value = "direction", defaultValue = "ASC") String direction,
             @RequestParam(value = "orderBy", defaultValue = "name") String orderBy) {
 
-        PageRequest pageRequest = PageRequest.of(page, linesPerPage, Sort.Direction.valueOf(direction), orderBy);
+        PageRequest pageRequest = ControllerResponseBuilder.pageRequest(page, linesPerPage, direction, orderBy);
 
         Page<UserDTO> list = service.findAllPaged(name.trim(), pageRequest);
 
@@ -51,9 +49,7 @@ public class UserController {
     @PostMapping
     public ResponseEntity<UserDTO> insert(@Valid @RequestBody UserInsertDTO dto) {
         UserDTO userDto = service.insert(dto);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(userDto.getId())
-                .toUri();
-        return ResponseEntity.created(uri).body(userDto);
+        return ControllerResponseBuilder.created(userDto.getId(), userDto);
     }
 
     @PutMapping(value = "/{id}")
@@ -114,17 +110,11 @@ public class UserController {
 
         UserPhotoDTO dto = service.getMyPhoto(authentication);
 
-        // Sem foto é status 204. Isto é para não aparecer erro no frontend quando não tiver foto.
-        if (dto == null || dto.getPhoto() == null || dto.getPhoto().length == 0) {
+        if (dto == null) {
             return ResponseEntity.noContent().build();
         }
 
-        MediaType mediaType = MediaType.parseMediaType(dto.getContentType());
-
-        return ResponseEntity.ok()
-                .contentType(mediaType)
-                .cacheControl(CacheControl.noCache())
-                .body(dto.getPhoto());
+        return BinaryResponseBuilder.noCacheMedia(dto.getPhoto(), dto.getContentType());
     }
 
 
@@ -133,21 +123,13 @@ public class UserController {
 
         UserPhotoDTO dto = service.getUserPhotoById(id);
 
-        // Sem foto é status 204. Isto é para não aparecer erro no frontend quando não tiver foto.
-        if (dto == null || dto.getPhoto() == null || dto.getPhoto().length == 0) {
+        if (dto == null) {
             return ResponseEntity.noContent().build();
         }
 
-        MediaType mediaType = MediaType.parseMediaType(dto.getContentType());
-
-        return ResponseEntity.ok()
-                .contentType(mediaType)
-                .cacheControl(CacheControl.noCache())
-                .body(dto.getPhoto());
+        return BinaryResponseBuilder.noCacheMedia(dto.getPhoto(), dto.getContentType());
     }
 
 }
-
-
 
 

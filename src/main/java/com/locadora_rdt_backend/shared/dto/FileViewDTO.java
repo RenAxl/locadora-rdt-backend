@@ -1,0 +1,45 @@
+package com.locadora_rdt_backend.shared.dto;
+
+import java.io.Serializable;
+
+public abstract class FileViewDTO implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private String fileName;
+    private String contentType;
+    private byte[] data;
+
+    protected FileViewDTO() {
+        // Required by frameworks and serializers.
+    }
+
+    protected FileViewDTO(String fileName, String contentType, byte[] data) {
+        this.fileName = fileName;
+        this.contentType = contentType;
+        this.data = data;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public String getContentType() {
+        return contentType;
+    }
+
+    public byte[] getData() {
+        return data;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
+
+    public void setData(byte[] data) {
+        this.data = data;
+    }
+}
