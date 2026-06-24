@@ -35,6 +35,7 @@ import com.locadora_rdt_backend.modules.positions.dto.PositionDetailsDTO;
 import com.locadora_rdt_backend.modules.positions.dto.PositionInsertDTO;
 import com.locadora_rdt_backend.modules.positions.dto.PositionUpdateDTO;
 import com.locadora_rdt_backend.modules.positions.model.Position;
+import com.locadora_rdt_backend.modules.receivables.dto.ReceivableBaseDTO;
 import com.locadora_rdt_backend.modules.receivables.dto.ReceivableDTO;
 import com.locadora_rdt_backend.modules.receivables.dto.ReceivableInsertDTO;
 import com.locadora_rdt_backend.modules.receivables.model.Receivable;
@@ -122,6 +123,7 @@ class PojoCoverageTests {
                 PositionInsertDTO.class,
                 PositionUpdateDTO.class,
                 Position.class,
+                ReceivableBaseDTO.class,
                 ReceivableDTO.class,
                 ReceivableInsertDTO.class,
                 Receivable.class,
