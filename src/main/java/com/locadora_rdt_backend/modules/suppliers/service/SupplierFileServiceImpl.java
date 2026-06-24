@@ -1,6 +1,5 @@
 package com.locadora_rdt_backend.modules.suppliers.service;
 
-import com.locadora_rdt_backend.common.exception.FileException;
 import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
 import com.locadora_rdt_backend.modules.suppliers.constants.SupplierErrorMessages;
 import com.locadora_rdt_backend.modules.suppliers.dto.SupplierFileDTO;
