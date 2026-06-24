@@ -1,6 +1,10 @@
 server:
   port: 8086
 
+app:
+  mail:
+    enabled: false
+
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/locadora_rdt
