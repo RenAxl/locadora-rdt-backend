@@ -35,7 +35,7 @@ jwt:
 
 app:
   mail:
-    enabled: ${APP_MAIL_ENABLED:false}
+    enabled: ${APP_MAIL_ENABLED:true}
   frontend:
     base-url: ${APP_FRONTEND_BASE_URL:http://localhost:4200}
   activation:

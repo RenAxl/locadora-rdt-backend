@@ -31,8 +31,9 @@ services:
       SPRING_DATASOURCE_PASSWORD: root
       JWT_SECRET: local-jwt-secret
       MANAGEMENT_HEALTH_MAIL_ENABLED: "false"
-      EMAIL_USERNAME: local@example.com
-      EMAIL_PASSWORD: local
+      APP_MAIL_ENABLED: ${APP_MAIL_ENABLED:-true}
+      EMAIL_USERNAME: ${EMAIL_USERNAME:?EMAIL_USERNAME is required}
+      EMAIL_PASSWORD: ${EMAIL_PASSWORD:?EMAIL_PASSWORD is required}
       OAUTH_CLIENT_ID: locadorardt
       OAUTH_CLIENT_SECRET: locadorardt123
       APP_FRONTEND_BASE_URL: http://localhost:4200
