@@ -31,7 +31,6 @@ public class EmployeeDetailsDTO implements Serializable {
     private DepartmentDTO department;
 
     public EmployeeDetailsDTO() {
-        // Required by frameworks and serializers.
     }
 
     public Long getId() {

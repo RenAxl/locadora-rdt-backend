@@ -217,3 +217,27 @@ VALUES
     (0, 'Seguradora Protege', 'Protege Seguros', 'Protege Seguros S.A.', '12345678000108', 'Av. Afonso Pena, 3500 - Belo Horizonte/MG', '[contato@protegeseguros.com.br](mailto:contato@protegeseguros.com.br)', '3133331008', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
     (0, 'Higienização Express', 'Express Clean', 'Express Clean Serviços LTDA', '12345678000109', 'Rua Goiás, 1200 - Belo Horizonte/MG', '[comercial@expressclean.com.br](mailto:comercial@expressclean.com.br)', '3133331009', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
     (0, 'Tecnologia Veicular', 'Tech Car', 'Tech Car Tecnologia LTDA', '12345678000110', 'Av. Raja Gabaglia, 5000 - Belo Horizonte/MG', '[contato@techcar.com.br](mailto:contato@techcar.com.br)', '3133331010', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL);
+
+
+INSERT INTO tb_payment_method
+(name, fee, created_at, updated_at, created_by, updated_by)
+VALUES
+    ('Cash', 0.00, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+
+    ('PIX', 0.00, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+
+    ('Debit Card', 1.49, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+
+    ('Credit Card', 3.49, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+
+    ('Bank Transfer', 0.00, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+
+    ('Bank Slip', 2.99, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+
+    ('Digital Wallet', 2.49, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+
+    ('Store Credit', 0.00, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+
+    ('Check', 0.00, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+
+    ('Other', 0.00, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL);
