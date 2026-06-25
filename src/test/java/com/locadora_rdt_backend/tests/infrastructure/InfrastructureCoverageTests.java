@@ -6,6 +6,7 @@ import com.locadora_rdt_backend.common.exception.DatabaseException;
 import com.locadora_rdt_backend.common.exception.FileException;
 import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
 import com.locadora_rdt_backend.common.handler.ResourceExceptionHandler;
+import com.locadora_rdt_backend.infrastructure.mail.service.LoggingEmailService;
 import com.locadora_rdt_backend.infrastructure.mail.service.SmtpEmailService;
 import com.locadora_rdt_backend.infrastructure.mail.template.ActivationEmailTemplateService;
 import com.locadora_rdt_backend.infrastructure.mail.template.PasswordResetEmailTemplateService;
@@ -17,6 +18,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailSendException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -28,6 +30,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import javax.mail.Session;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.lang.reflect.Method;
 
@@ -44,12 +47,16 @@ class InfrastructureCoverageTests {
         PasswordResetEmailTemplateService resetTemplate = new PasswordResetEmailTemplateService();
 
         String activationHtml = activationTemplate.buildTemplate("<Renan & 'Admin'>", "http://localhost/activate", 30);
-        String resetHtml = resetTemplate.buildTemplate(null, "http://localhost/reset", 15);
+        String activationHtmlWithBlankName = activationTemplate.buildTemplate(null, "http://localhost/activate", 30);
+        String resetHtml = resetTemplate.buildTemplate("<Renan & 'Admin'>", "http://localhost/reset", 15);
+        String resetHtmlWithBlankName = resetTemplate.buildTemplate(null, "http://localhost/reset", 15);
 
         Assertions.assertTrue(activationHtml.contains("&lt;Renan &amp; &#39;Admin&#39;&gt;"));
+        Assertions.assertTrue(activationHtmlWithBlankName.contains("<b></b>"));
         Assertions.assertTrue(activationHtml.contains("http://localhost/activate"));
         Assertions.assertTrue(activationHtml.contains("30 minutos"));
-        Assertions.assertTrue(resetHtml.contains("<b></b>"));
+        Assertions.assertTrue(resetHtml.contains("&lt;Renan &amp; &#39;Admin&#39;&gt;"));
+        Assertions.assertTrue(resetHtmlWithBlankName.contains("<b></b>"));
         Assertions.assertTrue(resetHtml.contains("http://localhost/reset"));
         Assertions.assertTrue(resetHtml.contains("15 minutos"));
     }
@@ -74,6 +81,28 @@ class InfrastructureCoverageTests {
         Assertions.assertArrayEquals(new String[]{"user@locadora.com"}, plainMessage.getTo());
         Assertions.assertEquals("Subject", plainMessage.getSubject());
         Assertions.assertEquals("Body", plainMessage.getText());
+    }
+
+    @Test
+    void loggingEmailServiceShouldAcceptPlainAndHtmlEmailWithoutSending() {
+        LoggingEmailService service = new LoggingEmailService();
+
+        Assertions.assertDoesNotThrow(() -> service.sendEmail("user@locadora.com", "Subject", "Body"));
+        Assertions.assertDoesNotThrow(() -> service.sendHtmlEmail("user@locadora.com", "HTML", "<b>Body</b>"));
+    }
+
+    @Test
+    void smtpEmailServiceShouldWrapMessagingExceptionWhenHtmlEmailFails() throws Exception {
+        JavaMailSender mailSender = Mockito.mock(JavaMailSender.class);
+        MimeMessage mimeMessage = Mockito.mock(MimeMessage.class);
+        Mockito.when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+        Mockito.doThrow(new javax.mail.MessagingException("invalid from"))
+                .when(mimeMessage).setFrom(Mockito.any(InternetAddress.class));
+        SmtpEmailService service = new SmtpEmailService(mailSender);
+        ReflectionTestUtils.setField(service, "from", "noreply@locadora.com");
+
+        Assertions.assertThrows(MailSendException.class,
+                () -> service.sendHtmlEmail("user@locadora.com", "HTML", "<b>Body</b>"));
     }
 
     @Test

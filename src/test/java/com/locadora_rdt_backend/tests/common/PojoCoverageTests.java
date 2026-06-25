@@ -28,6 +28,12 @@ import com.locadora_rdt_backend.modules.identity.passwordreset.dto.ForgotPasswor
 import com.locadora_rdt_backend.modules.identity.passwordreset.dto.NewPasswordDTO;
 import com.locadora_rdt_backend.modules.identity.passwordreset.model.PasswordResetToken;
 import com.locadora_rdt_backend.modules.identity.passwordreset.model.enums.TokenType;
+import com.locadora_rdt_backend.modules.payment.methods.dto.PaymentMethodDTO;
+import com.locadora_rdt_backend.modules.payment.methods.dto.PaymentMethodDetailsDTO;
+import com.locadora_rdt_backend.modules.payment.methods.dto.PaymentMethodInsertDTO;
+import com.locadora_rdt_backend.modules.payment.methods.dto.PaymentMethodUpdateDTO;
+import com.locadora_rdt_backend.modules.payment.methods.model.PaymentFrequency;
+import com.locadora_rdt_backend.modules.payment.methods.model.PaymentMethod;
 import com.locadora_rdt_backend.modules.permissions.dto.PermissionDTO;
 import com.locadora_rdt_backend.modules.permissions.model.Permission;
 import com.locadora_rdt_backend.modules.positions.dto.PositionDTO;
@@ -112,6 +118,12 @@ class PojoCoverageTests {
                 ForgotPasswordDTO.class,
                 NewPasswordDTO.class,
                 PasswordResetToken.class,
+                PaymentMethodDTO.class,
+                PaymentMethodDetailsDTO.class,
+                PaymentMethodInsertDTO.class,
+                PaymentMethodUpdateDTO.class,
+                PaymentMethod.class,
+                PaymentFrequency.class,
                 PermissionDTO.class,
                 Permission.class,
                 PositionDTO.class,
@@ -240,6 +252,61 @@ class PojoCoverageTests {
 
         Assertions.assertNotNull(file.getCreatedAt());
         Assertions.assertNotNull(file.getUpdatedAt());
+    }
+
+    @Test
+    void storedFileDTOConstructorShouldCopyEntityFields() {
+        StoredFile file = new StoredFileTestEntity();
+        LocalDateTime createdAt = LocalDateTime.of(2026, Month.JANUARY, 1, 10, 0);
+        LocalDateTime updatedAt = LocalDateTime.of(2026, Month.JANUARY, 2, 10, 0);
+
+        file.setId(1L);
+        file.setName("Contrato");
+        file.setOriginalFileName("contrato.pdf");
+        file.setStoredFileName("uuid-contrato.pdf");
+        file.setContentType("application/pdf");
+        file.setSize(3L);
+        file.setCreatedAt(createdAt);
+        file.setUpdatedAt(updatedAt);
+
+        StoredFileDTO dto = new StoredFileDTOTestEntity(file);
+
+        Assertions.assertEquals(1L, dto.getId());
+        Assertions.assertEquals("Contrato", dto.getName());
+        Assertions.assertEquals("contrato.pdf", dto.getOriginalFileName());
+        Assertions.assertEquals("uuid-contrato.pdf", dto.getStoredFileName());
+        Assertions.assertEquals("application/pdf", dto.getContentType());
+        Assertions.assertEquals(3L, dto.getSize());
+        Assertions.assertEquals(createdAt, dto.getCreatedAt());
+        Assertions.assertEquals(updatedAt, dto.getUpdatedAt());
+    }
+
+    @Test
+    void fileViewDTOConstructorShouldExposeValues() {
+        byte[] data = new byte[]{1, 2, 3};
+
+        FileViewDTO dto = new FileViewDTOTestEntity("contrato.pdf", "application/pdf", data);
+
+        Assertions.assertEquals("contrato.pdf", dto.getFileName());
+        Assertions.assertEquals("application/pdf", dto.getContentType());
+        Assertions.assertArrayEquals(data, dto.getData());
+    }
+
+    @Test
+    void paymentEntitiesShouldCoverEqualsBranchesWithNullIds() {
+        PaymentMethod paymentMethod = new PaymentMethod();
+        PaymentMethod otherPaymentMethod = new PaymentMethod();
+        PaymentFrequency paymentFrequency = new PaymentFrequency();
+        PaymentFrequency otherPaymentFrequency = new PaymentFrequency();
+
+        Assertions.assertEquals(paymentMethod, otherPaymentMethod);
+        Assertions.assertEquals(paymentFrequency, otherPaymentFrequency);
+
+        otherPaymentMethod.setId(1L);
+        otherPaymentFrequency.setId(1L);
+
+        Assertions.assertNotEquals(paymentMethod, otherPaymentMethod);
+        Assertions.assertNotEquals(paymentFrequency, otherPaymentFrequency);
     }
 
     private static Object instantiate(Class<?> type) throws Exception {

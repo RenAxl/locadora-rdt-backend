@@ -12,6 +12,10 @@ import com.locadora_rdt_backend.modules.employees.dto.EmployeeInsertDTO;
 import com.locadora_rdt_backend.modules.employees.dto.EmployeeUpdateDTO;
 import com.locadora_rdt_backend.modules.employees.mapper.EmployeeMapper;
 import com.locadora_rdt_backend.modules.employees.model.Employee;
+import com.locadora_rdt_backend.modules.payment.methods.dto.PaymentMethodInsertDTO;
+import com.locadora_rdt_backend.modules.payment.methods.dto.PaymentMethodUpdateDTO;
+import com.locadora_rdt_backend.modules.payment.methods.mapper.PaymentMethodMapper;
+import com.locadora_rdt_backend.modules.payment.methods.model.PaymentMethod;
 import com.locadora_rdt_backend.modules.permissions.model.Permission;
 import com.locadora_rdt_backend.modules.positions.dto.PositionInsertDTO;
 import com.locadora_rdt_backend.modules.positions.dto.PositionUpdateDTO;
@@ -145,6 +149,40 @@ class MapperTests {
     }
 
     @Test
+    void paymentMethodMapperShouldMapAllDirectionsAndNulls() {
+        PaymentMethodMapper mapper = new PaymentMethodMapper();
+        PaymentMethod entity = createPaymentMethod();
+
+        Assertions.assertEquals("Pix", mapper.toDTO(entity).getName());
+        Assertions.assertEquals("admin", mapper.toDetailsDTO(entity).getCreatedBy());
+        Assertions.assertEquals(Instant.parse("2026-01-02T10:00:00Z"), mapper.toDetailsDTO(entity).getUpdatedAt());
+
+        PaymentMethodInsertDTO insertDTO = new PaymentMethodInsertDTO();
+        insertDTO.setName("Cartao de credito");
+        insertDTO.setFee(new BigDecimal("2.50"));
+
+        PaymentMethod inserted = mapper.toEntity(insertDTO);
+
+        Assertions.assertEquals("Cartao de credito", inserted.getName());
+        Assertions.assertEquals(new BigDecimal("2.50"), inserted.getFee());
+
+        PaymentMethodUpdateDTO updateDTO = new PaymentMethodUpdateDTO();
+        updateDTO.setName("Boleto");
+        updateDTO.setFee(new BigDecimal("1.25"));
+
+        mapper.updateEntity(entity, updateDTO);
+
+        Assertions.assertEquals("Boleto", entity.getName());
+        Assertions.assertEquals(new BigDecimal("1.25"), entity.getFee());
+        Assertions.assertNull(mapper.toDTO(null));
+        Assertions.assertNull(mapper.toDetailsDTO(null));
+        Assertions.assertNull(mapper.toEntity(null));
+
+        mapper.updateEntity(null, updateDTO);
+        mapper.updateEntity(entity, null);
+    }
+
+    @Test
     void roleMapperShouldMapAllDirections() {
         RoleMapper mapper = new RoleMapper();
         Role entity = createRole();
@@ -273,6 +311,18 @@ class MapperTests {
     private Position createPosition() {
         Position entity = new Position(1L, "Desenvolvedor");
         entity.setVersion(1L);
+        entity.setCreatedAt(Instant.parse("2026-01-01T10:00:00Z"));
+        entity.setUpdatedAt(Instant.parse("2026-01-02T10:00:00Z"));
+        entity.setCreatedBy("admin");
+        entity.setUpdatedBy("admin");
+        return entity;
+    }
+
+    private PaymentMethod createPaymentMethod() {
+        PaymentMethod entity = new PaymentMethod();
+        entity.setId(1L);
+        entity.setName("Pix");
+        entity.setFee(new BigDecimal("0.00"));
         entity.setCreatedAt(Instant.parse("2026-01-01T10:00:00Z"));
         entity.setUpdatedAt(Instant.parse("2026-01-02T10:00:00Z"));
         entity.setCreatedBy("admin");
