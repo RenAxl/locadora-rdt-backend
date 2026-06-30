@@ -222,45 +222,62 @@ VALUES
 INSERT INTO tb_payment_method
 (name, fee, created_at, updated_at, created_by, updated_by)
 VALUES
-    ('Cash', 0.00, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    ('Dinheiro', 0.00, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
 
     ('PIX', 0.00, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
 
-    ('Debit Card', 1.49, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    ('Cartão de Débito', 1.49, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
 
-    ('Credit Card', 3.49, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    ('Cartão de Crédito', 3.49, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
 
-    ('Bank Transfer', 0.00, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    ('Transferência Bancária', 0.00, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
 
-    ('Bank Slip', 2.99, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    ('Boleto Bancário', 2.99, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
 
-    ('Digital Wallet', 2.49, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    ('Carteira Digital', 2.49, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
 
-    ('Store Credit', 0.00, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    ('Crédito na Loja', 0.00, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
 
-    ('Check', 0.00, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    ('Cheque', 0.00, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
 
-    ('Other', 0.00, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL);
+    ('Outro', 0.00, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL);
 
 INSERT INTO tb_payment_frequency
 (frequency, days, created_at, updated_at, created_by, updated_by)
 VALUES
-    ('Immediate', 0, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    ('À vista', 0, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
 
-    ('Daily', 1, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    ('Diário', 1, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
 
-    ('Weekly', 7, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    ('Semanal', 7, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
 
-    ('Biweekly', 14, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    ('Quinzenal', 14, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
 
-    ('Monthly', 30, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    ('Mensal', 30, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
 
-    ('Bimonthly', 60, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    ('Bimestral', 60, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
 
-    ('Quarterly', 90, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    ('Trimestral', 90, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
 
-    ('Semiannual', 180, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    ('Semestral', 180, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
 
-    ('Annual', 365, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    ('Anual', 365, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
 
-    ('Custom', 0, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL);
+    ('Personalizado', 0, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL);
+
+
+
+
+INSERT INTO tb_receivable
+(description, customer_id, amount, due_date, payment_date, created_date, payment_method_id, payment_frequency_id, note, file_name, reference, reference_id, late_fee, late_interest, discount, fee, subtotal, created_by, paid_by, paid, remaining_balance)
+VALUES
+    ('Locação Acessório 01', 1, 45.90, '2026-07-05', '2026-07-03', CURRENT_TIMESTAMP, 1, 1, 'Paid before due date.', 'receipt_001.pdf', 'RENTAL', 1001, 0.00, 0.00, 5.00, 0.00, 40.90, 1, 2, TRUE, 0.00),
+    ('Locação Game 01', 2, 59.90, '2026-07-10', NULL, CURRENT_TIMESTAMP, 2, 1, 'Awaiting payment.', NULL, 'RENTAL', 1002, 0.00, 0.00, 0.00, 0.00, 59.90, 1, NULL, FALSE, 59.90),
+    ('Locação Game 02', 3, 99.90, '2026-07-15', '2026-07-15', CURRENT_TIMESTAMP, 3, 2, 'Paid by debit card.', 'receipt_003.pdf', 'MEMBERSHIP', 1003, 0.00, 0.00, 0.00, 1.49, 101.39, 1, 2, TRUE, 0.00),
+    ('Locação Game 03', 4, 35.00, '2026-07-08', NULL, CURRENT_TIMESTAMP, 1, 1, 'Customer notified.', NULL, 'LATE_FEE', 1004, 5.00, 1.50, 0.00, 0.00, 41.50, 1, NULL, FALSE, 41.50),
+    ('Locação Acessório 02', 5, 25.00, '2026-07-12', '2026-07-12', CURRENT_TIMESTAMP, 4, 1, 'Credit card payment.', 'receipt_005.pdf', 'RESERVATION', 1005, 0.00, 0.00, 2.00, 0.87, 23.87, 1, 2, TRUE, 0.00),
+    ('Locação Console 01', 6, 18.50, '2026-07-20', NULL, CURRENT_TIMESTAMP, 5, 1, 'Bank transfer pending.', NULL, 'ACCESSORY', 1006, 0.00, 0.00, 0.00, 0.00, 18.50, 1, NULL, FALSE, 18.50),
+    ('Locação Console 02', 7, 120.00, '2026-07-25', '2026-07-24', CURRENT_TIMESTAMP, 6, 3, 'Monthly subscription.', 'receipt_007.pdf', 'SUBSCRIPTION', 1007, 0.00, 0.00, 10.00, 2.99, 112.99, 1, 2, TRUE, 0.00),
+    ('Locação Acessório 03', 8, 150.00, '2026-07-30', NULL, CURRENT_TIMESTAMP, 7, 2, 'Digital wallet pending.', NULL, 'PACKAGE', 1008, 0.00, 0.00, 15.00, 3.00, 138.00, 1, NULL, FALSE, 138.00),
+    ('Locação Game 04', 9, 80.00, '2026-08-02', '2026-08-01', CURRENT_TIMESTAMP, 8, 1, 'Store credit used.', 'receipt_009.pdf', 'REPLACEMENT', 1009, 0.00, 0.00, 20.00, 0.00, 60.00, 1, 2, TRUE, 0.00),
+    ('Locação Game 05', 10, 65.00, '2026-08-05', NULL, CURRENT_TIMESTAMP, 9, 1, 'Awaiting confirmation.', NULL, 'SPECIAL_ORDER', 1010, 0.00, 0.00, 0.00, 0.00, 65.00, 1, NULL, FALSE, 65.00);
