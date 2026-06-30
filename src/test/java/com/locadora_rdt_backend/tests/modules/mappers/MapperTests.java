@@ -12,6 +12,10 @@ import com.locadora_rdt_backend.modules.employees.dto.EmployeeInsertDTO;
 import com.locadora_rdt_backend.modules.employees.dto.EmployeeUpdateDTO;
 import com.locadora_rdt_backend.modules.employees.mapper.EmployeeMapper;
 import com.locadora_rdt_backend.modules.employees.model.Employee;
+import com.locadora_rdt_backend.modules.payment.frequencies.dto.PaymentFrequencyInsertDTO;
+import com.locadora_rdt_backend.modules.payment.frequencies.dto.PaymentFrequencyUpdateDTO;
+import com.locadora_rdt_backend.modules.payment.frequencies.mapper.PaymentFrequencyMapper;
+import com.locadora_rdt_backend.modules.payment.frequencies.model.PaymentFrequency;
 import com.locadora_rdt_backend.modules.payment.methods.dto.PaymentMethodInsertDTO;
 import com.locadora_rdt_backend.modules.payment.methods.dto.PaymentMethodUpdateDTO;
 import com.locadora_rdt_backend.modules.payment.methods.mapper.PaymentMethodMapper;
@@ -183,6 +187,40 @@ class MapperTests {
     }
 
     @Test
+    void paymentFrequencyMapperShouldMapAllDirectionsAndNulls() {
+        PaymentFrequencyMapper mapper = new PaymentFrequencyMapper();
+        PaymentFrequency entity = createPaymentFrequency();
+
+        Assertions.assertEquals("Mensal", mapper.toDTO(entity).getFrequency());
+        Assertions.assertEquals("admin", mapper.toDetailsDTO(entity).getCreatedBy());
+        Assertions.assertEquals(Instant.parse("2026-01-02T10:00:00Z"), mapper.toDetailsDTO(entity).getUpdatedAt());
+
+        PaymentFrequencyInsertDTO insertDTO = new PaymentFrequencyInsertDTO();
+        insertDTO.setFrequency("Quinzenal");
+        insertDTO.setDays(15);
+
+        PaymentFrequency inserted = mapper.toEntity(insertDTO);
+
+        Assertions.assertEquals("Quinzenal", inserted.getFrequency());
+        Assertions.assertEquals(15, inserted.getDays());
+
+        PaymentFrequencyUpdateDTO updateDTO = new PaymentFrequencyUpdateDTO();
+        updateDTO.setFrequency("Semanal");
+        updateDTO.setDays(7);
+
+        mapper.updateEntity(entity, updateDTO);
+
+        Assertions.assertEquals("Semanal", entity.getFrequency());
+        Assertions.assertEquals(7, entity.getDays());
+        Assertions.assertNull(mapper.toDTO(null));
+        Assertions.assertNull(mapper.toDetailsDTO(null));
+        Assertions.assertNull(mapper.toEntity(null));
+
+        mapper.updateEntity(null, updateDTO);
+        mapper.updateEntity(entity, null);
+    }
+
+    @Test
     void roleMapperShouldMapAllDirections() {
         RoleMapper mapper = new RoleMapper();
         Role entity = createRole();
@@ -323,6 +361,18 @@ class MapperTests {
         entity.setId(1L);
         entity.setName("Pix");
         entity.setFee(new BigDecimal("0.00"));
+        entity.setCreatedAt(Instant.parse("2026-01-01T10:00:00Z"));
+        entity.setUpdatedAt(Instant.parse("2026-01-02T10:00:00Z"));
+        entity.setCreatedBy("admin");
+        entity.setUpdatedBy("admin");
+        return entity;
+    }
+
+    private PaymentFrequency createPaymentFrequency() {
+        PaymentFrequency entity = new PaymentFrequency();
+        entity.setId(1L);
+        entity.setFrequency("Mensal");
+        entity.setDays(30);
         entity.setCreatedAt(Instant.parse("2026-01-01T10:00:00Z"));
         entity.setUpdatedAt(Instant.parse("2026-01-02T10:00:00Z"));
         entity.setCreatedBy("admin");
