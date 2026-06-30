@@ -28,11 +28,15 @@ import com.locadora_rdt_backend.modules.identity.passwordreset.dto.ForgotPasswor
 import com.locadora_rdt_backend.modules.identity.passwordreset.dto.NewPasswordDTO;
 import com.locadora_rdt_backend.modules.identity.passwordreset.model.PasswordResetToken;
 import com.locadora_rdt_backend.modules.identity.passwordreset.model.enums.TokenType;
+import com.locadora_rdt_backend.modules.payment.frequencies.dto.PaymentFrequencyDTO;
+import com.locadora_rdt_backend.modules.payment.frequencies.dto.PaymentFrequencyDetailsDTO;
+import com.locadora_rdt_backend.modules.payment.frequencies.dto.PaymentFrequencyInsertDTO;
+import com.locadora_rdt_backend.modules.payment.frequencies.dto.PaymentFrequencyUpdateDTO;
+import com.locadora_rdt_backend.modules.payment.frequencies.model.PaymentFrequency;
 import com.locadora_rdt_backend.modules.payment.methods.dto.PaymentMethodDTO;
 import com.locadora_rdt_backend.modules.payment.methods.dto.PaymentMethodDetailsDTO;
 import com.locadora_rdt_backend.modules.payment.methods.dto.PaymentMethodInsertDTO;
 import com.locadora_rdt_backend.modules.payment.methods.dto.PaymentMethodUpdateDTO;
-import com.locadora_rdt_backend.modules.payment.methods.model.PaymentFrequency;
 import com.locadora_rdt_backend.modules.payment.methods.model.PaymentMethod;
 import com.locadora_rdt_backend.modules.permissions.dto.PermissionDTO;
 import com.locadora_rdt_backend.modules.permissions.model.Permission;
@@ -123,6 +127,10 @@ class PojoCoverageTests {
                 PaymentMethodInsertDTO.class,
                 PaymentMethodUpdateDTO.class,
                 PaymentMethod.class,
+                PaymentFrequencyDTO.class,
+                PaymentFrequencyDetailsDTO.class,
+                PaymentFrequencyInsertDTO.class,
+                PaymentFrequencyUpdateDTO.class,
                 PaymentFrequency.class,
                 PermissionDTO.class,
                 Permission.class,

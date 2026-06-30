@@ -241,3 +241,26 @@ VALUES
     ('Check', 0.00, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
 
     ('Other', 0.00, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL);
+
+INSERT INTO tb_payment_frequency
+(frequency, days, created_at, updated_at, created_by, updated_by)
+VALUES
+    ('Immediate', 0, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+
+    ('Daily', 1, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+
+    ('Weekly', 7, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+
+    ('Biweekly', 14, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+
+    ('Monthly', 30, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+
+    ('Bimonthly', 60, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+
+    ('Quarterly', 90, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+
+    ('Semiannual', 180, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+
+    ('Annual', 365, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+
+    ('Custom', 0, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL);
