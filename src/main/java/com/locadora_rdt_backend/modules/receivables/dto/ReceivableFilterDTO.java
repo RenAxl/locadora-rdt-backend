@@ -17,7 +17,6 @@ public class ReceivableFilterDTO implements Serializable {
     private Long paymentFrequencyId;
     private BigDecimal minimumAmount;
     private BigDecimal maximumAmount;
-    private String reference;
     private String orderBy;
     private String direction;
 
@@ -99,14 +98,6 @@ public class ReceivableFilterDTO implements Serializable {
 
     public void setMaximumAmount(BigDecimal maximumAmount) {
         this.maximumAmount = maximumAmount;
-    }
-
-    public String getReference() {
-        return reference;
-    }
-
-    public void setReference(String reference) {
-        this.reference = reference;
     }
 
     public String getOrderBy() {

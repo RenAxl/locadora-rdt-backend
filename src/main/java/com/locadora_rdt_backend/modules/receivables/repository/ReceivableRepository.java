@@ -27,7 +27,6 @@ public interface ReceivableRepository extends JpaRepository<Receivable, Long>, J
                     + "AND (:customerId IS NULL OR r.customer_id = :customerId) "
                     + "AND (:paymentMethodId IS NULL OR r.payment_method_id = :paymentMethodId) "
                     + "AND (:paymentFrequencyId IS NULL OR r.payment_frequency_id = :paymentFrequencyId) "
-                    + "AND (:reference IS NULL OR LOWER(COALESCE(r.reference, '')) = LOWER(:reference)) "
                     + "AND (:minimumAmount IS NULL OR r.amount >= :minimumAmount) "
                     + "AND (:maximumAmount IS NULL OR r.amount <= :maximumAmount) "
                     + "AND (:startDate IS NULL OR (:periodType = 'DUE_DATE' AND r.due_date >= :startDate) "
@@ -66,7 +65,6 @@ public interface ReceivableRepository extends JpaRepository<Receivable, Long>, J
                     + "AND (:customerId IS NULL OR r.customer_id = :customerId) "
                     + "AND (:paymentMethodId IS NULL OR r.payment_method_id = :paymentMethodId) "
                     + "AND (:paymentFrequencyId IS NULL OR r.payment_frequency_id = :paymentFrequencyId) "
-                    + "AND (:reference IS NULL OR LOWER(COALESCE(r.reference, '')) = LOWER(:reference)) "
                     + "AND (:minimumAmount IS NULL OR r.amount >= :minimumAmount) "
                     + "AND (:maximumAmount IS NULL OR r.amount <= :maximumAmount) "
                     + "AND (:startDate IS NULL OR (:periodType = 'DUE_DATE' AND r.due_date >= :startDate) "
@@ -98,7 +96,6 @@ public interface ReceivableRepository extends JpaRepository<Receivable, Long>, J
             @Param("paymentFrequencyId") Long paymentFrequencyId,
             @Param("minimumAmount") BigDecimal minimumAmount,
             @Param("maximumAmount") BigDecimal maximumAmount,
-            @Param("reference") String reference,
             @Param("orderBy") String orderBy,
             @Param("direction") String direction,
             Pageable pageable
