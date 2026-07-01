@@ -14,9 +14,20 @@ public class ReceivableDTO implements Serializable {
     private LocalDate dueDate;
     private LocalDate paymentDate;
     private Instant createdDate;
+    private Instant createdAt;
+    private Instant updatedAt;
+    private String note;
     private String fileName;
     private Boolean paid;
     private BigDecimal remainingBalance;
+    private BigDecimal lateFee;
+    private BigDecimal lateInterest;
+    private BigDecimal discount;
+    private BigDecimal fee;
+    private BigDecimal subtotal;
+    private Boolean residual;
+    private Boolean canceled;
+    private Long parentReceivableId;
     private Long customerId;
     private String customerName;
     private Long paymentMethodId;
@@ -55,6 +66,18 @@ public class ReceivableDTO implements Serializable {
         return createdDate;
     }
 
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
     public String getFileName() {
         return fileName;
     }
@@ -65,6 +88,38 @@ public class ReceivableDTO implements Serializable {
 
     public BigDecimal getRemainingBalance() {
         return remainingBalance;
+    }
+
+    public BigDecimal getLateFee() {
+        return lateFee;
+    }
+
+    public BigDecimal getLateInterest() {
+        return lateInterest;
+    }
+
+    public BigDecimal getDiscount() {
+        return discount;
+    }
+
+    public BigDecimal getFee() {
+        return fee;
+    }
+
+    public BigDecimal getSubtotal() {
+        return subtotal;
+    }
+
+    public Boolean getResidual() {
+        return residual;
+    }
+
+    public Boolean getCanceled() {
+        return canceled;
+    }
+
+    public Long getParentReceivableId() {
+        return parentReceivableId;
     }
 
     public Long getCustomerId() {
@@ -131,6 +186,18 @@ public class ReceivableDTO implements Serializable {
         this.createdDate = createdDate;
     }
 
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
@@ -141,6 +208,38 @@ public class ReceivableDTO implements Serializable {
 
     public void setRemainingBalance(BigDecimal remainingBalance) {
         this.remainingBalance = remainingBalance;
+    }
+
+    public void setLateFee(BigDecimal lateFee) {
+        this.lateFee = lateFee;
+    }
+
+    public void setLateInterest(BigDecimal lateInterest) {
+        this.lateInterest = lateInterest;
+    }
+
+    public void setDiscount(BigDecimal discount) {
+        this.discount = discount;
+    }
+
+    public void setFee(BigDecimal fee) {
+        this.fee = fee;
+    }
+
+    public void setSubtotal(BigDecimal subtotal) {
+        this.subtotal = subtotal;
+    }
+
+    public void setResidual(Boolean residual) {
+        this.residual = residual;
+    }
+
+    public void setCanceled(Boolean canceled) {
+        this.canceled = canceled;
+    }
+
+    public void setParentReceivableId(Long parentReceivableId) {
+        this.parentReceivableId = parentReceivableId;
     }
 
     public void setCustomerId(Long customerId) {
