@@ -10,8 +10,8 @@ spring:
       path: /h2-console
 
   mail:
-    username: test@example.com
-    password: test
+    username: ${EMAIL_USERNAME:test@example.com}
+    password: ${EMAIL_PASSWORD:test}
 
 security:
   oauth2:
@@ -24,7 +24,7 @@ jwt:
 
 app:
   mail:
-    enabled: false
+    enabled: ${APP_MAIL_ENABLED:true}
 
 management:
   health:

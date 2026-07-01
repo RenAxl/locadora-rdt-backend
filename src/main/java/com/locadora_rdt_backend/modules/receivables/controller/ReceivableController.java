@@ -54,7 +54,6 @@ public class ReceivableController {
             @RequestParam(value = "paymentFrequencyId", required = false) Long paymentFrequencyId,
             @RequestParam(value = "minimumAmount", required = false) BigDecimal minimumAmount,
             @RequestParam(value = "maximumAmount", required = false) BigDecimal maximumAmount,
-            @RequestParam(value = "reference", required = false) String reference,
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "linesPerPage", defaultValue = "10") Integer linesPerPage,
             @RequestParam(value = "direction", defaultValue = "ASC") String direction,
@@ -72,7 +71,6 @@ public class ReceivableController {
         filters.setPaymentFrequencyId(paymentFrequencyId);
         filters.setMinimumAmount(minimumAmount);
         filters.setMaximumAmount(maximumAmount);
-        filters.setReference(reference);
         filters.setOrderBy(orderBy);
         filters.setDirection(direction);
 

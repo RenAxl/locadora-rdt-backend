@@ -130,7 +130,6 @@ class ReceivableServiceTests {
                 any(),
                 any(),
                 any(),
-                any(),
                 eq("dueDate"),
                 eq("ASC"),
                 eq(pageRequest)
@@ -149,7 +148,6 @@ class ReceivableServiceTests {
         filters.setSearch("  Teste ");
         filters.setStatus("open");
         filters.setPeriodType("payment");
-        filters.setReference(" RENTAL ");
         filters.setCustomerId(0L);
         filters.setPaymentMethodId(3L);
         filters.setPaymentFrequencyId(-1L);
@@ -168,7 +166,6 @@ class ReceivableServiceTests {
                 eq(null),
                 any(),
                 any(),
-                eq("RENTAL"),
                 eq("dueDate"),
                 eq("DESC"),
                 eq(pageRequest)

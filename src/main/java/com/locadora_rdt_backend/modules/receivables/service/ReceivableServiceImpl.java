@@ -101,7 +101,6 @@ public class ReceivableServiceImpl implements ReceivableService {
                         normalized.getPaymentFrequencyId(),
                         normalized.getMinimumAmount(),
                         normalized.getMaximumAmount(),
-                        normalized.getReference(),
                         normalized.getOrderBy(),
                         normalized.getDirection(),
                         pageRequest
@@ -280,7 +279,6 @@ public class ReceivableServiceImpl implements ReceivableService {
         ReceivableFilterDTO normalized = filters == null ? new ReceivableFilterDTO() : filters;
 
         normalized.setSearch(trimToNull(normalized.getSearch()));
-        normalized.setReference(trimToNull(normalized.getReference()));
         normalized.setStatus(normalizeStatus(normalized.getStatus()));
         normalized.setPeriodType(normalizePeriodType(normalized.getPeriodType()));
         normalized.setOrderBy(normalizeOrderBy(normalized.getOrderBy()));
