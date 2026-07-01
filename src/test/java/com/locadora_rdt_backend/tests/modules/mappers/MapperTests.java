@@ -25,6 +25,10 @@ import com.locadora_rdt_backend.modules.positions.dto.PositionInsertDTO;
 import com.locadora_rdt_backend.modules.positions.dto.PositionUpdateDTO;
 import com.locadora_rdt_backend.modules.positions.mapper.PositionMapper;
 import com.locadora_rdt_backend.modules.positions.model.Position;
+import com.locadora_rdt_backend.modules.receivables.dto.ReceivableInsertDTO;
+import com.locadora_rdt_backend.modules.receivables.dto.ReceivableUpdateDTO;
+import com.locadora_rdt_backend.modules.receivables.mapper.ReceivableMapper;
+import com.locadora_rdt_backend.modules.receivables.model.Receivable;
 import com.locadora_rdt_backend.modules.roles.dto.RoleInsertDTO;
 import com.locadora_rdt_backend.modules.roles.mapper.RoleMapper;
 import com.locadora_rdt_backend.modules.roles.model.Role;
@@ -298,6 +302,46 @@ class MapperTests {
         Assertions.assertFalse(entity.getActive());
     }
 
+    @Test
+    void receivableMapperShouldMapAllDirections() {
+        ReceivableMapper mapper = new ReceivableMapper();
+        Receivable entity = createReceivable();
+
+        Assertions.assertEquals("Conta", mapper.toDTO(entity).getDescription());
+        Assertions.assertEquals("Cliente", mapper.toDetailsDTO(entity).getCustomerName());
+        Assertions.assertEquals("Pix", mapper.toDTO(entity).getPaymentMethodName());
+        Assertions.assertEquals("Mensal", mapper.toDTO(entity).getPaymentFrequency());
+        Assertions.assertEquals("Usuario", mapper.toDTO(entity).getCreatedByName());
+        Assertions.assertEquals("Usuario", mapper.toDTO(entity).getPaidByName());
+        Assertions.assertEquals(99L, mapper.toDTO(entity).getParentReceivableId());
+
+        ReceivableInsertDTO insertDTO = new ReceivableInsertDTO();
+        insertDTO.setDescription(" Nova ");
+        insertDTO.setAmount(BigDecimal.TEN);
+        insertDTO.setDueDate(LocalDate.of(2026, Month.JULY, 1));
+        insertDTO.setPaymentDate(null);
+        insertDTO.setNote(" Nota ");
+        insertDTO.setFileName(" arquivo.pdf ");
+
+        Receivable inserted = mapper.toEntity(insertDTO);
+
+        Assertions.assertEquals("Nova", inserted.getDescription());
+        Assertions.assertFalse(inserted.getPaid());
+        Assertions.assertEquals(BigDecimal.TEN, inserted.getRemainingBalance());
+        Assertions.assertEquals("arquivo.pdf", inserted.getFileName());
+
+        ReceivableUpdateDTO updateDTO = new ReceivableUpdateDTO();
+        updateDTO.setDescription("Atualizada");
+        updateDTO.setAmount(BigDecimal.ONE);
+        updateDTO.setPaymentDate(LocalDate.of(2026, Month.JULY, 2));
+
+        mapper.updateEntity(entity, updateDTO);
+
+        Assertions.assertEquals("Atualizada", entity.getDescription());
+        Assertions.assertTrue(entity.getPaid());
+        Assertions.assertEquals(BigDecimal.ZERO, entity.getRemainingBalance());
+    }
+
     private Customer createCustomer() {
         Customer entity = new Customer();
         entity.setId(1L);
@@ -421,6 +465,40 @@ class MapperTests {
         entity.setCreatedBy("admin");
         entity.setUpdatedBy("admin");
         entity.getRoles().add(createRole());
+        return entity;
+    }
+
+    private Receivable createReceivable() {
+        User admin = createUser();
+        Receivable parent = new Receivable();
+        parent.setId(99L);
+
+        Receivable entity = new Receivable();
+        entity.setId(1L);
+        entity.setDescription("Conta");
+        entity.setAmount(new BigDecimal("50.00"));
+        entity.setDueDate(LocalDate.of(2026, Month.JULY, 1));
+        entity.setPaymentDate(LocalDate.of(2026, Month.JULY, 2));
+        entity.setCreatedDate(Instant.parse("2026-07-01T10:00:00Z"));
+        entity.setCreatedAt(Instant.parse("2026-07-01T10:00:00Z"));
+        entity.setUpdatedAt(Instant.parse("2026-07-02T10:00:00Z"));
+        entity.setNote("Nota");
+        entity.setFileName("arquivo.pdf");
+        entity.setPaid(true);
+        entity.setRemainingBalance(BigDecimal.ZERO);
+        entity.setLateFee(BigDecimal.ONE);
+        entity.setLateInterest(BigDecimal.ONE);
+        entity.setDiscount(BigDecimal.ONE);
+        entity.setFee(BigDecimal.ONE);
+        entity.setSubtotal(new BigDecimal("50.00"));
+        entity.setResidual(true);
+        entity.setCanceled(false);
+        entity.setParentReceivable(parent);
+        entity.setCustomer(createCustomer());
+        entity.setPaymentMethod(createPaymentMethod());
+        entity.setPaymentFrequency(createPaymentFrequency());
+        entity.setCreatedBy(admin);
+        entity.setPaidBy(admin);
         return entity;
     }
 

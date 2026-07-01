@@ -10,6 +10,8 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "tb_receivable")
@@ -32,6 +34,12 @@ public class Receivable implements Serializable {
 
     @Column(name = "created_date", nullable = false, updatable = false)
     private Instant createdDate;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
+
+    @Column(name = "updated_at")
+    private Instant updatedAt;
 
     private String note;
 
@@ -61,6 +69,12 @@ public class Receivable implements Serializable {
     @Column(name = "remaining_balance")
     private BigDecimal remainingBalance;
 
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private Boolean residual = false;
+
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private Boolean canceled = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id")
     private Customer customer;
@@ -78,20 +92,45 @@ public class Receivable implements Serializable {
     private User createdBy;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "updated_by")
+    private User updatedBy;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "paid_by")
     private User paidBy;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_receivable_id")
+    private Receivable parentReceivable;
+
+    @OneToMany(mappedBy = "parentReceivable")
+    private List<Receivable> residuals = new ArrayList<>();
+
     public Receivable() {
-        // Required by frameworks and serializers.
     }
 
     @PrePersist
     public void prePersist() {
-        createdDate = Instant.now();
+        Instant now = Instant.now();
+        createdDate = now;
+        createdAt = now;
 
         if (paid == null) {
             paid = false;
         }
+
+        if (residual == null) {
+            residual = false;
+        }
+
+        if (canceled == null) {
+            canceled = false;
+        }
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = Instant.now();
     }
 
     public Long getId() {
@@ -116,6 +155,14 @@ public class Receivable implements Serializable {
 
     public Instant getCreatedDate() {
         return createdDate;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
     }
 
     public String getNote() {
@@ -162,6 +209,14 @@ public class Receivable implements Serializable {
         return remainingBalance;
     }
 
+    public Boolean getResidual() {
+        return residual;
+    }
+
+    public Boolean getCanceled() {
+        return canceled;
+    }
+
     public Customer getCustomer() {
         return customer;
     }
@@ -178,8 +233,20 @@ public class Receivable implements Serializable {
         return createdBy;
     }
 
+    public User getUpdatedBy() {
+        return updatedBy;
+    }
+
     public User getPaidBy() {
         return paidBy;
+    }
+
+    public Receivable getParentReceivable() {
+        return parentReceivable;
+    }
+
+    public List<Receivable> getResiduals() {
+        return residuals;
     }
 
     public void setId(Long id) {
@@ -204,6 +271,14 @@ public class Receivable implements Serializable {
 
     public void setCreatedDate(Instant createdDate) {
         this.createdDate = createdDate;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public void setNote(String note) {
@@ -250,6 +325,14 @@ public class Receivable implements Serializable {
         this.remainingBalance = remainingBalance;
     }
 
+    public void setResidual(Boolean residual) {
+        this.residual = residual;
+    }
+
+    public void setCanceled(Boolean canceled) {
+        this.canceled = canceled;
+    }
+
     public void setCustomer(Customer customer) {
         this.customer = customer;
     }
@@ -266,8 +349,20 @@ public class Receivable implements Serializable {
         this.createdBy = createdBy;
     }
 
+    public void setUpdatedBy(User updatedBy) {
+        this.updatedBy = updatedBy;
+    }
+
     public void setPaidBy(User paidBy) {
         this.paidBy = paidBy;
+    }
+
+    public void setParentReceivable(Receivable parentReceivable) {
+        this.parentReceivable = parentReceivable;
+    }
+
+    public void setResiduals(List<Receivable> residuals) {
+        this.residuals = residuals;
     }
 
     @Override
