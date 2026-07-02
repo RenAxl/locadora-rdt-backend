@@ -1,9 +1,9 @@
 package com.locadora_rdt_backend.tests.modules.receivables.controller;
 
-import com.locadora_rdt_backend.modules.receivables.controller.ReceivableFileController;
-import com.locadora_rdt_backend.modules.receivables.dto.ReceivableFileDTO;
-import com.locadora_rdt_backend.modules.receivables.dto.ReceivableFileViewDTO;
-import com.locadora_rdt_backend.modules.receivables.service.ReceivableFileService;
+import com.locadora_rdt_backend.modules.financial.receivables.controller.ReceivableFileController;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableFileDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableFileViewDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.service.ReceivableFileService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;

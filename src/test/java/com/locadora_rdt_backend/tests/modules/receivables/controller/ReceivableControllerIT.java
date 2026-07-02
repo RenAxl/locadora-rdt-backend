@@ -1,16 +1,16 @@
 package com.locadora_rdt_backend.tests.modules.receivables.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.locadora_rdt_backend.modules.receivables.controller.ReceivableController;
-import com.locadora_rdt_backend.modules.receivables.dto.ReceivableDetailsDTO;
-import com.locadora_rdt_backend.modules.receivables.dto.ReceivableDTO;
-import com.locadora_rdt_backend.modules.receivables.dto.ReceivableFilterDTO;
-import com.locadora_rdt_backend.modules.receivables.dto.ReceivableInsertDTO;
-import com.locadora_rdt_backend.modules.receivables.dto.ReceivableInstallmentDTO;
-import com.locadora_rdt_backend.modules.receivables.dto.ReceivablePaymentDTO;
-import com.locadora_rdt_backend.modules.receivables.dto.ReceivableReportDTO;
-import com.locadora_rdt_backend.modules.receivables.dto.ReceivableUpdateDTO;
-import com.locadora_rdt_backend.modules.receivables.service.ReceivableService;
+import com.locadora_rdt_backend.modules.financial.receivables.controller.ReceivableController;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableDetailsDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableFilterDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableInsertDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableInstallmentDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivablePaymentDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableReportDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableUpdateDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.service.ReceivableService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;

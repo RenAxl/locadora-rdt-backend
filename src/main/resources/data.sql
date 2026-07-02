@@ -265,28 +265,35 @@ VALUES
 
     ('Personalizado', 0, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL);
 
+INSERT INTO tb_financial_setting
+(singleton_key, default_late_fee_percent, default_late_interest_percent, created_at, updated_at, created_by, updated_by)
+SELECT 'DEFAULT', 0.00, 0.00, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL
+WHERE NOT EXISTS (
+    SELECT 1 FROM tb_financial_setting WHERE singleton_key = 'DEFAULT'
+);
+
 
 INSERT INTO tb_receivable
 (description, customer_id, amount, due_date, payment_date, created_date, created_at, updated_at,
- payment_method_id, payment_frequency_id, note, file_name, reference, reference_id,
+ payment_method_id, payment_frequency_id, note, file_name, status, reference, reference_id,
  late_fee, late_interest, discount, fee, subtotal, created_by, updated_by, paid_by, paid, remaining_balance)
 VALUES
-    ('Locação Acessório 01', 1, 45.90, '2026-07-05', '2026-07-03', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 1, 1, 'Pago antes do vencimento.', 'receipt_001.pdf', 'RENTAL', 1001, 0.00, 0.00, 5.00, 0.00, 40.90, 1, NULL, 2, TRUE, 0.00),
+    ('Locação Acessório 01', 1, 45.90, '2026-07-05', '2026-07-03', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 1, 1, 'Pago antes do vencimento.', 'receipt_001.pdf', 'PAID', 'RENTAL', 1001, 0.00, 0.00, 5.00, 0.00, 40.90, 1, NULL, 2, TRUE, 0.00),
 
-    ('Locação Game 01', 2, 59.90, '2026-07-10', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 2, 1, 'Aguardando pagamento.', NULL, 'RENTAL', 1002, 0.00, 0.00, 0.00, 0.00, 0.00, 1, NULL, NULL, FALSE, 59.90),
+    ('Locação Game 01', 2, 59.90, '2026-07-10', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 2, 1, 'Aguardando pagamento.', NULL, 'PENDING', 'RENTAL', 1002, 0.00, 0.00, 0.00, 0.00, 0.00, 1, NULL, NULL, FALSE, 59.90),
 
-    ('Locação Game 02', 3, 99.90, '2026-07-15', '2026-07-15', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 3, 2, 'Pago com cartão de débito.', 'receipt_003.pdf', 'MEMBERSHIP', 1003, 0.00, 0.00, 0.00, 1.49, 101.39, 1, NULL, 2, TRUE, 0.00),
+    ('Locação Game 02', 3, 99.90, '2026-07-15', '2026-07-15', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 3, 2, 'Pago com cartão de débito.', 'receipt_003.pdf', 'PAID', 'MEMBERSHIP', 1003, 0.00, 0.00, 0.00, 1.49, 101.39, 1, NULL, 2, TRUE, 0.00),
 
-    ('Locação Game 03', 4, 35.00, '2026-07-08', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 1, 1, 'Cliente notificado.', NULL, 'LATE_FEE', 1004, 5.00, 1.50, 0.00, 0.00, 0.00, 1, NULL, NULL, FALSE, 35.00),
+    ('Locação Game 03', 4, 35.00, '2026-07-08', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 1, 1, 'Cliente notificado.', NULL, 'PENDING', 'LATE_FEE', 1004, 5.00, 1.50, 0.00, 0.00, 0.00, 1, NULL, NULL, FALSE, 35.00),
 
-    ('Locação Acessório 02', 5, 25.00, '2026-07-12', '2026-07-12', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 4, 1, 'Pagamento com cartão de crédito.', 'receipt_005.pdf', 'RESERVATION', 1005, 0.00, 0.00, 2.00, 0.87, 23.87, 1, NULL, 2, TRUE, 0.00),
+    ('Locação Acessório 02', 5, 25.00, '2026-07-12', '2026-07-12', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 4, 1, 'Pagamento com cartão de crédito.', 'receipt_005.pdf', 'PAID', 'RESERVATION', 1005, 0.00, 0.00, 2.00, 0.87, 23.87, 1, NULL, 2, TRUE, 0.00),
 
-    ('Locação Console 01', 6, 18.50, '2026-07-20', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 5, 1, 'Transferência bancária pendente.', NULL, 'ACCESSORY', 1006, 0.00, 0.00, 0.00, 0.00, 0.00, 1, NULL, NULL, FALSE, 18.50),
+    ('Locação Console 01', 6, 18.50, '2026-07-20', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 5, 1, 'Transferência bancária pendente.', NULL, 'PENDING', 'ACCESSORY', 1006, 0.00, 0.00, 0.00, 0.00, 0.00, 1, NULL, NULL, FALSE, 18.50),
 
-    ('Locação Console 02', 7, 120.00, '2026-07-25', '2026-07-24', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 6, 3, 'Assinatura mensal.', 'receipt_007.pdf', 'SUBSCRIPTION', 1007, 0.00, 0.00, 10.00, 2.99, 112.99, 1, NULL, 2, TRUE, 0.00),
+    ('Locação Console 02', 7, 120.00, '2026-07-25', '2026-07-24', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 6, 3, 'Assinatura mensal.', 'receipt_007.pdf', 'PAID', 'SUBSCRIPTION', 1007, 0.00, 0.00, 10.00, 2.99, 112.99, 1, NULL, 2, TRUE, 0.00),
 
-    ('Locação Acessório 03', 8, 150.00, '2026-07-30', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 7, 2, 'Pagamento por carteira digital pendente.', NULL, 'PACKAGE', 1008, 0.00, 0.00, 15.00, 3.00, 0.00, 1, NULL, NULL, FALSE, 150.00),
+    ('Locação Acessório 03', 8, 150.00, '2026-07-30', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 7, 2, 'Pagamento por carteira digital pendente.', NULL, 'PENDING', 'PACKAGE', 1008, 0.00, 0.00, 15.00, 3.00, 0.00, 1, NULL, NULL, FALSE, 150.00),
 
-    ('Locação Game 04', 9, 80.00, '2026-08-02', '2026-08-01', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 8, 1, 'Crédito da loja utilizado.', 'receipt_009.pdf', 'REPLACEMENT', 1009, 0.00, 0.00, 20.00, 0.00, 60.00, 1, NULL, 2, TRUE, 0.00),
+    ('Locação Game 04', 9, 80.00, '2026-08-02', '2026-08-01', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 8, 1, 'Crédito da loja utilizado.', 'receipt_009.pdf', 'PAID', 'REPLACEMENT', 1009, 0.00, 0.00, 20.00, 0.00, 60.00, 1, NULL, 2, TRUE, 0.00),
 
-    ('Locação Game 05', 10, 65.00, '2026-08-05', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 9, 1, 'Aguardando confirmação.', NULL, 'SPECIAL_ORDER', 1010, 0.00, 0.00, 0.00, 0.00, 0.00, 1, NULL, NULL, FALSE, 65.00);
+    ('Locação Game 05', 10, 65.00, '2026-08-05', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 9, 1, 'Aguardando confirmação.', NULL, 'PENDING', 'SPECIAL_ORDER', 1010, 0.00, 0.00, 0.00, 0.00, 0.00, 1, NULL, NULL, FALSE, 65.00);

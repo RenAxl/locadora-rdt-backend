@@ -5,22 +5,24 @@ import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
 import com.locadora_rdt_backend.infrastructure.security.AuthenticationFacade;
 import com.locadora_rdt_backend.modules.customers.model.Customer;
 import com.locadora_rdt_backend.modules.customers.repository.CustomerRepository;
-import com.locadora_rdt_backend.modules.payment.frequencies.model.PaymentFrequency;
-import com.locadora_rdt_backend.modules.payment.frequencies.repository.PaymentFrequencyRepository;
-import com.locadora_rdt_backend.modules.payment.methods.model.PaymentMethod;
-import com.locadora_rdt_backend.modules.payment.methods.repository.PaymentMethodRepository;
-import com.locadora_rdt_backend.modules.receivables.dto.ReceivableDTO;
-import com.locadora_rdt_backend.modules.receivables.dto.ReceivableDetailsDTO;
-import com.locadora_rdt_backend.modules.receivables.dto.ReceivableFilterDTO;
-import com.locadora_rdt_backend.modules.receivables.dto.ReceivableInsertDTO;
-import com.locadora_rdt_backend.modules.receivables.dto.ReceivableInstallmentDTO;
-import com.locadora_rdt_backend.modules.receivables.dto.ReceivablePaymentDTO;
-import com.locadora_rdt_backend.modules.receivables.dto.ReceivableReportDTO;
-import com.locadora_rdt_backend.modules.receivables.dto.ReceivableUpdateDTO;
-import com.locadora_rdt_backend.modules.receivables.mapper.ReceivableMapper;
-import com.locadora_rdt_backend.modules.receivables.model.Receivable;
-import com.locadora_rdt_backend.modules.receivables.repository.ReceivableRepository;
-import com.locadora_rdt_backend.modules.receivables.service.ReceivableServiceImpl;
+import com.locadora_rdt_backend.modules.financial.payment.frequencies.model.PaymentFrequency;
+import com.locadora_rdt_backend.modules.financial.payment.frequencies.repository.PaymentFrequencyRepository;
+import com.locadora_rdt_backend.modules.financial.payment.methods.model.PaymentMethod;
+import com.locadora_rdt_backend.modules.financial.payment.methods.repository.PaymentMethodRepository;
+import com.locadora_rdt_backend.modules.financial.payment.settings.model.FinancialSetting;
+import com.locadora_rdt_backend.modules.financial.payment.settings.repository.FinancialSettingRepository;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableDetailsDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableFilterDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableInsertDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableInstallmentDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivablePaymentDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableReportDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableUpdateDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.mapper.ReceivableMapper;
+import com.locadora_rdt_backend.modules.financial.receivables.model.Receivable;
+import com.locadora_rdt_backend.modules.financial.receivables.repository.ReceivableRepository;
+import com.locadora_rdt_backend.modules.financial.receivables.service.ReceivableServiceImpl;
 import com.locadora_rdt_backend.modules.users.model.User;
 import com.locadora_rdt_backend.modules.users.repository.UserRepository;
 import org.junit.jupiter.api.Assertions;
@@ -44,7 +46,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(MockitoExtension.class)
@@ -74,6 +75,9 @@ class ReceivableServiceTests {
 
     @Mock
     private AuthenticationFacade authenticationFacade;
+
+    @Mock
+    private FinancialSettingRepository financialSettingRepository;
 
     private Receivable entity;
     private ReceivableDTO dto;
@@ -112,6 +116,13 @@ class ReceivableServiceTests {
         paymentFrequency.setId(4L);
         paymentFrequency.setFrequency("Mensal");
         paymentFrequency.setDays(30);
+
+        FinancialSetting financialSetting = new FinancialSetting();
+        financialSetting.setDefaultLateFeePercent(BigDecimal.ZERO);
+        financialSetting.setDefaultLateInterestPercent(BigDecimal.ZERO);
+        Mockito.lenient()
+                .when(financialSettingRepository.findBySingletonKey(FinancialSetting.DEFAULT_SINGLETON_KEY))
+                .thenReturn(Optional.of(financialSetting));
     }
 
     @Test
@@ -121,6 +132,8 @@ class ReceivableServiceTests {
 
         Mockito.when(repository.findWithFilters(
                 eq("Movie"),
+                any(),
+                any(),
                 any(),
                 any(),
                 eq("ALL"),
@@ -159,13 +172,15 @@ class ReceivableServiceTests {
                 eq("Teste"),
                 any(),
                 any(),
+                any(),
+                any(),
                 eq("PENDING"),
                 eq("PAYMENT_DATE"),
-                eq(null),
+                eq(-1L),
                 eq(3L),
-                eq(null),
-                any(),
-                any(),
+                eq(-1L),
+                eq(new BigDecimal("-1")),
+                eq(new BigDecimal("-1")),
                 eq("dueDate"),
                 eq("DESC"),
                 eq(pageRequest)
