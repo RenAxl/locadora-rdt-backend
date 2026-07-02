@@ -182,21 +182,21 @@ public class ReceivableServiceImpl implements ReceivableService {
     @Transactional
     public ReceivableDTO pay(Long id, ReceivablePaymentDTO dto) {
         Receivable entity = findEntity(id);
-        BigDecimal basePaymentAmount = getBasePaymentAmount(dto);
-        validatePayment(entity, basePaymentAmount);
+        BigDecimal paymentAmount = valueOrZero(dto.getPaymentAmount());
+        validatePayment(entity, dto, paymentAmount);
 
         User user = getAuthenticatedUser();
         BigDecimal amount = valueOrZero(entity.getAmount());
         BigDecimal openAmount = getOpenAmount(entity);
         BigDecimal paidAmount = amount.subtract(openAmount);
 
-        if (basePaymentAmount.compareTo(openAmount) == 0) {
-            payTotal(entity, dto, user, paidAmount.add(basePaymentAmount));
+        if (paymentAmount.compareTo(getCurrentPaymentLimit(entity, dto)) == 0 || paymentAmount.compareTo(openAmount) >= 0) {
+            payTotal(entity, dto, user, paidAmount.add(openAmount));
             return toDTOWithLateCharges(repository.save(entity));
         }
 
-        BigDecimal remaining = openAmount.subtract(basePaymentAmount);
-        entity.setSubtotal(paidAmount.add(basePaymentAmount));
+        BigDecimal remaining = openAmount.subtract(paymentAmount);
+        entity.setSubtotal(paidAmount.add(paymentAmount));
         entity.setRemainingBalance(remaining);
         entity.setPaid(false);
         entity.setPaymentDate(dto.getPaymentDate() == null ? LocalDate.now() : dto.getPaymentDate());
@@ -437,23 +437,26 @@ public class ReceivableServiceImpl implements ReceivableService {
         }
     }
 
-    private BigDecimal getBasePaymentAmount(ReceivablePaymentDTO dto) {
-        BigDecimal subtotal = valueOrZero(dto.getSubtotal());
-        return subtotal.compareTo(ZERO) > 0 ? subtotal : dto.getPaymentAmount();
-    }
-
-    private void validatePayment(Receivable entity, BigDecimal basePaymentAmount) {
+    private void validatePayment(Receivable entity, ReceivablePaymentDTO dto, BigDecimal paymentAmount) {
         if (Boolean.TRUE.equals(entity.getPaid())) {
             throw new IllegalArgumentException("Conta já está paga.");
         }
 
-        if (basePaymentAmount == null || basePaymentAmount.compareTo(ZERO) <= 0) {
+        if (paymentAmount.compareTo(ZERO) <= 0) {
             throw new IllegalArgumentException("Valor de baixa deve ser maior que zero.");
         }
 
-        if (basePaymentAmount.compareTo(getOpenAmount(entity)) > 0) {
+        if (paymentAmount.compareTo(getCurrentPaymentLimit(entity, dto)) > 0) {
             throw new IllegalArgumentException("Valor de baixa não pode ser maior que o valor da conta.");
         }
+    }
+
+    private BigDecimal getCurrentPaymentLimit(Receivable entity, ReceivablePaymentDTO dto) {
+        return getOpenAmount(entity)
+                .add(valueOrZero(dto.getFee()))
+                .add(valueOrZero(dto.getLateInterest()))
+                .add(valueOrZero(dto.getLateFee()))
+                .subtract(valueOrZero(dto.getDiscount()));
     }
 
     private void validateNotInstallmented(Receivable entity) {

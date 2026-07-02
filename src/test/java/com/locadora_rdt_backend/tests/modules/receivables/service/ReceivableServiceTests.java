@@ -356,6 +356,24 @@ class ReceivableServiceTests {
     }
 
     @Test
+    void payShouldUsePaymentAmountInsteadOfSubtotal() {
+        entity.setAmount(new BigDecimal("30.00"));
+        entity.setRemainingBalance(new BigDecimal("30.00"));
+        ReceivablePaymentDTO paymentDTO = paymentDTO(new BigDecimal("10.00"));
+        paymentDTO.setSubtotal(new BigDecimal("30.00"));
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(entity));
+        Mockito.when(repository.save(entity)).thenReturn(entity);
+        Mockito.when(mapper.toDTO(entity)).thenReturn(dto);
+
+        service.pay(1L, paymentDTO);
+
+        Assertions.assertEquals(new BigDecimal("10.00"), entity.getSubtotal());
+        Assertions.assertEquals(new BigDecimal("20.00"), entity.getRemainingBalance());
+        Assertions.assertFalse(entity.getPaid());
+    }
+
+    @Test
     void payShouldAccumulatePartialPayments() {
         entity.setAmount(new BigDecimal("30.00"));
         entity.setRemainingBalance(new BigDecimal("10.00"));
