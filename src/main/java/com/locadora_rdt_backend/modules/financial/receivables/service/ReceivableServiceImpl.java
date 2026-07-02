@@ -182,21 +182,21 @@ public class ReceivableServiceImpl implements ReceivableService {
     @Transactional
     public ReceivableDTO pay(Long id, ReceivablePaymentDTO dto) {
         Receivable entity = findEntity(id);
-        validatePayment(entity, dto.getPaymentAmount());
+        BigDecimal basePaymentAmount = getBasePaymentAmount(dto);
+        validatePayment(entity, basePaymentAmount);
 
         User user = getAuthenticatedUser();
         BigDecimal amount = valueOrZero(entity.getAmount());
         BigDecimal openAmount = getOpenAmount(entity);
         BigDecimal paidAmount = amount.subtract(openAmount);
-        BigDecimal paymentAmount = dto.getPaymentAmount();
 
-        if (paymentAmount.compareTo(openAmount) == 0) {
-            payTotal(entity, dto, user, paidAmount.add(paymentAmount));
+        if (basePaymentAmount.compareTo(openAmount) == 0) {
+            payTotal(entity, dto, user, paidAmount.add(basePaymentAmount));
             return toDTOWithLateCharges(repository.save(entity));
         }
 
-        BigDecimal remaining = openAmount.subtract(paymentAmount);
-        entity.setSubtotal(paidAmount.add(paymentAmount));
+        BigDecimal remaining = openAmount.subtract(basePaymentAmount);
+        entity.setSubtotal(paidAmount.add(basePaymentAmount));
         entity.setRemainingBalance(remaining);
         entity.setPaid(false);
         entity.setPaymentDate(dto.getPaymentDate() == null ? LocalDate.now() : dto.getPaymentDate());
@@ -437,16 +437,21 @@ public class ReceivableServiceImpl implements ReceivableService {
         }
     }
 
-    private void validatePayment(Receivable entity, BigDecimal paymentAmount) {
+    private BigDecimal getBasePaymentAmount(ReceivablePaymentDTO dto) {
+        BigDecimal subtotal = valueOrZero(dto.getSubtotal());
+        return subtotal.compareTo(ZERO) > 0 ? subtotal : dto.getPaymentAmount();
+    }
+
+    private void validatePayment(Receivable entity, BigDecimal basePaymentAmount) {
         if (Boolean.TRUE.equals(entity.getPaid())) {
             throw new IllegalArgumentException("Conta já está paga.");
         }
 
-        if (paymentAmount == null || paymentAmount.compareTo(ZERO) <= 0) {
+        if (basePaymentAmount == null || basePaymentAmount.compareTo(ZERO) <= 0) {
             throw new IllegalArgumentException("Valor de baixa deve ser maior que zero.");
         }
 
-        if (paymentAmount.compareTo(getOpenAmount(entity)) > 0) {
+        if (basePaymentAmount.compareTo(getOpenAmount(entity)) > 0) {
             throw new IllegalArgumentException("Valor de baixa não pode ser maior que o valor da conta.");
         }
     }
