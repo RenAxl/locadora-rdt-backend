@@ -1,12 +1,12 @@
 package com.locadora_rdt_backend.tests.modules.payment.frequencies.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.locadora_rdt_backend.modules.payment.frequencies.controller.PaymentFrequencyController;
-import com.locadora_rdt_backend.modules.payment.frequencies.dto.PaymentFrequencyDTO;
-import com.locadora_rdt_backend.modules.payment.frequencies.dto.PaymentFrequencyDetailsDTO;
-import com.locadora_rdt_backend.modules.payment.frequencies.dto.PaymentFrequencyInsertDTO;
-import com.locadora_rdt_backend.modules.payment.frequencies.dto.PaymentFrequencyUpdateDTO;
-import com.locadora_rdt_backend.modules.payment.frequencies.service.PaymentFrequencyService;
+import com.locadora_rdt_backend.modules.financial.payment.frequencies.controller.PaymentFrequencyController;
+import com.locadora_rdt_backend.modules.financial.payment.frequencies.dto.PaymentFrequencyDTO;
+import com.locadora_rdt_backend.modules.financial.payment.frequencies.dto.PaymentFrequencyDetailsDTO;
+import com.locadora_rdt_backend.modules.financial.payment.frequencies.dto.PaymentFrequencyInsertDTO;
+import com.locadora_rdt_backend.modules.financial.payment.frequencies.dto.PaymentFrequencyUpdateDTO;
+import com.locadora_rdt_backend.modules.financial.payment.frequencies.service.PaymentFrequencyService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;

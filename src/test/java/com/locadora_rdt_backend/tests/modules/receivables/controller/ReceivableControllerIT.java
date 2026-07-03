@@ -1,16 +1,16 @@
 package com.locadora_rdt_backend.tests.modules.receivables.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.locadora_rdt_backend.modules.receivables.controller.ReceivableController;
-import com.locadora_rdt_backend.modules.receivables.dto.ReceivableDetailsDTO;
-import com.locadora_rdt_backend.modules.receivables.dto.ReceivableDTO;
-import com.locadora_rdt_backend.modules.receivables.dto.ReceivableFilterDTO;
-import com.locadora_rdt_backend.modules.receivables.dto.ReceivableInsertDTO;
-import com.locadora_rdt_backend.modules.receivables.dto.ReceivableInstallmentDTO;
-import com.locadora_rdt_backend.modules.receivables.dto.ReceivablePaymentDTO;
-import com.locadora_rdt_backend.modules.receivables.dto.ReceivableReportDTO;
-import com.locadora_rdt_backend.modules.receivables.dto.ReceivableUpdateDTO;
-import com.locadora_rdt_backend.modules.receivables.service.ReceivableService;
+import com.locadora_rdt_backend.modules.financial.receivables.controller.ReceivableController;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableDetailsDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableFilterDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableInsertDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableInstallmentDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivablePaymentDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableReportDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableUpdateDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.service.ReceivableService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -21,6 +21,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -183,12 +184,14 @@ class ReceivableControllerIT {
     }
 
     @Test
-    void receiptShouldReturnText() throws Exception {
-        Mockito.when(service.receipt(1L)).thenReturn("RECIBO");
+    void receiptShouldReturnPdf() throws Exception {
+        Mockito.when(service.receipt(1L)).thenReturn(new byte[]{'%', 'P', 'D', 'F'});
 
         mockMvc.perform(get("/receivables/{id}/receipt", 1L))
                 .andExpect(status().isOk())
-                .andExpect(content().string("RECIBO"));
+                .andExpect(content().contentType(MediaType.APPLICATION_PDF))
+                .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=recibo-1.pdf"))
+                .andExpect(content().bytes(new byte[]{'%', 'P', 'D', 'F'}));
     }
 
     private ReceivableDTO createDTO() {
@@ -207,6 +210,8 @@ class ReceivableControllerIT {
         dto.setDescription("Movie rental");
         dto.setAmount(new BigDecimal("45.90"));
         dto.setDueDate(LocalDate.of(2026, 7, 1));
+        dto.setCustomerId(1L);
+        dto.setPaymentFrequencyId(1L);
         return dto;
     }
 
@@ -215,6 +220,8 @@ class ReceivableControllerIT {
         dto.setId(1L);
         dto.setDescription("Movie rental updated");
         dto.setAmount(new BigDecimal("50.00"));
+        dto.setCustomerId(1L);
+        dto.setPaymentFrequencyId(1L);
         return dto;
     }
 

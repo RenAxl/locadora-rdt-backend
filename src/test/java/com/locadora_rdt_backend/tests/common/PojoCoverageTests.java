@@ -28,16 +28,20 @@ import com.locadora_rdt_backend.modules.identity.passwordreset.dto.ForgotPasswor
 import com.locadora_rdt_backend.modules.identity.passwordreset.dto.NewPasswordDTO;
 import com.locadora_rdt_backend.modules.identity.passwordreset.model.PasswordResetToken;
 import com.locadora_rdt_backend.modules.identity.passwordreset.model.enums.TokenType;
-import com.locadora_rdt_backend.modules.payment.frequencies.dto.PaymentFrequencyDTO;
-import com.locadora_rdt_backend.modules.payment.frequencies.dto.PaymentFrequencyDetailsDTO;
-import com.locadora_rdt_backend.modules.payment.frequencies.dto.PaymentFrequencyInsertDTO;
-import com.locadora_rdt_backend.modules.payment.frequencies.dto.PaymentFrequencyUpdateDTO;
-import com.locadora_rdt_backend.modules.payment.frequencies.model.PaymentFrequency;
-import com.locadora_rdt_backend.modules.payment.methods.dto.PaymentMethodDTO;
-import com.locadora_rdt_backend.modules.payment.methods.dto.PaymentMethodDetailsDTO;
-import com.locadora_rdt_backend.modules.payment.methods.dto.PaymentMethodInsertDTO;
-import com.locadora_rdt_backend.modules.payment.methods.dto.PaymentMethodUpdateDTO;
-import com.locadora_rdt_backend.modules.payment.methods.model.PaymentMethod;
+import com.locadora_rdt_backend.modules.financial.payment.frequencies.dto.PaymentFrequencyDTO;
+import com.locadora_rdt_backend.modules.financial.payment.frequencies.dto.PaymentFrequencyDetailsDTO;
+import com.locadora_rdt_backend.modules.financial.payment.frequencies.dto.PaymentFrequencyInsertDTO;
+import com.locadora_rdt_backend.modules.financial.payment.frequencies.dto.PaymentFrequencyUpdateDTO;
+import com.locadora_rdt_backend.modules.financial.payment.frequencies.model.PaymentFrequency;
+import com.locadora_rdt_backend.modules.financial.payment.settings.dto.FinancialSettingDTO;
+import com.locadora_rdt_backend.modules.financial.payment.settings.dto.FinancialSettingDetailsDTO;
+import com.locadora_rdt_backend.modules.financial.payment.settings.dto.FinancialSettingUpdateDTO;
+import com.locadora_rdt_backend.modules.financial.payment.settings.model.FinancialSetting;
+import com.locadora_rdt_backend.modules.financial.payment.methods.dto.PaymentMethodDTO;
+import com.locadora_rdt_backend.modules.financial.payment.methods.dto.PaymentMethodDetailsDTO;
+import com.locadora_rdt_backend.modules.financial.payment.methods.dto.PaymentMethodInsertDTO;
+import com.locadora_rdt_backend.modules.financial.payment.methods.dto.PaymentMethodUpdateDTO;
+import com.locadora_rdt_backend.modules.financial.payment.methods.model.PaymentMethod;
 import com.locadora_rdt_backend.modules.permissions.dto.PermissionDTO;
 import com.locadora_rdt_backend.modules.permissions.model.Permission;
 import com.locadora_rdt_backend.modules.positions.dto.PositionDTO;
@@ -45,8 +49,8 @@ import com.locadora_rdt_backend.modules.positions.dto.PositionDetailsDTO;
 import com.locadora_rdt_backend.modules.positions.dto.PositionInsertDTO;
 import com.locadora_rdt_backend.modules.positions.dto.PositionUpdateDTO;
 import com.locadora_rdt_backend.modules.positions.model.Position;
-import com.locadora_rdt_backend.modules.receivables.dto.ReceivableDTO;
-import com.locadora_rdt_backend.modules.receivables.model.Receivable;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.model.Receivable;
 import com.locadora_rdt_backend.modules.roles.dto.RoleDTO;
 import com.locadora_rdt_backend.modules.roles.dto.RoleDetailsDTO;
 import com.locadora_rdt_backend.modules.roles.dto.RoleInsertDTO;
@@ -134,6 +138,10 @@ class PojoCoverageTests {
                 PaymentFrequencyInsertDTO.class,
                 PaymentFrequencyUpdateDTO.class,
                 PaymentFrequency.class,
+                FinancialSettingDTO.class,
+                FinancialSettingDetailsDTO.class,
+                FinancialSettingUpdateDTO.class,
+                FinancialSetting.class,
                 PermissionDTO.class,
                 Permission.class,
                 PositionDTO.class,

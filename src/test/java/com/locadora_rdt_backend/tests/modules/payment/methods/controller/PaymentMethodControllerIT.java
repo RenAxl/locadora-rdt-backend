@@ -1,12 +1,12 @@
 package com.locadora_rdt_backend.tests.modules.payment.methods.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.locadora_rdt_backend.modules.payment.methods.controller.PaymentMethodController;
-import com.locadora_rdt_backend.modules.payment.methods.dto.PaymentMethodDTO;
-import com.locadora_rdt_backend.modules.payment.methods.dto.PaymentMethodDetailsDTO;
-import com.locadora_rdt_backend.modules.payment.methods.dto.PaymentMethodInsertDTO;
-import com.locadora_rdt_backend.modules.payment.methods.dto.PaymentMethodUpdateDTO;
-import com.locadora_rdt_backend.modules.payment.methods.service.PaymentMethodService;
+import com.locadora_rdt_backend.modules.financial.payment.methods.controller.PaymentMethodController;
+import com.locadora_rdt_backend.modules.financial.payment.methods.dto.PaymentMethodDTO;
+import com.locadora_rdt_backend.modules.financial.payment.methods.dto.PaymentMethodDetailsDTO;
+import com.locadora_rdt_backend.modules.financial.payment.methods.dto.PaymentMethodInsertDTO;
+import com.locadora_rdt_backend.modules.financial.payment.methods.dto.PaymentMethodUpdateDTO;
+import com.locadora_rdt_backend.modules.financial.payment.methods.service.PaymentMethodService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;

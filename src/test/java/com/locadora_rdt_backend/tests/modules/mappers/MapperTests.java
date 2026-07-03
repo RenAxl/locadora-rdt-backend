@@ -12,23 +12,26 @@ import com.locadora_rdt_backend.modules.employees.dto.EmployeeInsertDTO;
 import com.locadora_rdt_backend.modules.employees.dto.EmployeeUpdateDTO;
 import com.locadora_rdt_backend.modules.employees.mapper.EmployeeMapper;
 import com.locadora_rdt_backend.modules.employees.model.Employee;
-import com.locadora_rdt_backend.modules.payment.frequencies.dto.PaymentFrequencyInsertDTO;
-import com.locadora_rdt_backend.modules.payment.frequencies.dto.PaymentFrequencyUpdateDTO;
-import com.locadora_rdt_backend.modules.payment.frequencies.mapper.PaymentFrequencyMapper;
-import com.locadora_rdt_backend.modules.payment.frequencies.model.PaymentFrequency;
-import com.locadora_rdt_backend.modules.payment.methods.dto.PaymentMethodInsertDTO;
-import com.locadora_rdt_backend.modules.payment.methods.dto.PaymentMethodUpdateDTO;
-import com.locadora_rdt_backend.modules.payment.methods.mapper.PaymentMethodMapper;
-import com.locadora_rdt_backend.modules.payment.methods.model.PaymentMethod;
+import com.locadora_rdt_backend.modules.financial.payment.frequencies.dto.PaymentFrequencyInsertDTO;
+import com.locadora_rdt_backend.modules.financial.payment.frequencies.dto.PaymentFrequencyUpdateDTO;
+import com.locadora_rdt_backend.modules.financial.payment.frequencies.mapper.PaymentFrequencyMapper;
+import com.locadora_rdt_backend.modules.financial.payment.frequencies.model.PaymentFrequency;
+import com.locadora_rdt_backend.modules.financial.payment.methods.dto.PaymentMethodInsertDTO;
+import com.locadora_rdt_backend.modules.financial.payment.methods.dto.PaymentMethodUpdateDTO;
+import com.locadora_rdt_backend.modules.financial.payment.methods.mapper.PaymentMethodMapper;
+import com.locadora_rdt_backend.modules.financial.payment.methods.model.PaymentMethod;
+import com.locadora_rdt_backend.modules.financial.payment.settings.dto.FinancialSettingUpdateDTO;
+import com.locadora_rdt_backend.modules.financial.payment.settings.mapper.FinancialSettingMapper;
+import com.locadora_rdt_backend.modules.financial.payment.settings.model.FinancialSetting;
 import com.locadora_rdt_backend.modules.permissions.model.Permission;
 import com.locadora_rdt_backend.modules.positions.dto.PositionInsertDTO;
 import com.locadora_rdt_backend.modules.positions.dto.PositionUpdateDTO;
 import com.locadora_rdt_backend.modules.positions.mapper.PositionMapper;
 import com.locadora_rdt_backend.modules.positions.model.Position;
-import com.locadora_rdt_backend.modules.receivables.dto.ReceivableInsertDTO;
-import com.locadora_rdt_backend.modules.receivables.dto.ReceivableUpdateDTO;
-import com.locadora_rdt_backend.modules.receivables.mapper.ReceivableMapper;
-import com.locadora_rdt_backend.modules.receivables.model.Receivable;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableInsertDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableUpdateDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.mapper.ReceivableMapper;
+import com.locadora_rdt_backend.modules.financial.receivables.model.Receivable;
 import com.locadora_rdt_backend.modules.roles.dto.RoleInsertDTO;
 import com.locadora_rdt_backend.modules.roles.mapper.RoleMapper;
 import com.locadora_rdt_backend.modules.roles.model.Role;
@@ -219,6 +222,29 @@ class MapperTests {
         Assertions.assertNull(mapper.toDTO(null));
         Assertions.assertNull(mapper.toDetailsDTO(null));
         Assertions.assertNull(mapper.toEntity(null));
+
+        mapper.updateEntity(null, updateDTO);
+        mapper.updateEntity(entity, null);
+    }
+
+    @Test
+    void financialSettingMapperShouldMapAllDirectionsAndNulls() {
+        FinancialSettingMapper mapper = new FinancialSettingMapper();
+        FinancialSetting entity = createFinancialSetting();
+
+        Assertions.assertEquals(new BigDecimal("2.00"), mapper.toDTO(entity).getDefaultLateFeePercent());
+        Assertions.assertEquals("admin", mapper.toDetailsDTO(entity).getCreatedBy());
+
+        FinancialSettingUpdateDTO updateDTO = new FinancialSettingUpdateDTO();
+        updateDTO.setDefaultLateFeePercent(new BigDecimal("2.50"));
+        updateDTO.setDefaultLateInterestPercent(new BigDecimal("3.50"));
+
+        mapper.updateEntity(entity, updateDTO);
+
+        Assertions.assertEquals(new BigDecimal("2.50"), entity.getDefaultLateFeePercent());
+        Assertions.assertEquals(new BigDecimal("3.50"), entity.getDefaultLateInterestPercent());
+        Assertions.assertNull(mapper.toDTO(null));
+        Assertions.assertNull(mapper.toDetailsDTO(null));
 
         mapper.updateEntity(null, updateDTO);
         mapper.updateEntity(entity, null);
@@ -417,6 +443,19 @@ class MapperTests {
         entity.setId(1L);
         entity.setFrequency("Mensal");
         entity.setDays(30);
+        entity.setCreatedAt(Instant.parse("2026-01-01T10:00:00Z"));
+        entity.setUpdatedAt(Instant.parse("2026-01-02T10:00:00Z"));
+        entity.setCreatedBy("admin");
+        entity.setUpdatedBy("admin");
+        return entity;
+    }
+
+    private FinancialSetting createFinancialSetting() {
+        FinancialSetting entity = new FinancialSetting();
+        entity.setId(1L);
+        entity.setSingletonKey(FinancialSetting.DEFAULT_SINGLETON_KEY);
+        entity.setDefaultLateFeePercent(new BigDecimal("2.00"));
+        entity.setDefaultLateInterestPercent(new BigDecimal("1.00"));
         entity.setCreatedAt(Instant.parse("2026-01-01T10:00:00Z"));
         entity.setUpdatedAt(Instant.parse("2026-01-02T10:00:00Z"));
         entity.setCreatedBy("admin");
