@@ -85,3 +85,4 @@ public class ReceivablePaymentDTO implements Serializable {
         this.discount = discount;
     }
 }
+
