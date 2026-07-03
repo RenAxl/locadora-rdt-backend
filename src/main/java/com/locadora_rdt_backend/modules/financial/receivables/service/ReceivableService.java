@@ -43,4 +43,6 @@ public interface ReceivableService {
     ReceivableReportDTO report(String description, LocalDate startDate, LocalDate endDate, String status, String dateType);
 
     byte[] receipt(Long id);
+
+    byte[] fiscalCoupon(Long id);
 }

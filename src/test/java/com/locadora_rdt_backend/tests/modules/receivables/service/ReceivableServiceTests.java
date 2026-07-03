@@ -193,6 +193,43 @@ class ReceivableServiceTests {
     }
 
     @Test
+    void findAllPagedShouldPassEnabledDateAndAmountFilters() {
+        ReceivableFilterDTO filters = new ReceivableFilterDTO();
+        filters.setStartDate(LocalDate.of(2026, 7, 1));
+        filters.setEndDate(LocalDate.of(2026, 7, 31));
+        filters.setMinimumAmount(new BigDecimal("10.00"));
+        filters.setMaximumAmount(new BigDecimal("100.00"));
+        filters.setStatus("paid");
+        filters.setPeriodType("created");
+        filters.setOrderBy("amount");
+        filters.setDirection("ASC");
+        PageRequest pageRequest = PageRequest.of(0, 10);
+
+        Mockito.when(repository.findWithFilters(
+                eq(null),
+                eq(LocalDate.of(2026, 7, 1)),
+                eq(LocalDate.of(2026, 7, 31)),
+                eq(true),
+                eq(true),
+                eq("PAID"),
+                eq("CREATED_DATE"),
+                eq(-1L),
+                eq(-1L),
+                eq(-1L),
+                eq(new BigDecimal("10.00")),
+                eq(new BigDecimal("100.00")),
+                eq("amount"),
+                eq("ASC"),
+                eq(pageRequest)
+        )).thenReturn(new PageImpl<>(List.of(entity)));
+        Mockito.when(mapper.toDTO(entity)).thenReturn(dto);
+
+        Page<ReceivableDTO> result = service.findAllPaged(filters, pageRequest);
+
+        Assertions.assertEquals(1, result.getContent().size());
+    }
+
+    @Test
     void findByIdShouldReturnDetailsWhenIdExists() {
         ReceivableDetailsDTO detailsDTO = new ReceivableDetailsDTO();
         detailsDTO.setId(1L);
@@ -266,6 +303,23 @@ class ReceivableServiceTests {
     }
 
     @Test
+    void insertShouldValidatePaymentMethodAndFrequencyRelations() {
+        ReceivableInsertDTO invalidPaymentMethodDTO = saveDTO(new ReceivableInsertDTO());
+        invalidPaymentMethodDTO.setPaymentMethodId(999L);
+        Mockito.when(mapper.toEntity(invalidPaymentMethodDTO)).thenReturn(entity);
+        Mockito.when(paymentMethodRepository.findById(999L)).thenReturn(Optional.empty());
+
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> service.insert(invalidPaymentMethodDTO));
+
+        ReceivableInsertDTO invalidFrequencyDTO = saveDTO(new ReceivableInsertDTO());
+        invalidFrequencyDTO.setPaymentFrequencyId(999L);
+        Mockito.when(mapper.toEntity(invalidFrequencyDTO)).thenReturn(entity);
+        Mockito.when(paymentFrequencyRepository.findById(999L)).thenReturn(Optional.empty());
+
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> service.insert(invalidFrequencyDTO));
+    }
+
+    @Test
     void updateShouldModifyExistingReceivable() {
         ReceivableUpdateDTO updateDTO = saveDTO(new ReceivableUpdateDTO());
 
@@ -279,6 +333,46 @@ class ReceivableServiceTests {
         Assertions.assertEquals(1L, result.getId());
         Mockito.verify(mapper).updateEntity(entity, updateDTO);
         Assertions.assertSame(user, entity.getUpdatedBy());
+    }
+
+    @Test
+    void updateShouldSetPaidByWhenUpdatedReceivableBecomesPaid() {
+        ReceivableUpdateDTO updateDTO = saveDTO(new ReceivableUpdateDTO());
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(entity));
+        Mockito.doAnswer(invocation -> {
+            Receivable target = invocation.getArgument(0);
+            target.setPaid(true);
+            return null;
+        }).when(mapper).updateEntity(entity, updateDTO);
+        mockAuthenticatedUser();
+        Mockito.when(repository.save(entity)).thenReturn(entity);
+        Mockito.when(mapper.toDTO(entity)).thenReturn(dto);
+
+        service.update(1L, updateDTO);
+
+        Assertions.assertSame(user, entity.getPaidBy());
+        Assertions.assertEquals(BigDecimal.ZERO, entity.getRemainingBalance());
+    }
+
+    @Test
+    void updateShouldKeepExistingPaidByWhenUpdatedReceivableIsAlreadyPaidBySomeone() {
+        ReceivableUpdateDTO updateDTO = saveDTO(new ReceivableUpdateDTO());
+        User paidBy = new User();
+        paidBy.setId(20L);
+        entity.setPaidBy(paidBy);
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(entity));
+        Mockito.doAnswer(invocation -> {
+            Receivable target = invocation.getArgument(0);
+            target.setPaid(true);
+            return null;
+        }).when(mapper).updateEntity(entity, updateDTO);
+        mockAuthenticatedUser();
+        Mockito.when(repository.save(entity)).thenReturn(entity);
+        Mockito.when(mapper.toDTO(entity)).thenReturn(dto);
+
+        service.update(1L, updateDTO);
+
+        Assertions.assertSame(paidBy, entity.getPaidBy());
     }
 
     @Test
@@ -543,6 +637,39 @@ class ReceivableServiceTests {
         Assertions.assertEquals('P', result[1]);
         Assertions.assertEquals('D', result[2]);
         Assertions.assertEquals('F', result[3]);
+    }
+
+    @Test
+    void receiptShouldThrowWhenReceivableIsNotPaid() {
+        entity.setPaid(false);
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(entity));
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> service.receipt(1L));
+    }
+
+    @Test
+    void fiscalCouponShouldReturnPdf() {
+        entity.setCustomer(customer);
+        entity.setPaymentDate(LocalDate.of(2026, 7, 1));
+        entity.setPaid(true);
+        entity.setPaidBy(user);
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(entity));
+
+        byte[] result = service.fiscalCoupon(1L);
+
+        Assertions.assertTrue(result.length > 0);
+        Assertions.assertEquals('%', result[0]);
+        Assertions.assertEquals('P', result[1]);
+        Assertions.assertEquals('D', result[2]);
+        Assertions.assertEquals('F', result[3]);
+    }
+
+    @Test
+    void fiscalCouponShouldThrowWhenReceivableIsNotPaid() {
+        entity.setPaid(false);
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(entity));
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> service.fiscalCoupon(1L));
     }
 
     private void mockAuthenticatedUser() {

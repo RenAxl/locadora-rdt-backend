@@ -308,6 +308,22 @@ public class ReceivableServiceImpl implements ReceivableService {
         }
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public byte[] fiscalCoupon(Long id) {
+        Receivable entity = findEntity(id);
+
+        if (!Boolean.TRUE.equals(entity.getPaid())) {
+            throw new IllegalArgumentException("Cupom fiscal disponível apenas para contas pagas.");
+        }
+
+        try {
+            return buildFiscalCouponPdf(entity);
+        } catch (DocumentException e) {
+            throw new IllegalStateException("Erro ao gerar cupom fiscal.", e);
+        }
+    }
+
     private byte[] buildReceiptPdf(Receivable entity) throws DocumentException {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         Document document = new Document(PageSize.A4.rotate(), 34, 34, 28, 28);
@@ -373,6 +389,53 @@ public class ReceivableServiceImpl implements ReceivableService {
         return output.toByteArray();
     }
 
+    private byte[] buildFiscalCouponPdf(Receivable entity) throws DocumentException {
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        Document document = new Document(new Rectangle(226f, 620f), 10f, 10f, 12f, 12f);
+        PdfWriter.getInstance(document, output);
+        document.open();
+
+        addCouponLine(document, "LOCADORA RDT", 10f, Font.BOLD, Element.ALIGN_CENTER);
+        addCouponLine(document, "CUPOM FISCAL", 9f, Font.BOLD, Element.ALIGN_CENTER);
+        addCouponLine(document, "Documento para conferencia e impressao", 7f, Font.NORMAL, Element.ALIGN_CENTER);
+        addCouponSeparator(document);
+
+        addCouponLine(document, "Cupom: " + buildReceiptNumber(entity), 8f, Font.NORMAL, Element.ALIGN_LEFT);
+        addCouponLine(document, "Conta: #" + entity.getId(), 8f, Font.NORMAL, Element.ALIGN_LEFT);
+        addCouponLine(document, "Emissao: " + formatDate(LocalDate.now()), 8f, Font.NORMAL, Element.ALIGN_LEFT);
+        addCouponLine(document, "Pagamento: " + formatDate(entity.getPaymentDate()), 8f, Font.NORMAL, Element.ALIGN_LEFT);
+        addCouponLine(document, "Cliente: " + getCustomerName(entity), 8f, Font.NORMAL, Element.ALIGN_LEFT);
+        addCouponLine(document, "CPF: " + getCustomerCpf(entity), 8f, Font.NORMAL, Element.ALIGN_LEFT);
+        addCouponSeparator(document);
+
+        addCouponLine(document, "ITEM DESCRICAO", 8f, Font.BOLD, Element.ALIGN_LEFT);
+        addCouponLine(document, "001 " + limitCouponText(nullToDash(entity.getDescription()), 28), 8f, Font.NORMAL, Element.ALIGN_LEFT);
+        addCouponLine(document, "Valor original: " + formatCurrency(entity.getAmount()), 8f, Font.NORMAL, Element.ALIGN_RIGHT);
+
+        BigDecimal fees = valueOrZero(entity.getFee())
+                .add(valueOrZero(entity.getLateFee()))
+                .add(valueOrZero(entity.getLateInterest()));
+
+        if (fees.compareTo(ZERO) > 0) {
+            addCouponLine(document, "Acrescimos: " + formatCurrency(fees), 8f, Font.NORMAL, Element.ALIGN_RIGHT);
+        }
+
+        if (valueOrZero(entity.getDiscount()).compareTo(ZERO) > 0) {
+            addCouponLine(document, "Desconto: " + formatCurrency(entity.getDiscount()), 8f, Font.NORMAL, Element.ALIGN_RIGHT);
+        }
+
+        addCouponSeparator(document);
+        addCouponLine(document, "TOTAL " + formatCurrency(getReceiptAmount(entity)), 10f, Font.BOLD, Element.ALIGN_RIGHT);
+        addCouponLine(document, "Forma: " + getPaymentMethodName(entity), 8f, Font.NORMAL, Element.ALIGN_LEFT);
+        addCouponLine(document, "Recebido por: " + getPaidByName(entity), 8f, Font.NORMAL, Element.ALIGN_LEFT);
+        addCouponSeparator(document);
+        addCouponLine(document, "Obrigado pela preferencia", 8f, Font.BOLD, Element.ALIGN_CENTER);
+        addCouponLine(document, "LOCADORA RDT", 8f, Font.NORMAL, Element.ALIGN_CENTER);
+
+        document.close();
+        return output.toByteArray();
+    }
+
     private PdfPTable buildReceiptHeader(Receivable entity) throws DocumentException {
         PdfPTable header = new PdfPTable(3);
         header.setWidthPercentage(100);
@@ -435,6 +498,23 @@ public class ReceivableServiceImpl implements ReceivableService {
         cell.setBorder(Rectangle.NO_BORDER);
         cell.setPadding(0);
         return cell;
+    }
+
+    private void addCouponLine(Document document, String text, float size, int style, int alignment) throws DocumentException {
+        Paragraph line = new Paragraph(nullToDash(text), new Font(Font.COURIER, size, style, Color.BLACK));
+        line.setAlignment(alignment);
+        line.setLeading(size + 2f);
+        line.setSpacingAfter(2f);
+        document.add(line);
+    }
+
+    private void addCouponSeparator(Document document) throws DocumentException {
+        addCouponLine(document, "--------------------------------", 8f, Font.NORMAL, Element.ALIGN_CENTER);
+    }
+
+    private String limitCouponText(String value, int maxLength) {
+        String normalized = nullToDash(value);
+        return normalized.length() <= maxLength ? normalized : normalized.substring(0, maxLength - 3) + "...";
     }
 
     private ReceivableFilterDTO normalizeFilters(ReceivableFilterDTO filters) {
@@ -676,6 +756,18 @@ public class ReceivableServiceImpl implements ReceivableService {
 
     private String getCustomerName(Receivable entity) {
         return entity.getCustomer() == null ? "-" : nullToDash(entity.getCustomer().getName());
+    }
+
+    private String getCustomerCpf(Receivable entity) {
+        return entity.getCustomer() == null ? "-" : nullToDash(entity.getCustomer().getCpf());
+    }
+
+    private String getPaymentMethodName(Receivable entity) {
+        return entity.getPaymentMethod() == null ? "-" : nullToDash(entity.getPaymentMethod().getName());
+    }
+
+    private String getPaidByName(Receivable entity) {
+        return entity.getPaidBy() == null ? "-" : nullToDash(entity.getPaidBy().getName());
     }
 
     private String formatCurrency(BigDecimal value) {

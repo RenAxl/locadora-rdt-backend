@@ -194,6 +194,17 @@ class ReceivableControllerIT {
                 .andExpect(content().bytes(new byte[]{'%', 'P', 'D', 'F'}));
     }
 
+    @Test
+    void fiscalCouponShouldReturnPdf() throws Exception {
+        Mockito.when(service.fiscalCoupon(1L)).thenReturn(new byte[]{'%', 'P', 'D', 'F'});
+
+        mockMvc.perform(get("/receivables/{id}/fiscal-coupon", 1L))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_PDF))
+                .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=cupom-fiscal-1.pdf"))
+                .andExpect(content().bytes(new byte[]{'%', 'P', 'D', 'F'}));
+    }
+
     private ReceivableDTO createDTO() {
         ReceivableDTO dto = new ReceivableDTO();
         dto.setId(1L);
