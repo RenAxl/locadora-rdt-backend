@@ -139,4 +139,12 @@ public class ReceivableController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=recibo-" + id + ".pdf")
                 .body(service.receipt(id));
     }
+
+    @GetMapping(value = "/{id}/fiscal-coupon", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> fiscalCoupon(@PathVariable Long id) {
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=cupom-fiscal-" + id + ".pdf")
+                .body(service.fiscalCoupon(id));
+    }
 }
