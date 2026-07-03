@@ -26,6 +26,18 @@ import com.locadora_rdt_backend.modules.financial.receivables.model.Receivable;
 import com.locadora_rdt_backend.modules.financial.receivables.repository.ReceivableRepository;
 import com.locadora_rdt_backend.modules.users.model.User;
 import com.locadora_rdt_backend.modules.users.repository.UserRepository;
+import com.lowagie.text.Chunk;
+import com.lowagie.text.Document;
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.Element;
+import com.lowagie.text.Font;
+import com.lowagie.text.PageSize;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.Phrase;
+import com.lowagie.text.Rectangle;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,14 +47,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
+import java.awt.Color;
+import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Service
@@ -52,6 +69,9 @@ public class ReceivableServiceImpl implements ReceivableService {
     private static final BigDecimal FILTER_AMOUNT_DISABLED = BigDecimal.valueOf(-1);
     private static final LocalDate FILTER_DATE_DISABLED = LocalDate.of(1970, 1, 1);
     private static final long FILTER_ID_DISABLED = -1L;
+    private static final Locale BRAZIL = new Locale("pt", "BR");
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final Color DARK_BLUE = new Color(13, 42, 77);
 
     private final ReceivableRepository repository;
     private final ReceivableMapper mapper;
@@ -274,19 +294,147 @@ public class ReceivableServiceImpl implements ReceivableService {
 
     @Override
     @Transactional(readOnly = true)
-    public String receipt(Long id) {
+    public byte[] receipt(Long id) {
         Receivable entity = findEntity(id);
-        StringBuilder builder = new StringBuilder();
-        builder.append("RECIBO DE CONTA A RECEBER\n");
-        builder.append("Conta: #").append(entity.getId()).append('\n');
-        builder.append("Cliente: ").append(entity.getCustomer() == null ? "-" : entity.getCustomer().getName()).append('\n');
-        builder.append("Descrição: ").append(entity.getDescription() == null ? "-" : entity.getDescription()).append('\n');
-        builder.append("Valor: ").append(valueOrZero(entity.getAmount())).append('\n');
-        builder.append("Vencimento: ").append(entity.getDueDate() == null ? "-" : entity.getDueDate()).append('\n');
-        builder.append("Pagamento: ").append(entity.getPaymentDate() == null ? "-" : entity.getPaymentDate()).append('\n');
-        builder.append("Status: ").append(Boolean.TRUE.equals(entity.getPaid()) ? "Pago" : "Pendente").append('\n');
-        builder.append("Recebido por: ").append(entity.getPaidBy() == null ? "-" : entity.getPaidBy().getName()).append('\n');
-        return builder.toString();
+
+        if (!Boolean.TRUE.equals(entity.getPaid())) {
+            throw new IllegalArgumentException("Recibo disponível apenas para contas pagas.");
+        }
+
+        try {
+            return buildReceiptPdf(entity);
+        } catch (DocumentException e) {
+            throw new IllegalStateException("Erro ao gerar recibo.", e);
+        }
+    }
+
+    private byte[] buildReceiptPdf(Receivable entity) throws DocumentException {
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        Document document = new Document(PageSize.A4.rotate(), 34, 34, 28, 28);
+        PdfWriter.getInstance(document, output);
+        document.open();
+
+        PdfPTable receiptBox = new PdfPTable(1);
+        receiptBox.setWidthPercentage(100);
+
+        PdfPCell box = new PdfPCell();
+        box.setBorder(Rectangle.BOX);
+        box.setBorderWidth(0.8f);
+        box.setPadding(12f);
+
+        box.addElement(buildReceiptHeader(entity));
+
+        Paragraph number = new Paragraph();
+        number.setSpacingBefore(18f);
+        number.add(new Chunk("Número: ", font(11, Font.BOLD, Color.BLACK)));
+        number.add(new Chunk(buildReceiptNumber(entity), font(11, Font.NORMAL, Color.BLACK)));
+        box.addElement(number);
+
+        Paragraph body = new Paragraph();
+        body.setSpacingBefore(24f);
+        body.setLeading(18f);
+        body.add(new Chunk("Recebi(emos) de ", font(11, Font.NORMAL, Color.BLACK)));
+        body.add(new Chunk(getCustomerName(entity), font(11, Font.BOLD, Color.BLACK)));
+        body.add(new Chunk(" a quantia de ", font(11, Font.NORMAL, Color.BLACK)));
+        body.add(new Chunk(formatCurrency(getReceiptAmount(entity)), font(11, Font.BOLD, Color.BLACK)));
+        body.add(new Chunk(" reais na data ", font(11, Font.NORMAL, Color.BLACK)));
+        body.add(new Chunk(formatDate(entity.getPaymentDate()), font(11, Font.BOLD, Color.BLACK)));
+        body.add(new Chunk(" correspondente a(o) ", font(11, Font.NORMAL, Color.BLACK)));
+        body.add(new Chunk(nullToDash(entity.getDescription()), font(11, Font.NORMAL, Color.BLACK)));
+        body.add(new Chunk(".", font(11, Font.NORMAL, Color.BLACK)));
+        box.addElement(body);
+
+        box.addElement(buildReceiptDetails(entity));
+
+        Paragraph simulatedSignature = new Paragraph("RDT Financeiro", font(24, Font.ITALIC, Color.DARK_GRAY));
+        simulatedSignature.setAlignment(Element.ALIGN_CENTER);
+        simulatedSignature.setSpacingBefore(28f);
+        box.addElement(simulatedSignature);
+
+        Paragraph signature = new Paragraph("____________________________________________", font(12, Font.NORMAL, Color.DARK_GRAY));
+        signature.setAlignment(Element.ALIGN_CENTER);
+        signature.setSpacingBefore(-8f);
+        box.addElement(signature);
+
+        Paragraph signatureLabel = new Paragraph("(ASSINATURA DO RESPONSÁVEL)", font(9, Font.BOLD, Color.BLACK));
+        signatureLabel.setAlignment(Element.ALIGN_CENTER);
+        signatureLabel.setSpacingBefore(2f);
+        box.addElement(signatureLabel);
+
+        Paragraph footer = new Paragraph("LOCADORA RDT", font(9, Font.NORMAL, Color.BLACK));
+        footer.setAlignment(Element.ALIGN_CENTER);
+        footer.setSpacingBefore(18f);
+        box.addElement(footer);
+
+        receiptBox.addCell(box);
+        document.add(receiptBox);
+        document.close();
+
+        return output.toByteArray();
+    }
+
+    private PdfPTable buildReceiptHeader(Receivable entity) throws DocumentException {
+        PdfPTable header = new PdfPTable(3);
+        header.setWidthPercentage(100);
+        header.setWidths(new float[]{2.2f, 3.2f, 2.2f});
+
+        PdfPCell logo = noBorderCell("LOCADORA RDT", font(14, Font.BOLD, DARK_BLUE));
+        logo.setHorizontalAlignment(Element.ALIGN_LEFT);
+        header.addCell(logo);
+
+        PdfPCell title = noBorderCell("RECIBO DE PAGAMENTO", font(16, Font.BOLD, Color.BLACK));
+        title.setHorizontalAlignment(Element.ALIGN_CENTER);
+        header.addCell(title);
+
+        PdfPCell amount = noBorderCell("VALOR " + formatCurrency(getReceiptAmount(entity)), font(13, Font.BOLD, Color.BLACK));
+        amount.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        header.addCell(amount);
+
+        return header;
+    }
+
+    private PdfPTable buildReceiptDetails(Receivable entity) throws DocumentException {
+        PdfPTable details = new PdfPTable(4);
+        details.setWidthPercentage(100);
+        details.setWidths(new float[]{1.4f, 2.6f, 1.4f, 2.6f});
+        details.setSpacingBefore(22f);
+
+        addDetail(details, "Conta", "#" + entity.getId());
+        addDetail(details, "Status", "Pago");
+        addDetail(details, "Vencimento", formatDate(entity.getDueDate()));
+        addDetail(details, "Pagamento", formatDate(entity.getPaymentDate()));
+        addDetail(details, "Forma Pgto", entity.getPaymentMethod() == null ? "-" : nullToDash(entity.getPaymentMethod().getName()));
+        addDetail(details, "Frequência", entity.getPaymentFrequency() == null ? "-" : nullToDash(entity.getPaymentFrequency().getFrequency()));
+        addDetail(details, "Subtotal", formatCurrency(valueOrZero(entity.getSubtotal()).compareTo(ZERO) > 0 ? entity.getSubtotal() : entity.getAmount()));
+        addDetail(details, "Multa/Juros", formatCurrency(valueOrZero(entity.getLateFee()).add(valueOrZero(entity.getLateInterest()))));
+        addDetail(details, "Desconto", formatCurrency(entity.getDiscount()));
+        addDetail(details, "Valor Pago", formatCurrency(getReceiptAmount(entity)));
+        addDetail(details, "Recebido por", entity.getPaidBy() == null ? "-" : nullToDash(entity.getPaidBy().getName()));
+        addDetail(details, "Emitido em", formatDate(LocalDate.now()));
+
+        return details;
+    }
+
+    private void addDetail(PdfPTable table, String label, String value) {
+        PdfPCell labelCell = detailCell(label + ":", font(9, Font.BOLD, DARK_BLUE));
+        labelCell.setBackgroundColor(new Color(245, 248, 252));
+        table.addCell(labelCell);
+        table.addCell(detailCell(nullToDash(value), font(9, Font.NORMAL, Color.BLACK)));
+    }
+
+    private PdfPCell detailCell(String text, Font font) {
+        PdfPCell cell = new PdfPCell(new Phrase(text, font));
+        cell.setBorder(Rectangle.BOX);
+        cell.setBorderWidth(0.3f);
+        cell.setPadding(5f);
+        return cell;
+    }
+
+    private PdfPCell noBorderCell(String text, Font font) {
+        PdfPCell cell = new PdfPCell(new Phrase(text, font));
+        cell.setBorder(Rectangle.NO_BORDER);
+        cell.setPadding(0);
+        return cell;
     }
 
     private ReceivableFilterDTO normalizeFilters(ReceivableFilterDTO filters) {
@@ -507,6 +655,43 @@ public class ReceivableServiceImpl implements ReceivableService {
         return items.stream()
                 .map(item -> valueOrZero(item.getAmount()))
                 .reduce(ZERO, BigDecimal::add);
+    }
+
+    private BigDecimal getReceiptAmount(Receivable entity) {
+        BigDecimal subtotal = valueOrZero(entity.getSubtotal());
+        BigDecimal base = subtotal.compareTo(ZERO) > 0 ? subtotal : valueOrZero(entity.getAmount());
+
+        return base
+                .add(valueOrZero(entity.getFee()))
+                .add(valueOrZero(entity.getLateInterest()))
+                .add(valueOrZero(entity.getLateFee()))
+                .subtract(valueOrZero(entity.getDiscount()))
+                .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private String buildReceiptNumber(Receivable entity) {
+        LocalDate date = entity.getPaymentDate() == null ? LocalDate.now() : entity.getPaymentDate();
+        return date.getYear() + "/" + entity.getId();
+    }
+
+    private String getCustomerName(Receivable entity) {
+        return entity.getCustomer() == null ? "-" : nullToDash(entity.getCustomer().getName());
+    }
+
+    private String formatCurrency(BigDecimal value) {
+        return NumberFormat.getCurrencyInstance(BRAZIL).format(valueOrZero(value));
+    }
+
+    private String formatDate(LocalDate date) {
+        return date == null ? "-" : date.format(DATE_FORMATTER);
+    }
+
+    private String nullToDash(String value) {
+        return value == null || value.trim().isEmpty() ? "-" : value.trim();
+    }
+
+    private Font font(float size, int style, Color color) {
+        return new Font(Font.TIMES_ROMAN, size, style, color);
     }
 
     private BigDecimal valueOrZero(BigDecimal value) {

@@ -42,5 +42,5 @@ public interface ReceivableService {
 
     ReceivableReportDTO report(String description, LocalDate startDate, LocalDate endDate, String status, String dateType);
 
-    String receipt(Long id);
+    byte[] receipt(Long id);
 }

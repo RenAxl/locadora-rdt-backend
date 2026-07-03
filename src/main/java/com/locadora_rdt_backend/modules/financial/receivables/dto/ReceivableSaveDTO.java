@@ -1,6 +1,9 @@
 package com.locadora_rdt_backend.modules.financial.receivables.dto;
 
 import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -8,15 +11,21 @@ import java.time.LocalDate;
 public class ReceivableSaveDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    @NotBlank(message = "Descrição é obrigatória")
+    @Size(min = 3, max = 120, message = "Descrição deve ter entre 3 e 120 caracteres")
     private String description;
 
+    @NotNull(message = "Valor é obrigatório")
     @DecimalMin(value = "0.01", message = "O valor deve ser maior que zero")
     private BigDecimal amount;
 
     private LocalDate dueDate;
     private LocalDate paymentDate;
+    @NotNull(message = "Cliente é obrigatório")
     private Long customerId;
     private Long paymentMethodId;
+
+    @NotNull(message = "Frequência é obrigatória")
     private Long paymentFrequencyId;
     private String note;
     private String fileName;

@@ -529,18 +529,20 @@ class ReceivableServiceTests {
     }
 
     @Test
-    void receiptShouldReturnText() {
+    void receiptShouldReturnPdf() {
         entity.setCustomer(customer);
         entity.setPaymentDate(LocalDate.of(2026, 7, 1));
         entity.setPaid(true);
         entity.setPaidBy(user);
         Mockito.when(repository.findById(1L)).thenReturn(Optional.of(entity));
 
-        String result = service.receipt(1L);
+        byte[] result = service.receipt(1L);
 
-        Assertions.assertTrue(result.contains("RECIBO DE CONTA A RECEBER"));
-        Assertions.assertTrue(result.contains("Cliente"));
-        Assertions.assertTrue(result.contains("Pago"));
+        Assertions.assertTrue(result.length > 0);
+        Assertions.assertEquals('%', result[0]);
+        Assertions.assertEquals('P', result[1]);
+        Assertions.assertEquals('D', result[2]);
+        Assertions.assertEquals('F', result[3]);
     }
 
     private void mockAuthenticatedUser() {
