@@ -12,8 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
 public class ReceivableFileServiceImpl implements ReceivableFileService {
@@ -49,10 +50,15 @@ public class ReceivableFileServiceImpl implements ReceivableFileService {
     public List<ReceivableFileDTO> findAllByReceivable(Long receivableId) {
         getReceivable(receivableId);
 
-        return fileRepository.findByReceivableIdOrderByIdDesc(receivableId)
-                .stream()
-                .map(ReceivableFileDTO::new)
-                .collect(Collectors.toList());
+        List<ReceivableFile> files = fileRepository.findByReceivableIdOrderByIdDesc(receivableId);
+        List<ReceivableFileDTO> result = new ArrayList<>();
+
+        for (ReceivableFile file : files) {
+            ReceivableFileDTO dto = new ReceivableFileDTO(file);
+            result.add(dto);
+        }
+
+        return result;
     }
 
     @Override
@@ -72,8 +78,13 @@ public class ReceivableFileServiceImpl implements ReceivableFileService {
     private ReceivableFile findFileBelongsToReceivable(Long receivableId, Long fileId) {
         getReceivable(receivableId);
 
-        ReceivableFile entity = fileRepository.findById(fileId)
-                .orElseThrow(() -> new ResourceNotFoundException("Arquivo não encontrado. Id: " + fileId));
+        Optional<ReceivableFile> optionalFile = fileRepository.findById(fileId);
+
+        if (optionalFile.isEmpty()) {
+            throw new ResourceNotFoundException("Arquivo não encontrado. Id: " + fileId);
+        }
+
+        ReceivableFile entity = optionalFile.get();
 
         if (!entity.getReceivable().getId().equals(receivableId)) {
             throw new ResourceNotFoundException("Arquivo não pertence à conta informada.");
@@ -83,7 +94,12 @@ public class ReceivableFileServiceImpl implements ReceivableFileService {
     }
 
     private Receivable getReceivable(Long receivableId) {
-        return receivableRepository.findById(receivableId)
-                .orElseThrow(() -> new ResourceNotFoundException("Conta a receber não encontrada. Id: " + receivableId));
+        Optional<Receivable> optionalReceivable = receivableRepository.findById(receivableId);
+
+        if (optionalReceivable.isEmpty()) {
+            throw new ResourceNotFoundException("Conta a receber não encontrada. Id: " + receivableId);
+        }
+
+        return optionalReceivable.get();
     }
 }

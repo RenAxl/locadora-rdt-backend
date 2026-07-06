@@ -18,9 +18,9 @@ public class ReceivableSaveDTO implements Serializable {
     @NotNull(message = "Valor é obrigatório")
     @DecimalMin(value = "0.01", message = "O valor deve ser maior que zero")
     private BigDecimal amount;
-
     private LocalDate dueDate;
     private LocalDate paymentDate;
+
     @NotNull(message = "Cliente é obrigatório")
     private Long customerId;
     private Long paymentMethodId;

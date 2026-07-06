@@ -10,8 +10,6 @@ import com.locadora_rdt_backend.modules.financial.payment.frequencies.model.Paym
 import com.locadora_rdt_backend.modules.financial.payment.frequencies.repository.PaymentFrequencyRepository;
 import com.locadora_rdt_backend.modules.financial.payment.methods.model.PaymentMethod;
 import com.locadora_rdt_backend.modules.financial.payment.methods.repository.PaymentMethodRepository;
-import com.locadora_rdt_backend.modules.financial.payment.settings.model.FinancialSetting;
-import com.locadora_rdt_backend.modules.financial.payment.settings.repository.FinancialSettingRepository;
 import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableDetailsDTO;
 import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableDTO;
 import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableFilterDTO;
@@ -23,21 +21,11 @@ import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableSave
 import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableUpdateDTO;
 import com.locadora_rdt_backend.modules.financial.receivables.mapper.ReceivableMapper;
 import com.locadora_rdt_backend.modules.financial.receivables.model.Receivable;
+import com.locadora_rdt_backend.modules.financial.receivables.model.ReceivableStatus;
 import com.locadora_rdt_backend.modules.financial.receivables.repository.ReceivableRepository;
 import com.locadora_rdt_backend.modules.users.model.User;
 import com.locadora_rdt_backend.modules.users.repository.UserRepository;
-import com.lowagie.text.Chunk;
-import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
-import com.lowagie.text.Element;
-import com.lowagie.text.Font;
-import com.lowagie.text.PageSize;
-import com.lowagie.text.Paragraph;
-import com.lowagie.text.Phrase;
-import com.lowagie.text.Rectangle;
-import com.lowagie.text.pdf.PdfPCell;
-import com.lowagie.text.pdf.PdfPTable;
-import com.lowagie.text.pdf.PdfWriter;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -47,20 +35,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
-import java.awt.Color;
-import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.NumberFormat;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
 public class ReceivableServiceImpl implements ReceivableService {
@@ -69,9 +51,6 @@ public class ReceivableServiceImpl implements ReceivableService {
     private static final BigDecimal FILTER_AMOUNT_DISABLED = BigDecimal.valueOf(-1);
     private static final LocalDate FILTER_DATE_DISABLED = LocalDate.of(1970, 1, 1);
     private static final long FILTER_ID_DISABLED = -1L;
-    private static final Locale BRAZIL = new Locale("pt", "BR");
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-    private static final Color DARK_BLUE = new Color(13, 42, 77);
 
     private final ReceivableRepository repository;
     private final ReceivableMapper mapper;
@@ -80,7 +59,10 @@ public class ReceivableServiceImpl implements ReceivableService {
     private final PaymentFrequencyRepository paymentFrequencyRepository;
     private final UserRepository userRepository;
     private final AuthenticationFacade authenticationFacade;
-    private final FinancialSettingRepository financialSettingRepository;
+    private final ReceivableFilterNormalizer filterNormalizer;
+    private final ReceivableFinancialCalculator financialCalculator;
+    private final ReceivableDocumentPdfService documentPdfService;
+    private final Clock clock;
 
     public ReceivableServiceImpl(
             ReceivableRepository repository,
@@ -90,7 +72,10 @@ public class ReceivableServiceImpl implements ReceivableService {
             PaymentFrequencyRepository paymentFrequencyRepository,
             UserRepository userRepository,
             AuthenticationFacade authenticationFacade,
-            FinancialSettingRepository financialSettingRepository
+            ReceivableFilterNormalizer filterNormalizer,
+            ReceivableFinancialCalculator financialCalculator,
+            ReceivableDocumentPdfService documentPdfService,
+            Clock clock
     ) {
         this.repository = repository;
         this.mapper = mapper;
@@ -99,7 +84,10 @@ public class ReceivableServiceImpl implements ReceivableService {
         this.paymentFrequencyRepository = paymentFrequencyRepository;
         this.userRepository = userRepository;
         this.authenticationFacade = authenticationFacade;
-        this.financialSettingRepository = financialSettingRepository;
+        this.filterNormalizer = filterNormalizer;
+        this.financialCalculator = financialCalculator;
+        this.documentPdfService = documentPdfService;
+        this.clock = clock;
     }
 
     @Override
@@ -117,7 +105,7 @@ public class ReceivableServiceImpl implements ReceivableService {
     @Override
     @Transactional(readOnly = true)
     public Page<ReceivableDTO> findAllPaged(ReceivableFilterDTO filters, PageRequest pageRequest) {
-        ReceivableFilterDTO normalized = normalizeFilters(filters);
+        ReceivableFilterDTO normalized = filterNormalizer.normalize(filters);
 
         return repository.findWithFilters(
                         normalized.getSearch(),
@@ -144,7 +132,7 @@ public class ReceivableServiceImpl implements ReceivableService {
     public ReceivableDetailsDTO findById(Long id) {
         Receivable entity = findEntity(id);
         ReceivableDetailsDTO dto = mapper.toDetailsDTO(entity);
-        fillLateCharges(entity, dto);
+        financialCalculator.fillLateCharges(entity, dto);
         return dto;
     }
 
@@ -159,7 +147,7 @@ public class ReceivableServiceImpl implements ReceivableService {
 
         if (entity.getPaid()) {
             entity.setPaidBy(entity.getCreatedBy());
-            entity.setSubtotal(valueOrZero(entity.getAmount()));
+            entity.setSubtotal(financialCalculator.valueOrZero(entity.getAmount()));
             entity.setRemainingBalance(ZERO);
         }
 
@@ -173,12 +161,28 @@ public class ReceivableServiceImpl implements ReceivableService {
         validateCustomerOrDescription(dto);
 
         Receivable entity = findEntity(id);
+        boolean wasPartiallyPaid = isPartiallyPaid(entity);
+        BigDecimal previousRemainingBalance = entity.getRemainingBalance();
+        LocalDate previousPaymentDate = entity.getPaymentDate();
+
         mapper.updateEntity(entity, dto);
         applyRelations(entity, dto);
         entity.setUpdatedBy(getAuthenticatedUser());
 
+        if (wasPartiallyPaid) {
+            entity.setPaid(false);
+            entity.setRemainingBalance(previousRemainingBalance);
+
+            if (dto.getPaymentDate() == null) {
+                entity.setPaymentDate(previousPaymentDate);
+            }
+        }
+
         if (entity.getPaid()) {
-            entity.setPaidBy(entity.getPaidBy() == null ? entity.getUpdatedBy() : entity.getPaidBy());
+            if (entity.getPaidBy() == null) {
+                entity.setPaidBy(entity.getUpdatedBy());
+            }
+
             entity.setRemainingBalance(ZERO);
         }
 
@@ -202,16 +206,19 @@ public class ReceivableServiceImpl implements ReceivableService {
     @Transactional
     public ReceivableDTO pay(Long id, ReceivablePaymentDTO dto) {
         Receivable entity = findEntity(id);
-        BigDecimal paymentAmount = valueOrZero(dto.getPaymentAmount());
+        BigDecimal paymentAmount = financialCalculator.valueOrZero(dto.getPaymentAmount());
         validatePayment(entity, dto, paymentAmount);
 
         User user = getAuthenticatedUser();
-        BigDecimal amount = valueOrZero(entity.getAmount());
-        BigDecimal openAmount = getOpenAmount(entity);
+        BigDecimal amount = financialCalculator.valueOrZero(entity.getAmount());
+        BigDecimal openAmount = financialCalculator.getOpenAmount(entity);
         BigDecimal paidAmount = amount.subtract(openAmount);
+        PaymentMethod requestedPaymentMethod = findPaymentMethod(normalizeId(dto.getPaymentMethodId()));
 
-        if (paymentAmount.compareTo(getCurrentPaymentLimit(entity, dto)) == 0 || paymentAmount.compareTo(openAmount) >= 0) {
-            payTotal(entity, dto, user, paidAmount.add(openAmount));
+        BigDecimal paymentLimit = financialCalculator.getCurrentPaymentLimit(entity, dto);
+
+        if (paymentAmount.compareTo(paymentLimit) == 0 || paymentAmount.compareTo(openAmount) >= 0) {
+            payTotal(entity, dto, user, requestedPaymentMethod, paidAmount.add(openAmount));
             return toDTOWithLateCharges(repository.save(entity));
         }
 
@@ -219,14 +226,20 @@ public class ReceivableServiceImpl implements ReceivableService {
         entity.setSubtotal(paidAmount.add(paymentAmount));
         entity.setRemainingBalance(remaining);
         entity.setPaid(false);
-        entity.setPaymentDate(dto.getPaymentDate() == null ? LocalDate.now() : dto.getPaymentDate());
-        entity.setPaymentMethod(findPaymentMethod(normalizeId(dto.getPaymentMethodId())) == null
-                ? entity.getPaymentMethod()
-                : findPaymentMethod(normalizeId(dto.getPaymentMethodId())));
-        entity.setFee(valueOrZero(dto.getFee()));
-        entity.setLateInterest(valueOrZero(dto.getLateInterest()));
-        entity.setLateFee(valueOrZero(dto.getLateFee()));
-        entity.setDiscount(valueOrZero(dto.getDiscount()));
+        if (dto.getPaymentDate() == null) {
+            entity.setPaymentDate(today());
+        } else {
+            entity.setPaymentDate(dto.getPaymentDate());
+        }
+
+        if (requestedPaymentMethod != null) {
+            entity.setPaymentMethod(requestedPaymentMethod);
+        }
+
+        entity.setFee(financialCalculator.valueOrZero(dto.getFee()));
+        entity.setLateInterest(financialCalculator.valueOrZero(dto.getLateInterest()));
+        entity.setLateFee(financialCalculator.valueOrZero(dto.getLateFee()));
+        entity.setDiscount(financialCalculator.valueOrZero(dto.getDiscount()));
         entity.setUpdatedBy(user);
 
         return toDTOWithLateCharges(repository.save(entity));
@@ -243,14 +256,27 @@ public class ReceivableServiceImpl implements ReceivableService {
 
         validateNotInstallmented(original);
 
-        BigDecimal total = valueOrZero(original.getAmount());
+        BigDecimal total = financialCalculator.valueOrZero(original.getAmount());
         BigDecimal base = total.divide(BigDecimal.valueOf(dto.getInstallments()), 2, RoundingMode.DOWN);
         BigDecimal accumulated = ZERO;
         List<Receivable> installments = new ArrayList<>();
-        LocalDate firstDueDate = dto.getFirstDueDate() == null ? original.getDueDate() : dto.getFirstDueDate();
+        LocalDate firstDueDate;
+
+        if (dto.getFirstDueDate() == null) {
+            firstDueDate = original.getDueDate();
+        } else {
+            firstDueDate = dto.getFirstDueDate();
+        }
 
         for (int i = 1; i <= dto.getInstallments(); i++) {
-            BigDecimal value = i == dto.getInstallments() ? total.subtract(accumulated) : base;
+            BigDecimal value;
+
+            if (i == dto.getInstallments()) {
+                value = total.subtract(accumulated);
+            } else {
+                value = base;
+            }
+
             accumulated = accumulated.add(value);
 
             Receivable installment = copyBase(original);
@@ -260,7 +286,13 @@ public class ReceivableServiceImpl implements ReceivableService {
             installment.setPaid(false);
             installment.setPaymentDate(null);
             installment.setDescription(buildInstallmentDescription(original.getDescription(), i, dto.getInstallments()));
-            installment.setDueDate(firstDueDate == null ? null : firstDueDate.plusMonths(i - 1L));
+
+            if (firstDueDate == null) {
+                installment.setDueDate(null);
+            } else {
+                installment.setDueDate(firstDueDate.plusMonths(i - 1L));
+            }
+
             installment.setParentReceivable(original);
             installment.setCreatedBy(getAuthenticatedUser());
             installments.add(installment);
@@ -270,9 +302,15 @@ public class ReceivableServiceImpl implements ReceivableService {
         original.setUpdatedBy(getAuthenticatedUser());
         repository.save(original);
 
-        return repository.saveAll(installments).stream()
-                .map(this::toDTOWithLateCharges)
-                .collect(Collectors.toList());
+        List<Receivable> savedInstallments = repository.saveAll(installments);
+        List<ReceivableDTO> result = new ArrayList<>();
+
+        for (Receivable item : savedInstallments) {
+            ReceivableDTO dtoResult = toDTOWithLateCharges(item);
+            result.add(dtoResult);
+        }
+
+        return result;
     }
 
     @Override
@@ -284,9 +322,24 @@ public class ReceivableServiceImpl implements ReceivableService {
             String status,
             String dateType
     ) {
-        List<Receivable> items = repository.findAll(filters(description, startDate, endDate, status, dateType));
+        ReceivableFilterDTO reportFilters = new ReceivableFilterDTO();
+        reportFilters.setSearch(description);
+        reportFilters.setStartDate(startDate);
+        reportFilters.setEndDate(endDate);
+        reportFilters.setStatus(status);
+        reportFilters.setPeriodType(dateType);
+
+        List<Receivable> items = repository.findAll(filters(filterNormalizer.normalize(reportFilters)));
         BigDecimal total = sum(items);
-        BigDecimal paid = sum(items.stream().filter(item -> Boolean.TRUE.equals(item.getPaid())).collect(Collectors.toList()));
+        List<Receivable> paidItems = new ArrayList<>();
+
+        for (Receivable item : items) {
+            if (Boolean.TRUE.equals(item.getPaid())) {
+                paidItems.add(item);
+            }
+        }
+
+        BigDecimal paid = sum(paidItems);
         BigDecimal open = total.subtract(paid);
 
         return new ReceivableReportDTO((long) items.size(), total, paid, open);
@@ -302,7 +355,7 @@ public class ReceivableServiceImpl implements ReceivableService {
         }
 
         try {
-            return buildReceiptPdf(entity);
+            return documentPdfService.buildReceiptPdf(entity);
         } catch (DocumentException e) {
             throw new IllegalStateException("Erro ao gerar recibo.", e);
         }
@@ -318,325 +371,60 @@ public class ReceivableServiceImpl implements ReceivableService {
         }
 
         try {
-            return buildFiscalCouponPdf(entity);
+            return documentPdfService.buildFiscalCouponPdf(entity);
         } catch (DocumentException e) {
             throw new IllegalStateException("Erro ao gerar cupom fiscal.", e);
         }
     }
 
-    private byte[] buildReceiptPdf(Receivable entity) throws DocumentException {
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        Document document = new Document(PageSize.A4.rotate(), 34, 34, 28, 28);
-        PdfWriter.getInstance(document, output);
-        document.open();
-
-        PdfPTable receiptBox = new PdfPTable(1);
-        receiptBox.setWidthPercentage(100);
-
-        PdfPCell box = new PdfPCell();
-        box.setBorder(Rectangle.BOX);
-        box.setBorderWidth(0.8f);
-        box.setPadding(12f);
-
-        box.addElement(buildReceiptHeader(entity));
-
-        Paragraph number = new Paragraph();
-        number.setSpacingBefore(18f);
-        number.add(new Chunk("Número: ", font(11, Font.BOLD, Color.BLACK)));
-        number.add(new Chunk(buildReceiptNumber(entity), font(11, Font.NORMAL, Color.BLACK)));
-        box.addElement(number);
-
-        Paragraph body = new Paragraph();
-        body.setSpacingBefore(24f);
-        body.setLeading(18f);
-        body.add(new Chunk("Recebi(emos) de ", font(11, Font.NORMAL, Color.BLACK)));
-        body.add(new Chunk(getCustomerName(entity), font(11, Font.BOLD, Color.BLACK)));
-        body.add(new Chunk(" a quantia de ", font(11, Font.NORMAL, Color.BLACK)));
-        body.add(new Chunk(formatCurrency(getReceiptAmount(entity)), font(11, Font.BOLD, Color.BLACK)));
-        body.add(new Chunk(" reais na data ", font(11, Font.NORMAL, Color.BLACK)));
-        body.add(new Chunk(formatDate(entity.getPaymentDate()), font(11, Font.BOLD, Color.BLACK)));
-        body.add(new Chunk(" correspondente a(o) ", font(11, Font.NORMAL, Color.BLACK)));
-        body.add(new Chunk(nullToDash(entity.getDescription()), font(11, Font.NORMAL, Color.BLACK)));
-        body.add(new Chunk(".", font(11, Font.NORMAL, Color.BLACK)));
-        box.addElement(body);
-
-        box.addElement(buildReceiptDetails(entity));
-
-        Paragraph simulatedSignature = new Paragraph("RDT Financeiro", font(24, Font.ITALIC, Color.DARK_GRAY));
-        simulatedSignature.setAlignment(Element.ALIGN_CENTER);
-        simulatedSignature.setSpacingBefore(28f);
-        box.addElement(simulatedSignature);
-
-        Paragraph signature = new Paragraph("____________________________________________", font(12, Font.NORMAL, Color.DARK_GRAY));
-        signature.setAlignment(Element.ALIGN_CENTER);
-        signature.setSpacingBefore(-8f);
-        box.addElement(signature);
-
-        Paragraph signatureLabel = new Paragraph("(ASSINATURA DO RESPONSÁVEL)", font(9, Font.BOLD, Color.BLACK));
-        signatureLabel.setAlignment(Element.ALIGN_CENTER);
-        signatureLabel.setSpacingBefore(2f);
-        box.addElement(signatureLabel);
-
-        Paragraph footer = new Paragraph("LOCADORA RDT", font(9, Font.NORMAL, Color.BLACK));
-        footer.setAlignment(Element.ALIGN_CENTER);
-        footer.setSpacingBefore(18f);
-        box.addElement(footer);
-
-        receiptBox.addCell(box);
-        document.add(receiptBox);
-        document.close();
-
-        return output.toByteArray();
-    }
-
-    private byte[] buildFiscalCouponPdf(Receivable entity) throws DocumentException {
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        Document document = new Document(new Rectangle(226f, 620f), 10f, 10f, 12f, 12f);
-        PdfWriter.getInstance(document, output);
-        document.open();
-
-        addCouponLine(document, "LOCADORA RDT", 10f, Font.BOLD, Element.ALIGN_CENTER);
-        addCouponLine(document, "CUPOM FISCAL", 9f, Font.BOLD, Element.ALIGN_CENTER);
-        addCouponLine(document, "Documento para conferencia e impressao", 7f, Font.NORMAL, Element.ALIGN_CENTER);
-        addCouponSeparator(document);
-
-        addCouponLine(document, "Cupom: " + buildReceiptNumber(entity), 8f, Font.NORMAL, Element.ALIGN_LEFT);
-        addCouponLine(document, "Conta: #" + entity.getId(), 8f, Font.NORMAL, Element.ALIGN_LEFT);
-        addCouponLine(document, "Emissao: " + formatDate(LocalDate.now()), 8f, Font.NORMAL, Element.ALIGN_LEFT);
-        addCouponLine(document, "Pagamento: " + formatDate(entity.getPaymentDate()), 8f, Font.NORMAL, Element.ALIGN_LEFT);
-        addCouponLine(document, "Cliente: " + getCustomerName(entity), 8f, Font.NORMAL, Element.ALIGN_LEFT);
-        addCouponLine(document, "CPF: " + getCustomerCpf(entity), 8f, Font.NORMAL, Element.ALIGN_LEFT);
-        addCouponSeparator(document);
-
-        addCouponLine(document, "ITEM DESCRICAO", 8f, Font.BOLD, Element.ALIGN_LEFT);
-        addCouponLine(document, "001 " + limitCouponText(nullToDash(entity.getDescription()), 28), 8f, Font.NORMAL, Element.ALIGN_LEFT);
-        addCouponLine(document, "Valor original: " + formatCurrency(entity.getAmount()), 8f, Font.NORMAL, Element.ALIGN_RIGHT);
-
-        BigDecimal fees = valueOrZero(entity.getFee())
-                .add(valueOrZero(entity.getLateFee()))
-                .add(valueOrZero(entity.getLateInterest()));
-
-        if (fees.compareTo(ZERO) > 0) {
-            addCouponLine(document, "Acrescimos: " + formatCurrency(fees), 8f, Font.NORMAL, Element.ALIGN_RIGHT);
-        }
-
-        if (valueOrZero(entity.getDiscount()).compareTo(ZERO) > 0) {
-            addCouponLine(document, "Desconto: " + formatCurrency(entity.getDiscount()), 8f, Font.NORMAL, Element.ALIGN_RIGHT);
-        }
-
-        addCouponSeparator(document);
-        addCouponLine(document, "TOTAL " + formatCurrency(getReceiptAmount(entity)), 10f, Font.BOLD, Element.ALIGN_RIGHT);
-        addCouponLine(document, "Forma: " + getPaymentMethodName(entity), 8f, Font.NORMAL, Element.ALIGN_LEFT);
-        addCouponLine(document, "Recebido por: " + getPaidByName(entity), 8f, Font.NORMAL, Element.ALIGN_LEFT);
-        addCouponSeparator(document);
-        addCouponLine(document, "Obrigado pela preferencia", 8f, Font.BOLD, Element.ALIGN_CENTER);
-        addCouponLine(document, "LOCADORA RDT", 8f, Font.NORMAL, Element.ALIGN_CENTER);
-
-        document.close();
-        return output.toByteArray();
-    }
-
-    private PdfPTable buildReceiptHeader(Receivable entity) throws DocumentException {
-        PdfPTable header = new PdfPTable(3);
-        header.setWidthPercentage(100);
-        header.setWidths(new float[]{2.2f, 3.2f, 2.2f});
-
-        PdfPCell logo = noBorderCell("LOCADORA RDT", font(14, Font.BOLD, DARK_BLUE));
-        logo.setHorizontalAlignment(Element.ALIGN_LEFT);
-        header.addCell(logo);
-
-        PdfPCell title = noBorderCell("RECIBO DE PAGAMENTO", font(16, Font.BOLD, Color.BLACK));
-        title.setHorizontalAlignment(Element.ALIGN_CENTER);
-        header.addCell(title);
-
-        PdfPCell amount = noBorderCell("VALOR " + formatCurrency(getReceiptAmount(entity)), font(13, Font.BOLD, Color.BLACK));
-        amount.setHorizontalAlignment(Element.ALIGN_RIGHT);
-        header.addCell(amount);
-
-        return header;
-    }
-
-    private PdfPTable buildReceiptDetails(Receivable entity) throws DocumentException {
-        PdfPTable details = new PdfPTable(4);
-        details.setWidthPercentage(100);
-        details.setWidths(new float[]{1.4f, 2.6f, 1.4f, 2.6f});
-        details.setSpacingBefore(22f);
-
-        addDetail(details, "Conta", "#" + entity.getId());
-        addDetail(details, "Status", "Pago");
-        addDetail(details, "Vencimento", formatDate(entity.getDueDate()));
-        addDetail(details, "Pagamento", formatDate(entity.getPaymentDate()));
-        addDetail(details, "Forma Pgto", entity.getPaymentMethod() == null ? "-" : nullToDash(entity.getPaymentMethod().getName()));
-        addDetail(details, "Frequência", entity.getPaymentFrequency() == null ? "-" : nullToDash(entity.getPaymentFrequency().getFrequency()));
-        addDetail(details, "Subtotal", formatCurrency(valueOrZero(entity.getSubtotal()).compareTo(ZERO) > 0 ? entity.getSubtotal() : entity.getAmount()));
-        addDetail(details, "Multa/Juros", formatCurrency(valueOrZero(entity.getLateFee()).add(valueOrZero(entity.getLateInterest()))));
-        addDetail(details, "Desconto", formatCurrency(entity.getDiscount()));
-        addDetail(details, "Valor Pago", formatCurrency(getReceiptAmount(entity)));
-        addDetail(details, "Recebido por", entity.getPaidBy() == null ? "-" : nullToDash(entity.getPaidBy().getName()));
-        addDetail(details, "Emitido em", formatDate(LocalDate.now()));
-
-        return details;
-    }
-
-    private void addDetail(PdfPTable table, String label, String value) {
-        PdfPCell labelCell = detailCell(label + ":", font(9, Font.BOLD, DARK_BLUE));
-        labelCell.setBackgroundColor(new Color(245, 248, 252));
-        table.addCell(labelCell);
-        table.addCell(detailCell(nullToDash(value), font(9, Font.NORMAL, Color.BLACK)));
-    }
-
-    private PdfPCell detailCell(String text, Font font) {
-        PdfPCell cell = new PdfPCell(new Phrase(text, font));
-        cell.setBorder(Rectangle.BOX);
-        cell.setBorderWidth(0.3f);
-        cell.setPadding(5f);
-        return cell;
-    }
-
-    private PdfPCell noBorderCell(String text, Font font) {
-        PdfPCell cell = new PdfPCell(new Phrase(text, font));
-        cell.setBorder(Rectangle.NO_BORDER);
-        cell.setPadding(0);
-        return cell;
-    }
-
-    private void addCouponLine(Document document, String text, float size, int style, int alignment) throws DocumentException {
-        Paragraph line = new Paragraph(nullToDash(text), new Font(Font.COURIER, size, style, Color.BLACK));
-        line.setAlignment(alignment);
-        line.setLeading(size + 2f);
-        line.setSpacingAfter(2f);
-        document.add(line);
-    }
-
-    private void addCouponSeparator(Document document) throws DocumentException {
-        addCouponLine(document, "--------------------------------", 8f, Font.NORMAL, Element.ALIGN_CENTER);
-    }
-
-    private String limitCouponText(String value, int maxLength) {
-        String normalized = nullToDash(value);
-        return normalized.length() <= maxLength ? normalized : normalized.substring(0, maxLength - 3) + "...";
-    }
-
-    private ReceivableFilterDTO normalizeFilters(ReceivableFilterDTO filters) {
-        ReceivableFilterDTO normalized = filters == null ? new ReceivableFilterDTO() : filters;
-
-        normalized.setSearch(trimToNull(normalized.getSearch()));
-        normalized.setStatus(normalizeStatus(normalized.getStatus()));
-        normalized.setPeriodType(normalizePeriodType(normalized.getPeriodType()));
-        normalized.setOrderBy(normalizeOrderBy(normalized.getOrderBy()));
-        normalized.setDirection(normalizeDirection(normalized.getDirection()));
-        normalized.setCustomerId(normalizeId(normalized.getCustomerId()));
-        normalized.setPaymentMethodId(normalizeId(normalized.getPaymentMethodId()));
-        normalized.setPaymentFrequencyId(normalizeId(normalized.getPaymentFrequencyId()));
-
-        return normalized;
-    }
-
-    private String normalizeStatus(String status) {
-        if (status == null || status.trim().isEmpty()) {
-            return "ALL";
-        }
-
-        String value = status.trim().toUpperCase();
-
-        if ("OPEN".equals(value)) {
-            return "PENDING";
-        }
-
-        if (Arrays.asList("ALL", "PENDING", "PAID", "OVERDUE", "PARTIALLY_PAID", "CANCELED").contains(value)) {
-            return value;
-        }
-
-        return "ALL";
-    }
-
-    private String normalizePeriodType(String periodType) {
-        if (periodType == null || periodType.trim().isEmpty()) {
-            return "DUE_DATE";
-        }
-
-        String value = periodType.trim().toUpperCase();
-
-        if ("DUE".equals(value)) {
-            return "DUE_DATE";
-        }
-
-        if ("PAYMENT".equals(value)) {
-            return "PAYMENT_DATE";
-        }
-
-        if ("CREATED".equals(value)) {
-            return "CREATED_DATE";
-        }
-
-        if (Arrays.asList("DUE_DATE", "PAYMENT_DATE", "CREATED_DATE").contains(value)) {
-            return value;
-        }
-
-        return "DUE_DATE";
-    }
-
-    private String normalizeOrderBy(String orderBy) {
-        if (orderBy == null || orderBy.trim().isEmpty()) {
-            return "dueDate";
-        }
-
-        String value = orderBy.trim();
-        if (Arrays.asList("dueDate", "paymentDate", "createdDate", "amount", "description").contains(value)) {
-            return value;
-        }
-
-        return "dueDate";
-    }
-
-    private String normalizeDirection(String direction) {
-        if ("DESC".equalsIgnoreCase(direction)) {
-            return "DESC";
-        }
-
-        return "ASC";
-    }
-
-    private Specification<Receivable> filters(
-            String description,
-            LocalDate startDate,
-            LocalDate endDate,
-            String status,
-            String dateType
-    ) {
+    private Specification<Receivable> filters(ReceivableFilterDTO filters) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if (description != null && !description.trim().isEmpty()) {
-                predicates.add(cb.like(cb.lower(root.get("description")), "%" + description.trim().toLowerCase() + "%"));
+            if (filters.getSearch() != null) {
+                predicates.add(cb.like(cb.lower(root.get("description")), "%" + filters.getSearch().toLowerCase() + "%"));
             }
 
-            if ("paid".equalsIgnoreCase(status)) {
+            if (ReceivableStatus.PAID.name().equals(filters.getStatus())) {
                 predicates.add(cb.isTrue(root.get("paid")));
-            } else if ("open".equalsIgnoreCase(status)) {
+                predicates.add(cb.isFalse(root.get("canceled")));
+            } else if (ReceivableStatus.PENDING.name().equals(filters.getStatus())) {
                 predicates.add(cb.isFalse(root.get("paid")));
+                predicates.add(cb.isFalse(root.get("canceled")));
+                predicates.add(cb.or(cb.isNull(root.get("dueDate")), cb.greaterThanOrEqualTo(root.get("dueDate"), today())));
+            } else if (ReceivableStatus.OVERDUE.name().equals(filters.getStatus())) {
+                predicates.add(cb.isFalse(root.get("paid")));
+                predicates.add(cb.isFalse(root.get("canceled")));
+                predicates.add(cb.lessThan(root.get("dueDate"), today()));
+            } else if (ReceivableStatus.PARTIALLY_PAID.name().equals(filters.getStatus())) {
+                predicates.add(cb.isFalse(root.get("paid")));
+                predicates.add(cb.isFalse(root.get("canceled")));
+                predicates.add(cb.greaterThan(root.get("remainingBalance"), ZERO));
+                predicates.add(cb.lessThan(root.get("remainingBalance"), root.get("amount")));
+            } else if (ReceivableStatus.CANCELED.name().equals(filters.getStatus())) {
+                predicates.add(cb.isTrue(root.get("canceled")));
             }
 
-            if (startDate != null || endDate != null) {
-                if ("created".equalsIgnoreCase(dateType)) {
+            if (filters.getStartDate() != null || filters.getEndDate() != null) {
+                if ("CREATED_DATE".equals(filters.getPeriodType())) {
                     Path<java.time.Instant> path = root.get("createdAt");
 
-                    if (startDate != null) {
-                        predicates.add(cb.greaterThanOrEqualTo(path, startDate.atStartOfDay().toInstant(ZoneOffset.UTC)));
+                    if (filters.getStartDate() != null) {
+                        predicates.add(cb.greaterThanOrEqualTo(path, filters.getStartDate().atStartOfDay().toInstant(ZoneOffset.UTC)));
                     }
 
-                    if (endDate != null) {
-                        predicates.add(cb.lessThan(path, endDate.plusDays(1).atStartOfDay().toInstant(ZoneOffset.UTC)));
+                    if (filters.getEndDate() != null) {
+                        predicates.add(cb.lessThan(path, filters.getEndDate().plusDays(1).atStartOfDay().toInstant(ZoneOffset.UTC)));
                     }
                 } else {
-                    Path<LocalDate> path = datePath(root, dateType);
+                    Path<LocalDate> path = datePath(root, filters.getPeriodType());
 
-                    if (startDate != null) {
-                        predicates.add(cb.greaterThanOrEqualTo(path, startDate));
+                    if (filters.getStartDate() != null) {
+                        predicates.add(cb.greaterThanOrEqualTo(path, filters.getStartDate()));
                     }
 
-                    if (endDate != null) {
-                        predicates.add(cb.lessThanOrEqualTo(path, endDate));
+                    if (filters.getEndDate() != null) {
+                        predicates.add(cb.lessThanOrEqualTo(path, filters.getEndDate()));
                     }
                 }
             }
@@ -646,7 +434,7 @@ public class ReceivableServiceImpl implements ReceivableService {
     }
 
     private Path<LocalDate> datePath(javax.persistence.criteria.Root<Receivable> root, String dateType) {
-        if ("payment".equalsIgnoreCase(dateType)) {
+        if ("PAYMENT_DATE".equals(dateType)) {
             return root.get("paymentDate");
         }
 
@@ -660,7 +448,10 @@ public class ReceivableServiceImpl implements ReceivableService {
     }
 
     private void validateCustomerOrDescription(ReceivableSaveDTO dto) {
-        if (normalizeId(dto.getCustomerId()) == null && (dto.getDescription() == null || dto.getDescription().trim().isEmpty())) {
+        boolean hasCustomer = normalizeId(dto.getCustomerId()) != null;
+        boolean hasDescription = dto.getDescription() != null && !dto.getDescription().trim().isEmpty();
+
+        if (!hasCustomer && !hasDescription) {
             throw new IllegalArgumentException("Informe o cliente ou a descrição da conta.");
         }
     }
@@ -674,17 +465,9 @@ public class ReceivableServiceImpl implements ReceivableService {
             throw new IllegalArgumentException("Valor de baixa deve ser maior que zero.");
         }
 
-        if (paymentAmount.compareTo(getCurrentPaymentLimit(entity, dto)) > 0) {
+        if (paymentAmount.compareTo(financialCalculator.getCurrentPaymentLimit(entity, dto)) > 0) {
             throw new IllegalArgumentException("Valor de baixa não pode ser maior que o valor da conta.");
         }
-    }
-
-    private BigDecimal getCurrentPaymentLimit(Receivable entity, ReceivablePaymentDTO dto) {
-        return getOpenAmount(entity)
-                .add(valueOrZero(dto.getFee()))
-                .add(valueOrZero(dto.getLateInterest()))
-                .add(valueOrZero(dto.getLateFee()))
-                .subtract(valueOrZero(dto.getDiscount()));
     }
 
     private void validateNotInstallmented(Receivable entity) {
@@ -693,17 +476,43 @@ public class ReceivableServiceImpl implements ReceivableService {
         }
     }
 
-    private void payTotal(Receivable entity, ReceivablePaymentDTO dto, User user, BigDecimal paidAmount) {
+    private boolean isPartiallyPaid(Receivable entity) {
+        if (Boolean.TRUE.equals(entity.getPaid())) {
+            return false;
+        }
+
+        BigDecimal amount = financialCalculator.valueOrZero(entity.getAmount());
+        BigDecimal remainingBalance = entity.getRemainingBalance();
+
+        if (remainingBalance == null) {
+            return false;
+        }
+
+        if (remainingBalance.compareTo(ZERO) <= 0) {
+            return false;
+        }
+
+        return remainingBalance.compareTo(amount) < 0;
+    }
+
+    private void payTotal(Receivable entity, ReceivablePaymentDTO dto, User user, PaymentMethod requestedPaymentMethod, BigDecimal paidAmount) {
         entity.setPaid(true);
-        entity.setPaymentDate(dto.getPaymentDate() == null ? LocalDate.now() : dto.getPaymentDate());
-        entity.setPaymentMethod(findPaymentMethod(normalizeId(dto.getPaymentMethodId())) == null
-                ? entity.getPaymentMethod()
-                : findPaymentMethod(normalizeId(dto.getPaymentMethodId())));
+
+        if (dto.getPaymentDate() == null) {
+            entity.setPaymentDate(today());
+        } else {
+            entity.setPaymentDate(dto.getPaymentDate());
+        }
+
+        if (requestedPaymentMethod != null) {
+            entity.setPaymentMethod(requestedPaymentMethod);
+        }
+
         entity.setSubtotal(paidAmount);
-        entity.setFee(valueOrZero(dto.getFee()));
-        entity.setLateInterest(valueOrZero(dto.getLateInterest()));
-        entity.setLateFee(valueOrZero(dto.getLateFee()));
-        entity.setDiscount(valueOrZero(dto.getDiscount()));
+        entity.setFee(financialCalculator.valueOrZero(dto.getFee()));
+        entity.setLateInterest(financialCalculator.valueOrZero(dto.getLateInterest()));
+        entity.setLateFee(financialCalculator.valueOrZero(dto.getLateFee()));
+        entity.setDiscount(financialCalculator.valueOrZero(dto.getDiscount()));
         entity.setRemainingBalance(ZERO);
         entity.setPaidBy(user);
         entity.setUpdatedBy(user);
@@ -727,162 +536,67 @@ public class ReceivableServiceImpl implements ReceivableService {
     }
 
     private String buildInstallmentDescription(String description, int installment, int total) {
-        String base = description == null || description.trim().isEmpty() ? "Conta a receber" : description.trim();
+        String base;
+
+        if (description == null || description.trim().isEmpty()) {
+            base = "Conta a receber";
+        } else {
+            base = description.trim();
+        }
+
         return base + " (" + installment + "/" + total + ")";
     }
 
     private BigDecimal sum(List<Receivable> items) {
-        return items.stream()
-                .map(item -> valueOrZero(item.getAmount()))
-                .reduce(ZERO, BigDecimal::add);
-    }
+        BigDecimal total = ZERO;
 
-    private BigDecimal getReceiptAmount(Receivable entity) {
-        BigDecimal subtotal = valueOrZero(entity.getSubtotal());
-        BigDecimal base = subtotal.compareTo(ZERO) > 0 ? subtotal : valueOrZero(entity.getAmount());
-
-        return base
-                .add(valueOrZero(entity.getFee()))
-                .add(valueOrZero(entity.getLateInterest()))
-                .add(valueOrZero(entity.getLateFee()))
-                .subtract(valueOrZero(entity.getDiscount()))
-                .setScale(2, RoundingMode.HALF_UP);
-    }
-
-    private String buildReceiptNumber(Receivable entity) {
-        LocalDate date = entity.getPaymentDate() == null ? LocalDate.now() : entity.getPaymentDate();
-        return date.getYear() + "/" + entity.getId();
-    }
-
-    private String getCustomerName(Receivable entity) {
-        return entity.getCustomer() == null ? "-" : nullToDash(entity.getCustomer().getName());
-    }
-
-    private String getCustomerCpf(Receivable entity) {
-        return entity.getCustomer() == null ? "-" : nullToDash(entity.getCustomer().getCpf());
-    }
-
-    private String getPaymentMethodName(Receivable entity) {
-        return entity.getPaymentMethod() == null ? "-" : nullToDash(entity.getPaymentMethod().getName());
-    }
-
-    private String getPaidByName(Receivable entity) {
-        return entity.getPaidBy() == null ? "-" : nullToDash(entity.getPaidBy().getName());
-    }
-
-    private String formatCurrency(BigDecimal value) {
-        return NumberFormat.getCurrencyInstance(BRAZIL).format(valueOrZero(value));
-    }
-
-    private String formatDate(LocalDate date) {
-        return date == null ? "-" : date.format(DATE_FORMATTER);
-    }
-
-    private String nullToDash(String value) {
-        return value == null || value.trim().isEmpty() ? "-" : value.trim();
-    }
-
-    private Font font(float size, int style, Color color) {
-        return new Font(Font.TIMES_ROMAN, size, style, color);
-    }
-
-    private BigDecimal valueOrZero(BigDecimal value) {
-        return value == null ? ZERO : value;
-    }
-
-    private BigDecimal getOpenAmount(Receivable entity) {
-        BigDecimal amount = valueOrZero(entity.getAmount());
-        BigDecimal paidAmount = hasPaymentRecord(entity) ? valueOrZero(entity.getSubtotal()) : ZERO;
-
-        if (amount.compareTo(ZERO) > 0 && paidAmount.compareTo(amount) >= 0) {
-            return ZERO;
+        for (Receivable item : items) {
+            total = total.add(financialCalculator.valueOrZero(item.getAmount()));
         }
 
-        if (paidAmount.compareTo(ZERO) > 0 && paidAmount.compareTo(amount) < 0) {
-            return amount.subtract(paidAmount);
+        return total;
+    }
+
+    private ReceivableDTO toDTOWithLateCharges(Receivable entity) {
+        ReceivableDTO dto = mapper.toDTO(entity);
+        financialCalculator.fillLateCharges(entity, dto);
+        return dto;
+    }
+
+    private Long normalizeId(Long id) {
+        if (id == null) {
+            return null;
         }
 
-        BigDecimal remaining = entity.getRemainingBalance();
+        if (id <= 0) {
+            return null;
+        }
 
-        if (remaining != null && remaining.compareTo(ZERO) > 0 && remaining.compareTo(amount) < 0) {
-            return remaining;
+        return id;
+    }
+
+    private Long idFilterOrDisabled(Long id) {
+        if (id == null) {
+            return FILTER_ID_DISABLED;
+        }
+
+        return id;
+    }
+
+    private BigDecimal amountFilterOrDisabled(BigDecimal amount) {
+        if (amount == null) {
+            return FILTER_AMOUNT_DISABLED;
         }
 
         return amount;
     }
 
-    private ReceivableDTO toDTOWithLateCharges(Receivable entity) {
-        ReceivableDTO dto = mapper.toDTO(entity);
-        fillLateCharges(entity, dto);
-        return dto;
-    }
-
-    private void fillLateCharges(Receivable entity, ReceivableDTO dto) {
-        BigDecimal amount = valueOrZero(entity.getAmount()).setScale(2, RoundingMode.HALF_UP);
-        BigDecimal openAmount = getOpenAmount(entity).setScale(2, RoundingMode.HALF_UP);
-        dto.setCurrentAmountWithLateCharges(Boolean.TRUE.equals(entity.getPaid()) ? amount : openAmount);
-        dto.setOverdueDays(0L);
-        dto.setCalculatedLateInterest(ZERO.setScale(2, RoundingMode.HALF_UP));
-        dto.setCalculatedLateFee(ZERO.setScale(2, RoundingMode.HALF_UP));
-
-        if (!isOverdueOpenReceivable(entity)) {
-            return;
-        }
-
-        long overdueDays = ChronoUnit.DAYS.between(entity.getDueDate(), LocalDate.now());
-        FinancialSetting setting = financialSettingRepository
-                .findBySingletonKey(FinancialSetting.DEFAULT_SINGLETON_KEY)
-                .orElseGet(FinancialSetting::new);
-        BigDecimal lateFee = percentageOf(openAmount, setting.getDefaultLateFeePercent());
-        BigDecimal lateInterest = percentageOf(openAmount, setting.getDefaultLateInterestPercent())
-                .multiply(BigDecimal.valueOf(overdueDays))
-                .setScale(2, RoundingMode.HALF_UP);
-
-        dto.setOverdueDays(overdueDays);
-        dto.setCalculatedLateInterest(lateInterest);
-        dto.setCalculatedLateFee(lateFee);
-        dto.setCurrentAmountWithLateCharges(openAmount.add(lateInterest).add(lateFee).setScale(2, RoundingMode.HALF_UP));
-    }
-
-    private boolean isOverdueOpenReceivable(Receivable entity) {
-        return !Boolean.TRUE.equals(entity.getPaid())
-                && !Boolean.TRUE.equals(entity.getCanceled())
-                && entity.getDueDate() != null
-                && entity.getDueDate().isBefore(LocalDate.now())
-                && getOpenAmount(entity).compareTo(ZERO) > 0;
-    }
-
-    private BigDecimal percentageOf(BigDecimal amount, BigDecimal percent) {
-        return amount.multiply(valueOrZero(percent))
-                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
-    }
-
-    private boolean hasPaymentRecord(Receivable entity) {
-        return Boolean.TRUE.equals(entity.getPaid()) || entity.getPaymentDate() != null;
-    }
-
-    private Long normalizeId(Long id) {
-        return id == null || id <= 0 ? null : id;
-    }
-
-    private Long idFilterOrDisabled(Long id) {
-        return id == null ? FILTER_ID_DISABLED : id;
-    }
-
-    private BigDecimal amountFilterOrDisabled(BigDecimal amount) {
-        return amount == null ? FILTER_AMOUNT_DISABLED : amount;
-    }
-
     private LocalDate dateFilterOrDisabled(LocalDate date) {
-        return date == null ? FILTER_DATE_DISABLED : date;
-    }
-
-    private String trimToNull(String value) {
-        if (value == null || value.trim().isEmpty()) {
-            return null;
+        if (date == null) {
+            return FILTER_DATE_DISABLED;
         }
 
-        return value.trim();
+        return date;
     }
 
     private Customer findCustomer(Long id) {
@@ -890,8 +604,13 @@ public class ReceivableServiceImpl implements ReceivableService {
             return null;
         }
 
-        return customerRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado. Id: " + id));
+        Optional<Customer> optionalCustomer = customerRepository.findById(id);
+
+        if (optionalCustomer.isEmpty()) {
+            throw new ResourceNotFoundException("Cliente não encontrado. Id: " + id);
+        }
+
+        return optionalCustomer.get();
     }
 
     private PaymentMethod findPaymentMethod(Long id) {
@@ -899,8 +618,13 @@ public class ReceivableServiceImpl implements ReceivableService {
             return null;
         }
 
-        return paymentMethodRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Forma de pagamento não encontrada. Id: " + id));
+        Optional<PaymentMethod> optionalPaymentMethod = paymentMethodRepository.findById(id);
+
+        if (optionalPaymentMethod.isEmpty()) {
+            throw new ResourceNotFoundException("Forma de pagamento não encontrada. Id: " + id);
+        }
+
+        return optionalPaymentMethod.get();
     }
 
     private PaymentFrequency findPaymentFrequency(Long id) {
@@ -908,8 +632,13 @@ public class ReceivableServiceImpl implements ReceivableService {
             return null;
         }
 
-        return paymentFrequencyRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Frequência não encontrada. Id: " + id));
+        Optional<PaymentFrequency> optionalPaymentFrequency = paymentFrequencyRepository.findById(id);
+
+        if (optionalPaymentFrequency.isEmpty()) {
+            throw new ResourceNotFoundException("Frequência não encontrada. Id: " + id);
+        }
+
+        return optionalPaymentFrequency.get();
     }
 
     private User getAuthenticatedUser() {
@@ -922,7 +651,16 @@ public class ReceivableServiceImpl implements ReceivableService {
     }
 
     private Receivable findEntity(Long id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(ReceivableErrorMessages.RECEIVABLE_NOT_FOUND + " Id: " + id));
+        Optional<Receivable> optionalReceivable = repository.findById(id);
+
+        if (optionalReceivable.isEmpty()) {
+            throw new ResourceNotFoundException(ReceivableErrorMessages.RECEIVABLE_NOT_FOUND + " Id: " + id);
+        }
+
+        return optionalReceivable.get();
+    }
+
+    private LocalDate today() {
+        return LocalDate.now(clock);
     }
 }

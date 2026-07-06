@@ -22,6 +22,9 @@ import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableUpda
 import com.locadora_rdt_backend.modules.financial.receivables.mapper.ReceivableMapper;
 import com.locadora_rdt_backend.modules.financial.receivables.model.Receivable;
 import com.locadora_rdt_backend.modules.financial.receivables.repository.ReceivableRepository;
+import com.locadora_rdt_backend.modules.financial.receivables.service.ReceivableDocumentPdfService;
+import com.locadora_rdt_backend.modules.financial.receivables.service.ReceivableFilterNormalizer;
+import com.locadora_rdt_backend.modules.financial.receivables.service.ReceivableFinancialCalculator;
 import com.locadora_rdt_backend.modules.financial.receivables.service.ReceivableServiceImpl;
 import com.locadora_rdt_backend.modules.users.model.User;
 import com.locadora_rdt_backend.modules.users.repository.UserRepository;
@@ -30,7 +33,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -41,7 +43,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,7 +57,6 @@ import static org.mockito.ArgumentMatchers.eq;
 @SuppressWarnings("java:S5778")
 class ReceivableServiceTests {
 
-    @InjectMocks
     private ReceivableServiceImpl service;
 
     @Mock
@@ -85,9 +89,26 @@ class ReceivableServiceTests {
     private Customer customer;
     private PaymentMethod paymentMethod;
     private PaymentFrequency paymentFrequency;
+    private Clock clock;
 
     @BeforeEach
     void setUp() {
+        clock = Clock.fixed(Instant.parse("2026-07-06T12:00:00Z"), ZoneId.of("America/Sao_Paulo"));
+        ReceivableFinancialCalculator financialCalculator = new ReceivableFinancialCalculator(financialSettingRepository, clock);
+        service = new ReceivableServiceImpl(
+                repository,
+                mapper,
+                customerRepository,
+                paymentMethodRepository,
+                paymentFrequencyRepository,
+                userRepository,
+                authenticationFacade,
+                new ReceivableFilterNormalizer(),
+                financialCalculator,
+                new ReceivableDocumentPdfService(financialCalculator, clock),
+                clock
+        );
+
         entity = new Receivable();
         entity.setId(1L);
         entity.setDescription("Movie rental");
@@ -373,6 +394,35 @@ class ReceivableServiceTests {
         service.update(1L, updateDTO);
 
         Assertions.assertSame(paidBy, entity.getPaidBy());
+    }
+
+    @Test
+    void updateShouldKeepPartialPaymentStatusWhenReceivableWasPartiallyPaid() {
+        ReceivableUpdateDTO updateDTO = saveDTO(new ReceivableUpdateDTO());
+        entity.setAmount(new BigDecimal("100.00"));
+        entity.setSubtotal(new BigDecimal("40.00"));
+        entity.setRemainingBalance(new BigDecimal("60.00"));
+        entity.setPaid(false);
+        entity.setPaymentDate(LocalDate.of(2026, 7, 1));
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(entity));
+        Mockito.doAnswer(invocation -> {
+            Receivable target = invocation.getArgument(0);
+            target.setDescription("Movie rental updated");
+            target.setPaymentDate(LocalDate.of(2026, 7, 1));
+            target.setPaid(true);
+            target.setRemainingBalance(BigDecimal.ZERO);
+            return null;
+        }).when(mapper).updateEntity(entity, updateDTO);
+        mockAuthenticatedUser();
+        Mockito.when(repository.save(entity)).thenReturn(entity);
+        Mockito.when(mapper.toDTO(entity)).thenReturn(dto);
+
+        service.update(1L, updateDTO);
+
+        Assertions.assertFalse(entity.getPaid());
+        Assertions.assertEquals(new BigDecimal("60.00"), entity.getRemainingBalance());
+        Assertions.assertEquals(LocalDate.of(2026, 7, 1), entity.getPaymentDate());
     }
 
     @Test
