@@ -442,4 +442,3 @@ public class Payable implements Serializable {
         return id.equals(other.id);
     }
 }
-
