@@ -1,16 +1,16 @@
-package com.locadora_rdt_backend.tests.modules.receivables.controller;
+package com.locadora_rdt_backend.tests.modules.payables.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.locadora_rdt_backend.modules.financial.receivables.controller.ReceivableController;
-import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableDetailsDTO;
-import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableDTO;
-import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableFilterDTO;
-import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableInsertDTO;
-import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableInstallmentDTO;
-import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivablePaymentDTO;
-import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableReportDTO;
-import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableUpdateDTO;
-import com.locadora_rdt_backend.modules.financial.receivables.service.ReceivableService;
+import com.locadora_rdt_backend.modules.financial.payables.controller.PayableController;
+import com.locadora_rdt_backend.modules.financial.payables.dto.PayableDetailsDTO;
+import com.locadora_rdt_backend.modules.financial.payables.dto.PayableDTO;
+import com.locadora_rdt_backend.modules.financial.payables.dto.PayableFilterDTO;
+import com.locadora_rdt_backend.modules.financial.payables.dto.PayableInsertDTO;
+import com.locadora_rdt_backend.modules.financial.payables.dto.PayableInstallmentDTO;
+import com.locadora_rdt_backend.modules.financial.payables.dto.PayablePaymentDTO;
+import com.locadora_rdt_backend.modules.financial.payables.dto.PayableReportDTO;
+import com.locadora_rdt_backend.modules.financial.payables.dto.PayableUpdateDTO;
+import com.locadora_rdt_backend.modules.financial.payables.service.PayableService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -21,7 +21,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -42,9 +41,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(ReceivableController.class)
+@WebMvcTest(PayableController.class)
 @AutoConfigureMockMvc(addFilters = false)
-class ReceivableControllerIT {
+class PayableControllerIT {
 
     @Autowired
     private MockMvc mockMvc;
@@ -53,7 +52,7 @@ class ReceivableControllerIT {
     private ObjectMapper objectMapper;
 
     @MockBean
-    private ReceivableService service;
+    private PayableService service;
 
     @MockBean
     private BCryptPasswordEncoder passwordEncoder;
@@ -63,10 +62,10 @@ class ReceivableControllerIT {
 
     @Test
     void findAllPagedShouldReturnPage() throws Exception {
-        Mockito.when(service.findAllPaged(any(ReceivableFilterDTO.class), any(PageRequest.class)))
+        Mockito.when(service.findAllPaged(any(PayableFilterDTO.class), any(PageRequest.class)))
                 .thenReturn(new PageImpl<>(List.of(createDTO())));
 
-        mockMvc.perform(get("/receivables"))
+        mockMvc.perform(get("/payables"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].id").value(1L))
                 .andExpect(jsonPath("$.content[0].description").value("Movie rental"))
@@ -75,10 +74,10 @@ class ReceivableControllerIT {
 
     @Test
     void findAllPagedShouldCallServiceWithParams() throws Exception {
-        Mockito.when(service.findAllPaged(any(ReceivableFilterDTO.class), any(PageRequest.class)))
+        Mockito.when(service.findAllPaged(any(PayableFilterDTO.class), any(PageRequest.class)))
                 .thenReturn(new PageImpl<>(List.of()));
 
-        mockMvc.perform(get("/receivables")
+        mockMvc.perform(get("/payables")
                         .param("description", " Movie ")
                         .param("status", "PAID")
                         .param("periodType", "PAYMENT_DATE")
@@ -88,7 +87,7 @@ class ReceivableControllerIT {
                         .param("orderBy", "amount"))
                 .andExpect(status().isOk());
 
-        ArgumentCaptor<ReceivableFilterDTO> filtersCaptor = ArgumentCaptor.forClass(ReceivableFilterDTO.class);
+        ArgumentCaptor<PayableFilterDTO> filtersCaptor = ArgumentCaptor.forClass(PayableFilterDTO.class);
         ArgumentCaptor<PageRequest> pageRequestCaptor = ArgumentCaptor.forClass(PageRequest.class);
 
         Mockito.verify(service).findAllPaged(filtersCaptor.capture(), pageRequestCaptor.capture());
@@ -104,12 +103,12 @@ class ReceivableControllerIT {
 
     @Test
     void findByIdShouldReturnDetails() throws Exception {
-        ReceivableDetailsDTO dto = new ReceivableDetailsDTO();
+        PayableDetailsDTO dto = new PayableDetailsDTO();
         dto.setId(1L);
         dto.setDescription("Movie rental");
         Mockito.when(service.findById(1L)).thenReturn(dto);
 
-        mockMvc.perform(get("/receivables/{id}", 1L))
+        mockMvc.perform(get("/payables/{id}", 1L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.description").value("Movie rental"));
     }
@@ -118,7 +117,7 @@ class ReceivableControllerIT {
     void insertShouldReturnCreated() throws Exception {
         Mockito.when(service.insert(any())).thenReturn(createDTO());
 
-        mockMvc.perform(post("/receivables")
+        mockMvc.perform(post("/payables")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createInsertDTO())))
                 .andExpect(status().isCreated())
@@ -129,7 +128,7 @@ class ReceivableControllerIT {
     void updateShouldReturnOk() throws Exception {
         Mockito.when(service.update(eq(1L), any())).thenReturn(createDTO());
 
-        mockMvc.perform(put("/receivables/{id}", 1L)
+        mockMvc.perform(put("/payables/{id}", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createUpdateDTO())))
                 .andExpect(status().isOk())
@@ -138,7 +137,7 @@ class ReceivableControllerIT {
 
     @Test
     void deleteShouldReturnNoContent() throws Exception {
-        mockMvc.perform(delete("/receivables/{id}", 1L))
+        mockMvc.perform(delete("/payables/{id}", 1L))
                 .andExpect(status().isNoContent());
 
         Mockito.verify(service).delete(1L);
@@ -148,7 +147,7 @@ class ReceivableControllerIT {
     void payShouldReturnOk() throws Exception {
         Mockito.when(service.pay(eq(1L), any())).thenReturn(createDTO());
 
-        mockMvc.perform(post("/receivables/{id}/payments", 1L)
+        mockMvc.perform(post("/payables/{id}/payments", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createPaymentDTO())))
                 .andExpect(status().isOk())
@@ -157,11 +156,11 @@ class ReceivableControllerIT {
 
     @Test
     void installmentShouldReturnList() throws Exception {
-        ReceivableInstallmentDTO dto = new ReceivableInstallmentDTO();
+        PayableInstallmentDTO dto = new PayableInstallmentDTO();
         dto.setInstallments(2);
         Mockito.when(service.installment(eq(1L), any())).thenReturn(List.of(createDTO()));
 
-        mockMvc.perform(post("/receivables/{id}/installments", 1L)
+        mockMvc.perform(post("/payables/{id}/installments", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
@@ -171,9 +170,9 @@ class ReceivableControllerIT {
     @Test
     void reportShouldReturnReport() throws Exception {
         Mockito.when(service.report(any(), any(), any(), any(), any()))
-                .thenReturn(new ReceivableReportDTO(1L, new BigDecimal("45.90"), BigDecimal.ZERO, new BigDecimal("45.90")));
+                .thenReturn(new PayableReportDTO(1L, new BigDecimal("45.90"), BigDecimal.ZERO, new BigDecimal("45.90")));
 
-        mockMvc.perform(get("/receivables/report")
+        mockMvc.perform(get("/payables/report")
                         .param("description", "Movie")
                         .param("startDate", "2026-07-01")
                         .param("endDate", "2026-07-31")
@@ -183,62 +182,40 @@ class ReceivableControllerIT {
                 .andExpect(jsonPath("$.totalItems").value(1L));
     }
 
-    @Test
-    void receiptShouldReturnPdf() throws Exception {
-        Mockito.when(service.receipt(1L)).thenReturn(new byte[]{'%', 'P', 'D', 'F'});
-
-        mockMvc.perform(get("/receivables/{id}/receipt", 1L))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_PDF))
-                .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=recibo-1.pdf"))
-                .andExpect(content().bytes(new byte[]{'%', 'P', 'D', 'F'}));
-    }
-
-    @Test
-    void fiscalCouponShouldReturnPdf() throws Exception {
-        Mockito.when(service.fiscalCoupon(1L)).thenReturn(new byte[]{'%', 'P', 'D', 'F'});
-
-        mockMvc.perform(get("/receivables/{id}/fiscal-coupon", 1L))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_PDF))
-                .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=cupom-fiscal-1.pdf"))
-                .andExpect(content().bytes(new byte[]{'%', 'P', 'D', 'F'}));
-    }
-
-    private ReceivableDTO createDTO() {
-        ReceivableDTO dto = new ReceivableDTO();
+    private PayableDTO createDTO() {
+        PayableDTO dto = new PayableDTO();
         dto.setId(1L);
         dto.setDescription("Movie rental");
         dto.setAmount(new BigDecimal("45.90"));
         dto.setPaid(false);
-        dto.setCustomerId(1L);
-        dto.setCustomerName("Cliente");
+        dto.setSupplierId(1L);
+        dto.setSupplierName("Fornecedor");
         return dto;
     }
 
-    private ReceivableInsertDTO createInsertDTO() {
-        ReceivableInsertDTO dto = new ReceivableInsertDTO();
+    private PayableInsertDTO createInsertDTO() {
+        PayableInsertDTO dto = new PayableInsertDTO();
         dto.setDescription("Movie rental");
         dto.setAmount(new BigDecimal("45.90"));
         dto.setDueDate(LocalDate.of(2026, 7, 1));
-        dto.setCustomerId(1L);
+        dto.setSupplierId(1L);
         dto.setPaymentFrequencyId(1L);
         return dto;
     }
 
-    private ReceivableUpdateDTO createUpdateDTO() {
-        ReceivableUpdateDTO dto = new ReceivableUpdateDTO();
+    private PayableUpdateDTO createUpdateDTO() {
+        PayableUpdateDTO dto = new PayableUpdateDTO();
         dto.setId(1L);
         dto.setDescription("Movie rental updated");
         dto.setAmount(new BigDecimal("50.00"));
         dto.setDueDate(LocalDate.of(2026, 7, 1));
-        dto.setCustomerId(1L);
+        dto.setSupplierId(1L);
         dto.setPaymentFrequencyId(1L);
         return dto;
     }
 
-    private ReceivablePaymentDTO createPaymentDTO() {
-        ReceivablePaymentDTO dto = new ReceivablePaymentDTO();
+    private PayablePaymentDTO createPaymentDTO() {
+        PayablePaymentDTO dto = new PayablePaymentDTO();
         dto.setPaymentAmount(new BigDecimal("45.90"));
         dto.setPaymentDate(LocalDate.of(2026, 7, 1));
         return dto;

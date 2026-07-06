@@ -1,4 +1,4 @@
-package com.locadora_rdt_backend.modules.financial.receivables.dto;
+package com.locadora_rdt_backend.modules.financial.payables.dto;
 
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotBlank;
@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public class ReceivableSaveDTO implements Serializable {
+public class PayableSaveDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @NotBlank(message = "Descrição é obrigatória")
@@ -23,8 +23,8 @@ public class ReceivableSaveDTO implements Serializable {
     private LocalDate dueDate;
     private LocalDate paymentDate;
 
-    @NotNull(message = "Cliente é obrigatório")
-    private Long customerId;
+    private Long supplierId;
+    private Long employeeId;
     private Long paymentMethodId;
     private Long paymentFrequencyId;
     private String note;
@@ -46,8 +46,12 @@ public class ReceivableSaveDTO implements Serializable {
         return paymentDate;
     }
 
-    public Long getCustomerId() {
-        return customerId;
+    public Long getSupplierId() {
+        return supplierId;
+    }
+
+    public Long getEmployeeId() {
+        return employeeId;
     }
 
     public Long getPaymentMethodId() {
@@ -82,8 +86,12 @@ public class ReceivableSaveDTO implements Serializable {
         this.paymentDate = paymentDate;
     }
 
-    public void setCustomerId(Long customerId) {
-        this.customerId = customerId;
+    public void setSupplierId(Long supplierId) {
+        this.supplierId = supplierId;
+    }
+
+    public void setEmployeeId(Long employeeId) {
+        this.employeeId = employeeId;
     }
 
     public void setPaymentMethodId(Long paymentMethodId) {

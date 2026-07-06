@@ -1,0 +1,114 @@
+package com.locadora_rdt_backend.modules.financial.payables.repository;
+
+import com.locadora_rdt_backend.modules.financial.payables.model.Payable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+public interface PayableRepository extends JpaRepository<Payable, Long>, JpaSpecificationExecutor<Payable> {
+
+    @Query("select payable from Payable payable where payable.description like %?1%")
+    Page<Payable> find(String description, Pageable pageable);
+
+    @Query(
+            value = "SELECT r.* FROM tb_payable r "
+                    + "LEFT JOIN tb_supplier s ON s.id = r.supplier_id "
+                    + "LEFT JOIN tb_employee e ON e.id = r.employee_id "
+                    + "WHERE (:search IS NULL "
+                    + "OR LOWER(COALESCE(r.description, '')) LIKE LOWER(CONCAT('%', :search, '%')) "
+                    + "OR LOWER(COALESCE(s.name, '')) LIKE LOWER(CONCAT('%', :search, '%')) "
+                    + "OR LOWER(COALESCE(e.name, '')) LIKE LOWER(CONCAT('%', :search, '%')) "
+                    + "OR CAST(r.id AS VARCHAR) LIKE CONCAT('%', :search, '%') "
+                    + "OR LOWER(COALESCE(r.reference, '')) LIKE LOWER(CONCAT('%', :search, '%'))) "
+                    + "AND (:supplierId <= 0 OR r.supplier_id = :supplierId) "
+                    + "AND (:employeeId <= 0 OR r.employee_id = :employeeId) "
+                    + "AND (:paymentMethodId <= 0 OR r.payment_method_id = :paymentMethodId) "
+                    + "AND (:paymentFrequencyId <= 0 OR r.payment_frequency_id = :paymentFrequencyId) "
+                    + "AND (:minimumAmount < 0 OR r.amount >= :minimumAmount) "
+                    + "AND (:maximumAmount < 0 OR r.amount <= :maximumAmount) "
+                    + "AND (:hasStartDate = FALSE OR (:periodType = 'DUE_DATE' AND r.due_date >= :startDate) "
+                    + "OR (:periodType = 'PAYMENT_DATE' AND r.payment_date >= :startDate) "
+                    + "OR (:periodType = 'CREATED_DATE' AND CAST(r.created_date AS DATE) >= :startDate)) "
+                    + "AND (:hasEndDate = FALSE OR (:periodType = 'DUE_DATE' AND r.due_date <= :endDate) "
+                    + "OR (:periodType = 'PAYMENT_DATE' AND r.payment_date <= :endDate) "
+                    + "OR (:periodType = 'CREATED_DATE' AND CAST(r.created_date AS DATE) <= :endDate)) "
+                    + "AND (:status = 'ALL' "
+                    + "OR (:status = 'PAID' AND r.paid = TRUE AND r.canceled = FALSE) "
+                    + "OR (:status = 'PENDING' AND r.paid = FALSE AND r.canceled = FALSE AND (r.due_date IS NULL OR r.due_date >= CURRENT_DATE)) "
+                    + "OR (:status = 'OVERDUE' AND r.paid = FALSE AND r.canceled = FALSE AND r.due_date < CURRENT_DATE) "
+                    + "OR (:status = 'PARTIALLY_PAID' AND r.paid = FALSE AND r.canceled = FALSE "
+                    + "AND COALESCE(r.remaining_balance, r.amount) > 0 "
+                    + "AND COALESCE(r.remaining_balance, r.amount) < COALESCE(r.amount, 0)) "
+                    + "OR (:status = 'CANCELED' AND r.canceled = TRUE)) "
+                    + "ORDER BY "
+                    + "CASE WHEN :orderBy = 'dueDate' AND :direction = 'ASC' THEN r.due_date END ASC, "
+                    + "CASE WHEN :orderBy = 'dueDate' AND :direction = 'DESC' THEN r.due_date END DESC, "
+                    + "CASE WHEN :orderBy = 'paymentDate' AND :direction = 'ASC' THEN r.payment_date END ASC, "
+                    + "CASE WHEN :orderBy = 'paymentDate' AND :direction = 'DESC' THEN r.payment_date END DESC, "
+                    + "CASE WHEN :orderBy = 'createdDate' AND :direction = 'ASC' THEN r.created_date END ASC, "
+                    + "CASE WHEN :orderBy = 'createdDate' AND :direction = 'DESC' THEN r.created_date END DESC, "
+                    + "CASE WHEN :orderBy = 'amount' AND :direction = 'ASC' THEN r.amount END ASC, "
+                    + "CASE WHEN :orderBy = 'amount' AND :direction = 'DESC' THEN r.amount END DESC, "
+                    + "CASE WHEN :orderBy = 'description' AND :direction = 'ASC' THEN r.description END ASC, "
+                    + "CASE WHEN :orderBy = 'description' AND :direction = 'DESC' THEN r.description END DESC, "
+                    + "r.id DESC",
+            countQuery = "SELECT COUNT(*) FROM tb_payable r "
+                    + "LEFT JOIN tb_supplier s ON s.id = r.supplier_id "
+                    + "LEFT JOIN tb_employee e ON e.id = r.employee_id "
+                    + "WHERE (:search IS NULL "
+                    + "OR LOWER(COALESCE(r.description, '')) LIKE LOWER(CONCAT('%', :search, '%')) "
+                    + "OR LOWER(COALESCE(s.name, '')) LIKE LOWER(CONCAT('%', :search, '%')) "
+                    + "OR LOWER(COALESCE(e.name, '')) LIKE LOWER(CONCAT('%', :search, '%')) "
+                    + "OR CAST(r.id AS VARCHAR) LIKE CONCAT('%', :search, '%') "
+                    + "OR LOWER(COALESCE(r.reference, '')) LIKE LOWER(CONCAT('%', :search, '%'))) "
+                    + "AND (:supplierId <= 0 OR r.supplier_id = :supplierId) "
+                    + "AND (:employeeId <= 0 OR r.employee_id = :employeeId) "
+                    + "AND (:paymentMethodId <= 0 OR r.payment_method_id = :paymentMethodId) "
+                    + "AND (:paymentFrequencyId <= 0 OR r.payment_frequency_id = :paymentFrequencyId) "
+                    + "AND (:minimumAmount < 0 OR r.amount >= :minimumAmount) "
+                    + "AND (:maximumAmount < 0 OR r.amount <= :maximumAmount) "
+                    + "AND (:hasStartDate = FALSE OR (:periodType = 'DUE_DATE' AND r.due_date >= :startDate) "
+                    + "OR (:periodType = 'PAYMENT_DATE' AND r.payment_date >= :startDate) "
+                    + "OR (:periodType = 'CREATED_DATE' AND CAST(r.created_date AS DATE) >= :startDate)) "
+                    + "AND (:hasEndDate = FALSE OR (:periodType = 'DUE_DATE' AND r.due_date <= :endDate) "
+                    + "OR (:periodType = 'PAYMENT_DATE' AND r.payment_date <= :endDate) "
+                    + "OR (:periodType = 'CREATED_DATE' AND CAST(r.created_date AS DATE) <= :endDate)) "
+                    + "AND (:status = 'ALL' "
+                    + "OR (:status = 'PAID' AND r.paid = TRUE AND r.canceled = FALSE) "
+                    + "OR (:status = 'PENDING' AND r.paid = FALSE AND r.canceled = FALSE AND (r.due_date IS NULL OR r.due_date >= CURRENT_DATE)) "
+                    + "OR (:status = 'OVERDUE' AND r.paid = FALSE AND r.canceled = FALSE AND r.due_date < CURRENT_DATE) "
+                    + "OR (:status = 'PARTIALLY_PAID' AND r.paid = FALSE AND r.canceled = FALSE "
+                    + "AND COALESCE(r.remaining_balance, r.amount) > 0 "
+                    + "AND COALESCE(r.remaining_balance, r.amount) < COALESCE(r.amount, 0)) "
+                    + "OR (:status = 'CANCELED' AND r.canceled = TRUE)) "
+                    + "AND (:orderBy IS NULL OR :orderBy IS NOT NULL) "
+                    + "AND (:direction IS NULL OR :direction IS NOT NULL)",
+            nativeQuery = true
+    )
+    Page<Payable> findWithFilters(
+            @Param("search") String search,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("hasStartDate") Boolean hasStartDate,
+            @Param("hasEndDate") Boolean hasEndDate,
+            @Param("status") String status,
+            @Param("periodType") String periodType,
+            @Param("supplierId") Long supplierId,
+            @Param("employeeId") Long employeeId,
+            @Param("paymentMethodId") Long paymentMethodId,
+            @Param("paymentFrequencyId") Long paymentFrequencyId,
+            @Param("minimumAmount") BigDecimal minimumAmount,
+            @Param("maximumAmount") BigDecimal maximumAmount,
+            @Param("orderBy") String orderBy,
+            @Param("direction") String direction,
+            Pageable pageable
+    );
+
+    boolean existsByParentPayableId(Long parentPayableId);
+}

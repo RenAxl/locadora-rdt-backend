@@ -1,31 +1,32 @@
-package com.locadora_rdt_backend.modules.financial.receivables.service;
+package com.locadora_rdt_backend.modules.financial.payables.service;
 
 import com.locadora_rdt_backend.common.exception.DatabaseException;
 import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
 import com.locadora_rdt_backend.infrastructure.security.AuthenticationFacade;
-import com.locadora_rdt_backend.modules.financial.receivables.constants.ReceivableErrorMessages;
-import com.locadora_rdt_backend.modules.customers.model.Customer;
-import com.locadora_rdt_backend.modules.customers.repository.CustomerRepository;
+import com.locadora_rdt_backend.modules.financial.payables.constants.PayableErrorMessages;
+import com.locadora_rdt_backend.modules.suppliers.model.Supplier;
+import com.locadora_rdt_backend.modules.suppliers.repository.SupplierRepository;
+import com.locadora_rdt_backend.modules.employees.model.Employee;
+import com.locadora_rdt_backend.modules.employees.repository.EmployeeRepository;
 import com.locadora_rdt_backend.modules.financial.payment.frequencies.model.PaymentFrequency;
 import com.locadora_rdt_backend.modules.financial.payment.frequencies.repository.PaymentFrequencyRepository;
 import com.locadora_rdt_backend.modules.financial.payment.methods.model.PaymentMethod;
 import com.locadora_rdt_backend.modules.financial.payment.methods.repository.PaymentMethodRepository;
-import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableDetailsDTO;
-import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableDTO;
-import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableFilterDTO;
-import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableInsertDTO;
-import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableInstallmentDTO;
-import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivablePaymentDTO;
-import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableReportDTO;
-import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableSaveDTO;
-import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableUpdateDTO;
-import com.locadora_rdt_backend.modules.financial.receivables.mapper.ReceivableMapper;
-import com.locadora_rdt_backend.modules.financial.receivables.model.Receivable;
-import com.locadora_rdt_backend.modules.financial.receivables.model.ReceivableStatus;
-import com.locadora_rdt_backend.modules.financial.receivables.repository.ReceivableRepository;
+import com.locadora_rdt_backend.modules.financial.payables.dto.PayableDetailsDTO;
+import com.locadora_rdt_backend.modules.financial.payables.dto.PayableDTO;
+import com.locadora_rdt_backend.modules.financial.payables.dto.PayableFilterDTO;
+import com.locadora_rdt_backend.modules.financial.payables.dto.PayableInsertDTO;
+import com.locadora_rdt_backend.modules.financial.payables.dto.PayableInstallmentDTO;
+import com.locadora_rdt_backend.modules.financial.payables.dto.PayablePaymentDTO;
+import com.locadora_rdt_backend.modules.financial.payables.dto.PayableReportDTO;
+import com.locadora_rdt_backend.modules.financial.payables.dto.PayableSaveDTO;
+import com.locadora_rdt_backend.modules.financial.payables.dto.PayableUpdateDTO;
+import com.locadora_rdt_backend.modules.financial.payables.mapper.PayableMapper;
+import com.locadora_rdt_backend.modules.financial.payables.model.Payable;
+import com.locadora_rdt_backend.modules.financial.payables.model.PayableStatus;
+import com.locadora_rdt_backend.modules.financial.payables.repository.PayableRepository;
 import com.locadora_rdt_backend.modules.users.model.User;
 import com.locadora_rdt_backend.modules.users.repository.UserRepository;
-import com.lowagie.text.DocumentException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -45,55 +46,55 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ReceivableServiceImpl implements ReceivableService {
+public class PayableServiceImpl implements PayableService {
 
     private static final BigDecimal ZERO = BigDecimal.ZERO;
     private static final BigDecimal FILTER_AMOUNT_DISABLED = BigDecimal.valueOf(-1);
     private static final LocalDate FILTER_DATE_DISABLED = LocalDate.of(1970, 1, 1);
     private static final long FILTER_ID_DISABLED = -1L;
 
-    private final ReceivableRepository repository;
-    private final ReceivableMapper mapper;
-    private final CustomerRepository customerRepository;
+    private final PayableRepository repository;
+    private final PayableMapper mapper;
+    private final SupplierRepository supplierRepository;
+    private final EmployeeRepository employeeRepository;
     private final PaymentMethodRepository paymentMethodRepository;
     private final PaymentFrequencyRepository paymentFrequencyRepository;
     private final UserRepository userRepository;
     private final AuthenticationFacade authenticationFacade;
-    private final ReceivableFilterNormalizer filterNormalizer;
-    private final ReceivableFinancialCalculator financialCalculator;
-    private final ReceivableDocumentPdfService documentPdfService;
+    private final PayableFilterNormalizer filterNormalizer;
+    private final PayableFinancialCalculator financialCalculator;
     private final Clock clock;
 
-    public ReceivableServiceImpl(
-            ReceivableRepository repository,
-            ReceivableMapper mapper,
-            CustomerRepository customerRepository,
+    public PayableServiceImpl(
+            PayableRepository repository,
+            PayableMapper mapper,
+            SupplierRepository supplierRepository,
+            EmployeeRepository employeeRepository,
             PaymentMethodRepository paymentMethodRepository,
             PaymentFrequencyRepository paymentFrequencyRepository,
             UserRepository userRepository,
             AuthenticationFacade authenticationFacade,
-            ReceivableFilterNormalizer filterNormalizer,
-            ReceivableFinancialCalculator financialCalculator,
-            ReceivableDocumentPdfService documentPdfService,
+            PayableFilterNormalizer filterNormalizer,
+            PayableFinancialCalculator financialCalculator,
             Clock clock
     ) {
         this.repository = repository;
         this.mapper = mapper;
-        this.customerRepository = customerRepository;
+        this.supplierRepository = supplierRepository;
+        this.employeeRepository = employeeRepository;
         this.paymentMethodRepository = paymentMethodRepository;
         this.paymentFrequencyRepository = paymentFrequencyRepository;
         this.userRepository = userRepository;
         this.authenticationFacade = authenticationFacade;
         this.filterNormalizer = filterNormalizer;
         this.financialCalculator = financialCalculator;
-        this.documentPdfService = documentPdfService;
         this.clock = clock;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<ReceivableDTO> findAllPaged(String description, PageRequest pageRequest) {
-        ReceivableFilterDTO filters = new ReceivableFilterDTO();
+    public Page<PayableDTO> findAllPaged(String description, PageRequest pageRequest) {
+        PayableFilterDTO filters = new PayableFilterDTO();
         filters.setSearch(description);
         filters.setStatus("ALL");
         filters.setPeriodType("DUE_DATE");
@@ -104,8 +105,8 @@ public class ReceivableServiceImpl implements ReceivableService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<ReceivableDTO> findAllPaged(ReceivableFilterDTO filters, PageRequest pageRequest) {
-        ReceivableFilterDTO normalized = filterNormalizer.normalize(filters);
+    public Page<PayableDTO> findAllPaged(PayableFilterDTO filters, PageRequest pageRequest) {
+        PayableFilterDTO normalized = filterNormalizer.normalize(filters);
 
         return repository.findWithFilters(
                         normalized.getSearch(),
@@ -115,7 +116,8 @@ public class ReceivableServiceImpl implements ReceivableService {
                         normalized.getEndDate() != null,
                         normalized.getStatus(),
                         normalized.getPeriodType(),
-                        idFilterOrDisabled(normalized.getCustomerId()),
+                        idFilterOrDisabled(normalized.getSupplierId()),
+                        idFilterOrDisabled(normalized.getEmployeeId()),
                         idFilterOrDisabled(normalized.getPaymentMethodId()),
                         idFilterOrDisabled(normalized.getPaymentFrequencyId()),
                         amountFilterOrDisabled(normalized.getMinimumAmount()),
@@ -129,19 +131,17 @@ public class ReceivableServiceImpl implements ReceivableService {
 
     @Override
     @Transactional(readOnly = true)
-    public ReceivableDetailsDTO findById(Long id) {
-        Receivable entity = findEntity(id);
-        ReceivableDetailsDTO dto = mapper.toDetailsDTO(entity);
+    public PayableDetailsDTO findById(Long id) {
+        Payable entity = findEntity(id);
+        PayableDetailsDTO dto = mapper.toDetailsDTO(entity);
         financialCalculator.fillLateCharges(entity, dto);
         return dto;
     }
 
     @Override
     @Transactional
-    public ReceivableDTO insert(ReceivableInsertDTO dto) {
-        validateCustomerOrDescription(dto);
-
-        Receivable entity = mapper.toEntity(dto);
+    public PayableDTO insert(PayableInsertDTO dto) {
+        Payable entity = mapper.toEntity(dto);
         applyRelations(entity, dto);
         entity.setCreatedBy(getAuthenticatedUser());
 
@@ -157,10 +157,8 @@ public class ReceivableServiceImpl implements ReceivableService {
 
     @Override
     @Transactional
-    public ReceivableDTO update(Long id, ReceivableUpdateDTO dto) {
-        validateCustomerOrDescription(dto);
-
-        Receivable entity = findEntity(id);
+    public PayableDTO update(Long id, PayableUpdateDTO dto) {
+        Payable entity = findEntity(id);
         boolean wasPartiallyPaid = isPartiallyPaid(entity);
         BigDecimal previousRemainingBalance = entity.getRemainingBalance();
         LocalDate previousPaymentDate = entity.getPaymentDate();
@@ -192,20 +190,20 @@ public class ReceivableServiceImpl implements ReceivableService {
     @Override
     @Transactional
     public void delete(Long id) {
-        Receivable entity = findEntity(id);
+        Payable entity = findEntity(id);
 
         try {
             repository.delete(entity);
             repository.flush();
         } catch (DataIntegrityViolationException e) {
-            throw new DatabaseException(ReceivableErrorMessages.DATABASE_INTEGRITY_VIOLATION);
+            throw new DatabaseException(PayableErrorMessages.DATABASE_INTEGRITY_VIOLATION);
         }
     }
 
     @Override
     @Transactional
-    public ReceivableDTO pay(Long id, ReceivablePaymentDTO dto) {
-        Receivable entity = findEntity(id);
+    public PayableDTO pay(Long id, PayablePaymentDTO dto) {
+        Payable entity = findEntity(id);
         BigDecimal paymentAmount = financialCalculator.valueOrZero(dto.getPaymentAmount());
         validatePayment(entity, dto, paymentAmount);
 
@@ -247,8 +245,8 @@ public class ReceivableServiceImpl implements ReceivableService {
 
     @Override
     @Transactional
-    public List<ReceivableDTO> installment(Long id, ReceivableInstallmentDTO dto) {
-        Receivable original = findEntity(id);
+    public List<PayableDTO> installment(Long id, PayableInstallmentDTO dto) {
+        Payable original = findEntity(id);
 
         if (Boolean.TRUE.equals(original.getPaid())) {
             throw new IllegalArgumentException("Não é possível parcelar conta já paga.");
@@ -259,7 +257,7 @@ public class ReceivableServiceImpl implements ReceivableService {
         BigDecimal total = financialCalculator.valueOrZero(original.getAmount());
         BigDecimal base = total.divide(BigDecimal.valueOf(dto.getInstallments()), 2, RoundingMode.DOWN);
         BigDecimal accumulated = ZERO;
-        List<Receivable> installments = new ArrayList<>();
+        List<Payable> installments = new ArrayList<>();
         LocalDate firstDueDate;
 
         if (dto.getFirstDueDate() == null) {
@@ -279,7 +277,7 @@ public class ReceivableServiceImpl implements ReceivableService {
 
             accumulated = accumulated.add(value);
 
-            Receivable installment = copyBase(original);
+            Payable installment = copyBase(original);
             installment.setId(null);
             installment.setAmount(value);
             installment.setRemainingBalance(value);
@@ -293,7 +291,7 @@ public class ReceivableServiceImpl implements ReceivableService {
                 installment.setDueDate(firstDueDate.plusMonths(i - 1L));
             }
 
-            installment.setParentReceivable(original);
+            installment.setParentPayable(original);
             installment.setCreatedBy(getAuthenticatedUser());
             installments.add(installment);
         }
@@ -302,11 +300,11 @@ public class ReceivableServiceImpl implements ReceivableService {
         original.setUpdatedBy(getAuthenticatedUser());
         repository.save(original);
 
-        List<Receivable> savedInstallments = repository.saveAll(installments);
-        List<ReceivableDTO> result = new ArrayList<>();
+        List<Payable> savedInstallments = repository.saveAll(installments);
+        List<PayableDTO> result = new ArrayList<>();
 
-        for (Receivable item : savedInstallments) {
-            ReceivableDTO dtoResult = toDTOWithLateCharges(item);
+        for (Payable item : savedInstallments) {
+            PayableDTO dtoResult = toDTOWithLateCharges(item);
             result.add(dtoResult);
         }
 
@@ -315,25 +313,25 @@ public class ReceivableServiceImpl implements ReceivableService {
 
     @Override
     @Transactional(readOnly = true)
-    public ReceivableReportDTO report(
+    public PayableReportDTO report(
             String description,
             LocalDate startDate,
             LocalDate endDate,
             String status,
             String dateType
     ) {
-        ReceivableFilterDTO reportFilters = new ReceivableFilterDTO();
+        PayableFilterDTO reportFilters = new PayableFilterDTO();
         reportFilters.setSearch(description);
         reportFilters.setStartDate(startDate);
         reportFilters.setEndDate(endDate);
         reportFilters.setStatus(status);
         reportFilters.setPeriodType(dateType);
 
-        List<Receivable> items = repository.findAll(filters(filterNormalizer.normalize(reportFilters)));
+        List<Payable> items = repository.findAll(filters(filterNormalizer.normalize(reportFilters)));
         BigDecimal total = sum(items);
-        List<Receivable> paidItems = new ArrayList<>();
+        List<Payable> paidItems = new ArrayList<>();
 
-        for (Receivable item : items) {
+        for (Payable item : items) {
             if (Boolean.TRUE.equals(item.getPaid())) {
                 paidItems.add(item);
             }
@@ -342,42 +340,10 @@ public class ReceivableServiceImpl implements ReceivableService {
         BigDecimal paid = sum(paidItems);
         BigDecimal open = total.subtract(paid);
 
-        return new ReceivableReportDTO((long) items.size(), total, paid, open);
+        return new PayableReportDTO((long) items.size(), total, paid, open);
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public byte[] receipt(Long id) {
-        Receivable entity = findEntity(id);
-
-        if (!Boolean.TRUE.equals(entity.getPaid())) {
-            throw new IllegalArgumentException("Recibo disponível apenas para contas pagas.");
-        }
-
-        try {
-            return documentPdfService.buildReceiptPdf(entity);
-        } catch (DocumentException e) {
-            throw new IllegalStateException("Erro ao gerar recibo.", e);
-        }
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public byte[] fiscalCoupon(Long id) {
-        Receivable entity = findEntity(id);
-
-        if (!Boolean.TRUE.equals(entity.getPaid())) {
-            throw new IllegalArgumentException("Cupom fiscal disponível apenas para contas pagas.");
-        }
-
-        try {
-            return documentPdfService.buildFiscalCouponPdf(entity);
-        } catch (DocumentException e) {
-            throw new IllegalStateException("Erro ao gerar cupom fiscal.", e);
-        }
-    }
-
-    private Specification<Receivable> filters(ReceivableFilterDTO filters) {
+    private Specification<Payable> filters(PayableFilterDTO filters) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -385,23 +351,23 @@ public class ReceivableServiceImpl implements ReceivableService {
                 predicates.add(cb.like(cb.lower(root.get("description")), "%" + filters.getSearch().toLowerCase() + "%"));
             }
 
-            if (ReceivableStatus.PAID.name().equals(filters.getStatus())) {
+            if (PayableStatus.PAID.name().equals(filters.getStatus())) {
                 predicates.add(cb.isTrue(root.get("paid")));
                 predicates.add(cb.isFalse(root.get("canceled")));
-            } else if (ReceivableStatus.PENDING.name().equals(filters.getStatus())) {
+            } else if (PayableStatus.PENDING.name().equals(filters.getStatus())) {
                 predicates.add(cb.isFalse(root.get("paid")));
                 predicates.add(cb.isFalse(root.get("canceled")));
                 predicates.add(cb.or(cb.isNull(root.get("dueDate")), cb.greaterThanOrEqualTo(root.get("dueDate"), today())));
-            } else if (ReceivableStatus.OVERDUE.name().equals(filters.getStatus())) {
+            } else if (PayableStatus.OVERDUE.name().equals(filters.getStatus())) {
                 predicates.add(cb.isFalse(root.get("paid")));
                 predicates.add(cb.isFalse(root.get("canceled")));
                 predicates.add(cb.lessThan(root.get("dueDate"), today()));
-            } else if (ReceivableStatus.PARTIALLY_PAID.name().equals(filters.getStatus())) {
+            } else if (PayableStatus.PARTIALLY_PAID.name().equals(filters.getStatus())) {
                 predicates.add(cb.isFalse(root.get("paid")));
                 predicates.add(cb.isFalse(root.get("canceled")));
                 predicates.add(cb.greaterThan(root.get("remainingBalance"), ZERO));
                 predicates.add(cb.lessThan(root.get("remainingBalance"), root.get("amount")));
-            } else if (ReceivableStatus.CANCELED.name().equals(filters.getStatus())) {
+            } else if (PayableStatus.CANCELED.name().equals(filters.getStatus())) {
                 predicates.add(cb.isTrue(root.get("canceled")));
             }
 
@@ -433,7 +399,7 @@ public class ReceivableServiceImpl implements ReceivableService {
         };
     }
 
-    private Path<LocalDate> datePath(javax.persistence.criteria.Root<Receivable> root, String dateType) {
+    private Path<LocalDate> datePath(javax.persistence.criteria.Root<Payable> root, String dateType) {
         if ("PAYMENT_DATE".equals(dateType)) {
             return root.get("paymentDate");
         }
@@ -441,22 +407,14 @@ public class ReceivableServiceImpl implements ReceivableService {
         return root.get("dueDate");
     }
 
-    private void applyRelations(Receivable entity, ReceivableSaveDTO dto) {
-        entity.setCustomer(findCustomer(normalizeId(dto.getCustomerId())));
+    private void applyRelations(Payable entity, PayableSaveDTO dto) {
+        entity.setSupplier(findSupplier(normalizeId(dto.getSupplierId())));
+        entity.setEmployee(findEmployee(normalizeId(dto.getEmployeeId())));
         entity.setPaymentMethod(findPaymentMethod(normalizeId(dto.getPaymentMethodId())));
         entity.setPaymentFrequency(findPaymentFrequency(normalizeId(dto.getPaymentFrequencyId())));
     }
 
-    private void validateCustomerOrDescription(ReceivableSaveDTO dto) {
-        boolean hasCustomer = normalizeId(dto.getCustomerId()) != null;
-        boolean hasDescription = dto.getDescription() != null && !dto.getDescription().trim().isEmpty();
-
-        if (!hasCustomer && !hasDescription) {
-            throw new IllegalArgumentException("Informe o cliente ou a descrição da conta.");
-        }
-    }
-
-    private void validatePayment(Receivable entity, ReceivablePaymentDTO dto, BigDecimal paymentAmount) {
+    private void validatePayment(Payable entity, PayablePaymentDTO dto, BigDecimal paymentAmount) {
         if (Boolean.TRUE.equals(entity.getPaid())) {
             throw new IllegalArgumentException("Conta já está paga.");
         }
@@ -470,13 +428,13 @@ public class ReceivableServiceImpl implements ReceivableService {
         }
     }
 
-    private void validateNotInstallmented(Receivable entity) {
-        if (entity.getParentReceivable() != null || repository.existsByParentReceivableId(entity.getId())) {
-            throw new IllegalArgumentException(ReceivableErrorMessages.RECEIVABLE_ALREADY_INSTALLMENTED);
+    private void validateNotInstallmented(Payable entity) {
+        if (entity.getParentPayable() != null || repository.existsByParentPayableId(entity.getId())) {
+            throw new IllegalArgumentException(PayableErrorMessages.PAYABLE_ALREADY_INSTALLMENTED);
         }
     }
 
-    private boolean isPartiallyPaid(Receivable entity) {
+    private boolean isPartiallyPaid(Payable entity) {
         if (Boolean.TRUE.equals(entity.getPaid())) {
             return false;
         }
@@ -495,7 +453,7 @@ public class ReceivableServiceImpl implements ReceivableService {
         return remainingBalance.compareTo(amount) < 0;
     }
 
-    private void payTotal(Receivable entity, ReceivablePaymentDTO dto, User user, PaymentMethod requestedPaymentMethod, BigDecimal paidAmount) {
+    private void payTotal(Payable entity, PayablePaymentDTO dto, User user, PaymentMethod requestedPaymentMethod, BigDecimal paidAmount) {
         entity.setPaid(true);
 
         if (dto.getPaymentDate() == null) {
@@ -518,8 +476,8 @@ public class ReceivableServiceImpl implements ReceivableService {
         entity.setUpdatedBy(user);
     }
 
-    private Receivable copyBase(Receivable source) {
-        Receivable copy = new Receivable();
+    private Payable copyBase(Payable source) {
+        Payable copy = new Payable();
         copy.setDescription(source.getDescription());
         copy.setAmount(source.getAmount());
         copy.setDueDate(source.getDueDate());
@@ -527,7 +485,8 @@ public class ReceivableServiceImpl implements ReceivableService {
         copy.setFileName(source.getFileName());
         copy.setReference(source.getReference());
         copy.setReferenceId(source.getReferenceId());
-        copy.setCustomer(source.getCustomer());
+        copy.setSupplier(source.getSupplier());
+        copy.setEmployee(source.getEmployee());
         copy.setPaymentMethod(source.getPaymentMethod());
         copy.setPaymentFrequency(source.getPaymentFrequency());
         copy.setResidual(false);
@@ -539,7 +498,7 @@ public class ReceivableServiceImpl implements ReceivableService {
         String base;
 
         if (description == null || description.trim().isEmpty()) {
-            base = "Conta a receber";
+            base = "Conta a pagar";
         } else {
             base = description.trim();
         }
@@ -547,18 +506,18 @@ public class ReceivableServiceImpl implements ReceivableService {
         return base + " (" + installment + "/" + total + ")";
     }
 
-    private BigDecimal sum(List<Receivable> items) {
+    private BigDecimal sum(List<Payable> items) {
         BigDecimal total = ZERO;
 
-        for (Receivable item : items) {
+        for (Payable item : items) {
             total = total.add(financialCalculator.valueOrZero(item.getAmount()));
         }
 
         return total;
     }
 
-    private ReceivableDTO toDTOWithLateCharges(Receivable entity) {
-        ReceivableDTO dto = mapper.toDTO(entity);
+    private PayableDTO toDTOWithLateCharges(Payable entity) {
+        PayableDTO dto = mapper.toDTO(entity);
         financialCalculator.fillLateCharges(entity, dto);
         return dto;
     }
@@ -599,18 +558,32 @@ public class ReceivableServiceImpl implements ReceivableService {
         return date;
     }
 
-    private Customer findCustomer(Long id) {
+    private Supplier findSupplier(Long id) {
         if (id == null) {
             return null;
         }
 
-        Optional<Customer> optionalCustomer = customerRepository.findById(id);
+        Optional<Supplier> optionalSupplier = supplierRepository.findById(id);
 
-        if (optionalCustomer.isEmpty()) {
-            throw new ResourceNotFoundException("Cliente não encontrado. Id: " + id);
+        if (optionalSupplier.isEmpty()) {
+            throw new ResourceNotFoundException("Fornecedor não encontrado. Id: " + id);
         }
 
-        return optionalCustomer.get();
+        return optionalSupplier.get();
+    }
+
+    private Employee findEmployee(Long id) {
+        if (id == null) {
+            return null;
+        }
+
+        Optional<Employee> optionalEmployee = employeeRepository.findById(id);
+
+        if (optionalEmployee.isEmpty()) {
+            throw new ResourceNotFoundException("Funcionário não encontrado. Id: " + id);
+        }
+
+        return optionalEmployee.get();
     }
 
     private PaymentMethod findPaymentMethod(Long id) {
@@ -650,14 +623,14 @@ public class ReceivableServiceImpl implements ReceivableService {
         return userRepository.findByEmail(username);
     }
 
-    private Receivable findEntity(Long id) {
-        Optional<Receivable> optionalReceivable = repository.findById(id);
+    private Payable findEntity(Long id) {
+        Optional<Payable> optionalPayable = repository.findById(id);
 
-        if (optionalReceivable.isEmpty()) {
-            throw new ResourceNotFoundException(ReceivableErrorMessages.RECEIVABLE_NOT_FOUND + " Id: " + id);
+        if (optionalPayable.isEmpty()) {
+            throw new ResourceNotFoundException(PayableErrorMessages.PAYABLE_NOT_FOUND + " Id: " + id);
         }
 
-        return optionalReceivable.get();
+        return optionalPayable.get();
     }
 
     private LocalDate today() {
