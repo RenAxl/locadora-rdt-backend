@@ -17,6 +17,7 @@
     <properties>
         <java.version>11</java.version>
         <jacoco.version>0.8.12</jacoco.version>
+        <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
         <spring-cloud.version>Hoxton.SR8</spring-cloud.version>
     </properties>
     <dependencies>
@@ -149,6 +150,11 @@
                         <goals>
                             <goal>report</goal>
                         </goals>
+                        <configuration>
+                            <includes>
+                                <include>**/*Service.class</include>
+                            </includes>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

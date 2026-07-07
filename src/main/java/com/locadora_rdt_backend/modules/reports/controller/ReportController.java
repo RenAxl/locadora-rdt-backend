@@ -1,5 +1,6 @@
 package com.locadora_rdt_backend.modules.reports.controller;
 
+import com.locadora_rdt_backend.modules.reports.dto.ReportComparisonDTO;
 import com.locadora_rdt_backend.modules.reports.dto.ReportFileDTO;
 import com.locadora_rdt_backend.modules.reports.dto.ReportFilterDTO;
 import com.locadora_rdt_backend.modules.reports.service.ReportService;
@@ -32,14 +33,11 @@ public class ReportController {
         return buildFileResponse(file);
     }
 
-    @GetMapping("/vouchers/{accountType}/{accountId}/{format}")
-    public ResponseEntity<byte[]> voucher(
-            @PathVariable String accountType,
-            @PathVariable Long accountId,
-            @PathVariable String format
+    @GetMapping("/comparison")
+    public ResponseEntity<ReportComparisonDTO> comparison(
+            @ModelAttribute ReportFilterDTO filters
     ) {
-        ReportFileDTO file = service.voucher(accountType, accountId, format);
-        return buildFileResponse(file);
+        return ResponseEntity.ok(service.comparison(filters));
     }
 
     private ResponseEntity<byte[]> buildFileResponse(ReportFileDTO file) {

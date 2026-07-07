@@ -21,7 +21,6 @@ import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableSave
 import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableUpdateDTO;
 import com.locadora_rdt_backend.modules.financial.receivables.mapper.ReceivableMapper;
 import com.locadora_rdt_backend.modules.financial.receivables.model.Receivable;
-import com.locadora_rdt_backend.modules.financial.receivables.model.ReceivableStatus;
 import com.locadora_rdt_backend.modules.financial.receivables.repository.ReceivableRepository;
 import com.locadora_rdt_backend.modules.users.model.User;
 import com.locadora_rdt_backend.modules.users.repository.UserRepository;
@@ -29,17 +28,14 @@ import com.lowagie.text.DocumentException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Clock;
 import java.time.LocalDate;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -329,7 +325,24 @@ public class ReceivableServiceImpl implements ReceivableService {
         reportFilters.setStatus(status);
         reportFilters.setPeriodType(dateType);
 
-        List<Receivable> items = repository.findAll(filters(filterNormalizer.normalize(reportFilters)));
+        ReceivableFilterDTO normalized = filterNormalizer.normalize(reportFilters);
+        List<Receivable> items = repository.findWithFilters(
+                normalized.getSearch(),
+                dateFilterOrDisabled(normalized.getStartDate()),
+                dateFilterOrDisabled(normalized.getEndDate()),
+                normalized.getStartDate() != null,
+                normalized.getEndDate() != null,
+                normalized.getStatus(),
+                normalized.getPeriodType(),
+                idFilterOrDisabled(normalized.getCustomerId()),
+                idFilterOrDisabled(normalized.getPaymentMethodId()),
+                idFilterOrDisabled(normalized.getPaymentFrequencyId()),
+                amountFilterOrDisabled(normalized.getMinimumAmount()),
+                amountFilterOrDisabled(normalized.getMaximumAmount()),
+                normalized.getOrderBy(),
+                normalized.getDirection(),
+                Pageable.unpaged()
+        ).getContent();
         BigDecimal total = sum(items);
         List<Receivable> paidItems = new ArrayList<>();
 
@@ -375,70 +388,6 @@ public class ReceivableServiceImpl implements ReceivableService {
         } catch (DocumentException e) {
             throw new IllegalStateException("Erro ao gerar cupom fiscal.", e);
         }
-    }
-
-    private Specification<Receivable> filters(ReceivableFilterDTO filters) {
-        return (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-
-            if (filters.getSearch() != null) {
-                predicates.add(cb.like(cb.lower(root.get("description")), "%" + filters.getSearch().toLowerCase() + "%"));
-            }
-
-            if (ReceivableStatus.PAID.name().equals(filters.getStatus())) {
-                predicates.add(cb.isTrue(root.get("paid")));
-                predicates.add(cb.isFalse(root.get("canceled")));
-            } else if (ReceivableStatus.PENDING.name().equals(filters.getStatus())) {
-                predicates.add(cb.isFalse(root.get("paid")));
-                predicates.add(cb.isFalse(root.get("canceled")));
-                predicates.add(cb.or(cb.isNull(root.get("dueDate")), cb.greaterThanOrEqualTo(root.get("dueDate"), today())));
-            } else if (ReceivableStatus.OVERDUE.name().equals(filters.getStatus())) {
-                predicates.add(cb.isFalse(root.get("paid")));
-                predicates.add(cb.isFalse(root.get("canceled")));
-                predicates.add(cb.lessThan(root.get("dueDate"), today()));
-            } else if (ReceivableStatus.PARTIALLY_PAID.name().equals(filters.getStatus())) {
-                predicates.add(cb.isFalse(root.get("paid")));
-                predicates.add(cb.isFalse(root.get("canceled")));
-                predicates.add(cb.greaterThan(root.get("remainingBalance"), ZERO));
-                predicates.add(cb.lessThan(root.get("remainingBalance"), root.get("amount")));
-            } else if (ReceivableStatus.CANCELED.name().equals(filters.getStatus())) {
-                predicates.add(cb.isTrue(root.get("canceled")));
-            }
-
-            if (filters.getStartDate() != null || filters.getEndDate() != null) {
-                if ("CREATED_DATE".equals(filters.getPeriodType())) {
-                    Path<java.time.Instant> path = root.get("createdAt");
-
-                    if (filters.getStartDate() != null) {
-                        predicates.add(cb.greaterThanOrEqualTo(path, filters.getStartDate().atStartOfDay().toInstant(ZoneOffset.UTC)));
-                    }
-
-                    if (filters.getEndDate() != null) {
-                        predicates.add(cb.lessThan(path, filters.getEndDate().plusDays(1).atStartOfDay().toInstant(ZoneOffset.UTC)));
-                    }
-                } else {
-                    Path<LocalDate> path = datePath(root, filters.getPeriodType());
-
-                    if (filters.getStartDate() != null) {
-                        predicates.add(cb.greaterThanOrEqualTo(path, filters.getStartDate()));
-                    }
-
-                    if (filters.getEndDate() != null) {
-                        predicates.add(cb.lessThanOrEqualTo(path, filters.getEndDate()));
-                    }
-                }
-            }
-
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
-    }
-
-    private Path<LocalDate> datePath(javax.persistence.criteria.Root<Receivable> root, String dateType) {
-        if ("PAYMENT_DATE".equals(dateType)) {
-            return root.get("paymentDate");
-        }
-
-        return root.get("dueDate");
     }
 
     private void applyRelations(Receivable entity, ReceivableSaveDTO dto) {
