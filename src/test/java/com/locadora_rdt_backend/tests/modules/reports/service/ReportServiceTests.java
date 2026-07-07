@@ -1,5 +1,7 @@
 package com.locadora_rdt_backend.tests.modules.reports.service;
 
+import com.locadora_rdt_backend.modules.customers.model.Customer;
+import com.locadora_rdt_backend.modules.employees.model.Employee;
 import com.locadora_rdt_backend.modules.financial.payables.model.Payable;
 import com.locadora_rdt_backend.modules.financial.receivables.model.Receivable;
 import com.locadora_rdt_backend.modules.reports.dto.ReportComparisonDTO;
@@ -10,6 +12,7 @@ import com.locadora_rdt_backend.modules.reports.repository.ReportPayableReposito
 import com.locadora_rdt_backend.modules.reports.repository.ReportReceivableRepository;
 import com.locadora_rdt_backend.modules.reports.service.JasperReportGenerator;
 import com.locadora_rdt_backend.modules.reports.service.ReportServiceImpl;
+import com.locadora_rdt_backend.modules.suppliers.model.Supplier;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,11 +47,7 @@ class ReportServiceTests {
 
     @Test
     void generateReceivablesShouldReturnPdfFile() {
-        Mockito.when(receivableRepository.findForReports(
-                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(),
-                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(),
-                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-                .thenReturn(List.of(receivable(1L, true)));
+        mockReceivables(List.of(receivable(1L, true)));
 
         ReportFilterDTO filters = new ReportFilterDTO();
         filters.setStatus("paid");
@@ -63,16 +62,8 @@ class ReportServiceTests {
 
     @Test
     void generateFinancialShouldReturnXlsxFile() {
-        Mockito.when(receivableRepository.findForReports(
-                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(),
-                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(),
-                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-                .thenReturn(List.of(receivable(1L, true)));
-        Mockito.when(payableRepository.findForReports(
-                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(),
-                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(),
-                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-                .thenReturn(List.of(payable(2L, true)));
+        mockReceivables(List.of(receivable(1L, true)));
+        mockPayables(List.of(payable(2L, true)));
 
         ReportFileDTO file = service.generate("financial", "xlsx", new ReportFilterDTO());
 
@@ -84,16 +75,8 @@ class ReportServiceTests {
 
     @Test
     void comparisonShouldReturnReceivablesAndPayablesTotals() {
-        Mockito.when(receivableRepository.findForReports(
-                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(),
-                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(),
-                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-                .thenReturn(List.of(receivable(1L, true), receivable(2L, false)));
-        Mockito.when(payableRepository.findForReports(
-                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(),
-                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(),
-                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-                .thenReturn(List.of(payable(3L, true)));
+        mockReceivables(List.of(receivable(1L, true), receivable(2L, false)));
+        mockPayables(List.of(payable(3L, true)));
 
         ReportComparisonDTO comparison = service.comparison(new ReportFilterDTO());
 
@@ -106,6 +89,73 @@ class ReportServiceTests {
         Assertions.assertEquals(12, comparison.getMonths().size());
         Assertions.assertEquals(new BigDecimal("200.00"), comparison.getMonths().get(6).getReceivableTotal());
         Assertions.assertEquals(new BigDecimal("50.00"), comparison.getMonths().get(6).getPayableTotal());
+    }
+
+    @Test
+    void generatePayablesShouldReturnReport() {
+        mockPayables(List.of(payable(2L, false)));
+
+        ReportFileDTO file = service.generate("payables", "pdf", new ReportFilterDTO());
+
+        Assertions.assertEquals("payables.pdf", file.getFileName());
+        Mockito.verify(generator).generate(ArgumentMatchers.eq("Relatório de Contas a Pagar"),
+                ArgumentMatchers.anyList(), ArgumentMatchers.anyList(), ArgumentMatchers.eq(ReportFormat.PDF));
+    }
+
+    @Test
+    void generateSummaryReportsShouldGroupValues() {
+        mockReceivables(List.of(receivableWithCustomer("Cliente A", true), receivableWithCustomer("Cliente A", false)));
+        mockPayables(List.of(payableWithSupplierAndEmployee("Fornecedor A", "Funcionário A", true),
+                payableWithSupplierAndEmployee("Fornecedor B", "Funcionário A", false)));
+
+        service.generate("summary-customer", "pdf", new ReportFilterDTO());
+        service.generate("summary-supplier", "pdf", new ReportFilterDTO());
+        service.generate("summary-employee", "pdf", new ReportFilterDTO());
+
+        Mockito.verify(generator).generate(ArgumentMatchers.eq("Relatório Sintético por Cliente"),
+                ArgumentMatchers.anyList(), ArgumentMatchers.anyList(), ArgumentMatchers.eq(ReportFormat.PDF));
+        Mockito.verify(generator).generate(ArgumentMatchers.eq("Relatório Sintético por Fornecedor"),
+                ArgumentMatchers.anyList(), ArgumentMatchers.anyList(), ArgumentMatchers.eq(ReportFormat.PDF));
+        Mockito.verify(generator).generate(ArgumentMatchers.eq("Relatório Sintético por Funcionário"),
+                ArgumentMatchers.anyList(), ArgumentMatchers.anyList(), ArgumentMatchers.eq(ReportFormat.PDF));
+    }
+
+    @Test
+    void generateAnnualBalanceShouldReturnMonthlyRows() {
+        ReportFilterDTO filters = new ReportFilterDTO();
+        filters.setYear(2026);
+        mockReceivables(List.of(receivable(1L, true)));
+        mockPayables(List.of(payable(2L, true)));
+
+        ReportFileDTO file = service.generate("annual-balance", "xlsx", filters);
+
+        Assertions.assertEquals("annual_balance.xlsx", file.getFileName());
+        Mockito.verify(generator).generate(ArgumentMatchers.eq("Balanço Anual 2026"),
+                ArgumentMatchers.anyList(), ArgumentMatchers.anyList(), ArgumentMatchers.eq(ReportFormat.XLSX));
+    }
+
+    @Test
+    void generateShouldRejectInvalidValues() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> service.generate(null, "pdf", new ReportFilterDTO()));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> service.generate("receivables", null, new ReportFilterDTO()));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> service.generate("invalid", "pdf", new ReportFilterDTO()));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> service.generate("receivables", "doc", new ReportFilterDTO()));
+    }
+
+    private void mockReceivables(List<Receivable> receivables) {
+        Mockito.when(receivableRepository.findForReports(
+                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(),
+                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(),
+                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+                .thenReturn(receivables);
+    }
+
+    private void mockPayables(List<Payable> payables) {
+        Mockito.when(payableRepository.findForReports(
+                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(),
+                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(),
+                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+                .thenReturn(payables);
     }
 
     private Receivable receivable(Long id, boolean paid) {
@@ -121,6 +171,14 @@ class ReportServiceTests {
         return receivable;
     }
 
+    private Receivable receivableWithCustomer(String name, boolean paid) {
+        Receivable receivable = receivable(1L, paid);
+        Customer customer = new Customer();
+        customer.setName(name);
+        receivable.setCustomer(customer);
+        return receivable;
+    }
+
     private Payable payable(Long id, boolean paid) {
         Payable payable = new Payable();
         payable.setId(id);
@@ -131,6 +189,17 @@ class ReportServiceTests {
         payable.setPaid(paid);
         payable.setCanceled(false);
         payable.setRemainingBalance(paid ? BigDecimal.ZERO : new BigDecimal("50.00"));
+        return payable;
+    }
+
+    private Payable payableWithSupplierAndEmployee(String supplierName, String employeeName, boolean paid) {
+        Payable payable = payable(2L, paid);
+        Supplier supplier = new Supplier();
+        supplier.setName(supplierName);
+        Employee employee = new Employee();
+        employee.setName(employeeName);
+        payable.setSupplier(supplier);
+        payable.setEmployee(employee);
         return payable;
     }
 }

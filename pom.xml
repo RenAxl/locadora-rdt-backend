@@ -149,6 +149,12 @@
                         <goals>
                             <goal>report</goal>
                         </goals>
+                        <configuration>
+                            <includes>
+                                <include>com/locadora_rdt_backend/**/*Service*.class</include>
+                                <include>com/locadora_rdt_backend/**/service/**/*.class</include>
+                            </includes>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
