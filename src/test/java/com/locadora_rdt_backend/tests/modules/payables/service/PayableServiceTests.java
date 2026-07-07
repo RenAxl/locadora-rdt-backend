@@ -41,7 +41,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -689,7 +688,9 @@ class PayableServiceTests {
         Payable open = new Payable();
         open.setAmount(new BigDecimal("20.00"));
         open.setPaid(false);
-        Mockito.when(repository.findAll(any(Specification.class))).thenReturn(List.of(paid, open));
+        Mockito.when(repository.findWithFilters(
+                any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
+        )).thenReturn(new PageImpl<>(List.of(paid, open)));
 
         PayableReportDTO result = service.report("Movie", LocalDate.now(), LocalDate.now(), "paid", "created");
 

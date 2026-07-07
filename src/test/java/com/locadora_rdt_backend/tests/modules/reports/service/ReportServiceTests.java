@@ -1,13 +1,13 @@
 package com.locadora_rdt_backend.tests.modules.reports.service;
 
 import com.locadora_rdt_backend.modules.financial.payables.model.Payable;
-import com.locadora_rdt_backend.modules.financial.payables.repository.PayableRepository;
 import com.locadora_rdt_backend.modules.financial.receivables.model.Receivable;
-import com.locadora_rdt_backend.modules.financial.receivables.repository.ReceivableRepository;
 import com.locadora_rdt_backend.modules.reports.dto.ReportComparisonDTO;
 import com.locadora_rdt_backend.modules.reports.dto.ReportFileDTO;
 import com.locadora_rdt_backend.modules.reports.dto.ReportFilterDTO;
 import com.locadora_rdt_backend.modules.reports.model.ReportFormat;
+import com.locadora_rdt_backend.modules.reports.repository.ReportPayableRepository;
+import com.locadora_rdt_backend.modules.reports.repository.ReportReceivableRepository;
 import com.locadora_rdt_backend.modules.reports.service.JasperReportGenerator;
 import com.locadora_rdt_backend.modules.reports.service.ReportServiceImpl;
 import org.junit.jupiter.api.Assertions;
@@ -15,7 +15,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
-import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -26,15 +25,15 @@ import java.util.List;
 
 class ReportServiceTests {
 
-    private ReceivableRepository receivableRepository;
-    private PayableRepository payableRepository;
+    private ReportReceivableRepository receivableRepository;
+    private ReportPayableRepository payableRepository;
     private JasperReportGenerator generator;
     private ReportServiceImpl service;
 
     @BeforeEach
     void setup() {
-        receivableRepository = Mockito.mock(ReceivableRepository.class);
-        payableRepository = Mockito.mock(PayableRepository.class);
+        receivableRepository = Mockito.mock(ReportReceivableRepository.class);
+        payableRepository = Mockito.mock(ReportPayableRepository.class);
         generator = Mockito.mock(JasperReportGenerator.class);
         Clock clock = Clock.fixed(Instant.parse("2026-07-07T00:00:00Z"), ZoneOffset.UTC);
         service = new ReportServiceImpl(receivableRepository, payableRepository, generator, clock);
@@ -45,7 +44,10 @@ class ReportServiceTests {
 
     @Test
     void generateReceivablesShouldReturnPdfFile() {
-        Mockito.when(receivableRepository.findAll(ArgumentMatchers.<Specification<Receivable>>any()))
+        Mockito.when(receivableRepository.findForReports(
+                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(),
+                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(),
+                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
                 .thenReturn(List.of(receivable(1L, true)));
 
         ReportFilterDTO filters = new ReportFilterDTO();
@@ -61,9 +63,15 @@ class ReportServiceTests {
 
     @Test
     void generateFinancialShouldReturnXlsxFile() {
-        Mockito.when(receivableRepository.findAll(ArgumentMatchers.<Specification<Receivable>>any()))
+        Mockito.when(receivableRepository.findForReports(
+                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(),
+                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(),
+                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
                 .thenReturn(List.of(receivable(1L, true)));
-        Mockito.when(payableRepository.findAll(ArgumentMatchers.<Specification<Payable>>any()))
+        Mockito.when(payableRepository.findForReports(
+                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(),
+                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(),
+                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
                 .thenReturn(List.of(payable(2L, true)));
 
         ReportFileDTO file = service.generate("financial", "xlsx", new ReportFilterDTO());
@@ -76,9 +84,15 @@ class ReportServiceTests {
 
     @Test
     void comparisonShouldReturnReceivablesAndPayablesTotals() {
-        Mockito.when(receivableRepository.findAll(ArgumentMatchers.<Specification<Receivable>>any()))
+        Mockito.when(receivableRepository.findForReports(
+                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(),
+                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(),
+                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
                 .thenReturn(List.of(receivable(1L, true), receivable(2L, false)));
-        Mockito.when(payableRepository.findAll(ArgumentMatchers.<Specification<Payable>>any()))
+        Mockito.when(payableRepository.findForReports(
+                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(),
+                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(),
+                        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
                 .thenReturn(List.of(payable(3L, true)));
 
         ReportComparisonDTO comparison = service.comparison(new ReportFilterDTO());

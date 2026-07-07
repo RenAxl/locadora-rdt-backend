@@ -4,14 +4,13 @@ import com.locadora_rdt_backend.modules.financial.payables.model.Payable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public interface PayableRepository extends JpaRepository<Payable, Long>, JpaSpecificationExecutor<Payable> {
+public interface PayableRepository extends JpaRepository<Payable, Long> {
 
     @Query("select payable from Payable payable where payable.description like %?1%")
     Page<Payable> find(String description, Pageable pageable);

@@ -1,22 +1,17 @@
 package com.locadora_rdt_backend.modules.reports.service;
 
 import com.locadora_rdt_backend.modules.financial.payables.model.Payable;
-import com.locadora_rdt_backend.modules.financial.payables.repository.PayableRepository;
 import com.locadora_rdt_backend.modules.financial.receivables.model.Receivable;
-import com.locadora_rdt_backend.modules.financial.receivables.repository.ReceivableRepository;
 import com.locadora_rdt_backend.modules.reports.dto.ReportComparisonDTO;
 import com.locadora_rdt_backend.modules.reports.dto.ReportFileDTO;
 import com.locadora_rdt_backend.modules.reports.dto.ReportFilterDTO;
 import com.locadora_rdt_backend.modules.reports.model.ReportFormat;
 import com.locadora_rdt_backend.modules.reports.model.ReportType;
-import org.springframework.data.jpa.domain.Specification;
+import com.locadora_rdt_backend.modules.reports.repository.ReportPayableRepository;
+import com.locadora_rdt_backend.modules.reports.repository.ReportReceivableRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDate;
@@ -33,15 +28,18 @@ import java.util.Map;
 public class ReportServiceImpl implements ReportService {
 
     private static final BigDecimal ZERO = BigDecimal.ZERO;
+    private static final BigDecimal FILTER_AMOUNT_DISABLED = BigDecimal.valueOf(-1);
+    private static final LocalDate FILTER_DATE_DISABLED = LocalDate.of(1970, 1, 1);
+    private static final long FILTER_ID_DISABLED = -1L;
 
-    private final ReceivableRepository receivableRepository;
-    private final PayableRepository payableRepository;
+    private final ReportReceivableRepository receivableRepository;
+    private final ReportPayableRepository payableRepository;
     private final JasperReportGenerator jasperReportGenerator;
     private final Clock clock;
 
     public ReportServiceImpl(
-            ReceivableRepository receivableRepository,
-            PayableRepository payableRepository,
+            ReportReceivableRepository receivableRepository,
+            ReportPayableRepository payableRepository,
             JasperReportGenerator jasperReportGenerator,
             Clock clock
     ) {
@@ -71,8 +69,8 @@ public class ReportServiceImpl implements ReportService {
         comparisonFilters.setStartDate(LocalDate.of(year, 1, 1));
         comparisonFilters.setEndDate(LocalDate.of(year, 12, 31));
 
-        List<Receivable> receivables = receivableRepository.findAll(receivableSpec(comparisonFilters));
-        List<Payable> payables = payableRepository.findAll(payableSpec(comparisonFilters));
+        List<Receivable> receivables = findReceivables(comparisonFilters);
+        List<Payable> payables = findPayables(comparisonFilters);
         BigDecimal receivableTotal = sumReceivables(receivables);
         BigDecimal payableTotal = sumPayables(payables);
 
@@ -116,7 +114,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     private ReportData receivablesReport(ReportFilterDTO filters) {
-        List<Receivable> items = receivableRepository.findAll(receivableSpec(filters));
+        List<Receivable> items = findReceivables(filters);
         List<String> columns = Arrays.asList("ID", "Descrição", "Cliente", "Vencimento", "Pagamento", "Valor", "Status");
         List<Map<String, ?>> rows = new ArrayList<>();
 
@@ -137,7 +135,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     private ReportData payablesReport(ReportFilterDTO filters) {
-        List<Payable> items = payableRepository.findAll(payableSpec(filters));
+        List<Payable> items = findPayables(filters);
         List<String> columns = Arrays.asList("ID", "Descrição", "Fornecedor", "Funcionário", "Vencimento", "Pagamento", "Valor", "Status");
         List<Map<String, ?>> rows = new ArrayList<>();
 
@@ -159,8 +157,8 @@ public class ReportServiceImpl implements ReportService {
     }
 
     private ReportData financialReport(ReportFilterDTO filters) {
-        List<Receivable> receivables = receivableRepository.findAll(receivableSpec(filters));
-        List<Payable> payables = payableRepository.findAll(payableSpec(filters));
+        List<Receivable> receivables = findReceivables(filters);
+        List<Payable> payables = findPayables(filters);
 
         BigDecimal revenue = sumReceivables(receivables);
         BigDecimal expense = sumPayables(payables);
@@ -180,7 +178,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     private ReportData summaryCustomerReport(ReportFilterDTO filters) {
-        List<Receivable> items = receivableRepository.findAll(receivableSpec(filters));
+        List<Receivable> items = findReceivables(filters);
         Map<String, SummaryValues> grouped = new LinkedHashMap<>();
 
         for (Receivable item : items) {
@@ -192,7 +190,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     private ReportData summarySupplierReport(ReportFilterDTO filters) {
-        List<Payable> items = payableRepository.findAll(payableSpec(filters));
+        List<Payable> items = findPayables(filters);
         Map<String, SummaryValues> grouped = new LinkedHashMap<>();
 
         for (Payable item : items) {
@@ -204,7 +202,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     private ReportData summaryEmployeeReport(ReportFilterDTO filters) {
-        List<Payable> items = payableRepository.findAll(payableSpec(filters));
+        List<Payable> items = findPayables(filters);
         Map<String, SummaryValues> grouped = new LinkedHashMap<>();
 
         for (Payable item : items) {
@@ -223,8 +221,8 @@ public class ReportServiceImpl implements ReportService {
         annualFilters.setStartDate(LocalDate.of(year, 1, 1));
         annualFilters.setEndDate(LocalDate.of(year, 12, 31));
 
-        List<Receivable> receivables = receivableRepository.findAll(receivableSpec(annualFilters));
-        List<Payable> payables = payableRepository.findAll(payableSpec(annualFilters));
+        List<Receivable> receivables = findReceivables(annualFilters);
+        List<Payable> payables = findPayables(annualFilters);
         List<String> columns = Arrays.asList("Mês", "Total recebido", "Total pago", "Saldo");
         List<Map<String, ?>> rows = new ArrayList<>();
 
@@ -243,145 +241,37 @@ public class ReportServiceImpl implements ReportService {
         return new ReportData("Balanço Anual " + year, columns, rows);
     }
 
-    private Specification<Receivable> receivableSpec(ReportFilterDTO filters) {
-        return (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-
-            if (query != null) {
-                root.fetch("customer", JoinType.LEFT);
-                root.fetch("paymentMethod", JoinType.LEFT);
-                query.distinct(true);
-            }
-
-            if (hasText(filters.getSearch())) {
-                String search = "%" + filters.getSearch().trim().toLowerCase() + "%";
-                predicates.add(cb.or(
-                        cb.like(cb.lower(root.get("description")), search),
-                        cb.like(cb.lower(root.get("reference")), search),
-                        cb.like(cb.lower(root.join("customer", JoinType.LEFT).get("name")), search)
-                ));
-            }
-
-            addCommonPredicates(cb, filters, predicates, root.get("paid"), root.get("canceled"), root.get("dueDate"),
-                    root.get("paymentDate"), root.get("createdAt"), root.get("amount"), root.get("remainingBalance"));
-
-            if (isValidId(filters.getCustomerId())) {
-                predicates.add(cb.equal(root.get("customer").get("id"), filters.getCustomerId()));
-            }
-
-            if (isValidId(filters.getPaymentMethodId())) {
-                predicates.add(cb.equal(root.get("paymentMethod").get("id"), filters.getPaymentMethodId()));
-            }
-
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
+    private List<Receivable> findReceivables(ReportFilterDTO filters) {
+        return receivableRepository.findForReports(
+                trimToNull(filters.getSearch()),
+                dateFilterOrDisabled(filters.getStartDate()),
+                dateFilterOrDisabled(filters.getEndDate()),
+                filters.getStartDate() != null,
+                filters.getEndDate() != null,
+                filters.getStatus(),
+                filters.getPeriodType(),
+                idFilterOrDisabled(filters.getCustomerId()),
+                idFilterOrDisabled(filters.getPaymentMethodId()),
+                amountFilterOrDisabled(filters.getMinimumAmount()),
+                amountFilterOrDisabled(filters.getMaximumAmount())
+        );
     }
 
-    private Specification<Payable> payableSpec(ReportFilterDTO filters) {
-        return (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-
-            if (query != null) {
-                root.fetch("supplier", JoinType.LEFT);
-                root.fetch("employee", JoinType.LEFT);
-                root.fetch("paymentMethod", JoinType.LEFT);
-                query.distinct(true);
-            }
-
-            if (hasText(filters.getSearch())) {
-                String search = "%" + filters.getSearch().trim().toLowerCase() + "%";
-                predicates.add(cb.or(
-                        cb.like(cb.lower(root.get("description")), search),
-                        cb.like(cb.lower(root.get("reference")), search),
-                        cb.like(cb.lower(root.join("supplier", JoinType.LEFT).get("name")), search),
-                        cb.like(cb.lower(root.join("employee", JoinType.LEFT).get("name")), search)
-                ));
-            }
-
-            addCommonPredicates(cb, filters, predicates, root.get("paid"), root.get("canceled"), root.get("dueDate"),
-                    root.get("paymentDate"), root.get("createdAt"), root.get("amount"), root.get("remainingBalance"));
-
-            if (isValidId(filters.getSupplierId())) {
-                predicates.add(cb.equal(root.get("supplier").get("id"), filters.getSupplierId()));
-            }
-
-            if (isValidId(filters.getEmployeeId())) {
-                predicates.add(cb.equal(root.get("employee").get("id"), filters.getEmployeeId()));
-            }
-
-            if (isValidId(filters.getPaymentMethodId())) {
-                predicates.add(cb.equal(root.get("paymentMethod").get("id"), filters.getPaymentMethodId()));
-            }
-
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
-    }
-
-    private void addCommonPredicates(
-            CriteriaBuilder cb,
-            ReportFilterDTO filters,
-            List<Predicate> predicates,
-            Path<Boolean> paidPath,
-            Path<Boolean> canceledPath,
-            Path<LocalDate> dueDatePath,
-            Path<LocalDate> paymentDatePath,
-            Path<java.time.Instant> createdAtPath,
-            Path<BigDecimal> amountPath,
-            Path<BigDecimal> remainingBalancePath
-    ) {
-        String status = filters.getStatus();
-
-        if ("PAID".equals(status)) {
-            predicates.add(cb.isTrue(paidPath));
-            predicates.add(cb.isFalse(canceledPath));
-        } else if ("PENDING".equals(status)) {
-            predicates.add(cb.isFalse(paidPath));
-            predicates.add(cb.isFalse(canceledPath));
-            predicates.add(cb.or(cb.isNull(dueDatePath), cb.greaterThanOrEqualTo(dueDatePath, LocalDate.now(clock))));
-        } else if ("OVERDUE".equals(status)) {
-            predicates.add(cb.isFalse(paidPath));
-            predicates.add(cb.isFalse(canceledPath));
-            predicates.add(cb.lessThan(dueDatePath, LocalDate.now(clock)));
-        } else if ("PARTIALLY_PAID".equals(status)) {
-            predicates.add(cb.isFalse(paidPath));
-            predicates.add(cb.isFalse(canceledPath));
-            predicates.add(cb.greaterThan(remainingBalancePath, ZERO));
-            predicates.add(cb.lessThan(remainingBalancePath, amountPath));
-        } else if ("CANCELED".equals(status)) {
-            predicates.add(cb.isTrue(canceledPath));
-        }
-
-        if (filters.getMinimumAmount() != null) {
-            predicates.add(cb.greaterThanOrEqualTo(amountPath, filters.getMinimumAmount()));
-        }
-
-        if (filters.getMaximumAmount() != null) {
-            predicates.add(cb.lessThanOrEqualTo(amountPath, filters.getMaximumAmount()));
-        }
-
-        if (filters.getStartDate() != null || filters.getEndDate() != null) {
-            if ("CREATED_DATE".equals(filters.getPeriodType())) {
-                if (filters.getStartDate() != null) {
-                    predicates.add(cb.greaterThanOrEqualTo(createdAtPath,
-                            filters.getStartDate().atStartOfDay().toInstant(ZoneOffset.UTC)));
-                }
-
-                if (filters.getEndDate() != null) {
-                    predicates.add(cb.lessThan(createdAtPath,
-                            filters.getEndDate().plusDays(1).atStartOfDay().toInstant(ZoneOffset.UTC)));
-                }
-            } else {
-                Path<LocalDate> datePath = "PAYMENT_DATE".equals(filters.getPeriodType()) ? paymentDatePath : dueDatePath;
-
-                if (filters.getStartDate() != null) {
-                    predicates.add(cb.greaterThanOrEqualTo(datePath, filters.getStartDate()));
-                }
-
-                if (filters.getEndDate() != null) {
-                    predicates.add(cb.lessThanOrEqualTo(datePath, filters.getEndDate()));
-                }
-            }
-        }
+    private List<Payable> findPayables(ReportFilterDTO filters) {
+        return payableRepository.findForReports(
+                trimToNull(filters.getSearch()),
+                dateFilterOrDisabled(filters.getStartDate()),
+                dateFilterOrDisabled(filters.getEndDate()),
+                filters.getStartDate() != null,
+                filters.getEndDate() != null,
+                filters.getStatus(),
+                filters.getPeriodType(),
+                idFilterOrDisabled(filters.getSupplierId()),
+                idFilterOrDisabled(filters.getEmployeeId()),
+                idFilterOrDisabled(filters.getPaymentMethodId()),
+                amountFilterOrDisabled(filters.getMinimumAmount()),
+                amountFilterOrDisabled(filters.getMaximumAmount())
+        );
     }
 
     private ReportFilterDTO normalize(ReportFilterDTO filters) {
@@ -647,12 +537,40 @@ public class ReportServiceImpl implements ReportService {
         return value;
     }
 
+    private String trimToNull(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return null;
+        }
+
+        return value.trim();
+    }
+
     private boolean hasText(String value) {
         return value != null && !value.trim().isEmpty();
     }
 
-    private boolean isValidId(Long id) {
-        return id != null && id > 0;
+    private Long idFilterOrDisabled(Long id) {
+        if (id == null || id <= 0) {
+            return FILTER_ID_DISABLED;
+        }
+
+        return id;
+    }
+
+    private BigDecimal amountFilterOrDisabled(BigDecimal amount) {
+        if (amount == null) {
+            return FILTER_AMOUNT_DISABLED;
+        }
+
+        return amount;
+    }
+
+    private LocalDate dateFilterOrDisabled(LocalDate date) {
+        if (date == null) {
+            return FILTER_DATE_DISABLED;
+        }
+
+        return date;
     }
 
     private BigDecimal valueOrZero(BigDecimal value) {
