@@ -1,16 +1,16 @@
-package com.locadora_rdt_backend.tests.modules.payment.frequencies.service;
+package com.locadora_rdt_backend.tests.modules.financial.payment.methods.service;
 
 import com.locadora_rdt_backend.common.exception.DatabaseException;
 import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
 import com.locadora_rdt_backend.infrastructure.security.AuthenticationFacade;
-import com.locadora_rdt_backend.modules.financial.payment.frequencies.dto.PaymentFrequencyDTO;
-import com.locadora_rdt_backend.modules.financial.payment.frequencies.dto.PaymentFrequencyDetailsDTO;
-import com.locadora_rdt_backend.modules.financial.payment.frequencies.dto.PaymentFrequencyInsertDTO;
-import com.locadora_rdt_backend.modules.financial.payment.frequencies.dto.PaymentFrequencyUpdateDTO;
-import com.locadora_rdt_backend.modules.financial.payment.frequencies.mapper.PaymentFrequencyMapper;
-import com.locadora_rdt_backend.modules.financial.payment.frequencies.model.PaymentFrequency;
-import com.locadora_rdt_backend.modules.financial.payment.frequencies.repository.PaymentFrequencyRepository;
-import com.locadora_rdt_backend.modules.financial.payment.frequencies.service.PaymentFrequencyServiceImpl;
+import com.locadora_rdt_backend.modules.financial.payment.methods.dto.PaymentMethodDTO;
+import com.locadora_rdt_backend.modules.financial.payment.methods.dto.PaymentMethodDetailsDTO;
+import com.locadora_rdt_backend.modules.financial.payment.methods.dto.PaymentMethodInsertDTO;
+import com.locadora_rdt_backend.modules.financial.payment.methods.dto.PaymentMethodUpdateDTO;
+import com.locadora_rdt_backend.modules.financial.payment.methods.mapper.PaymentMethodMapper;
+import com.locadora_rdt_backend.modules.financial.payment.methods.model.PaymentMethod;
+import com.locadora_rdt_backend.modules.financial.payment.methods.repository.PaymentMethodRepository;
+import com.locadora_rdt_backend.modules.financial.payment.methods.service.PaymentMethodServiceImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,32 +24,33 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
-class PaymentFrequencyServiceTests {
+class PaymentMethodServiceTests {
 
     @InjectMocks
-    private PaymentFrequencyServiceImpl service;
+    private PaymentMethodServiceImpl service;
 
     @Mock
-    private PaymentFrequencyRepository repository;
+    private PaymentMethodRepository repository;
 
     @Mock
-    private PaymentFrequencyMapper mapper;
+    private PaymentMethodMapper mapper;
 
     @Mock
     private AuthenticationFacade authenticationFacade;
 
     private Long existingId;
     private Long nonExistingId;
-    private PaymentFrequency entity;
-    private PaymentFrequencyDTO dto;
-    private PaymentFrequencyDetailsDTO detailsDTO;
-    private PaymentFrequencyInsertDTO insertDTO;
-    private PaymentFrequencyUpdateDTO updateDTO;
+    private PaymentMethod entity;
+    private PaymentMethodDTO dto;
+    private PaymentMethodDetailsDTO detailsDTO;
+    private PaymentMethodInsertDTO insertDTO;
+    private PaymentMethodUpdateDTO updateDTO;
 
     @BeforeEach
     void setUp() {
@@ -64,27 +65,27 @@ class PaymentFrequencyServiceTests {
     }
 
     @Test
-    void findAllPagedShouldReturnPageAndNormalizeFrequency() {
+    void findAllPagedShouldReturnPageAndNormalizeName() {
         PageRequest pageRequest = PageRequest.of(0, 10);
-        PageImpl<PaymentFrequency> page = new PageImpl<>(List.of(entity));
+        PageImpl<PaymentMethod> page = new PageImpl<>(List.of(entity));
 
-        Mockito.when(repository.find("Mensal", pageRequest)).thenReturn(page);
+        Mockito.when(repository.find("Pix", pageRequest)).thenReturn(page);
         Mockito.when(mapper.toDTO(entity)).thenReturn(dto);
 
-        Page<PaymentFrequencyDTO> result = service.findAllPaged(" Mensal ", pageRequest);
+        Page<PaymentMethodDTO> result = service.findAllPaged(" Pix ", pageRequest);
 
         Assertions.assertFalse(result.isEmpty());
         Assertions.assertEquals(existingId, result.getContent().get(0).getId());
-        Mockito.verify(repository).find("Mensal", pageRequest);
+        Mockito.verify(repository).find("Pix", pageRequest);
     }
 
     @Test
-    void findAllPagedShouldUseEmptyFrequencyWhenFrequencyIsNull() {
+    void findAllPagedShouldUseEmptyNameWhenNameIsNull() {
         PageRequest pageRequest = PageRequest.of(0, 10);
 
         Mockito.when(repository.find("", pageRequest)).thenReturn(new PageImpl<>(List.of()));
 
-        Page<PaymentFrequencyDTO> result = service.findAllPaged(null, pageRequest);
+        Page<PaymentMethodDTO> result = service.findAllPaged(null, pageRequest);
 
         Assertions.assertTrue(result.isEmpty());
         Mockito.verify(repository).find("", pageRequest);
@@ -95,7 +96,7 @@ class PaymentFrequencyServiceTests {
         Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(entity));
         Mockito.when(mapper.toDetailsDTO(entity)).thenReturn(detailsDTO);
 
-        PaymentFrequencyDetailsDTO result = service.findById(existingId);
+        PaymentMethodDetailsDTO result = service.findById(existingId);
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals(existingId, result.getId());
@@ -112,7 +113,7 @@ class PaymentFrequencyServiceTests {
     void findEntityByIdShouldReturnEntityWhenIdExists() {
         Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(entity));
 
-        PaymentFrequency result = service.findEntityById(existingId);
+        PaymentMethod result = service.findEntityById(existingId);
 
         Assertions.assertEquals(entity, result);
     }
@@ -131,7 +132,7 @@ class PaymentFrequencyServiceTests {
         Mockito.when(repository.save(entity)).thenReturn(entity);
         Mockito.when(mapper.toDTO(entity)).thenReturn(dto);
 
-        PaymentFrequencyDTO result = service.insert(insertDTO);
+        PaymentMethodDTO result = service.insert(insertDTO);
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals("admin", entity.getCreatedBy());
@@ -145,7 +146,7 @@ class PaymentFrequencyServiceTests {
         Mockito.when(repository.save(entity)).thenReturn(entity);
         Mockito.when(mapper.toDTO(entity)).thenReturn(dto);
 
-        PaymentFrequencyDTO result = service.update(existingId, updateDTO);
+        PaymentMethodDTO result = service.update(existingId, updateDTO);
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals("admin", entity.getUpdatedBy());
@@ -223,42 +224,42 @@ class PaymentFrequencyServiceTests {
         Assertions.assertThrows(DatabaseException.class, () -> service.deleteAll(ids));
     }
 
-    private PaymentFrequency createEntity() {
-        PaymentFrequency paymentFrequency = new PaymentFrequency();
-        paymentFrequency.setId(existingId);
-        paymentFrequency.setFrequency("Mensal");
-        paymentFrequency.setDays(30);
-        paymentFrequency.setCreatedAt(Instant.parse("2026-01-01T10:00:00Z"));
-        paymentFrequency.setCreatedBy("SYSTEM");
-        return paymentFrequency;
+    private PaymentMethod createEntity() {
+        PaymentMethod paymentMethod = new PaymentMethod();
+        paymentMethod.setId(existingId);
+        paymentMethod.setName("Pix");
+        paymentMethod.setFee(new BigDecimal("0.00"));
+        paymentMethod.setCreatedAt(Instant.parse("2026-01-01T10:00:00Z"));
+        paymentMethod.setCreatedBy("SYSTEM");
+        return paymentMethod;
     }
 
-    private PaymentFrequencyDTO createDTO() {
-        return new PaymentFrequencyDTO(existingId, "Mensal", 30);
+    private PaymentMethodDTO createDTO() {
+        return new PaymentMethodDTO(existingId, "Pix", new BigDecimal("0.00"));
     }
 
-    private PaymentFrequencyDetailsDTO createDetailsDTO() {
-        PaymentFrequencyDetailsDTO paymentFrequencyDetailsDTO = new PaymentFrequencyDetailsDTO();
-        paymentFrequencyDetailsDTO.setId(existingId);
-        paymentFrequencyDetailsDTO.setFrequency("Mensal");
-        paymentFrequencyDetailsDTO.setDays(30);
-        paymentFrequencyDetailsDTO.setCreatedAt(Instant.parse("2026-01-01T10:00:00Z"));
-        paymentFrequencyDetailsDTO.setCreatedBy("SYSTEM");
-        return paymentFrequencyDetailsDTO;
+    private PaymentMethodDetailsDTO createDetailsDTO() {
+        PaymentMethodDetailsDTO paymentMethodDetailsDTO = new PaymentMethodDetailsDTO();
+        paymentMethodDetailsDTO.setId(existingId);
+        paymentMethodDetailsDTO.setName("Pix");
+        paymentMethodDetailsDTO.setFee(new BigDecimal("0.00"));
+        paymentMethodDetailsDTO.setCreatedAt(Instant.parse("2026-01-01T10:00:00Z"));
+        paymentMethodDetailsDTO.setCreatedBy("SYSTEM");
+        return paymentMethodDetailsDTO;
     }
 
-    private PaymentFrequencyInsertDTO createInsertDTO() {
-        PaymentFrequencyInsertDTO paymentFrequencyInsertDTO = new PaymentFrequencyInsertDTO();
-        paymentFrequencyInsertDTO.setFrequency("Mensal");
-        paymentFrequencyInsertDTO.setDays(30);
-        return paymentFrequencyInsertDTO;
+    private PaymentMethodInsertDTO createInsertDTO() {
+        PaymentMethodInsertDTO paymentMethodInsertDTO = new PaymentMethodInsertDTO();
+        paymentMethodInsertDTO.setName("Pix");
+        paymentMethodInsertDTO.setFee(new BigDecimal("0.00"));
+        return paymentMethodInsertDTO;
     }
 
-    private PaymentFrequencyUpdateDTO createUpdateDTO() {
-        PaymentFrequencyUpdateDTO paymentFrequencyUpdateDTO = new PaymentFrequencyUpdateDTO();
-        paymentFrequencyUpdateDTO.setId(existingId);
-        paymentFrequencyUpdateDTO.setFrequency("Quinzenal");
-        paymentFrequencyUpdateDTO.setDays(15);
-        return paymentFrequencyUpdateDTO;
+    private PaymentMethodUpdateDTO createUpdateDTO() {
+        PaymentMethodUpdateDTO paymentMethodUpdateDTO = new PaymentMethodUpdateDTO();
+        paymentMethodUpdateDTO.setId(existingId);
+        paymentMethodUpdateDTO.setName("Cartao de credito");
+        paymentMethodUpdateDTO.setFee(new BigDecimal("2.50"));
+        return paymentMethodUpdateDTO;
     }
 }

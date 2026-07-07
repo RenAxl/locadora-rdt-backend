@@ -1,4 +1,4 @@
-package com.locadora_rdt_backend.tests.modules.payables.service;
+package com.locadora_rdt_backend.tests.modules.financial.payables.service;
 
 import com.locadora_rdt_backend.common.exception.FileException;
 import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;

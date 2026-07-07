@@ -11,7 +11,10 @@ import com.locadora_rdt_backend.modules.reports.model.ReportFormat;
 import com.locadora_rdt_backend.modules.reports.repository.ReportPayableRepository;
 import com.locadora_rdt_backend.modules.reports.repository.ReportReceivableRepository;
 import com.locadora_rdt_backend.modules.reports.service.JasperReportGenerator;
+import com.locadora_rdt_backend.modules.reports.service.ReportCalculationService;
+import com.locadora_rdt_backend.modules.reports.service.ReportQueryService;
 import com.locadora_rdt_backend.modules.reports.service.ReportServiceImpl;
+import com.locadora_rdt_backend.modules.reports.service.ReportTableService;
 import com.locadora_rdt_backend.modules.suppliers.model.Supplier;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,7 +42,10 @@ class ReportServiceTests {
         payableRepository = Mockito.mock(ReportPayableRepository.class);
         generator = Mockito.mock(JasperReportGenerator.class);
         Clock clock = Clock.fixed(Instant.parse("2026-07-07T00:00:00Z"), ZoneOffset.UTC);
-        service = new ReportServiceImpl(receivableRepository, payableRepository, generator, clock);
+        ReportQueryService queryService = new ReportQueryService(receivableRepository, payableRepository);
+        ReportCalculationService calculationService = new ReportCalculationService();
+        ReportTableService tableService = new ReportTableService(calculationService, clock);
+        service = new ReportServiceImpl(queryService, calculationService, tableService, generator, clock);
         Mockito.when(generator.generate(ArgumentMatchers.anyString(), ArgumentMatchers.anyList(),
                         ArgumentMatchers.anyList(), ArgumentMatchers.any(ReportFormat.class)))
                 .thenReturn(new byte[]{1, 2, 3});
