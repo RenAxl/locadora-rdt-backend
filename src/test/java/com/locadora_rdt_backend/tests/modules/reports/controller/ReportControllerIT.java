@@ -1,5 +1,6 @@
 package com.locadora_rdt_backend.tests.modules.reports.controller;
 
+import com.locadora_rdt_backend.modules.reports.dto.ReportComparisonDTO;
 import com.locadora_rdt_backend.modules.reports.controller.ReportController;
 import com.locadora_rdt_backend.modules.reports.dto.ReportFileDTO;
 import com.locadora_rdt_backend.modules.reports.dto.ReportFilterDTO;
@@ -17,6 +18,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
+import java.math.BigDecimal;
+import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -66,17 +69,21 @@ class ReportControllerIT {
     }
 
     @Test
-    void voucherShouldReturnReportFile() throws Exception {
-        Mockito.when(service.voucher("payable", 2L, "xlsx"))
-                .thenReturn(new ReportFileDTO(
-                        "comprovante-payable-2.xlsx",
-                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                        new byte[]{4, 5}
+    void comparisonShouldReturnTotals() throws Exception {
+        Mockito.when(service.comparison(any(ReportFilterDTO.class)))
+                .thenReturn(new ReportComparisonDTO(
+                        new BigDecimal("100.00"),
+                        new BigDecimal("40.00"),
+                        new BigDecimal("60.00"),
+                        2,
+                        1,
+                        2026,
+                        Collections.emptyList()
                 ));
 
-        mockMvc.perform(get("/reports/vouchers/payable/2/xlsx"))
+        mockMvc.perform(get("/reports/comparison")
+                        .param("status", "PAID"))
                 .andExpect(status().isOk())
-                .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=comprovante-payable-2.xlsx"))
-                .andExpect(content().bytes(new byte[]{4, 5}));
+                .andExpect(content().json("{\"receivableTotal\":100.00,\"payableTotal\":40.00,\"balance\":60.00,\"receivableCount\":2,\"payableCount\":1}"));
     }
 }

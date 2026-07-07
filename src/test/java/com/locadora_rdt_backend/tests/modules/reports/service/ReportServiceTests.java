@@ -4,6 +4,7 @@ import com.locadora_rdt_backend.modules.financial.payables.model.Payable;
 import com.locadora_rdt_backend.modules.financial.payables.repository.PayableRepository;
 import com.locadora_rdt_backend.modules.financial.receivables.model.Receivable;
 import com.locadora_rdt_backend.modules.financial.receivables.repository.ReceivableRepository;
+import com.locadora_rdt_backend.modules.reports.dto.ReportComparisonDTO;
 import com.locadora_rdt_backend.modules.reports.dto.ReportFileDTO;
 import com.locadora_rdt_backend.modules.reports.dto.ReportFilterDTO;
 import com.locadora_rdt_backend.modules.reports.model.ReportFormat;
@@ -22,7 +23,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
-import java.util.Optional;
 
 class ReportServiceTests {
 
@@ -75,21 +75,23 @@ class ReportServiceTests {
     }
 
     @Test
-    void voucherShouldReturnReceivableVoucher() {
-        Mockito.when(receivableRepository.findById(1L)).thenReturn(Optional.of(receivable(1L, true)));
+    void comparisonShouldReturnReceivablesAndPayablesTotals() {
+        Mockito.when(receivableRepository.findAll(ArgumentMatchers.<Specification<Receivable>>any()))
+                .thenReturn(List.of(receivable(1L, true), receivable(2L, false)));
+        Mockito.when(payableRepository.findAll(ArgumentMatchers.<Specification<Payable>>any()))
+                .thenReturn(List.of(payable(3L, true)));
 
-        ReportFileDTO file = service.voucher("receivable", 1L, "pdf");
+        ReportComparisonDTO comparison = service.comparison(new ReportFilterDTO());
 
-        Assertions.assertEquals("comprovante-receivable-1.pdf", file.getFileName());
-        Mockito.verify(generator).generate(ArgumentMatchers.eq("Comprovante de Recebimento"),
-                ArgumentMatchers.anyList(), ArgumentMatchers.anyList(), ArgumentMatchers.eq(ReportFormat.PDF));
-    }
-
-    @Test
-    void voucherShouldThrowWhenAccountIsOpen() {
-        Mockito.when(payableRepository.findById(2L)).thenReturn(Optional.of(payable(2L, false)));
-
-        Assertions.assertThrows(IllegalArgumentException.class, () -> service.voucher("payable", 2L, "pdf"));
+        Assertions.assertEquals(new BigDecimal("200.00"), comparison.getReceivableTotal());
+        Assertions.assertEquals(new BigDecimal("50.00"), comparison.getPayableTotal());
+        Assertions.assertEquals(new BigDecimal("150.00"), comparison.getBalance());
+        Assertions.assertEquals(2, comparison.getReceivableCount());
+        Assertions.assertEquals(1, comparison.getPayableCount());
+        Assertions.assertEquals(2026, comparison.getYear());
+        Assertions.assertEquals(12, comparison.getMonths().size());
+        Assertions.assertEquals(new BigDecimal("200.00"), comparison.getMonths().get(6).getReceivableTotal());
+        Assertions.assertEquals(new BigDecimal("50.00"), comparison.getMonths().get(6).getPayableTotal());
     }
 
     private Receivable receivable(Long id, boolean paid) {

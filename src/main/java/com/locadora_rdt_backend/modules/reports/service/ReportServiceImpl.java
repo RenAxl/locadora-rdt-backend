@@ -1,10 +1,10 @@
 package com.locadora_rdt_backend.modules.reports.service;
 
-import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
 import com.locadora_rdt_backend.modules.financial.payables.model.Payable;
 import com.locadora_rdt_backend.modules.financial.payables.repository.PayableRepository;
 import com.locadora_rdt_backend.modules.financial.receivables.model.Receivable;
 import com.locadora_rdt_backend.modules.financial.receivables.repository.ReceivableRepository;
+import com.locadora_rdt_backend.modules.reports.dto.ReportComparisonDTO;
 import com.locadora_rdt_backend.modules.reports.dto.ReportFileDTO;
 import com.locadora_rdt_backend.modules.reports.dto.ReportFilterDTO;
 import com.locadora_rdt_backend.modules.reports.model.ReportFormat;
@@ -64,21 +64,27 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     @Transactional(readOnly = true)
-    public ReportFileDTO voucher(String accountType, Long accountId, String formatValue) {
-        ReportFormat format = ReportFormat.from(formatValue);
-        ReportData data;
+    public ReportComparisonDTO comparison(ReportFilterDTO filters) {
+        ReportFilterDTO normalized = normalize(filters);
+        int year = normalized.getYear() == null ? LocalDate.now(clock).getYear() : normalized.getYear();
+        ReportFilterDTO comparisonFilters = copy(normalized);
+        comparisonFilters.setStartDate(LocalDate.of(year, 1, 1));
+        comparisonFilters.setEndDate(LocalDate.of(year, 12, 31));
 
-        if ("payable".equalsIgnoreCase(accountType)) {
-            data = payableVoucher(accountId);
-        } else if ("receivable".equalsIgnoreCase(accountType)) {
-            data = receivableVoucher(accountId);
-        } else {
-            throw new IllegalArgumentException("Tipo de conta inválido.");
-        }
+        List<Receivable> receivables = receivableRepository.findAll(receivableSpec(comparisonFilters));
+        List<Payable> payables = payableRepository.findAll(payableSpec(comparisonFilters));
+        BigDecimal receivableTotal = sumReceivables(receivables);
+        BigDecimal payableTotal = sumPayables(payables);
 
-        byte[] content = jasperReportGenerator.generate(data.title, data.columns, data.rows, format);
-        return new ReportFileDTO("comprovante-" + accountType + "-" + accountId + "." + format.getExtension(),
-                format.getContentType(), content);
+        return new ReportComparisonDTO(
+                receivableTotal,
+                payableTotal,
+                receivableTotal.subtract(payableTotal),
+                receivables.size(),
+                payables.size(),
+                year,
+                monthlyComparison(receivables, payables, comparisonFilters.getPeriodType())
+        );
     }
 
     private ReportData buildReportData(ReportType type, ReportFilterDTO filters) {
@@ -235,41 +241,6 @@ public class ReportServiceImpl implements ReportService {
 
         rows.add(row("Total do ano", money(yearReceived), money(yearPaid), money(yearReceived.subtract(yearPaid))));
         return new ReportData("Balanço Anual " + year, columns, rows);
-    }
-
-    private ReportData receivableVoucher(Long id) {
-        Receivable item = receivableRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Conta a receber não encontrada. Id: " + id));
-
-        validatePaid(item.getPaid());
-
-        List<String> columns = Arrays.asList("Campo", "Valor");
-        List<Map<String, ?>> rows = new ArrayList<>();
-        rows.add(row("Conta", String.valueOf(item.getId())));
-        rows.add(row("Descrição", text(item.getDescription())));
-        rows.add(row("Cliente", item.getCustomer() == null ? "" : text(item.getCustomer().getName())));
-        rows.add(row("Valor", money(item.getAmount())));
-        rows.add(row("Pago em", date(item.getPaymentDate())));
-        rows.add(row("Forma de pagamento", item.getPaymentMethod() == null ? "" : text(item.getPaymentMethod().getName())));
-        return new ReportData("Comprovante de Recebimento", columns, rows);
-    }
-
-    private ReportData payableVoucher(Long id) {
-        Payable item = payableRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Conta a pagar não encontrada. Id: " + id));
-
-        validatePaid(item.getPaid());
-
-        List<String> columns = Arrays.asList("Campo", "Valor");
-        List<Map<String, ?>> rows = new ArrayList<>();
-        rows.add(row("Conta", String.valueOf(item.getId())));
-        rows.add(row("Descrição", text(item.getDescription())));
-        rows.add(row("Fornecedor", item.getSupplier() == null ? "" : text(item.getSupplier().getName())));
-        rows.add(row("Funcionário", item.getEmployee() == null ? "" : text(item.getEmployee().getName())));
-        rows.add(row("Valor", money(item.getAmount())));
-        rows.add(row("Pago em", date(item.getPaymentDate())));
-        rows.add(row("Forma de pagamento", item.getPaymentMethod() == null ? "" : text(item.getPaymentMethod().getName())));
-        return new ReportData("Comprovante de Pagamento", columns, rows);
     }
 
     private Specification<Receivable> receivableSpec(ReportFilterDTO filters) {
@@ -448,12 +419,6 @@ public class ReportServiceImpl implements ReportService {
         return copy;
     }
 
-    private void validatePaid(Boolean paid) {
-        if (!Boolean.TRUE.equals(paid)) {
-            throw new IllegalArgumentException("Comprovante disponível apenas para contas pagas.");
-        }
-    }
-
     private void addTotalRow(List<Map<String, ?>> rows, String label, BigDecimal total, int columns) {
         List<String> values = new ArrayList<>();
 
@@ -560,6 +525,75 @@ public class ReportServiceImpl implements ReportService {
         return total;
     }
 
+    private List<ReportComparisonDTO.ReportComparisonMonthDTO> monthlyComparison(
+            List<Receivable> receivables,
+            List<Payable> payables,
+            String periodType
+    ) {
+        List<ReportComparisonDTO.ReportComparisonMonthDTO> months = new ArrayList<>();
+
+        for (Month month : Month.values()) {
+            months.add(new ReportComparisonDTO.ReportComparisonMonthDTO(
+                    month.getValue(),
+                    shortMonthName(month),
+                    sumReceivablesByMonth(receivables, month.getValue(), periodType),
+                    sumPayablesByMonth(payables, month.getValue(), periodType)
+            ));
+        }
+
+        return months;
+    }
+
+    private BigDecimal sumReceivablesByMonth(List<Receivable> items, int month, String periodType) {
+        BigDecimal total = ZERO;
+
+        for (Receivable item : items) {
+            LocalDate date = comparisonDate(item, periodType);
+            if (date != null && date.getMonthValue() == month) {
+                total = total.add(valueOrZero(item.getAmount()));
+            }
+        }
+
+        return total;
+    }
+
+    private BigDecimal sumPayablesByMonth(List<Payable> items, int month, String periodType) {
+        BigDecimal total = ZERO;
+
+        for (Payable item : items) {
+            LocalDate date = comparisonDate(item, periodType);
+            if (date != null && date.getMonthValue() == month) {
+                total = total.add(valueOrZero(item.getAmount()));
+            }
+        }
+
+        return total;
+    }
+
+    private LocalDate comparisonDate(Receivable item, String periodType) {
+        if ("PAYMENT_DATE".equals(periodType)) {
+            return item.getPaymentDate();
+        }
+
+        if ("CREATED_DATE".equals(periodType) && item.getCreatedAt() != null) {
+            return LocalDate.ofInstant(item.getCreatedAt(), ZoneOffset.UTC);
+        }
+
+        return item.getDueDate();
+    }
+
+    private LocalDate comparisonDate(Payable item, String periodType) {
+        if ("PAYMENT_DATE".equals(periodType)) {
+            return item.getPaymentDate();
+        }
+
+        if ("CREATED_DATE".equals(periodType) && item.getCreatedAt() != null) {
+            return LocalDate.ofInstant(item.getCreatedAt(), ZoneOffset.UTC);
+        }
+
+        return item.getDueDate();
+    }
+
     private Map<String, ?> row(String... values) {
         Map<String, String> row = new LinkedHashMap<>();
 
@@ -632,6 +666,12 @@ public class ReportServiceImpl implements ReportService {
     private String monthName(Month month) {
         String[] names = {"Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
                 "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"};
+        return names[month.getValue() - 1];
+    }
+
+    private String shortMonthName(Month month) {
+        String[] names = {"Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
+                "Jul", "Ago", "Set", "Out", "Nov", "Dez"};
         return names[month.getValue() - 1];
     }
 
