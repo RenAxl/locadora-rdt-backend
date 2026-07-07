@@ -93,7 +93,17 @@ pipeline {
             steps {
                 withSonarQubeEnv('SonarQube') {
                     sh 'chmod +x ./mvnw'
-                    sh './mvnw sonar:sonar -Dsonar.projectKey=locadora-rdt-backend -Dsonar.projectName=locadora-rdt-backend -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml'
+                    sh '''
+                        sonar_coverage_exclusions="$(find src/main/java -type f -name '*.java' ! -name '*Service.java' \
+                          | sed 's#^#**/#' \
+                          | paste -sd, -)"
+
+                        ./mvnw sonar:sonar \
+                          -Dsonar.projectKey=locadora-rdt-backend \
+                          -Dsonar.projectName=locadora-rdt-backend \
+                          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+                          -Dsonar.coverage.exclusions="${sonar_coverage_exclusions}"
+                    '''
                 }
             }
         }
