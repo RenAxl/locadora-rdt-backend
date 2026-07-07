@@ -1,4 +1,4 @@
-package com.locadora_rdt_backend.tests.modules.receivables.service;
+package com.locadora_rdt_backend.tests.modules.financial.receivables.service;
 
 import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableReportDTO;
 import com.locadora_rdt_backend.modules.financial.receivables.service.ReceivableService;

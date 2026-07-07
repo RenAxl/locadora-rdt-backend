@@ -1,4 +1,4 @@
-package com.locadora_rdt_backend.tests.modules.payment.settings.service;
+package com.locadora_rdt_backend.tests.modules.financial.payment.settings.service;
 
 import com.locadora_rdt_backend.infrastructure.security.AuthenticationFacade;
 import com.locadora_rdt_backend.modules.financial.payment.settings.dto.FinancialSettingDTO;

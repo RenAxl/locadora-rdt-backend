@@ -1,32 +1,31 @@
-package com.locadora_rdt_backend.tests.modules.payables.service;
+package com.locadora_rdt_backend.tests.modules.financial.receivables.service;
 
 import com.locadora_rdt_backend.common.exception.DatabaseException;
 import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
 import com.locadora_rdt_backend.infrastructure.security.AuthenticationFacade;
-import com.locadora_rdt_backend.modules.employees.model.Employee;
-import com.locadora_rdt_backend.modules.employees.repository.EmployeeRepository;
-import com.locadora_rdt_backend.modules.suppliers.model.Supplier;
-import com.locadora_rdt_backend.modules.suppliers.repository.SupplierRepository;
+import com.locadora_rdt_backend.modules.customers.model.Customer;
+import com.locadora_rdt_backend.modules.customers.repository.CustomerRepository;
 import com.locadora_rdt_backend.modules.financial.payment.frequencies.model.PaymentFrequency;
 import com.locadora_rdt_backend.modules.financial.payment.frequencies.repository.PaymentFrequencyRepository;
 import com.locadora_rdt_backend.modules.financial.payment.methods.model.PaymentMethod;
 import com.locadora_rdt_backend.modules.financial.payment.methods.repository.PaymentMethodRepository;
 import com.locadora_rdt_backend.modules.financial.payment.settings.model.FinancialSetting;
 import com.locadora_rdt_backend.modules.financial.payment.settings.repository.FinancialSettingRepository;
-import com.locadora_rdt_backend.modules.financial.payables.dto.PayableDTO;
-import com.locadora_rdt_backend.modules.financial.payables.dto.PayableDetailsDTO;
-import com.locadora_rdt_backend.modules.financial.payables.dto.PayableFilterDTO;
-import com.locadora_rdt_backend.modules.financial.payables.dto.PayableInsertDTO;
-import com.locadora_rdt_backend.modules.financial.payables.dto.PayableInstallmentDTO;
-import com.locadora_rdt_backend.modules.financial.payables.dto.PayablePaymentDTO;
-import com.locadora_rdt_backend.modules.financial.payables.dto.PayableReportDTO;
-import com.locadora_rdt_backend.modules.financial.payables.dto.PayableUpdateDTO;
-import com.locadora_rdt_backend.modules.financial.payables.mapper.PayableMapper;
-import com.locadora_rdt_backend.modules.financial.payables.model.Payable;
-import com.locadora_rdt_backend.modules.financial.payables.repository.PayableRepository;
-import com.locadora_rdt_backend.modules.financial.payables.service.PayableFilterNormalizer;
-import com.locadora_rdt_backend.modules.financial.payables.service.PayableFinancialCalculator;
-import com.locadora_rdt_backend.modules.financial.payables.service.PayableServiceImpl;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableDetailsDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableFilterDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableInsertDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableInstallmentDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivablePaymentDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableReportDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableUpdateDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.mapper.ReceivableMapper;
+import com.locadora_rdt_backend.modules.financial.receivables.model.Receivable;
+import com.locadora_rdt_backend.modules.financial.receivables.repository.ReceivableRepository;
+import com.locadora_rdt_backend.modules.financial.receivables.service.ReceivableDocumentPdfService;
+import com.locadora_rdt_backend.modules.financial.receivables.service.ReceivableFilterNormalizer;
+import com.locadora_rdt_backend.modules.financial.receivables.service.ReceivableFinancialCalculator;
+import com.locadora_rdt_backend.modules.financial.receivables.service.ReceivableServiceImpl;
 import com.locadora_rdt_backend.modules.users.model.User;
 import com.locadora_rdt_backend.modules.users.repository.UserRepository;
 import org.junit.jupiter.api.Assertions;
@@ -55,21 +54,18 @@ import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("java:S5778")
-class PayableServiceTests {
+class ReceivableServiceTests {
 
-    private PayableServiceImpl service;
-
-    @Mock
-    private PayableRepository repository;
+    private ReceivableServiceImpl service;
 
     @Mock
-    private PayableMapper mapper;
+    private ReceivableRepository repository;
 
     @Mock
-    private SupplierRepository supplierRepository;
+    private ReceivableMapper mapper;
 
     @Mock
-    private EmployeeRepository employeeRepository;
+    private CustomerRepository customerRepository;
 
     @Mock
     private PaymentMethodRepository paymentMethodRepository;
@@ -86,11 +82,10 @@ class PayableServiceTests {
     @Mock
     private FinancialSettingRepository financialSettingRepository;
 
-    private Payable entity;
-    private PayableDTO dto;
+    private Receivable entity;
+    private ReceivableDTO dto;
     private User user;
-    private Supplier supplier;
-    private Employee employee;
+    private Customer customer;
     private PaymentMethod paymentMethod;
     private PaymentFrequency paymentFrequency;
     private Clock clock;
@@ -98,29 +93,29 @@ class PayableServiceTests {
     @BeforeEach
     void setUp() {
         clock = Clock.fixed(Instant.parse("2026-07-06T12:00:00Z"), ZoneId.of("America/Sao_Paulo"));
-        PayableFinancialCalculator financialCalculator = new PayableFinancialCalculator(financialSettingRepository, clock);
-        service = new PayableServiceImpl(
+        ReceivableFinancialCalculator financialCalculator = new ReceivableFinancialCalculator(financialSettingRepository, clock);
+        service = new ReceivableServiceImpl(
                 repository,
                 mapper,
-                supplierRepository,
-                employeeRepository,
+                customerRepository,
                 paymentMethodRepository,
                 paymentFrequencyRepository,
                 userRepository,
                 authenticationFacade,
-                new PayableFilterNormalizer(),
+                new ReceivableFilterNormalizer(),
                 financialCalculator,
+                new ReceivableDocumentPdfService(financialCalculator, clock),
                 clock
         );
 
-        entity = new Payable();
+        entity = new Receivable();
         entity.setId(1L);
         entity.setDescription("Movie rental");
         entity.setAmount(new BigDecimal("45.90"));
         entity.setRemainingBalance(new BigDecimal("45.90"));
         entity.setDueDate(LocalDate.of(2026, 7, 1));
 
-        dto = new PayableDTO();
+        dto = new ReceivableDTO();
         dto.setId(1L);
         dto.setDescription("Movie rental");
         dto.setAmount(new BigDecimal("45.90"));
@@ -129,17 +124,9 @@ class PayableServiceTests {
         user.setId(1L);
         user.setEmail("admin@email.com");
 
-        supplier = new Supplier();
-        supplier.setId(2L);
-        supplier.setName("Fornecedor");
-        supplier.setCnpj("12345678000199");
-        Mockito.lenient()
-                .when(supplierRepository.findById(2L))
-                .thenReturn(Optional.of(supplier));
-
-        employee = new Employee();
-        employee.setId(5L);
-        employee.setName("Funcionário");
+        customer = new Customer();
+        customer.setId(2L);
+        customer.setName("Cliente");
 
         paymentMethod = new PaymentMethod();
         paymentMethod.setId(3L);
@@ -161,7 +148,7 @@ class PayableServiceTests {
     @Test
     void findAllPagedShouldNormalizeLegacyDescriptionSearch() {
         PageRequest pageRequest = PageRequest.of(0, 10);
-        PageImpl<Payable> page = new PageImpl<>(List.of(entity));
+        PageImpl<Receivable> page = new PageImpl<>(List.of(entity));
 
         Mockito.when(repository.findWithFilters(
                 eq("Movie"),
@@ -176,14 +163,13 @@ class PayableServiceTests {
                 any(),
                 any(),
                 any(),
-                any(),
                 eq("dueDate"),
                 eq("ASC"),
                 eq(pageRequest)
         )).thenReturn(page);
         Mockito.when(mapper.toDTO(entity)).thenReturn(dto);
 
-        Page<PayableDTO> result = service.findAllPaged("Movie", pageRequest);
+        Page<ReceivableDTO> result = service.findAllPaged("Movie", pageRequest);
 
         Assertions.assertFalse(result.isEmpty());
         Assertions.assertEquals(1L, result.getContent().get(0).getId());
@@ -191,11 +177,11 @@ class PayableServiceTests {
 
     @Test
     void findAllPagedShouldNormalizeAdvancedFilters() {
-        PayableFilterDTO filters = new PayableFilterDTO();
+        ReceivableFilterDTO filters = new ReceivableFilterDTO();
         filters.setSearch("  Teste ");
         filters.setStatus("open");
         filters.setPeriodType("payment");
-        filters.setSupplierId(0L);
+        filters.setCustomerId(0L);
         filters.setPaymentMethodId(3L);
         filters.setPaymentFrequencyId(-1L);
         filters.setOrderBy("unknown");
@@ -211,7 +197,6 @@ class PayableServiceTests {
                 eq("PENDING"),
                 eq("PAYMENT_DATE"),
                 eq(-1L),
-                eq(-1L),
                 eq(3L),
                 eq(-1L),
                 eq(new BigDecimal("-1")),
@@ -222,14 +207,14 @@ class PayableServiceTests {
         )).thenReturn(new PageImpl<>(List.of(entity)));
         Mockito.when(mapper.toDTO(entity)).thenReturn(dto);
 
-        Page<PayableDTO> result = service.findAllPaged(filters, pageRequest);
+        Page<ReceivableDTO> result = service.findAllPaged(filters, pageRequest);
 
         Assertions.assertEquals(1, result.getContent().size());
     }
 
     @Test
     void findAllPagedShouldPassEnabledDateAndAmountFilters() {
-        PayableFilterDTO filters = new PayableFilterDTO();
+        ReceivableFilterDTO filters = new ReceivableFilterDTO();
         filters.setStartDate(LocalDate.of(2026, 7, 1));
         filters.setEndDate(LocalDate.of(2026, 7, 31));
         filters.setMinimumAmount(new BigDecimal("10.00"));
@@ -251,7 +236,6 @@ class PayableServiceTests {
                 eq(-1L),
                 eq(-1L),
                 eq(-1L),
-                eq(-1L),
                 eq(new BigDecimal("10.00")),
                 eq(new BigDecimal("100.00")),
                 eq("amount"),
@@ -260,14 +244,14 @@ class PayableServiceTests {
         )).thenReturn(new PageImpl<>(List.of(entity)));
         Mockito.when(mapper.toDTO(entity)).thenReturn(dto);
 
-        Page<PayableDTO> result = service.findAllPaged(filters, pageRequest);
+        Page<ReceivableDTO> result = service.findAllPaged(filters, pageRequest);
 
         Assertions.assertEquals(1, result.getContent().size());
     }
 
     @Test
     void findByIdShouldReturnDetailsWhenIdExists() {
-        PayableDetailsDTO detailsDTO = new PayableDetailsDTO();
+        ReceivableDetailsDTO detailsDTO = new ReceivableDetailsDTO();
         detailsDTO.setId(1L);
 
         Mockito.when(repository.findById(1L)).thenReturn(Optional.of(entity));
@@ -285,23 +269,23 @@ class PayableServiceTests {
 
     @Test
     void insertShouldSaveRelationsAndAuthenticatedUser() {
-        PayableInsertDTO insertDTO = saveDTO(new PayableInsertDTO());
-        insertDTO.setSupplierId(2L);
+        ReceivableInsertDTO insertDTO = saveDTO(new ReceivableInsertDTO());
+        insertDTO.setCustomerId(2L);
         insertDTO.setPaymentMethodId(3L);
         insertDTO.setPaymentFrequencyId(4L);
 
         Mockito.when(mapper.toEntity(insertDTO)).thenReturn(entity);
-        Mockito.when(supplierRepository.findById(2L)).thenReturn(Optional.of(supplier));
+        Mockito.when(customerRepository.findById(2L)).thenReturn(Optional.of(customer));
         Mockito.when(paymentMethodRepository.findById(3L)).thenReturn(Optional.of(paymentMethod));
         Mockito.when(paymentFrequencyRepository.findById(4L)).thenReturn(Optional.of(paymentFrequency));
         mockAuthenticatedUser();
         Mockito.when(repository.save(entity)).thenReturn(entity);
         Mockito.when(mapper.toDTO(entity)).thenReturn(dto);
 
-        PayableDTO result = service.insert(insertDTO);
+        ReceivableDTO result = service.insert(insertDTO);
 
         Assertions.assertEquals(1L, result.getId());
-        Assertions.assertSame(supplier, entity.getSupplier());
+        Assertions.assertSame(customer, entity.getCustomer());
         Assertions.assertSame(paymentMethod, entity.getPaymentMethod());
         Assertions.assertSame(paymentFrequency, entity.getPaymentFrequency());
         Assertions.assertSame(user, entity.getCreatedBy());
@@ -309,7 +293,7 @@ class PayableServiceTests {
 
     @Test
     void insertShouldSetPaymentDataWhenAlreadyPaid() {
-        PayableInsertDTO insertDTO = saveDTO(new PayableInsertDTO());
+        ReceivableInsertDTO insertDTO = saveDTO(new ReceivableInsertDTO());
         entity.setPaid(true);
 
         Mockito.when(mapper.toEntity(insertDTO)).thenReturn(entity);
@@ -325,40 +309,29 @@ class PayableServiceTests {
     }
 
     @Test
-    void insertShouldAllowAccountWithoutSupplierAndEmployee() {
-        PayableInsertDTO insertDTO = new PayableInsertDTO();
-        PayableDTO dto = new PayableDTO();
+    void insertShouldValidateCustomerOrDescriptionAndRelations() {
+        ReceivableInsertDTO invalidDTO = new ReceivableInsertDTO();
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> service.insert(invalidDTO));
+
+        ReceivableInsertDTO insertDTO = saveDTO(new ReceivableInsertDTO());
+        insertDTO.setCustomerId(999L);
         Mockito.when(mapper.toEntity(insertDTO)).thenReturn(entity);
-        Mockito.when(repository.save(entity)).thenReturn(entity);
-        Mockito.when(mapper.toDTO(entity)).thenReturn(dto);
-
-        PayableDTO result = service.insert(insertDTO);
-
-        Assertions.assertSame(dto, result);
-        Assertions.assertNull(entity.getSupplier());
-        Assertions.assertNull(entity.getEmployee());
-    }
-
-    @Test
-    void insertShouldValidateSupplierRelations() {
-        PayableInsertDTO insertDTO = saveDTO(new PayableInsertDTO());
-        insertDTO.setSupplierId(999L);
-        Mockito.when(mapper.toEntity(insertDTO)).thenReturn(entity);
-        Mockito.when(supplierRepository.findById(999L)).thenReturn(Optional.empty());
+        Mockito.when(customerRepository.findById(999L)).thenReturn(Optional.empty());
 
         Assertions.assertThrows(ResourceNotFoundException.class, () -> service.insert(insertDTO));
     }
 
     @Test
     void insertShouldValidatePaymentMethodAndFrequencyRelations() {
-        PayableInsertDTO invalidPaymentMethodDTO = saveDTO(new PayableInsertDTO());
+        ReceivableInsertDTO invalidPaymentMethodDTO = saveDTO(new ReceivableInsertDTO());
         invalidPaymentMethodDTO.setPaymentMethodId(999L);
         Mockito.when(mapper.toEntity(invalidPaymentMethodDTO)).thenReturn(entity);
         Mockito.when(paymentMethodRepository.findById(999L)).thenReturn(Optional.empty());
 
         Assertions.assertThrows(ResourceNotFoundException.class, () -> service.insert(invalidPaymentMethodDTO));
 
-        PayableInsertDTO invalidFrequencyDTO = saveDTO(new PayableInsertDTO());
+        ReceivableInsertDTO invalidFrequencyDTO = saveDTO(new ReceivableInsertDTO());
         invalidFrequencyDTO.setPaymentFrequencyId(999L);
         Mockito.when(mapper.toEntity(invalidFrequencyDTO)).thenReturn(entity);
         Mockito.when(paymentFrequencyRepository.findById(999L)).thenReturn(Optional.empty());
@@ -367,15 +340,15 @@ class PayableServiceTests {
     }
 
     @Test
-    void updateShouldModifyExistingPayable() {
-        PayableUpdateDTO updateDTO = saveDTO(new PayableUpdateDTO());
+    void updateShouldModifyExistingReceivable() {
+        ReceivableUpdateDTO updateDTO = saveDTO(new ReceivableUpdateDTO());
 
         Mockito.when(repository.findById(1L)).thenReturn(Optional.of(entity));
         mockAuthenticatedUser();
         Mockito.when(repository.save(entity)).thenReturn(entity);
         Mockito.when(mapper.toDTO(entity)).thenReturn(dto);
 
-        PayableDTO result = service.update(1L, updateDTO);
+        ReceivableDTO result = service.update(1L, updateDTO);
 
         Assertions.assertEquals(1L, result.getId());
         Mockito.verify(mapper).updateEntity(entity, updateDTO);
@@ -383,11 +356,11 @@ class PayableServiceTests {
     }
 
     @Test
-    void updateShouldSetPaidByWhenUpdatedPayableBecomesPaid() {
-        PayableUpdateDTO updateDTO = saveDTO(new PayableUpdateDTO());
+    void updateShouldSetPaidByWhenUpdatedReceivableBecomesPaid() {
+        ReceivableUpdateDTO updateDTO = saveDTO(new ReceivableUpdateDTO());
         Mockito.when(repository.findById(1L)).thenReturn(Optional.of(entity));
         Mockito.doAnswer(invocation -> {
-            Payable target = invocation.getArgument(0);
+            Receivable target = invocation.getArgument(0);
             target.setPaid(true);
             return null;
         }).when(mapper).updateEntity(entity, updateDTO);
@@ -402,14 +375,14 @@ class PayableServiceTests {
     }
 
     @Test
-    void updateShouldKeepExistingPaidByWhenUpdatedPayableIsAlreadyPaidBySomeone() {
-        PayableUpdateDTO updateDTO = saveDTO(new PayableUpdateDTO());
+    void updateShouldKeepExistingPaidByWhenUpdatedReceivableIsAlreadyPaidBySomeone() {
+        ReceivableUpdateDTO updateDTO = saveDTO(new ReceivableUpdateDTO());
         User paidBy = new User();
         paidBy.setId(20L);
         entity.setPaidBy(paidBy);
         Mockito.when(repository.findById(1L)).thenReturn(Optional.of(entity));
         Mockito.doAnswer(invocation -> {
-            Payable target = invocation.getArgument(0);
+            Receivable target = invocation.getArgument(0);
             target.setPaid(true);
             return null;
         }).when(mapper).updateEntity(entity, updateDTO);
@@ -423,8 +396,8 @@ class PayableServiceTests {
     }
 
     @Test
-    void updateShouldKeepPartialPaymentStatusWhenPayableWasPartiallyPaid() {
-        PayableUpdateDTO updateDTO = saveDTO(new PayableUpdateDTO());
+    void updateShouldKeepPartialPaymentStatusWhenReceivableWasPartiallyPaid() {
+        ReceivableUpdateDTO updateDTO = saveDTO(new ReceivableUpdateDTO());
         entity.setAmount(new BigDecimal("100.00"));
         entity.setSubtotal(new BigDecimal("40.00"));
         entity.setRemainingBalance(new BigDecimal("60.00"));
@@ -433,7 +406,7 @@ class PayableServiceTests {
 
         Mockito.when(repository.findById(1L)).thenReturn(Optional.of(entity));
         Mockito.doAnswer(invocation -> {
-            Payable target = invocation.getArgument(0);
+            Receivable target = invocation.getArgument(0);
             target.setDescription("Movie rental updated");
             target.setPaymentDate(LocalDate.of(2026, 7, 1));
             target.setPaid(true);
@@ -452,15 +425,15 @@ class PayableServiceTests {
     }
 
     @Test
-    void updateShouldThrowWhenPayableDoesNotExist() {
-        PayableUpdateDTO updateDTO = saveDTO(new PayableUpdateDTO());
+    void updateShouldThrowWhenReceivableDoesNotExist() {
+        ReceivableUpdateDTO updateDTO = saveDTO(new ReceivableUpdateDTO());
         Mockito.when(repository.findById(999L)).thenReturn(Optional.empty());
 
         Assertions.assertThrows(ResourceNotFoundException.class, () -> service.update(999L, updateDTO));
     }
 
     @Test
-    void deleteShouldRemoveExistingPayable() {
+    void deleteShouldRemoveExistingReceivable() {
         Mockito.when(repository.findById(1L)).thenReturn(Optional.of(entity));
 
         service.delete(1L);
@@ -478,9 +451,9 @@ class PayableServiceTests {
     }
 
     @Test
-    void payShouldSetTotalPaymentWithoutCreatingAnotherPayable() {
+    void payShouldSetTotalPaymentWithoutCreatingAnotherReceivable() {
         entity.setPaymentFrequency(paymentFrequency);
-        PayablePaymentDTO paymentDTO = paymentDTO(new BigDecimal("45.90"));
+        ReceivablePaymentDTO paymentDTO = paymentDTO(new BigDecimal("45.90"));
         paymentDTO.setPaymentMethodId(3L);
         paymentDTO.setFee(new BigDecimal("1.00"));
         paymentDTO.setLateInterest(new BigDecimal("2.00"));
@@ -490,7 +463,7 @@ class PayableServiceTests {
         Mockito.when(repository.findById(1L)).thenReturn(Optional.of(entity));
         Mockito.when(paymentMethodRepository.findById(3L)).thenReturn(Optional.of(paymentMethod));
         mockAuthenticatedUser();
-        Mockito.when(repository.save(any(Payable.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        Mockito.when(repository.save(any(Receivable.class))).thenAnswer(invocation -> invocation.getArgument(0));
         Mockito.when(mapper.toDTO(entity)).thenReturn(dto);
 
         service.pay(1L, paymentDTO);
@@ -503,10 +476,10 @@ class PayableServiceTests {
     }
 
     @Test
-    void payShouldKeepSamePayableWhenPaymentIsPartial() {
+    void payShouldKeepSameReceivableWhenPaymentIsPartial() {
         entity.setAmount(new BigDecimal("30.00"));
         entity.setRemainingBalance(new BigDecimal("30.00"));
-        PayablePaymentDTO paymentDTO = paymentDTO(new BigDecimal("20.00"));
+        ReceivablePaymentDTO paymentDTO = paymentDTO(new BigDecimal("20.00"));
 
         Mockito.when(repository.findById(1L)).thenReturn(Optional.of(entity));
         Mockito.when(repository.save(entity)).thenReturn(entity);
@@ -514,9 +487,9 @@ class PayableServiceTests {
 
         service.pay(1L, paymentDTO);
 
-        ArgumentCaptor<Payable> captor = ArgumentCaptor.forClass(Payable.class);
+        ArgumentCaptor<Receivable> captor = ArgumentCaptor.forClass(Receivable.class);
         Mockito.verify(repository).save(captor.capture());
-        Payable saved = captor.getValue();
+        Receivable saved = captor.getValue();
 
         Assertions.assertEquals(new BigDecimal("30.00"), saved.getAmount());
         Assertions.assertEquals(new BigDecimal("20.00"), saved.getSubtotal());
@@ -529,7 +502,7 @@ class PayableServiceTests {
     void payShouldUsePaymentAmountInsteadOfSubtotal() {
         entity.setAmount(new BigDecimal("30.00"));
         entity.setRemainingBalance(new BigDecimal("30.00"));
-        PayablePaymentDTO paymentDTO = paymentDTO(new BigDecimal("10.00"));
+        ReceivablePaymentDTO paymentDTO = paymentDTO(new BigDecimal("10.00"));
         paymentDTO.setSubtotal(new BigDecimal("30.00"));
 
         Mockito.when(repository.findById(1L)).thenReturn(Optional.of(entity));
@@ -548,7 +521,7 @@ class PayableServiceTests {
         entity.setAmount(new BigDecimal("30.00"));
         entity.setRemainingBalance(new BigDecimal("10.00"));
         entity.setSubtotal(new BigDecimal("20.00"));
-        PayablePaymentDTO paymentDTO = paymentDTO(new BigDecimal("5.00"));
+        ReceivablePaymentDTO paymentDTO = paymentDTO(new BigDecimal("5.00"));
 
         Mockito.when(repository.findById(1L)).thenReturn(Optional.of(entity));
         Mockito.when(repository.save(entity)).thenReturn(entity);
@@ -566,7 +539,7 @@ class PayableServiceTests {
         entity.setPaymentDate(LocalDate.of(2026, 7, 1));
         entity.setSubtotal(new BigDecimal("138.00"));
         entity.setRemainingBalance(new BigDecimal("138.00"));
-        PayablePaymentDTO paymentDTO = paymentDTO(new BigDecimal("10.00"));
+        ReceivablePaymentDTO paymentDTO = paymentDTO(new BigDecimal("10.00"));
 
         Mockito.when(repository.findById(1L)).thenReturn(Optional.of(entity));
         Mockito.when(repository.save(entity)).thenReturn(entity);
@@ -579,7 +552,7 @@ class PayableServiceTests {
     }
 
     @Test
-    void payShouldRejectPaymentWhenPaidAmountAlreadyExceedsPayableAmount() {
+    void payShouldRejectPaymentWhenPaidAmountAlreadyExceedsReceivableAmount() {
         entity.setAmount(new BigDecimal("35.00"));
         entity.setPaymentDate(LocalDate.of(2026, 7, 1));
         entity.setSubtotal(new BigDecimal("41.50"));
@@ -591,13 +564,13 @@ class PayableServiceTests {
     }
 
     @Test
-    void payShouldIgnoreLegacySubtotalWhenPayableHasNoPaymentRecord() {
+    void payShouldIgnoreLegacySubtotalWhenReceivableHasNoPaymentRecord() {
         entity.setAmount(new BigDecimal("35.00"));
         entity.setPaymentDate(null);
         entity.setPaid(false);
         entity.setSubtotal(new BigDecimal("41.50"));
         entity.setRemainingBalance(new BigDecimal("41.50"));
-        PayablePaymentDTO paymentDTO = paymentDTO(new BigDecimal("35.00"));
+        ReceivablePaymentDTO paymentDTO = paymentDTO(new BigDecimal("35.00"));
 
         Mockito.when(repository.findById(1L)).thenReturn(Optional.of(entity));
         Mockito.when(repository.save(entity)).thenReturn(entity);
@@ -611,12 +584,12 @@ class PayableServiceTests {
     }
 
     @Test
-    void payShouldIgnoreZeroRemainingBalanceWhenPayableIsNotPaid() {
+    void payShouldIgnoreZeroRemainingBalanceWhenReceivableIsNotPaid() {
         entity.setAmount(new BigDecimal("35.00"));
         entity.setPaid(false);
         entity.setSubtotal(null);
         entity.setRemainingBalance(BigDecimal.ZERO);
-        PayablePaymentDTO paymentDTO = paymentDTO(new BigDecimal("35.00"));
+        ReceivablePaymentDTO paymentDTO = paymentDTO(new BigDecimal("35.00"));
 
         Mockito.when(repository.findById(1L)).thenReturn(Optional.of(entity));
         Mockito.when(repository.save(entity)).thenReturn(entity);
@@ -643,17 +616,17 @@ class PayableServiceTests {
     @Test
     void installmentShouldCreateInstallmentsAndCancelOriginal() {
         entity.setAmount(new BigDecimal("100.00"));
-        PayableInstallmentDTO installmentDTO = new PayableInstallmentDTO();
+        ReceivableInstallmentDTO installmentDTO = new ReceivableInstallmentDTO();
         installmentDTO.setInstallments(3);
         installmentDTO.setFirstDueDate(LocalDate.of(2026, 8, 1));
 
         Mockito.when(repository.findById(1L)).thenReturn(Optional.of(entity));
-        Mockito.when(repository.existsByParentPayableId(1L)).thenReturn(false);
+        Mockito.when(repository.existsByParentReceivableId(1L)).thenReturn(false);
         Mockito.when(repository.save(entity)).thenReturn(entity);
         Mockito.when(repository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
-        Mockito.when(mapper.toDTO(any(Payable.class))).thenReturn(dto);
+        Mockito.when(mapper.toDTO(any(Receivable.class))).thenReturn(dto);
 
-        List<PayableDTO> result = service.installment(1L, installmentDTO);
+        List<ReceivableDTO> result = service.installment(1L, installmentDTO);
 
         Assertions.assertEquals(3, result.size());
         Assertions.assertTrue(entity.getCanceled());
@@ -661,8 +634,8 @@ class PayableServiceTests {
     }
 
     @Test
-    void installmentShouldThrowWhenPayableIsPaidAlreadyHasInstallmentsOrIsInstallment() {
-        PayableInstallmentDTO installmentDTO = new PayableInstallmentDTO();
+    void installmentShouldThrowWhenReceivableIsPaidAlreadyHasInstallmentsOrIsInstallment() {
+        ReceivableInstallmentDTO installmentDTO = new ReceivableInstallmentDTO();
         installmentDTO.setInstallments(2);
 
         entity.setPaid(true);
@@ -670,29 +643,29 @@ class PayableServiceTests {
         Assertions.assertThrows(IllegalArgumentException.class, () -> service.installment(1L, installmentDTO));
 
         entity.setPaid(false);
-        Mockito.when(repository.existsByParentPayableId(1L)).thenReturn(true);
+        Mockito.when(repository.existsByParentReceivableId(1L)).thenReturn(true);
         Assertions.assertThrows(IllegalArgumentException.class, () -> service.installment(1L, installmentDTO));
 
-        Payable parent = new Payable();
+        Receivable parent = new Receivable();
         parent.setId(10L);
-        entity.setParentPayable(parent);
+        entity.setParentReceivable(parent);
         Assertions.assertThrows(IllegalArgumentException.class, () -> service.installment(1L, installmentDTO));
         Mockito.verify(repository, Mockito.never()).saveAll(any());
     }
 
     @Test
     void reportShouldReturnTotals() {
-        Payable paid = new Payable();
+        Receivable paid = new Receivable();
         paid.setAmount(new BigDecimal("10.00"));
         paid.setPaid(true);
-        Payable open = new Payable();
+        Receivable open = new Receivable();
         open.setAmount(new BigDecimal("20.00"));
         open.setPaid(false);
         Mockito.when(repository.findWithFilters(
-                any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
+                any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
         )).thenReturn(new PageImpl<>(List.of(paid, open)));
 
-        PayableReportDTO result = service.report("Movie", LocalDate.now(), LocalDate.now(), "paid", "created");
+        ReceivableReportDTO result = service.report("Movie", LocalDate.now(), LocalDate.now(), "paid", "created");
 
         Assertions.assertEquals(2L, result.getTotalItems());
         Assertions.assertEquals(new BigDecimal("30.00"), result.getTotalAmount());
@@ -700,27 +673,75 @@ class PayableServiceTests {
         Assertions.assertEquals(new BigDecimal("20.00"), result.getOpenAmount());
     }
 
+    @Test
+    void receiptShouldReturnPdf() {
+        entity.setCustomer(customer);
+        entity.setPaymentDate(LocalDate.of(2026, 7, 1));
+        entity.setPaid(true);
+        entity.setPaidBy(user);
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(entity));
+
+        byte[] result = service.receipt(1L);
+
+        Assertions.assertTrue(result.length > 0);
+        Assertions.assertEquals('%', result[0]);
+        Assertions.assertEquals('P', result[1]);
+        Assertions.assertEquals('D', result[2]);
+        Assertions.assertEquals('F', result[3]);
+    }
+
+    @Test
+    void receiptShouldThrowWhenReceivableIsNotPaid() {
+        entity.setPaid(false);
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(entity));
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> service.receipt(1L));
+    }
+
+    @Test
+    void fiscalCouponShouldReturnPdf() {
+        entity.setCustomer(customer);
+        entity.setPaymentDate(LocalDate.of(2026, 7, 1));
+        entity.setPaid(true);
+        entity.setPaidBy(user);
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(entity));
+
+        byte[] result = service.fiscalCoupon(1L);
+
+        Assertions.assertTrue(result.length > 0);
+        Assertions.assertEquals('%', result[0]);
+        Assertions.assertEquals('P', result[1]);
+        Assertions.assertEquals('D', result[2]);
+        Assertions.assertEquals('F', result[3]);
+    }
+
+    @Test
+    void fiscalCouponShouldThrowWhenReceivableIsNotPaid() {
+        entity.setPaid(false);
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(entity));
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> service.fiscalCoupon(1L));
+    }
+
     private void mockAuthenticatedUser() {
         Mockito.when(authenticationFacade.getAuthenticatedUsername()).thenReturn("admin@email.com");
         Mockito.when(userRepository.findByEmail("admin@email.com")).thenReturn(user);
     }
 
-    private <T extends PayableInsertDTO> T saveDTO(T dto) {
+    private <T extends ReceivableInsertDTO> T saveDTO(T dto) {
         dto.setDescription("Movie rental");
         dto.setAmount(new BigDecimal("45.90"));
-        dto.setSupplierId(2L);
         return dto;
     }
 
-    private PayableUpdateDTO saveDTO(PayableUpdateDTO dto) {
+    private ReceivableUpdateDTO saveDTO(ReceivableUpdateDTO dto) {
         dto.setDescription("Movie rental");
         dto.setAmount(new BigDecimal("45.90"));
-        dto.setSupplierId(2L);
         return dto;
     }
 
-    private PayablePaymentDTO paymentDTO(BigDecimal amount) {
-        PayablePaymentDTO paymentDTO = new PayablePaymentDTO();
+    private ReceivablePaymentDTO paymentDTO(BigDecimal amount) {
+        ReceivablePaymentDTO paymentDTO = new ReceivablePaymentDTO();
         paymentDTO.setPaymentAmount(amount);
         paymentDTO.setPaymentDate(LocalDate.of(2026, 7, 1));
         return paymentDTO;
