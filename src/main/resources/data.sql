@@ -309,3 +309,30 @@ INSERT INTO tb_payable (description, amount, due_date, payment_date, created_dat
                                                                                                                                                                                                                                                                                                                                                                                                      ('Compra de cadeiras', 1800.00, '2026-07-18', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 'Entrega agendada.', NULL, 'CANCELED', 'FURNITURE', 1008, 0.00, 0.00, 0.00, 0.00, 1800.00, FALSE, 1800.00, FALSE, TRUE, 6, 3, 2, 1, 1, 1, 2, NULL, NULL),
                                                                                                                                                                                                                                                                                                                                                                                                      ('Compra de cabos HDMI', 275.50, '2026-07-22', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 'Pagamento parcial realizado.', NULL, 'PENDING', 'PURCHASE', 1009, 0.00, 0.00, 0.00, 0.00, 100.00, FALSE, 175.50, FALSE, FALSE, 2, 2, 1, 1, 1, 1, NULL, NULL, NULL),
                                                                                                                                                                                                                                                                                                                                                                                                      ('Compra de notebook', 4200.00, '2026-08-05', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 'Equipamento administrativo.', 'nf_notebook.pdf', 'PENDING', 'ASSET', 1010, 0.00, 0.00, 100.00, 0.00, 4100.00, FALSE, 4100.00, FALSE, FALSE, 7, 1, 4, 3, 3, 1, NULL, NULL, NULL);
+
+
+INSERT INTO tb_category
+(version, name, active, image_data, created_at, created_by)
+VALUES
+    (0, 'Consoles', true, NULL, NOW(), 'Administrador'),
+    (0, 'Jogos PlayStation 5', true, NULL, NOW(), 'Administrador'),
+    (0, 'Jogos PlayStation 4', true, NULL, NOW(), 'Administrador'),
+    (0, 'Jogos Xbox Series X/S', true, NULL, NOW(), 'Administrador'),
+    (0, 'Jogos Xbox One', true, NULL, NOW(), 'Administrador'),
+    (0, 'Jogos Nintendo Switch', true, NULL, NOW(), 'Administrador'),
+    (0, 'Controles', true, NULL, NOW(), 'Administrador'),
+    (0, 'Headsets Gamer', true, NULL, NOW(), 'Administrador'),
+    (0, 'Volantes e Simuladores', true, NULL, NOW(), 'Administrador'),
+    (0, 'Acessórios para Games', true, NULL, NOW(), 'Administrador');
+
+INSERT INTO tb_rental_type (version, name, active, type, created_at, created_by) VALUES
+                                                                                     (0, 'Locação por Hora', true, 'DIA', NOW(), 'Administrador'),
+                                                                                     (0, 'Locação por Período', true, 'SEMANAL', NOW(), 'Administrador'),
+                                                                                     (0, 'Locação Diária', true, 'DIA', NOW(), 'Administrador'),
+                                                                                     (0, 'Locação Semanal', true, 'MÊS', NOW(), 'Administrador'),
+                                                                                     (0, 'Locação Quinzenal', true, 'SEMANAL', NOW(), 'Administrador'),
+                                                                                     (0, 'Locação Mensal', true, 'DIA', NOW(), 'Administrador'),
+                                                                                     (0, 'Locação para Final de Semana', true, 'MÊS', NOW(), 'Administrador'),
+                                                                                     (0, 'Locação para Evento', true, 'FIM DE SEMANA', NOW(), 'Administrador'),
+                                                                                     (0, 'Locação Personalizada', true, 'FIM DE SEMANA', NOW(), 'Administrador'),
+                                                                                     (0, 'Locação por Pacote', true, 'MÊS', NOW(), 'Administrador');
