@@ -1,11 +1,11 @@
-package com.locadora_rdt_backend.tests.modules.reports.service;
+package com.locadora_rdt_backend.tests.modules.reports.financialreports.service;
 
 import com.locadora_rdt_backend.modules.financial.payables.model.Payable;
 import com.locadora_rdt_backend.modules.financial.receivables.model.Receivable;
-import com.locadora_rdt_backend.modules.reports.dto.ReportFilterDTO;
-import com.locadora_rdt_backend.modules.reports.repository.ReportPayableRepository;
-import com.locadora_rdt_backend.modules.reports.repository.ReportReceivableRepository;
-import com.locadora_rdt_backend.modules.reports.service.ReportQueryService;
+import com.locadora_rdt_backend.modules.reports.financialreports.dto.ReportFilterDTO;
+import com.locadora_rdt_backend.modules.reports.financialreports.repository.ReportPayableRepository;
+import com.locadora_rdt_backend.modules.reports.financialreports.repository.ReportReceivableRepository;
+import com.locadora_rdt_backend.modules.reports.financialreports.service.ReportQueryService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -1,4 +1,4 @@
-package com.locadora_rdt_backend.modules.reports.dto;
+package com.locadora_rdt_backend.modules.reports.financialreports.dto;
 
 import java.io.Serializable;
 import java.math.BigDecimal;

@@ -1,6 +1,6 @@
-package com.locadora_rdt_backend.modules.reports.service;
+package com.locadora_rdt_backend.modules.reports.financialreports.service;
 
-import com.locadora_rdt_backend.modules.reports.model.ReportFormat;
+import com.locadora_rdt_backend.modules.reports.financialreports.model.ReportFormat;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperExportManager;

@@ -1,4 +1,4 @@
-package com.locadora_rdt_backend.modules.reports.service;
+package com.locadora_rdt_backend.modules.reports.financialreports.service;
 
 import java.util.List;
 import java.util.Map;
