@@ -1,9 +1,9 @@
-package com.locadora_rdt_backend.tests.modules.reports.service;
+package com.locadora_rdt_backend.tests.modules.reports.financialreports.service;
 
 import com.locadora_rdt_backend.modules.financial.payables.model.Payable;
 import com.locadora_rdt_backend.modules.financial.receivables.model.Receivable;
-import com.locadora_rdt_backend.modules.reports.service.ReportCalculationService;
-import com.locadora_rdt_backend.modules.reports.service.ReportTableService;
+import com.locadora_rdt_backend.modules.reports.financialreports.service.ReportCalculationService;
+import com.locadora_rdt_backend.modules.reports.financialreports.service.ReportTableService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

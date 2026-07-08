@@ -1,4 +1,4 @@
-package com.locadora_rdt_backend.modules.reports.repository;
+package com.locadora_rdt_backend.modules.reports.financialreports.repository;
 
 import com.locadora_rdt_backend.modules.financial.receivables.model.Receivable;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,7 +1,7 @@
-package com.locadora_rdt_backend.tests.modules.reports.service;
+package com.locadora_rdt_backend.tests.modules.reports.financialreports.service;
 
-import com.locadora_rdt_backend.modules.reports.model.ReportFormat;
-import com.locadora_rdt_backend.modules.reports.service.JasperReportGenerator;
+import com.locadora_rdt_backend.modules.reports.financialreports.model.ReportFormat;
+import com.locadora_rdt_backend.modules.reports.financialreports.service.JasperReportGenerator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

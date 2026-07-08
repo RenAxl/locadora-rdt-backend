@@ -1,4 +1,4 @@
-package com.locadora_rdt_backend.modules.reports.service;
+package com.locadora_rdt_backend.modules.reports.financialreports.service;
 
 import com.locadora_rdt_backend.modules.financial.payables.model.Payable;
 import com.locadora_rdt_backend.modules.financial.receivables.model.Receivable;

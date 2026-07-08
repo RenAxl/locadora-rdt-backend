@@ -1,10 +1,10 @@
-package com.locadora_rdt_backend.modules.reports.service;
+package com.locadora_rdt_backend.modules.reports.financialreports.service;
 
 import com.locadora_rdt_backend.modules.financial.payables.model.Payable;
 import com.locadora_rdt_backend.modules.financial.receivables.model.Receivable;
-import com.locadora_rdt_backend.modules.reports.dto.ReportFilterDTO;
-import com.locadora_rdt_backend.modules.reports.repository.ReportPayableRepository;
-import com.locadora_rdt_backend.modules.reports.repository.ReportReceivableRepository;
+import com.locadora_rdt_backend.modules.reports.financialreports.dto.ReportFilterDTO;
+import com.locadora_rdt_backend.modules.reports.financialreports.repository.ReportPayableRepository;
+import com.locadora_rdt_backend.modules.reports.financialreports.repository.ReportReceivableRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
