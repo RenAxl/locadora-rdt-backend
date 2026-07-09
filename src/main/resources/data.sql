@@ -336,3 +336,16 @@ INSERT INTO tb_rental_type (version, name, active, type, created_at, created_by)
                                                                                      (0, 'Locação para Evento', true, 'FIM DE SEMANA', NOW(), 'Administrador'),
                                                                                      (0, 'Locação Personalizada', true, 'FIM DE SEMANA', NOW(), 'Administrador'),
                                                                                      (0, 'Locação por Pacote', true, 'MÊS', NOW(), 'Administrador');
+
+
+INSERT INTO tb_item (version, name, category_id, rental_type_id, price, quantity, image_data, active, rented_quantity, created_at, created_by) VALUES
+                                                                                                                                                   (0, 'PlayStation 5 Slim',          1, 6, 150.00,  5, NULL, true, 0, NOW(), 'Administrador'),
+                                                                                                                                                   (0, 'Xbox Series X',               1, 6, 150.00,  3, NULL, true, 0, NOW(), 'Administrador'),
+                                                                                                                                                   (0, 'Nintendo Switch OLED',        1, 6, 120.00,  4, NULL, true, 0, NOW(), 'Administrador'),
+                                                                                                                                                   (0, 'EA Sports FC 26 - PS5',       2, 3,  20.00, 10, NULL, true, 0, NOW(), 'Administrador'),
+                                                                                                                                                   (0, 'God of War Ragnarök - PS5',   2, 3,  18.00,  8, NULL, true, 0, NOW(), 'Administrador'),
+                                                                                                                                                   (0, 'Halo Infinite - Xbox',        4, 3,  18.00,  6, NULL, true, 0, NOW(), 'Administrador'),
+                                                                                                                                                   (0, 'The Legend of Zelda TOTK',    6, 3,  22.00,  7, NULL, true, 0, NOW(), 'Administrador'),
+                                                                                                                                                   (0, 'Controle DualSense',          7, 3,  15.00, 12, NULL, true, 0, NOW(), 'Administrador'),
+                                                                                                                                                   (0, 'Headset HyperX Cloud II',     8, 3,  18.00,  8, NULL, true, 0, NOW(), 'Administrador'),
+                                                                                                                                                   (0, 'Volante Logitech G29',        9, 6,  80.00,  2, NULL, true, 0, NOW(), 'Administrador');
