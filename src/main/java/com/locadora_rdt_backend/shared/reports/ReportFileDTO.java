@@ -1,4 +1,4 @@
-package com.locadora_rdt_backend.modules.reports.financialreports.dto;
+package com.locadora_rdt_backend.shared.reports;
 
 import java.io.Serializable;
 

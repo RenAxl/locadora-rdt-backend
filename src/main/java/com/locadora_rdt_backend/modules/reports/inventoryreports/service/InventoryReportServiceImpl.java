@@ -2,11 +2,12 @@ package com.locadora_rdt_backend.modules.reports.inventoryreports.service;
 
 import com.locadora_rdt_backend.modules.inventory.stockbalances.model.StockBalance;
 import com.locadora_rdt_backend.modules.inventory.stockmovements.model.StockMovement;
-import com.locadora_rdt_backend.modules.reports.financialreports.dto.ReportFileDTO;
-import com.locadora_rdt_backend.modules.reports.financialreports.model.ReportFormat;
-import com.locadora_rdt_backend.modules.reports.financialreports.service.JasperReportGenerator;
 import com.locadora_rdt_backend.modules.reports.inventoryreports.dto.InventoryReportFilterDTO;
 import com.locadora_rdt_backend.modules.reports.inventoryreports.model.InventoryReportType;
+import com.locadora_rdt_backend.shared.reports.JasperReportGenerator;
+import com.locadora_rdt_backend.shared.reports.ReportData;
+import com.locadora_rdt_backend.shared.reports.ReportFileDTO;
+import com.locadora_rdt_backend.shared.reports.ReportFormat;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +37,7 @@ public class InventoryReportServiceImpl implements InventoryReportService {
         ReportFormat format = ReportFormat.from(formatValue);
         InventoryReportFilterDTO normalizedFilters = queryService.normalize(filters);
 
-        InventoryReportData data = buildReportData(reportType, normalizedFilters);
+        ReportData data = buildReportData(reportType, normalizedFilters);
 
         byte[] content = jasperReportGenerator.generate(
                 data.getTitle(),
@@ -49,7 +50,7 @@ public class InventoryReportServiceImpl implements InventoryReportService {
         return new ReportFileDTO(fileName, format.getContentType(), content);
     }
 
-    private InventoryReportData buildReportData(InventoryReportType type, InventoryReportFilterDTO filters) {
+    private ReportData buildReportData(InventoryReportType type, InventoryReportFilterDTO filters) {
         if (type == InventoryReportType.CURRENT_STOCK) {
             List<StockBalance> items = queryService.findCurrentStock(filters);
             return tableService.currentStockReport(items);

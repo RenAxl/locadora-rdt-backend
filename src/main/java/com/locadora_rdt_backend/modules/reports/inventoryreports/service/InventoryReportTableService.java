@@ -2,21 +2,24 @@ package com.locadora_rdt_backend.modules.reports.inventoryreports.service;
 
 import com.locadora_rdt_backend.modules.inventory.stockbalances.model.StockBalance;
 import com.locadora_rdt_backend.modules.inventory.stockmovements.model.StockMovement;
+import com.locadora_rdt_backend.shared.reports.ReportData;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.locadora_rdt_backend.shared.reports.ReportTableSupport.dateTime;
+import static com.locadora_rdt_backend.shared.reports.ReportTableSupport.number;
+import static com.locadora_rdt_backend.shared.reports.ReportTableSupport.row;
+import static com.locadora_rdt_backend.shared.reports.ReportTableSupport.text;
+import static com.locadora_rdt_backend.shared.reports.ReportTableSupport.valueOrZero;
 
 @Service
 public class InventoryReportTableService {
 
-    public InventoryReportData currentStockReport(List<StockBalance> items) {
+    public ReportData currentStockReport(List<StockBalance> items) {
         List<String> columns = Arrays.asList("Item", "Total", "Disponível", "Reservado", "Indisponível", "Mínimo", "Alerta");
         List<Map<String, ?>> rows = new ArrayList<>();
 
@@ -33,10 +36,10 @@ public class InventoryReportTableService {
             ));
         }
 
-        return new InventoryReportData("Saldo Atual de Estoque", columns, rows);
+        return new ReportData("Saldo Atual de Estoque", columns, rows);
     }
 
-    public InventoryReportData lowStockReport(List<StockBalance> items) {
+    public ReportData lowStockReport(List<StockBalance> items) {
         List<String> columns = Arrays.asList("Item", "Disponível", "Mínimo", "Total", "Reservado", "Indisponível");
         List<Map<String, ?>> rows = new ArrayList<>();
 
@@ -51,15 +54,15 @@ public class InventoryReportTableService {
             ));
         }
 
-        return new InventoryReportData("Itens com Estoque Baixo", columns, rows);
+        return new ReportData("Itens com Estoque Baixo", columns, rows);
     }
 
-    public InventoryReportData movementHistoryReport(List<StockMovement> items) {
+    public ReportData movementHistoryReport(List<StockMovement> items) {
         List<String> columns = Arrays.asList("Data", "Item", "Tipo", "Quantidade", "Motivo", "Referência", "Usuário");
         return movementReport("Histórico de Movimentações", columns, items);
     }
 
-    public InventoryReportData manualAdjustmentsReport(List<StockMovement> items) {
+    public ReportData manualAdjustmentsReport(List<StockMovement> items) {
         List<String> columns = Arrays.asList("Data", "Item", "Quantidade", "Motivo", "Referência", "Usuário");
         List<Map<String, ?>> rows = new ArrayList<>();
 
@@ -74,10 +77,10 @@ public class InventoryReportTableService {
             ));
         }
 
-        return new InventoryReportData("Ajustes Manuais de Estoque", columns, rows);
+        return new ReportData("Ajustes Manuais de Estoque", columns, rows);
     }
 
-    private InventoryReportData movementReport(String title, List<String> columns, List<StockMovement> items) {
+    private ReportData movementReport(String title, List<String> columns, List<StockMovement> items) {
         List<Map<String, ?>> rows = new ArrayList<>();
 
         for (StockMovement item : items) {
@@ -92,17 +95,7 @@ public class InventoryReportTableService {
             ));
         }
 
-        return new InventoryReportData(title, columns, rows);
-    }
-
-    private Map<String, ?> row(String... values) {
-        Map<String, String> row = new LinkedHashMap<>();
-
-        for (int i = 0; i < values.length; i++) {
-            row.put("column" + i, values[i]);
-        }
-
-        return row;
+        return new ReportData(title, columns, rows);
     }
 
     private String itemName(StockBalance item) {
@@ -125,18 +118,6 @@ public class InventoryReportTableService {
         return valueOrZero(item.getTotalQuantity())
                 - valueOrZero(item.getReservedQuantity())
                 - valueOrZero(item.getUnavailableQuantity());
-    }
-
-    private Integer valueOrZero(Integer value) {
-        return value == null ? 0 : value;
-    }
-
-    private String number(Integer value) {
-        return String.valueOf(valueOrZero(value));
-    }
-
-    private String text(String value) {
-        return value == null ? "" : value;
     }
 
     private String reference(StockMovement item) {
@@ -171,12 +152,4 @@ public class InventoryReportTableService {
         return text(type);
     }
 
-    private String dateTime(Instant instant) {
-        if (instant == null) {
-            return "";
-        }
-
-        return instant.atZone(ZoneId.systemDefault())
-                .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-    }
 }

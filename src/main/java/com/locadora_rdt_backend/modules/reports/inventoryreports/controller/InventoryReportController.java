@@ -1,8 +1,8 @@
 package com.locadora_rdt_backend.modules.reports.inventoryreports.controller;
 
-import com.locadora_rdt_backend.modules.reports.financialreports.dto.ReportFileDTO;
 import com.locadora_rdt_backend.modules.reports.inventoryreports.dto.InventoryReportFilterDTO;
 import com.locadora_rdt_backend.modules.reports.inventoryreports.service.InventoryReportService;
+import com.locadora_rdt_backend.shared.reports.ReportFileDTO;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

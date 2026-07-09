@@ -14,6 +14,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.locadora_rdt_backend.shared.reports.ReportTableSupport.valueOrZero;
+
 @Service
 public class ReportCalculationService {
 
@@ -200,14 +202,6 @@ public class ReportCalculationService {
         }
 
         return item.getDueDate();
-    }
-
-    private BigDecimal valueOrZero(BigDecimal value) {
-        if (value == null) {
-            return ZERO;
-        }
-
-        return value;
     }
 
     private String shortMonthName(Month month) {

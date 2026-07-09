@@ -7,16 +7,16 @@ import com.locadora_rdt_backend.modules.reports.financialreports.repository.Repo
 import com.locadora_rdt_backend.modules.reports.financialreports.repository.ReportReceivableRepository;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
+
+import static com.locadora_rdt_backend.shared.reports.ReportTableSupport.amountFilterOrDisabled;
+import static com.locadora_rdt_backend.shared.reports.ReportTableSupport.dateFilterOrDisabled;
+import static com.locadora_rdt_backend.shared.reports.ReportTableSupport.idFilterOrDisabled;
+import static com.locadora_rdt_backend.shared.reports.ReportTableSupport.normalizeCode;
+import static com.locadora_rdt_backend.shared.reports.ReportTableSupport.trimToNull;
 
 @Service
 public class ReportQueryService {
-
-    private static final BigDecimal FILTER_AMOUNT_DISABLED = BigDecimal.valueOf(-1);
-    private static final LocalDate FILTER_DATE_DISABLED = LocalDate.of(1970, 1, 1);
-    private static final long FILTER_ID_DISABLED = -1L;
 
     private final ReportReceivableRepository receivableRepository;
     private final ReportPayableRepository payableRepository;
@@ -64,19 +64,8 @@ public class ReportQueryService {
 
     public ReportFilterDTO normalize(ReportFilterDTO filters) {
         ReportFilterDTO normalized = filters == null ? new ReportFilterDTO() : filters;
-
-        if (!hasText(normalized.getStatus())) {
-            normalized.setStatus("ALL");
-        } else {
-            normalized.setStatus(normalized.getStatus().trim().replace("-", "_").toUpperCase());
-        }
-
-        if (!hasText(normalized.getPeriodType())) {
-            normalized.setPeriodType("DUE_DATE");
-        } else {
-            normalized.setPeriodType(normalized.getPeriodType().trim().replace("-", "_").toUpperCase());
-        }
-
+        normalized.setStatus(normalizeCode(normalized.getStatus(), "ALL"));
+        normalized.setPeriodType(normalizeCode(normalized.getPeriodType(), "DUE_DATE"));
         return normalized;
     }
 
@@ -97,39 +86,4 @@ public class ReportQueryService {
         return copy;
     }
 
-    private String trimToNull(String value) {
-        if (value == null || value.trim().isEmpty()) {
-            return null;
-        }
-
-        return value.trim();
-    }
-
-    private boolean hasText(String value) {
-        return value != null && !value.trim().isEmpty();
-    }
-
-    private Long idFilterOrDisabled(Long id) {
-        if (id == null || id <= 0) {
-            return FILTER_ID_DISABLED;
-        }
-
-        return id;
-    }
-
-    private BigDecimal amountFilterOrDisabled(BigDecimal amount) {
-        if (amount == null) {
-            return FILTER_AMOUNT_DISABLED;
-        }
-
-        return amount;
-    }
-
-    private LocalDate dateFilterOrDisabled(LocalDate date) {
-        if (date == null) {
-            return FILTER_DATE_DISABLED;
-        }
-
-        return date;
-    }
 }
