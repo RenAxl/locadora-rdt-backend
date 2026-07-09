@@ -1,4 +1,4 @@
-package com.locadora_rdt_backend.modules.reports.financialreports.model;
+package com.locadora_rdt_backend.shared.reports;
 
 public enum ReportFormat {
     PDF,

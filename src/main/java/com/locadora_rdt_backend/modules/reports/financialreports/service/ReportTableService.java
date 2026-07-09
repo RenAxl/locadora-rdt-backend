@@ -2,19 +2,23 @@ package com.locadora_rdt_backend.modules.reports.financialreports.service;
 
 import com.locadora_rdt_backend.modules.financial.payables.model.Payable;
 import com.locadora_rdt_backend.modules.financial.receivables.model.Receivable;
+import com.locadora_rdt_backend.shared.reports.ReportData;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.Month;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.locadora_rdt_backend.shared.reports.ReportTableSupport.date;
+import static com.locadora_rdt_backend.shared.reports.ReportTableSupport.money;
+import static com.locadora_rdt_backend.shared.reports.ReportTableSupport.row;
+import static com.locadora_rdt_backend.shared.reports.ReportTableSupport.text;
+import static com.locadora_rdt_backend.shared.reports.ReportTableSupport.valueOrZero;
 
 @Service
 public class ReportTableService {
@@ -141,16 +145,6 @@ public class ReportTableService {
         rows.add(row(values.toArray(new String[0])));
     }
 
-    private Map<String, ?> row(String... values) {
-        Map<String, String> row = new LinkedHashMap<>();
-
-        for (int i = 0; i < values.length; i++) {
-            row.put("column" + i, values[i]);
-        }
-
-        return row;
-    }
-
     private String status(Boolean paid, Boolean canceled, LocalDate dueDate, BigDecimal remainingBalance, BigDecimal amount) {
         if (Boolean.TRUE.equals(canceled)) {
             return "Cancelada";
@@ -172,34 +166,6 @@ public class ReportTableService {
         }
 
         return "Em aberto";
-    }
-
-    private String date(LocalDate date) {
-        if (date == null) {
-            return "";
-        }
-
-        return date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-    }
-
-    private String money(BigDecimal value) {
-        return "R$ " + valueOrZero(value).setScale(2, RoundingMode.HALF_UP).toPlainString().replace(".", ",");
-    }
-
-    private String text(String value) {
-        if (value == null) {
-            return "";
-        }
-
-        return value;
-    }
-
-    private BigDecimal valueOrZero(BigDecimal value) {
-        if (value == null) {
-            return ZERO;
-        }
-
-        return value;
     }
 
     private String monthName(Month month) {

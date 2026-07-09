@@ -7,14 +7,14 @@ import com.locadora_rdt_backend.modules.reports.inventoryreports.repository.Inve
 import com.locadora_rdt_backend.modules.reports.inventoryreports.repository.InventoryReportStockMovementRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.List;
+
+import static com.locadora_rdt_backend.shared.reports.ReportTableSupport.dateFilterOrDisabled;
+import static com.locadora_rdt_backend.shared.reports.ReportTableSupport.idFilterOrDisabled;
+import static com.locadora_rdt_backend.shared.reports.ReportTableSupport.normalizeCode;
 
 @Service
 public class InventoryReportQueryService {
-
-    private static final LocalDate FILTER_DATE_DISABLED = LocalDate.of(1970, 1, 1);
-    private static final long FILTER_ID_DISABLED = -1L;
 
     private final InventoryReportStockBalanceRepository stockBalanceRepository;
     private final InventoryReportStockMovementRepository stockMovementRepository;
@@ -67,26 +67,6 @@ public class InventoryReportQueryService {
     }
 
     private String normalizeMovementType(String movementType) {
-        if (movementType == null || movementType.trim().isEmpty()) {
-            return "ALL";
-        }
-
-        return movementType.trim().replace("-", "_").toUpperCase();
-    }
-
-    private Long idFilterOrDisabled(Long id) {
-        if (id == null || id <= 0) {
-            return FILTER_ID_DISABLED;
-        }
-
-        return id;
-    }
-
-    private LocalDate dateFilterOrDisabled(LocalDate date) {
-        if (date == null) {
-            return FILTER_DATE_DISABLED;
-        }
-
-        return date;
+        return normalizeCode(movementType, "ALL");
     }
 }

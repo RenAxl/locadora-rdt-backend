@@ -1,9 +1,9 @@
 package com.locadora_rdt_backend.modules.reports.financialreports.controller;
 
 import com.locadora_rdt_backend.modules.reports.financialreports.dto.ReportComparisonDTO;
-import com.locadora_rdt_backend.modules.reports.financialreports.dto.ReportFileDTO;
 import com.locadora_rdt_backend.modules.reports.financialreports.dto.ReportFilterDTO;
 import com.locadora_rdt_backend.modules.reports.financialreports.service.ReportService;
+import com.locadora_rdt_backend.shared.reports.ReportFileDTO;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
