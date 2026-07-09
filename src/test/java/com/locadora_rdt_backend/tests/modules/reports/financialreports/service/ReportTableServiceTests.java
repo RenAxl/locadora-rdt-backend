@@ -4,6 +4,9 @@ import com.locadora_rdt_backend.modules.financial.payables.model.Payable;
 import com.locadora_rdt_backend.modules.financial.receivables.model.Receivable;
 import com.locadora_rdt_backend.modules.reports.financialreports.service.ReportCalculationService;
 import com.locadora_rdt_backend.modules.reports.financialreports.service.ReportTableService;
+import com.locadora_rdt_backend.modules.customers.model.Customer;
+import com.locadora_rdt_backend.modules.employees.model.Employee;
+import com.locadora_rdt_backend.modules.suppliers.model.Supplier;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -82,6 +85,94 @@ class ReportTableServiceTests {
         Assertions.assertEquals("Resumo", title(report));
         Assertions.assertEquals("Cliente A", rows(report).get(0).get("column0"));
         Assertions.assertEquals("1", rows(report).get(0).get("column1"));
+    }
+
+    @Test
+    void receivablesReportShouldUseEmptyCustomerWhenCustomerIsNull() throws Exception {
+        Receivable receivable = receivable(false, LocalDate.of(2026, 7, 10));
+        receivable.setCustomer(null);
+
+        Object report = service.receivablesReport(List.of(receivable));
+
+        Assertions.assertEquals("", rows(report).get(0).get("column2"));
+    }
+
+    @Test
+    void payablesReportShouldUseEmptySupplierAndEmployeeWhenTheyAreNull() throws Exception {
+        Payable payable = payable(false, LocalDate.of(2026, 7, 10));
+        payable.setSupplier(null);
+        payable.setEmployee(null);
+
+        Object report = service.payablesReport(List.of(payable));
+
+        Assertions.assertEquals("", rows(report).get(0).get("column2"));
+        Assertions.assertEquals("", rows(report).get(0).get("column3"));
+    }
+
+    @Test
+    void payablesReportShouldShowSupplierWhenSupplierExists() throws Exception {
+        Payable payable = payable(false, LocalDate.of(2026, 7, 10));
+        Supplier supplier = new Supplier();
+        supplier.setName("Fornecedor A");
+        payable.setSupplier(supplier);
+
+        Object report = service.payablesReport(List.of(payable));
+
+        Assertions.assertEquals("Fornecedor A", rows(report).get(0).get("column2"));
+    }
+
+    @Test
+    void receivablesReportShouldShowCustomerWhenCustomerExists() throws Exception {
+        Receivable receivable = receivable(false, LocalDate.of(2026, 7, 10));
+        Customer customer = new Customer();
+        customer.setName("Cliente A");
+        receivable.setCustomer(customer);
+
+        Object report = service.receivablesReport(List.of(receivable));
+
+        Assertions.assertEquals("Cliente A", rows(report).get(0).get("column2"));
+    }
+
+    @Test
+    void payablesReportShouldShowEmployeeWhenEmployeeExists() throws Exception {
+        Payable payable = payable(false, LocalDate.of(2026, 7, 10));
+        Employee employee = new Employee();
+        employee.setName("Funcionário A");
+        payable.setEmployee(employee);
+
+        Object report = service.payablesReport(List.of(payable));
+
+        Assertions.assertEquals("Funcionário A", rows(report).get(0).get("column3"));
+    }
+
+    @Test
+    void reportsShouldShowCanceledPartialAndOpenStatuses() throws Exception {
+        Receivable canceled = receivable(false, LocalDate.of(2026, 7, 10));
+        canceled.setCanceled(true);
+        Receivable partial = receivable(false, LocalDate.of(2026, 7, 10));
+        partial.setRemainingBalance(new BigDecimal("50.00"));
+        Receivable open = receivable(false, LocalDate.of(2026, 7, 10));
+        open.setRemainingBalance(new BigDecimal("100.00"));
+
+        Object report = service.receivablesReport(List.of(canceled, partial, open));
+
+        Assertions.assertEquals("Cancelada", rows(report).get(0).get("column6"));
+        Assertions.assertEquals("Pago parcialmente", rows(report).get(1).get("column6"));
+        Assertions.assertEquals("Em aberto", rows(report).get(2).get("column6"));
+    }
+
+    @Test
+    void reportsShouldUseEmptyTextZeroMoneyAndEmptyDateWhenValuesAreNull() throws Exception {
+        Receivable receivable = receivable(false, null);
+        receivable.setDescription(null);
+        receivable.setAmount(null);
+        receivable.setRemainingBalance(null);
+
+        Object report = service.receivablesReport(List.of(receivable));
+
+        Assertions.assertEquals("", rows(report).get(0).get("column1"));
+        Assertions.assertEquals("", rows(report).get(0).get("column3"));
+        Assertions.assertEquals("R$ 0,00", rows(report).get(0).get("column5"));
     }
 
     @SuppressWarnings("unchecked")

@@ -28,7 +28,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/rental/items")
+@RequestMapping("/inventory/items")
 public class ItemController {
 
     private static final String DEFAULT_IMAGE_CONTENT_TYPE = "image/png";

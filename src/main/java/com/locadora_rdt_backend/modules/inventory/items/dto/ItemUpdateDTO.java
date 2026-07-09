@@ -1,7 +1,6 @@
 package com.locadora_rdt_backend.modules.inventory.items.dto;
 
 import javax.validation.constraints.DecimalMin;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -19,15 +18,8 @@ public class ItemUpdateDTO implements Serializable {
     private Long categoryId;
 
     @NotNull(message = "Campo requerido")
-    private Long rentalTypeId;
-
-    @NotNull(message = "Campo requerido")
     @DecimalMin(value = "0.01", message = "O preço deve ser maior que zero")
     private BigDecimal price;
-
-    @NotNull(message = "Campo requerido")
-    @Min(value = 0, message = "A quantidade não pode ser negativa")
-    private Integer quantity;
 
     public ItemUpdateDTO() {
         // Required by frameworks and serializers.
@@ -41,16 +33,8 @@ public class ItemUpdateDTO implements Serializable {
         return categoryId;
     }
 
-    public Long getRentalTypeId() {
-        return rentalTypeId;
-    }
-
     public BigDecimal getPrice() {
         return price;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
     }
 
     public void setName(String name) {
@@ -61,15 +45,7 @@ public class ItemUpdateDTO implements Serializable {
         this.categoryId = categoryId;
     }
 
-    public void setRentalTypeId(Long rentalTypeId) {
-        this.rentalTypeId = rentalTypeId;
-    }
-
     public void setPrice(BigDecimal price) {
         this.price = price;
-    }
-
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
     }
 }

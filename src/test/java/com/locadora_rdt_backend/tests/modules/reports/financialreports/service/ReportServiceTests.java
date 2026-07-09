@@ -98,6 +98,18 @@ class ReportServiceTests {
     }
 
     @Test
+    void comparisonShouldUseYearFromFilters() {
+        ReportFilterDTO filters = new ReportFilterDTO();
+        filters.setYear(2025);
+        mockReceivables(List.of(receivable(1L, true)));
+        mockPayables(List.of(payable(3L, true)));
+
+        ReportComparisonDTO comparison = service.comparison(filters);
+
+        Assertions.assertEquals(2025, comparison.getYear());
+    }
+
+    @Test
     void generatePayablesShouldReturnReport() {
         mockPayables(List.of(payable(2L, false)));
 
@@ -138,6 +150,18 @@ class ReportServiceTests {
         Assertions.assertEquals("annual_balance.xlsx", file.getFileName());
         Mockito.verify(generator).generate(ArgumentMatchers.eq("Balanço Anual 2026"),
                 ArgumentMatchers.anyList(), ArgumentMatchers.anyList(), ArgumentMatchers.eq(ReportFormat.XLSX));
+    }
+
+    @Test
+    void generateAnnualBalanceShouldUseCurrentYearWhenYearIsNull() {
+        mockReceivables(List.of(receivable(1L, true)));
+        mockPayables(List.of(payable(2L, true)));
+
+        ReportFileDTO file = service.generate("annual-balance", "pdf", new ReportFilterDTO());
+
+        Assertions.assertEquals("annual_balance.pdf", file.getFileName());
+        Mockito.verify(generator).generate(ArgumentMatchers.eq("Balanço Anual 2026"),
+                ArgumentMatchers.anyList(), ArgumentMatchers.anyList(), ArgumentMatchers.eq(ReportFormat.PDF));
     }
 
     @Test

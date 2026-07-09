@@ -51,6 +51,18 @@ class ReportQueryServiceTests {
     }
 
     @Test
+    void normalizeShouldUseDefaultsWhenValuesAreBlank() {
+        ReportFilterDTO filters = new ReportFilterDTO();
+        filters.setStatus(" ");
+        filters.setPeriodType(" ");
+
+        ReportFilterDTO normalized = service.normalize(filters);
+
+        Assertions.assertEquals("ALL", normalized.getStatus());
+        Assertions.assertEquals("DUE_DATE", normalized.getPeriodType());
+    }
+
+    @Test
     void copyShouldCopyAllFields() {
         ReportFilterDTO filters = new ReportFilterDTO();
         filters.setSearch("teste");
@@ -142,6 +154,38 @@ class ReportQueryServiceTests {
                 "ALL",
                 "DUE_DATE",
                 -1L,
+                -1L,
+                -1L,
+                new BigDecimal("-1"),
+                new BigDecimal("-1")
+        );
+    }
+
+    @Test
+    void findReceivablesShouldUseDisabledValuesWhenFiltersAreEmpty() {
+        ReportFilterDTO filters = new ReportFilterDTO();
+        filters.setSearch(" ");
+        filters.setStatus("ALL");
+        filters.setPeriodType("DUE_DATE");
+        filters.setCustomerId(0L);
+        filters.setPaymentMethodId(0L);
+        List<Receivable> expected = List.of(new Receivable());
+        Mockito.when(receivableRepository.findForReports(
+                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyBoolean(), Mockito.anyBoolean(),
+                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()
+        )).thenReturn(expected);
+
+        List<Receivable> result = service.findReceivables(filters);
+
+        Assertions.assertSame(expected, result);
+        Mockito.verify(receivableRepository).findForReports(
+                null,
+                LocalDate.of(1970, 1, 1),
+                LocalDate.of(1970, 1, 1),
+                false,
+                false,
+                "ALL",
+                "DUE_DATE",
                 -1L,
                 -1L,
                 new BigDecimal("-1"),

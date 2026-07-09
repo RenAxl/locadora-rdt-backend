@@ -13,11 +13,8 @@ import com.locadora_rdt_backend.modules.inventory.items.repository.ItemRepositor
 import com.locadora_rdt_backend.modules.inventory.items.service.ItemServiceImpl;
 import com.locadora_rdt_backend.modules.rental.categories.model.Category;
 import com.locadora_rdt_backend.modules.rental.categories.service.CategoryService;
-import com.locadora_rdt_backend.modules.rental.rentaltypes.model.RentalType;
-import com.locadora_rdt_backend.modules.rental.rentaltypes.service.RentalTypeService;
 import com.locadora_rdt_backend.tests.modules.inventory.items.factory.ItemFactory;
 import com.locadora_rdt_backend.tests.modules.rental.categories.factory.CategoryFactory;
-import com.locadora_rdt_backend.tests.modules.rental.rentaltypes.factory.RentalTypeFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,9 +49,6 @@ class ItemServiceTests {
     private CategoryService categoryService;
 
     @Mock
-    private RentalTypeService rentalTypeService;
-
-    @Mock
     private ItemMapper mapper;
 
     @Mock
@@ -69,7 +63,6 @@ class ItemServiceTests {
     private ItemInsertDTO insertDTO;
     private ItemUpdateDTO updateDTO;
     private Category category;
-    private RentalType rentalType;
 
     private PageImpl<Item> page;
 
@@ -84,7 +77,6 @@ class ItemServiceTests {
         insertDTO = ItemFactory.createItemInsertDTO();
         updateDTO = ItemFactory.createItemUpdateDTO();
         category = CategoryFactory.createCategory();
-        rentalType = RentalTypeFactory.createRentalType();
 
         page = new PageImpl<>(List.of(item));
     }
@@ -212,7 +204,6 @@ class ItemServiceTests {
     void insertShouldReturnDTO() {
         Mockito.when(mapper.toEntity(insertDTO)).thenReturn(item);
         Mockito.when(categoryService.findEntityById(insertDTO.getCategoryId())).thenReturn(category);
-        Mockito.when(rentalTypeService.findEntityById(insertDTO.getRentalTypeId())).thenReturn(rentalType);
         Mockito.when(authenticationFacade.getAuthenticatedUsername()).thenReturn("admin");
         Mockito.when(repository.save(item)).thenReturn(item);
         Mockito.when(mapper.toDTO(item)).thenReturn(itemDTO);
@@ -227,7 +218,6 @@ class ItemServiceTests {
     void insertShouldCallRepositorySave() {
         Mockito.when(mapper.toEntity(insertDTO)).thenReturn(item);
         Mockito.when(categoryService.findEntityById(insertDTO.getCategoryId())).thenReturn(category);
-        Mockito.when(rentalTypeService.findEntityById(insertDTO.getRentalTypeId())).thenReturn(rentalType);
         Mockito.when(authenticationFacade.getAuthenticatedUsername()).thenReturn("admin");
         Mockito.when(repository.save(item)).thenReturn(item);
         Mockito.when(mapper.toDTO(item)).thenReturn(itemDTO);
@@ -241,7 +231,6 @@ class ItemServiceTests {
     void insertShouldMapEntityCorrectly() {
         Mockito.when(mapper.toEntity(insertDTO)).thenReturn(item);
         Mockito.when(categoryService.findEntityById(insertDTO.getCategoryId())).thenReturn(category);
-        Mockito.when(rentalTypeService.findEntityById(insertDTO.getRentalTypeId())).thenReturn(rentalType);
         Mockito.when(authenticationFacade.getAuthenticatedUsername()).thenReturn("admin");
         Mockito.when(repository.save(item)).thenReturn(item);
         Mockito.when(mapper.toDTO(item)).thenReturn(itemDTO);
@@ -252,10 +241,9 @@ class ItemServiceTests {
     }
 
     @Test
-    void insertShouldSetCategoryAndRentalType() {
+    void insertShouldSetCategory() {
         Mockito.when(mapper.toEntity(insertDTO)).thenReturn(item);
         Mockito.when(categoryService.findEntityById(insertDTO.getCategoryId())).thenReturn(category);
-        Mockito.when(rentalTypeService.findEntityById(insertDTO.getRentalTypeId())).thenReturn(rentalType);
         Mockito.when(authenticationFacade.getAuthenticatedUsername()).thenReturn("admin");
         Mockito.when(repository.save(item)).thenReturn(item);
         Mockito.when(mapper.toDTO(item)).thenReturn(itemDTO);
@@ -263,14 +251,12 @@ class ItemServiceTests {
         service.insert(insertDTO);
 
         Assertions.assertEquals(category, item.getCategory());
-        Assertions.assertEquals(rentalType, item.getRentalType());
     }
 
     @Test
     void insertShouldSetCreatedBy() {
         Mockito.when(mapper.toEntity(insertDTO)).thenReturn(item);
         Mockito.when(categoryService.findEntityById(insertDTO.getCategoryId())).thenReturn(category);
-        Mockito.when(rentalTypeService.findEntityById(insertDTO.getRentalTypeId())).thenReturn(rentalType);
         Mockito.when(authenticationFacade.getAuthenticatedUsername()).thenReturn("admin");
         Mockito.when(repository.save(item)).thenReturn(item);
         Mockito.when(mapper.toDTO(item)).thenReturn(itemDTO);
@@ -286,7 +272,6 @@ class ItemServiceTests {
 
         Mockito.when(mapper.toEntity(insertDTO)).thenReturn(item);
         Mockito.when(categoryService.findEntityById(insertDTO.getCategoryId())).thenReturn(category);
-        Mockito.when(rentalTypeService.findEntityById(insertDTO.getRentalTypeId())).thenReturn(rentalType);
         Mockito.when(authenticationFacade.getAuthenticatedUsername()).thenReturn("admin");
         Mockito.when(repository.save(item)).thenReturn(item);
         Mockito.when(mapper.toDTO(item)).thenReturn(itemDTO);
@@ -294,22 +279,6 @@ class ItemServiceTests {
         service.insert(insertDTO);
 
         Assertions.assertTrue(item.getActive());
-    }
-
-    @Test
-    void insertShouldSetRentedQuantityZero() {
-        item.setRentedQuantity(5);
-
-        Mockito.when(mapper.toEntity(insertDTO)).thenReturn(item);
-        Mockito.when(categoryService.findEntityById(insertDTO.getCategoryId())).thenReturn(category);
-        Mockito.when(rentalTypeService.findEntityById(insertDTO.getRentalTypeId())).thenReturn(rentalType);
-        Mockito.when(authenticationFacade.getAuthenticatedUsername()).thenReturn("admin");
-        Mockito.when(repository.save(item)).thenReturn(item);
-        Mockito.when(mapper.toDTO(item)).thenReturn(itemDTO);
-
-        service.insert(insertDTO);
-
-        Assertions.assertEquals(0, item.getRentedQuantity());
     }
 
     @Test
@@ -324,22 +293,9 @@ class ItemServiceTests {
     }
 
     @Test
-    void insertShouldThrowWhenRentalTypeDoesNotExist() {
-        Mockito.when(mapper.toEntity(insertDTO)).thenReturn(item);
-        Mockito.when(categoryService.findEntityById(insertDTO.getCategoryId())).thenReturn(category);
-        Mockito.when(rentalTypeService.findEntityById(insertDTO.getRentalTypeId()))
-                .thenThrow(ResourceNotFoundException.class);
-
-        Assertions.assertThrows(ResourceNotFoundException.class, () -> {
-            service.insert(insertDTO);
-        });
-    }
-
-    @Test
     void updateShouldReturnDTOWhenIdExists() {
         Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(item));
         Mockito.when(categoryService.findEntityById(updateDTO.getCategoryId())).thenReturn(category);
-        Mockito.when(rentalTypeService.findEntityById(updateDTO.getRentalTypeId())).thenReturn(rentalType);
         Mockito.when(authenticationFacade.getAuthenticatedUsername()).thenReturn("admin");
         Mockito.when(repository.save(item)).thenReturn(item);
         Mockito.when(mapper.toDTO(item)).thenReturn(itemDTO);
@@ -370,22 +326,9 @@ class ItemServiceTests {
     }
 
     @Test
-    void updateShouldThrowWhenRentalTypeDoesNotExist() {
-        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(item));
-        Mockito.when(categoryService.findEntityById(updateDTO.getCategoryId())).thenReturn(category);
-        Mockito.when(rentalTypeService.findEntityById(updateDTO.getRentalTypeId()))
-                .thenThrow(ResourceNotFoundException.class);
-
-        Assertions.assertThrows(ResourceNotFoundException.class, () -> {
-            service.update(existingId, updateDTO);
-        });
-    }
-
-    @Test
     void updateShouldCallMapperUpdateEntity() {
         Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(item));
         Mockito.when(categoryService.findEntityById(updateDTO.getCategoryId())).thenReturn(category);
-        Mockito.when(rentalTypeService.findEntityById(updateDTO.getRentalTypeId())).thenReturn(rentalType);
         Mockito.when(authenticationFacade.getAuthenticatedUsername()).thenReturn("admin");
         Mockito.when(repository.save(item)).thenReturn(item);
         Mockito.when(mapper.toDTO(item)).thenReturn(itemDTO);
@@ -396,10 +339,9 @@ class ItemServiceTests {
     }
 
     @Test
-    void updateShouldSetCategoryAndRentalType() {
+    void updateShouldSetCategory() {
         Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(item));
         Mockito.when(categoryService.findEntityById(updateDTO.getCategoryId())).thenReturn(category);
-        Mockito.when(rentalTypeService.findEntityById(updateDTO.getRentalTypeId())).thenReturn(rentalType);
         Mockito.when(authenticationFacade.getAuthenticatedUsername()).thenReturn("admin");
         Mockito.when(repository.save(item)).thenReturn(item);
         Mockito.when(mapper.toDTO(item)).thenReturn(itemDTO);
@@ -407,14 +349,12 @@ class ItemServiceTests {
         service.update(existingId, updateDTO);
 
         Assertions.assertEquals(category, item.getCategory());
-        Assertions.assertEquals(rentalType, item.getRentalType());
     }
 
     @Test
     void updateShouldSetUpdatedBy() {
         Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(item));
         Mockito.when(categoryService.findEntityById(updateDTO.getCategoryId())).thenReturn(category);
-        Mockito.when(rentalTypeService.findEntityById(updateDTO.getRentalTypeId())).thenReturn(rentalType);
         Mockito.when(authenticationFacade.getAuthenticatedUsername()).thenReturn("admin");
         Mockito.when(repository.save(item)).thenReturn(item);
         Mockito.when(mapper.toDTO(item)).thenReturn(itemDTO);
@@ -430,7 +370,6 @@ class ItemServiceTests {
 
         Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(item));
         Mockito.when(categoryService.findEntityById(updateDTO.getCategoryId())).thenReturn(category);
-        Mockito.when(rentalTypeService.findEntityById(updateDTO.getRentalTypeId())).thenReturn(rentalType);
         Mockito.when(authenticationFacade.getAuthenticatedUsername()).thenReturn("admin");
         Mockito.when(repository.save(item)).thenReturn(item);
         Mockito.when(mapper.toDTO(item)).thenReturn(itemDTO);
@@ -438,22 +377,6 @@ class ItemServiceTests {
         service.update(existingId, updateDTO);
 
         Assertions.assertFalse(item.getActive());
-    }
-
-    @Test
-    void updateShouldNotChangeRentedQuantity() {
-        item.setRentedQuantity(3);
-
-        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(item));
-        Mockito.when(categoryService.findEntityById(updateDTO.getCategoryId())).thenReturn(category);
-        Mockito.when(rentalTypeService.findEntityById(updateDTO.getRentalTypeId())).thenReturn(rentalType);
-        Mockito.when(authenticationFacade.getAuthenticatedUsername()).thenReturn("admin");
-        Mockito.when(repository.save(item)).thenReturn(item);
-        Mockito.when(mapper.toDTO(item)).thenReturn(itemDTO);
-
-        service.update(existingId, updateDTO);
-
-        Assertions.assertEquals(3, item.getRentedQuantity());
     }
 
     @Test

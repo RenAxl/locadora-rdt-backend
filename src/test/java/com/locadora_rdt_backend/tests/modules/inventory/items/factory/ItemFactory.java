@@ -6,9 +6,7 @@ import com.locadora_rdt_backend.modules.inventory.items.dto.ItemInsertDTO;
 import com.locadora_rdt_backend.modules.inventory.items.dto.ItemUpdateDTO;
 import com.locadora_rdt_backend.modules.inventory.items.model.Item;
 import com.locadora_rdt_backend.modules.rental.categories.model.Category;
-import com.locadora_rdt_backend.modules.rental.rentaltypes.model.RentalType;
 import com.locadora_rdt_backend.tests.modules.rental.categories.factory.CategoryFactory;
-import com.locadora_rdt_backend.tests.modules.rental.rentaltypes.factory.RentalTypeFactory;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -17,19 +15,15 @@ public class ItemFactory {
 
     public static Item createItem() {
         Category category = CategoryFactory.createCategory();
-        RentalType rentalType = RentalTypeFactory.createRentalType();
 
         Item item = new Item();
         item.setId(1L);
         item.setVersion(0L);
         item.setName("Playstation 5");
         item.setCategory(category);
-        item.setRentalType(rentalType);
         item.setPrice(new BigDecimal("120.00"));
-        item.setQuantity(10);
         item.setImage(new byte[]{1});
         item.setActive(true);
-        item.setRentedQuantity(0);
         item.setCreatedAt(Instant.now());
         item.setUpdatedAt(Instant.now());
         item.setCreatedBy("admin");
@@ -42,11 +36,8 @@ public class ItemFactory {
         dto.setId(item.getId());
         dto.setName(item.getName());
         dto.setPrice(item.getPrice());
-        dto.setQuantity(item.getQuantity());
-        dto.setRentedQuantity(item.getRentedQuantity());
         dto.setActive(item.getActive());
         dto.setCategory(CategoryFactory.createCategoryDTO(item.getCategory()));
-        dto.setRentalType(RentalTypeFactory.createRentalTypeDTO(item.getRentalType()));
         return dto;
     }
 
@@ -56,15 +47,12 @@ public class ItemFactory {
         dto.setVersion(item.getVersion());
         dto.setName(item.getName());
         dto.setPrice(item.getPrice());
-        dto.setQuantity(item.getQuantity());
-        dto.setRentedQuantity(item.getRentedQuantity());
         dto.setActive(item.getActive());
         dto.setCreatedAt(item.getCreatedAt());
         dto.setUpdatedAt(item.getUpdatedAt());
         dto.setCreatedBy(item.getCreatedBy());
         dto.setUpdatedBy(item.getUpdatedBy());
         dto.setCategory(CategoryFactory.createCategoryDTO(item.getCategory()));
-        dto.setRentalType(RentalTypeFactory.createRentalTypeDTO(item.getRentalType()));
         return dto;
     }
 
@@ -72,9 +60,7 @@ public class ItemFactory {
         ItemInsertDTO dto = new ItemInsertDTO();
         dto.setName("Playstation 5");
         dto.setCategoryId(1L);
-        dto.setRentalTypeId(1L);
         dto.setPrice(new BigDecimal("120.00"));
-        dto.setQuantity(10);
         return dto;
     }
 
@@ -82,9 +68,7 @@ public class ItemFactory {
         ItemUpdateDTO dto = new ItemUpdateDTO();
         dto.setName("Xbox Series X");
         dto.setCategoryId(1L);
-        dto.setRentalTypeId(1L);
         dto.setPrice(new BigDecimal("100.00"));
-        dto.setQuantity(5);
         return dto;
     }
 }
