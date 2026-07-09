@@ -35,15 +35,23 @@ class ReportCalculationServiceTests {
     void shouldSumPaidValuesByPaymentMonth() {
         Receivable julyReceivable = receivable("100.00", true);
         julyReceivable.setPaymentDate(LocalDate.of(2026, 7, 2));
+        Receivable unpaidReceivable = receivable("200.00", false);
+        unpaidReceivable.setPaymentDate(LocalDate.of(2026, 7, 2));
+        Receivable noPaymentDateReceivable = receivable("300.00", true);
+        noPaymentDateReceivable.setPaymentDate(null);
         Payable augustPayable = payable("50.00", true);
         augustPayable.setPaymentDate(LocalDate.of(2026, 8, 2));
+        Payable unpaidPayable = payable("70.00", false);
+        unpaidPayable.setPaymentDate(LocalDate.of(2026, 8, 2));
+        Payable noPaymentDatePayable = payable("80.00", true);
+        noPaymentDatePayable.setPaymentDate(null);
 
         Assertions.assertEquals(new BigDecimal("100.00"),
-                service.sumPaidReceivablesByMonth(List.of(julyReceivable), 7));
+                service.sumPaidReceivablesByMonth(List.of(julyReceivable, unpaidReceivable, noPaymentDateReceivable), 7));
         Assertions.assertEquals(BigDecimal.ZERO,
                 service.sumPaidReceivablesByMonth(List.of(julyReceivable), 8));
         Assertions.assertEquals(new BigDecimal("50.00"),
-                service.sumPaidPayablesByMonth(List.of(augustPayable), 8));
+                service.sumPaidPayablesByMonth(List.of(augustPayable, unpaidPayable, noPaymentDatePayable), 8));
     }
 
     @Test
@@ -58,6 +66,50 @@ class ReportCalculationServiceTests {
 
         Assertions.assertEquals(new BigDecimal("100.00"), months.get(2).getReceivableTotal());
         Assertions.assertEquals(new BigDecimal("50.00"), months.get(2).getPayableTotal());
+    }
+
+    @Test
+    void monthlyComparisonShouldUsePaymentDateWhenRequested() {
+        Receivable receivable = receivable("100.00", true);
+        receivable.setPaymentDate(LocalDate.of(2026, 4, 10));
+        Payable payable = payable("50.00", true);
+        payable.setPaymentDate(LocalDate.of(2026, 4, 11));
+
+        List<ReportComparisonDTO.ReportComparisonMonthDTO> months =
+                service.monthlyComparison(List.of(receivable), List.of(payable), "PAYMENT_DATE");
+
+        Assertions.assertEquals(new BigDecimal("100.00"), months.get(3).getReceivableTotal());
+        Assertions.assertEquals(new BigDecimal("50.00"), months.get(3).getPayableTotal());
+    }
+
+    @Test
+    void monthlyComparisonShouldUseDueDateWhenCreatedAtIsNull() {
+        Receivable receivable = receivable("100.00", false);
+        receivable.setCreatedAt(null);
+        receivable.setDueDate(LocalDate.of(2026, 5, 1));
+        Payable payable = payable("50.00", false);
+        payable.setCreatedAt(null);
+        payable.setDueDate(LocalDate.of(2026, 5, 2));
+
+        List<ReportComparisonDTO.ReportComparisonMonthDTO> months =
+                service.monthlyComparison(List.of(receivable), List.of(payable), "CREATED_DATE");
+
+        Assertions.assertEquals(new BigDecimal("100.00"), months.get(4).getReceivableTotal());
+        Assertions.assertEquals(new BigDecimal("50.00"), months.get(4).getPayableTotal());
+    }
+
+    @Test
+    void monthlyComparisonShouldIgnoreItemsWithoutDate() {
+        Receivable receivable = receivable("100.00", false);
+        receivable.setDueDate(null);
+        Payable payable = payable("50.00", false);
+        payable.setDueDate(null);
+
+        List<ReportComparisonDTO.ReportComparisonMonthDTO> months =
+                service.monthlyComparison(List.of(receivable), List.of(payable), "DUE_DATE");
+
+        Assertions.assertEquals(BigDecimal.ZERO, months.get(0).getReceivableTotal());
+        Assertions.assertEquals(BigDecimal.ZERO, months.get(0).getPayableTotal());
     }
 
     @Test
@@ -88,6 +140,24 @@ class ReportCalculationServiceTests {
         Assertions.assertEquals(new BigDecimal("100.00"), customers.get("Cliente A").getPaid());
         Assertions.assertEquals(new BigDecimal("50.00"), suppliers.get("Fornecedor A").getTotal());
         Assertions.assertEquals(BigDecimal.ZERO, employees.get("Funcionário A").getPaid());
+    }
+
+    @Test
+    void shouldGroupDefaultNamesWhenRelationsAreNull() {
+        Receivable receivable = receivable("100.00", false);
+        Payable supplierPayable = payable("50.00", false);
+        Payable employeePayable = payable("30.00", false);
+
+        Map<String, ReportCalculationService.SummaryValues> customers =
+                service.groupReceivablesByCustomer(List.of(receivable));
+        Map<String, ReportCalculationService.SummaryValues> suppliers =
+                service.groupPayablesBySupplier(List.of(supplierPayable));
+        Map<String, ReportCalculationService.SummaryValues> employees =
+                service.groupPayablesByEmployee(List.of(employeePayable));
+
+        Assertions.assertTrue(customers.containsKey("Sem cliente"));
+        Assertions.assertTrue(suppliers.containsKey("Sem fornecedor"));
+        Assertions.assertTrue(employees.containsKey("Sem funcionário"));
     }
 
     private Receivable receivable(String amount, boolean paid) {
