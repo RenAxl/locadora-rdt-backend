@@ -6,7 +6,6 @@ import com.locadora_rdt_backend.modules.inventory.items.dto.ItemDetailsDTO;
 import com.locadora_rdt_backend.modules.inventory.items.dto.ItemInsertDTO;
 import com.locadora_rdt_backend.modules.inventory.items.dto.ItemUpdateDTO;
 import com.locadora_rdt_backend.modules.inventory.items.model.Item;
-import com.locadora_rdt_backend.modules.rental.rentaltypes.dto.RentalTypeDTO;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -21,11 +20,8 @@ public class ItemMapper {
         dto.setId(entity.getId());
         dto.setName(entity.getName());
         dto.setPrice(entity.getPrice());
-        dto.setQuantity(entity.getQuantity());
-        dto.setRentedQuantity(entity.getRentedQuantity());
         dto.setActive(entity.getActive());
         dto.setCategory(toCategoryDTO(entity));
-        dto.setRentalType(toRentalTypeDTO(entity));
 
         return dto;
     }
@@ -40,15 +36,12 @@ public class ItemMapper {
         dto.setVersion(entity.getVersion());
         dto.setName(entity.getName());
         dto.setPrice(entity.getPrice());
-        dto.setQuantity(entity.getQuantity());
-        dto.setRentedQuantity(entity.getRentedQuantity());
         dto.setActive(entity.getActive());
         dto.setCreatedAt(entity.getCreatedAt());
         dto.setUpdatedAt(entity.getUpdatedAt());
         dto.setCreatedBy(entity.getCreatedBy());
         dto.setUpdatedBy(entity.getUpdatedBy());
         dto.setCategory(toCategoryDTO(entity));
-        dto.setRentalType(toRentalTypeDTO(entity));
 
         return dto;
     }
@@ -61,9 +54,7 @@ public class ItemMapper {
         Item entity = new Item();
         entity.setName(dto.getName());
         entity.setPrice(dto.getPrice());
-        entity.setQuantity(dto.getQuantity());
         entity.setActive(true);
-        entity.setRentedQuantity(0);
 
         return entity;
     }
@@ -75,7 +66,6 @@ public class ItemMapper {
 
         entity.setName(dto.getName());
         entity.setPrice(dto.getPrice());
-        entity.setQuantity(dto.getQuantity());
     }
 
     private CategoryDTO toCategoryDTO(Item entity) {
@@ -90,16 +80,4 @@ public class ItemMapper {
         );
     }
 
-    private RentalTypeDTO toRentalTypeDTO(Item entity) {
-        if (entity.getRentalType() == null) {
-            return null;
-        }
-
-        return new RentalTypeDTO(
-                entity.getRentalType().getId(),
-                entity.getRentalType().getName(),
-                entity.getRentalType().getType(),
-                entity.getRentalType().getActive()
-        );
-    }
 }

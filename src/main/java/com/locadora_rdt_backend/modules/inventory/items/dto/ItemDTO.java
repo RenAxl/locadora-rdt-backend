@@ -1,7 +1,6 @@
 package com.locadora_rdt_backend.modules.inventory.items.dto;
 
 import com.locadora_rdt_backend.modules.rental.categories.dto.CategoryDTO;
-import com.locadora_rdt_backend.modules.rental.rentaltypes.dto.RentalTypeDTO;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -12,10 +11,7 @@ public class ItemDTO implements Serializable {
     private Long id;
     private String name;
     private CategoryDTO category;
-    private RentalTypeDTO rentalType;
     private BigDecimal price;
-    private Integer quantity;
-    private Integer rentedQuantity;
     private Boolean active;
 
     public ItemDTO() {
@@ -34,20 +30,8 @@ public class ItemDTO implements Serializable {
         return category;
     }
 
-    public RentalTypeDTO getRentalType() {
-        return rentalType;
-    }
-
     public BigDecimal getPrice() {
         return price;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public Integer getRentedQuantity() {
-        return rentedQuantity;
     }
 
     public Boolean getActive() {
@@ -66,20 +50,8 @@ public class ItemDTO implements Serializable {
         this.category = category;
     }
 
-    public void setRentalType(RentalTypeDTO rentalType) {
-        this.rentalType = rentalType;
-    }
-
     public void setPrice(BigDecimal price) {
         this.price = price;
-    }
-
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
-
-    public void setRentedQuantity(Integer rentedQuantity) {
-        this.rentedQuantity = rentedQuantity;
     }
 
     public void setActive(Boolean active) {

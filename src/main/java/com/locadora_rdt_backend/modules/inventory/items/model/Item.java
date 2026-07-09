@@ -1,7 +1,6 @@
 package com.locadora_rdt_backend.modules.inventory.items.model;
 
 import com.locadora_rdt_backend.modules.rental.categories.model.Category;
-import com.locadora_rdt_backend.modules.rental.rentaltypes.model.RentalType;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
@@ -29,15 +28,8 @@ public class Item implements Serializable {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "rental_type_id", nullable = false)
-    private RentalType rentalType;
-
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
-
-    @Column(nullable = false)
-    private Integer quantity;
 
     @Lob
     @Basic(fetch = FetchType.LAZY)
@@ -47,9 +39,6 @@ public class Item implements Serializable {
 
     @Column(nullable = false)
     private Boolean active;
-
-    @Column(name = "rented_quantity", nullable = false)
-    private Integer rentedQuantity;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
@@ -97,16 +86,8 @@ public class Item implements Serializable {
         return category;
     }
 
-    public RentalType getRentalType() {
-        return rentalType;
-    }
-
     public BigDecimal getPrice() {
         return price;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
     }
 
     public byte[] getImage() {
@@ -115,10 +96,6 @@ public class Item implements Serializable {
 
     public Boolean getActive() {
         return active;
-    }
-
-    public Integer getRentedQuantity() {
-        return rentedQuantity;
     }
 
     public Instant getCreatedAt() {
@@ -153,16 +130,8 @@ public class Item implements Serializable {
         this.category = category;
     }
 
-    public void setRentalType(RentalType rentalType) {
-        this.rentalType = rentalType;
-    }
-
     public void setPrice(BigDecimal price) {
         this.price = price;
-    }
-
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
     }
 
     public void setImage(byte[] image) {
@@ -171,10 +140,6 @@ public class Item implements Serializable {
 
     public void setActive(Boolean active) {
         this.active = active;
-    }
-
-    public void setRentedQuantity(Integer rentedQuantity) {
-        this.rentedQuantity = rentedQuantity;
     }
 
     public void setCreatedAt(Instant createdAt) {

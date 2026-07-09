@@ -13,8 +13,6 @@ import com.locadora_rdt_backend.modules.inventory.items.dto.ItemUpdateDTO;
 import com.locadora_rdt_backend.modules.inventory.items.mapper.ItemMapper;
 import com.locadora_rdt_backend.modules.inventory.items.model.Item;
 import com.locadora_rdt_backend.modules.inventory.items.repository.ItemRepository;
-import com.locadora_rdt_backend.modules.rental.rentaltypes.model.RentalType;
-import com.locadora_rdt_backend.modules.rental.rentaltypes.service.RentalTypeService;
 import com.locadora_rdt_backend.shared.service.ImageUploadSupport;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -32,20 +30,17 @@ public class ItemServiceImpl implements ItemService {
 
     private final ItemRepository repository;
     private final CategoryService categoryService;
-    private final RentalTypeService rentalTypeService;
     private final ItemMapper mapper;
     private final AuthenticationFacade authenticationFacade;
 
     public ItemServiceImpl(
             ItemRepository repository,
             CategoryService categoryService,
-            RentalTypeService rentalTypeService,
             ItemMapper mapper,
             AuthenticationFacade authenticationFacade
     ) {
         this.repository = repository;
         this.categoryService = categoryService;
-        this.rentalTypeService = rentalTypeService;
         this.mapper = mapper;
         this.authenticationFacade = authenticationFacade;
     }
@@ -83,12 +78,9 @@ public class ItemServiceImpl implements ItemService {
         Item entity = mapper.toEntity(dto);
 
         Category category = categoryService.findEntityById(dto.getCategoryId());
-        RentalType rentalType = rentalTypeService.findEntityById(dto.getRentalTypeId());
 
         entity.setCategory(category);
-        entity.setRentalType(rentalType);
         entity.setActive(true);
-        entity.setRentedQuantity(0);
         entity.setCreatedBy(authenticationFacade.getAuthenticatedUsername());
 
         entity = repository.save(entity);
@@ -105,11 +97,9 @@ public class ItemServiceImpl implements ItemService {
                 ));
 
         Category category = categoryService.findEntityById(dto.getCategoryId());
-        RentalType rentalType = rentalTypeService.findEntityById(dto.getRentalTypeId());
 
         mapper.copyToEntity(dto, entity);
         entity.setCategory(category);
-        entity.setRentalType(rentalType);
         entity.setUpdatedBy(authenticationFacade.getAuthenticatedUsername());
 
         entity = repository.save(entity);
