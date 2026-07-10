@@ -24,6 +24,9 @@ public class Item implements Serializable {
     @Column(unique = true, nullable = false, length = 100)
     private String name;
 
+    @Column(length = 500)
+    private String description;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
@@ -82,6 +85,10 @@ public class Item implements Serializable {
         return name;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
     public Category getCategory() {
         return category;
     }
@@ -124,6 +131,10 @@ public class Item implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public void setCategory(Category category) {

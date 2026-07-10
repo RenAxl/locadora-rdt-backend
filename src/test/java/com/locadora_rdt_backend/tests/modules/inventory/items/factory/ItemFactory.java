@@ -20,6 +20,7 @@ public class ItemFactory {
         item.setId(1L);
         item.setVersion(0L);
         item.setName("Playstation 5");
+        item.setDescription("Console PlayStation 5 Slim para locação.");
         item.setCategory(category);
         item.setPrice(new BigDecimal("120.00"));
         item.setImage(new byte[]{1});
@@ -35,6 +36,7 @@ public class ItemFactory {
         ItemDTO dto = new ItemDTO();
         dto.setId(item.getId());
         dto.setName(item.getName());
+        dto.setDescription(item.getDescription());
         dto.setPrice(item.getPrice());
         dto.setActive(item.getActive());
         dto.setCategory(CategoryFactory.createCategoryDTO(item.getCategory()));
@@ -46,6 +48,7 @@ public class ItemFactory {
         dto.setId(item.getId());
         dto.setVersion(item.getVersion());
         dto.setName(item.getName());
+        dto.setDescription(item.getDescription());
         dto.setPrice(item.getPrice());
         dto.setActive(item.getActive());
         dto.setCreatedAt(item.getCreatedAt());
@@ -59,6 +62,7 @@ public class ItemFactory {
     public static ItemInsertDTO createItemInsertDTO() {
         ItemInsertDTO dto = new ItemInsertDTO();
         dto.setName("Playstation 5");
+        dto.setDescription("Console PlayStation 5 Slim para locação.");
         dto.setCategoryId(1L);
         dto.setPrice(new BigDecimal("120.00"));
         return dto;
@@ -67,6 +71,7 @@ public class ItemFactory {
     public static ItemUpdateDTO createItemUpdateDTO() {
         ItemUpdateDTO dto = new ItemUpdateDTO();
         dto.setName("Xbox Series X");
+        dto.setDescription("Console Xbox Series X para locação.");
         dto.setCategoryId(1L);
         dto.setPrice(new BigDecimal("100.00"));
         return dto;

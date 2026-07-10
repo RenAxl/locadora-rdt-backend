@@ -19,6 +19,7 @@ public class ItemMapper {
         ItemDTO dto = new ItemDTO();
         dto.setId(entity.getId());
         dto.setName(entity.getName());
+        dto.setDescription(entity.getDescription());
         dto.setPrice(entity.getPrice());
         dto.setActive(entity.getActive());
         dto.setCategory(toCategoryDTO(entity));
@@ -35,6 +36,7 @@ public class ItemMapper {
         dto.setId(entity.getId());
         dto.setVersion(entity.getVersion());
         dto.setName(entity.getName());
+        dto.setDescription(entity.getDescription());
         dto.setPrice(entity.getPrice());
         dto.setActive(entity.getActive());
         dto.setCreatedAt(entity.getCreatedAt());
@@ -53,6 +55,7 @@ public class ItemMapper {
 
         Item entity = new Item();
         entity.setName(dto.getName());
+        entity.setDescription(dto.getDescription());
         entity.setPrice(dto.getPrice());
         entity.setActive(true);
 
@@ -65,6 +68,7 @@ public class ItemMapper {
         }
 
         entity.setName(dto.getName());
+        entity.setDescription(dto.getDescription());
         entity.setPrice(dto.getPrice());
     }
 
