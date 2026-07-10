@@ -17,6 +17,13 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     @Query("select item from Item item where lower(item.name) like lower(concat('%', ?1, '%'))")
     Page<Item> find(String name, Pageable pageable);
 
+    @Query("select item from Item item "
+            + "where lower(item.name) like lower(concat('%', :name, '%')) "
+            + "and (:categoryId = -1L or item.category.id = :categoryId)")
+    Page<Item> findForCatalog(@Param("name") String name,
+                              @Param("categoryId") Long categoryId,
+                              Pageable pageable);
+
     @Modifying
     @Query("DELETE FROM Item item WHERE item.id IN :ids")
     void deleteAllByIds(@Param("ids") List<Long> ids);

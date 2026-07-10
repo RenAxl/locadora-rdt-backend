@@ -14,6 +14,10 @@ public class ItemInsertDTO implements Serializable {
     @Size(min = 3, max = 100, message = "O nome deve ter entre 3 a 100 caracteres")
     private String name;
 
+    @NotBlank(message = "Campo requerido")
+    @Size(min = 3, max = 500, message = "A descrição deve ter entre 3 a 500 caracteres")
+    private String description;
+
     @NotNull(message = "Campo requerido")
     private Long categoryId;
 
@@ -29,6 +33,10 @@ public class ItemInsertDTO implements Serializable {
         return name;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
     public Long getCategoryId() {
         return categoryId;
     }
@@ -39,6 +47,10 @@ public class ItemInsertDTO implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public void setCategoryId(Long categoryId) {

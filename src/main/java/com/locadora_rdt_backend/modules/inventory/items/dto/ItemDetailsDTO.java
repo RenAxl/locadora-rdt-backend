@@ -12,6 +12,7 @@ public class ItemDetailsDTO implements Serializable {
     private Long id;
     private Long version;
     private String name;
+    private String description;
     private CategoryDTO category;
     private BigDecimal price;
     private Boolean active;
@@ -34,6 +35,10 @@ public class ItemDetailsDTO implements Serializable {
 
     public String getName() {
         return name;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public CategoryDTO getCategory() {
@@ -74,6 +79,10 @@ public class ItemDetailsDTO implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public void setCategory(CategoryDTO category) {

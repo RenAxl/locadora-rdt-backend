@@ -338,17 +338,17 @@ INSERT INTO tb_rental_type (version, name, active, type, created_at, created_by)
                                                                                      (0, 'Locação por Pacote', true, 'MÊS', NOW(), 'Administrador');
 
 
-INSERT INTO tb_item (version, name, category_id, price, image_data, active, created_at, created_by) VALUES
-                                                                                                        (0, 'PlayStation 5 Slim',          1, 150.00, NULL, true, NOW(), 'Administrador'),
-                                                                                                        (0, 'Xbox Series X',               1, 150.00, NULL, true, NOW(), 'Administrador'),
-                                                                                                        (0, 'Nintendo Switch OLED',        1, 120.00, NULL, true, NOW(), 'Administrador'),
-                                                                                                        (0, 'EA Sports FC 26 - PS5',       2,  20.00, NULL, true, NOW(), 'Administrador'),
-                                                                                                        (0, 'God of War Ragnarök - PS5',   2,  18.00, NULL, true, NOW(), 'Administrador'),
-                                                                                                        (0, 'Halo Infinite - Xbox',        4,  18.00, NULL, true, NOW(), 'Administrador'),
-                                                                                                        (0, 'The Legend of Zelda TOTK',    6,  22.00, NULL, true, NOW(), 'Administrador'),
-                                                                                                        (0, 'Controle DualSense',          7,  15.00, NULL, true, NOW(), 'Administrador'),
-                                                                                                        (0, 'Headset HyperX Cloud II',     8,  18.00, NULL, true, NOW(), 'Administrador'),
-                                                                                                        (0, 'Volante Logitech G29',        9,  80.00, NULL, true, NOW(), 'Administrador');
+INSERT INTO tb_item (version, name, description, category_id, price, image_data, active, created_at, created_by) VALUES
+                                                                                                                     (0, 'PlayStation 5 Slim',          'Console PlayStation 5 Slim para locação.',             1, 150.00, NULL, true, NOW(), 'Administrador'),
+                                                                                                                     (0, 'Xbox Series X',               'Console Xbox Series X para locação.',                  1, 150.00, NULL, true, NOW(), 'Administrador'),
+                                                                                                                     (0, 'Nintendo Switch OLED',        'Console Nintendo Switch OLED para locação.',           1, 120.00, NULL, true, NOW(), 'Administrador'),
+                                                                                                                     (0, 'EA Sports FC 26 - PS5',       'Jogo EA Sports FC 26 para PlayStation 5.',             2,  20.00, NULL, true, NOW(), 'Administrador'),
+                                                                                                                     (0, 'God of War Ragnarök - PS5',   'Jogo God of War Ragnarök para PlayStation 5.',         2,  18.00, NULL, true, NOW(), 'Administrador'),
+                                                                                                                     (0, 'Halo Infinite - Xbox',        'Jogo Halo Infinite para Xbox Series X/S.',             4,  18.00, NULL, true, NOW(), 'Administrador'),
+                                                                                                                     (0, 'The Legend of Zelda TOTK',    'Jogo The Legend of Zelda TOTK para Nintendo Switch.',  6,  22.00, NULL, true, NOW(), 'Administrador'),
+                                                                                                                     (0, 'Controle DualSense',          'Controle DualSense para PlayStation 5.',               7,  15.00, NULL, true, NOW(), 'Administrador'),
+                                                                                                                     (0, 'Headset HyperX Cloud II',     'Headset HyperX Cloud II para experiência gamer.',      8,  18.00, NULL, true, NOW(), 'Administrador'),
+                                                                                                                     (0, 'Volante Logitech G29',        'Volante Logitech G29 para simuladores de corrida.',    9,  80.00, NULL, true, NOW(), 'Administrador');
 
 INSERT INTO tb_stock_balance (version, item_id, total_quantity, reserved_quantity, unavailable_quantity, minimum_quantity, created_at, created_by) VALUES
                                                                                                                                                        (0, 1,  5, 0, 0, 1, NOW(), 'Administrador'),
