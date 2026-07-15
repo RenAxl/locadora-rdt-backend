@@ -1,10 +1,10 @@
 package com.locadora_rdt_backend.tests.modules.rental.rentaltypes.factory;
 
-import com.locadora_rdt_backend.modules.rental.rentaltypes.dto.RentalTypeDTO;
-import com.locadora_rdt_backend.modules.rental.rentaltypes.dto.RentalTypeDetailsDTO;
-import com.locadora_rdt_backend.modules.rental.rentaltypes.dto.RentalTypeInsertDTO;
-import com.locadora_rdt_backend.modules.rental.rentaltypes.dto.RentalTypeUpdateDTO;
-import com.locadora_rdt_backend.modules.rental.rentaltypes.model.RentalType;
+import com.locadora_rdt_backend.modules.rentaltypes.dto.RentalTypeDTO;
+import com.locadora_rdt_backend.modules.rentaltypes.dto.RentalTypeDetailsDTO;
+import com.locadora_rdt_backend.modules.rentaltypes.dto.RentalTypeInsertDTO;
+import com.locadora_rdt_backend.modules.rentaltypes.dto.RentalTypeUpdateDTO;
+import com.locadora_rdt_backend.modules.rentaltypes.model.RentalType;
 
 import java.time.Instant;
 

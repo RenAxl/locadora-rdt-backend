@@ -1,63 +1,56 @@
-package com.locadora_rdt_backend.modules.inventory.items.service;
+package com.locadora_rdt_backend.modules.rentaltypes.service;
 
 import com.locadora_rdt_backend.common.exception.DatabaseException;
 import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
 import com.locadora_rdt_backend.infrastructure.security.AuthenticationFacade;
-import com.locadora_rdt_backend.modules.categories.model.Category;
-import com.locadora_rdt_backend.modules.categories.service.CategoryService;
-import com.locadora_rdt_backend.modules.inventory.items.constants.ItemErrorMessages;
-import com.locadora_rdt_backend.modules.inventory.items.dto.ItemDTO;
-import com.locadora_rdt_backend.modules.inventory.items.dto.ItemDetailsDTO;
-import com.locadora_rdt_backend.modules.inventory.items.dto.ItemInsertDTO;
-import com.locadora_rdt_backend.modules.inventory.items.dto.ItemUpdateDTO;
-import com.locadora_rdt_backend.modules.inventory.items.mapper.ItemMapper;
-import com.locadora_rdt_backend.modules.inventory.items.model.Item;
-import com.locadora_rdt_backend.modules.inventory.items.repository.ItemRepository;
-import com.locadora_rdt_backend.shared.service.ImageUploadSupport;
+import com.locadora_rdt_backend.modules.rentaltypes.model.RentalType;
+import com.locadora_rdt_backend.modules.rentaltypes.constants.RentalTypeErrorMessages;
+import com.locadora_rdt_backend.modules.rentaltypes.dto.RentalTypeDTO;
+import com.locadora_rdt_backend.modules.rentaltypes.dto.RentalTypeDetailsDTO;
+import com.locadora_rdt_backend.modules.rentaltypes.dto.RentalTypeInsertDTO;
+import com.locadora_rdt_backend.modules.rentaltypes.dto.RentalTypeUpdateDTO;
+import com.locadora_rdt_backend.modules.rentaltypes.mapper.RentalTypeMapper;
+import com.locadora_rdt_backend.modules.rentaltypes.repository.RentalTypeRepository;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class ItemServiceImpl implements ItemService {
+public class RentalTypeServiceImpl implements RentalTypeService {
 
-    private final ItemRepository repository;
-    private final CategoryService categoryService;
-    private final ItemMapper mapper;
+    private final RentalTypeRepository repository;
+    private final RentalTypeMapper mapper;
     private final AuthenticationFacade authenticationFacade;
 
-    public ItemServiceImpl(
-            ItemRepository repository,
-            CategoryService categoryService,
-            ItemMapper mapper,
+    public RentalTypeServiceImpl(
+            RentalTypeRepository repository,
+            RentalTypeMapper mapper,
             AuthenticationFacade authenticationFacade
     ) {
         this.repository = repository;
-        this.categoryService = categoryService;
         this.mapper = mapper;
         this.authenticationFacade = authenticationFacade;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<ItemDTO> findAllPaged(String name, PageRequest pageRequest) {
+    public Page<RentalTypeDTO> findAllPaged(String name, PageRequest pageRequest) {
         return repository.find(normalizeName(name), pageRequest)
                 .map(mapper::toDTO);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ItemDetailsDTO findById(Long id) {
-        Item entity = repository.findById(id)
+    public RentalTypeDetailsDTO findById(Long id) {
+        RentalType entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        ItemErrorMessages.ITEM_NOT_FOUND
+                        RentalTypeErrorMessages.RENTAL_TYPE_NOT_FOUND
                 ));
 
         return mapper.toDetailsDTO(entity);
@@ -65,21 +58,18 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional(readOnly = true)
-    public Item findEntityById(Long id) {
+    public RentalType findEntityById(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        ItemErrorMessages.ITEM_NOT_FOUND
+                        RentalTypeErrorMessages.RENTAL_TYPE_NOT_FOUND
                 ));
     }
 
     @Override
     @Transactional
-    public ItemDTO insert(ItemInsertDTO dto) {
-        Item entity = mapper.toEntity(dto);
+    public RentalTypeDTO insert(RentalTypeInsertDTO dto) {
+        RentalType entity = mapper.toEntity(dto);
 
-        Category category = categoryService.findEntityById(dto.getCategoryId());
-
-        entity.setCategory(category);
         entity.setActive(true);
         entity.setCreatedBy(authenticationFacade.getAuthenticatedUsername());
 
@@ -90,16 +80,13 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public ItemDTO update(Long id, ItemUpdateDTO dto) {
-        Item entity = repository.findById(id)
+    public RentalTypeDTO update(Long id, RentalTypeUpdateDTO dto) {
+        RentalType entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        ItemErrorMessages.ITEM_NOT_FOUND
+                        RentalTypeErrorMessages.RENTAL_TYPE_NOT_FOUND
                 ));
 
-        Category category = categoryService.findEntityById(dto.getCategoryId());
-
         mapper.copyToEntity(dto, entity);
-        entity.setCategory(category);
         entity.setUpdatedBy(authenticationFacade.getAuthenticatedUsername());
 
         entity = repository.save(entity);
@@ -109,25 +96,10 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public void updateImage(Long id, MultipartFile file) {
-        Item entity = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        ItemErrorMessages.ITEM_NOT_FOUND
-                ));
-
-        ImageUploadSupport.validatePhoto(file);
-        entity.setImage(ImageUploadSupport.readBytes(file, "Falha ao ler bytes do arquivo."));
-        entity.setUpdatedBy(authenticationFacade.getAuthenticatedUsername());
-
-        repository.save(entity);
-    }
-
-    @Override
-    @Transactional
     public void delete(Long id) {
-        Item entity = repository.findById(id)
+        RentalType entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        ItemErrorMessages.ITEM_NOT_FOUND
+                        RentalTypeErrorMessages.RENTAL_TYPE_NOT_FOUND
                 ));
 
         try {
@@ -135,7 +107,7 @@ public class ItemServiceImpl implements ItemService {
             repository.flush();
         } catch (DataIntegrityViolationException e) {
             throw new DatabaseException(
-                    ItemErrorMessages.DATABASE_INTEGRITY_VIOLATION
+                    RentalTypeErrorMessages.DATABASE_INTEGRITY_VIOLATION
             );
         }
     }
@@ -149,7 +121,7 @@ public class ItemServiceImpl implements ItemService {
 
         List<Long> existingIds = repository.findAllById(ids)
                 .stream()
-                .map(Item::getId)
+                .map(RentalType::getId)
                 .collect(Collectors.toList());
 
         if (existingIds.size() != ids.size()) {
@@ -161,7 +133,7 @@ public class ItemServiceImpl implements ItemService {
             repository.flush();
         } catch (DataIntegrityViolationException e) {
             throw new DatabaseException(
-                    ItemErrorMessages.DATABASE_INTEGRITY_VIOLATION
+                    RentalTypeErrorMessages.DATABASE_INTEGRITY_VIOLATION
             );
         }
     }
@@ -174,11 +146,11 @@ public class ItemServiceImpl implements ItemService {
 
             if (updated == 0) {
                 throw new ResourceNotFoundException(
-                        ItemErrorMessages.ITEM_NOT_FOUND
+                        RentalTypeErrorMessages.RENTAL_TYPE_NOT_FOUND
                 );
             }
         } catch (DataAccessException e) {
-            throw new DatabaseException("Error changing item status.");
+            throw new DatabaseException("Error changing rental type status.");
         }
     }
 

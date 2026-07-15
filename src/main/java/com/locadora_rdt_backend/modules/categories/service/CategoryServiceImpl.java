@@ -1,18 +1,16 @@
-package com.locadora_rdt_backend.modules.inventory.items.service;
+package com.locadora_rdt_backend.modules.categories.service;
 
 import com.locadora_rdt_backend.common.exception.DatabaseException;
 import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
 import com.locadora_rdt_backend.infrastructure.security.AuthenticationFacade;
+import com.locadora_rdt_backend.modules.categories.constants.CategoryErrorMessages;
+import com.locadora_rdt_backend.modules.categories.dto.CategoryDTO;
+import com.locadora_rdt_backend.modules.categories.dto.CategoryDetailsDTO;
+import com.locadora_rdt_backend.modules.categories.dto.CategoryInsertDTO;
+import com.locadora_rdt_backend.modules.categories.dto.CategoryUpdateDTO;
+import com.locadora_rdt_backend.modules.categories.mapper.CategoryMapper;
 import com.locadora_rdt_backend.modules.categories.model.Category;
-import com.locadora_rdt_backend.modules.categories.service.CategoryService;
-import com.locadora_rdt_backend.modules.inventory.items.constants.ItemErrorMessages;
-import com.locadora_rdt_backend.modules.inventory.items.dto.ItemDTO;
-import com.locadora_rdt_backend.modules.inventory.items.dto.ItemDetailsDTO;
-import com.locadora_rdt_backend.modules.inventory.items.dto.ItemInsertDTO;
-import com.locadora_rdt_backend.modules.inventory.items.dto.ItemUpdateDTO;
-import com.locadora_rdt_backend.modules.inventory.items.mapper.ItemMapper;
-import com.locadora_rdt_backend.modules.inventory.items.model.Item;
-import com.locadora_rdt_backend.modules.inventory.items.repository.ItemRepository;
+import com.locadora_rdt_backend.modules.categories.repository.CategoryRepository;
 import com.locadora_rdt_backend.shared.service.ImageUploadSupport;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -26,38 +24,35 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class ItemServiceImpl implements ItemService {
+public class CategoryServiceImpl implements CategoryService {
 
-    private final ItemRepository repository;
-    private final CategoryService categoryService;
-    private final ItemMapper mapper;
+    private final CategoryRepository repository;
+    private final CategoryMapper mapper;
     private final AuthenticationFacade authenticationFacade;
 
-    public ItemServiceImpl(
-            ItemRepository repository,
-            CategoryService categoryService,
-            ItemMapper mapper,
+    public CategoryServiceImpl(
+            CategoryRepository repository,
+            CategoryMapper mapper,
             AuthenticationFacade authenticationFacade
     ) {
         this.repository = repository;
-        this.categoryService = categoryService;
         this.mapper = mapper;
         this.authenticationFacade = authenticationFacade;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<ItemDTO> findAllPaged(String name, PageRequest pageRequest) {
+    public Page<CategoryDTO> findAllPaged(String name, PageRequest pageRequest) {
         return repository.find(normalizeName(name), pageRequest)
                 .map(mapper::toDTO);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ItemDetailsDTO findById(Long id) {
-        Item entity = repository.findById(id)
+    public CategoryDetailsDTO findById(Long id) {
+        Category entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        ItemErrorMessages.ITEM_NOT_FOUND
+                        CategoryErrorMessages.CATEGORY_NOT_FOUND
                 ));
 
         return mapper.toDetailsDTO(entity);
@@ -65,21 +60,18 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional(readOnly = true)
-    public Item findEntityById(Long id) {
+    public Category findEntityById(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        ItemErrorMessages.ITEM_NOT_FOUND
+                        CategoryErrorMessages.CATEGORY_NOT_FOUND
                 ));
     }
 
     @Override
     @Transactional
-    public ItemDTO insert(ItemInsertDTO dto) {
-        Item entity = mapper.toEntity(dto);
+    public CategoryDTO insert(CategoryInsertDTO dto) {
+        Category entity = mapper.toEntity(dto);
 
-        Category category = categoryService.findEntityById(dto.getCategoryId());
-
-        entity.setCategory(category);
         entity.setActive(true);
         entity.setCreatedBy(authenticationFacade.getAuthenticatedUsername());
 
@@ -90,16 +82,13 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public ItemDTO update(Long id, ItemUpdateDTO dto) {
-        Item entity = repository.findById(id)
+    public CategoryDTO update(Long id, CategoryUpdateDTO dto) {
+        Category entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        ItemErrorMessages.ITEM_NOT_FOUND
+                        CategoryErrorMessages.CATEGORY_NOT_FOUND
                 ));
 
-        Category category = categoryService.findEntityById(dto.getCategoryId());
-
         mapper.copyToEntity(dto, entity);
-        entity.setCategory(category);
         entity.setUpdatedBy(authenticationFacade.getAuthenticatedUsername());
 
         entity = repository.save(entity);
@@ -110,9 +99,9 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public void updateImage(Long id, MultipartFile file) {
-        Item entity = repository.findById(id)
+        Category entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        ItemErrorMessages.ITEM_NOT_FOUND
+                        CategoryErrorMessages.CATEGORY_NOT_FOUND
                 ));
 
         ImageUploadSupport.validatePhoto(file);
@@ -125,9 +114,9 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public void delete(Long id) {
-        Item entity = repository.findById(id)
+        Category entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        ItemErrorMessages.ITEM_NOT_FOUND
+                        CategoryErrorMessages.CATEGORY_NOT_FOUND
                 ));
 
         try {
@@ -135,7 +124,7 @@ public class ItemServiceImpl implements ItemService {
             repository.flush();
         } catch (DataIntegrityViolationException e) {
             throw new DatabaseException(
-                    ItemErrorMessages.DATABASE_INTEGRITY_VIOLATION
+                    CategoryErrorMessages.DATABASE_INTEGRITY_VIOLATION
             );
         }
     }
@@ -149,7 +138,7 @@ public class ItemServiceImpl implements ItemService {
 
         List<Long> existingIds = repository.findAllById(ids)
                 .stream()
-                .map(Item::getId)
+                .map(Category::getId)
                 .collect(Collectors.toList());
 
         if (existingIds.size() != ids.size()) {
@@ -161,7 +150,7 @@ public class ItemServiceImpl implements ItemService {
             repository.flush();
         } catch (DataIntegrityViolationException e) {
             throw new DatabaseException(
-                    ItemErrorMessages.DATABASE_INTEGRITY_VIOLATION
+                    CategoryErrorMessages.DATABASE_INTEGRITY_VIOLATION
             );
         }
     }
@@ -174,11 +163,11 @@ public class ItemServiceImpl implements ItemService {
 
             if (updated == 0) {
                 throw new ResourceNotFoundException(
-                        ItemErrorMessages.ITEM_NOT_FOUND
+                        CategoryErrorMessages.CATEGORY_NOT_FOUND
                 );
             }
         } catch (DataAccessException e) {
-            throw new DatabaseException("Error changing item status.");
+            throw new DatabaseException("Error changing category status.");
         }
     }
 

@@ -1,16 +1,14 @@
-package com.locadora_rdt_backend.modules.inventory.items.model;
+package com.locadora_rdt_backend.modules.categories.model;
 
-import com.locadora_rdt_backend.modules.categories.model.Category;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.Instant;
 
 @Entity
-@Table(name = "tb_item")
-public class Item implements Serializable {
+@Table(name = "tb_category")
+public class Category implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -21,27 +19,17 @@ public class Item implements Serializable {
     @Column(nullable = false)
     private Long version;
 
-    @Column(unique = true, nullable = false, length = 100)
+    @Column(unique = true, nullable = false, length = 60)
     private String name;
 
-    @Column(length = 500)
-    private String description;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
-
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal price;
+    @Column(nullable = false)
+    private Boolean active;
 
     @Lob
     @Basic(fetch = FetchType.LAZY)
     @Type(type = "org.hibernate.type.BinaryType")
     @Column(name = "image_data", columnDefinition = "BYTEA")
     private byte[] image;
-
-    @Column(nullable = false)
-    private Boolean active;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
@@ -55,10 +43,10 @@ public class Item implements Serializable {
     @Column(name = "updated_by", length = 100)
     private String updatedBy;
 
-    public Item() {
+    public Category() {
     }
 
-    public Item(Long id, String name) {
+    public Category(Long id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -85,24 +73,12 @@ public class Item implements Serializable {
         return name;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
+    public Boolean getActive() {
+        return active;
     }
 
     public byte[] getImage() {
         return image;
-    }
-
-    public Boolean getActive() {
-        return active;
     }
 
     public Instant getCreatedAt() {
@@ -133,24 +109,12 @@ public class Item implements Serializable {
         this.name = name;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
+    public void setActive(Boolean active) {
+        this.active = active;
     }
 
     public void setImage(byte[] image) {
         this.image = image;
-    }
-
-    public void setActive(Boolean active) {
-        this.active = active;
     }
 
     public void setCreatedAt(Instant createdAt) {
@@ -179,10 +143,10 @@ public class Item implements Serializable {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof Item)) {
+        if (!(obj instanceof Category)) {
             return false;
         }
-        Item other = (Item) obj;
+        Category other = (Category) obj;
         return id != null && id.equals(other.id);
     }
 }

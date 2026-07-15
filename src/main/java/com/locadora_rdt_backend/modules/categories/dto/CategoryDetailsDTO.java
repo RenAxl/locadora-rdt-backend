@@ -1,27 +1,21 @@
-package com.locadora_rdt_backend.modules.inventory.items.dto;
-
-import com.locadora_rdt_backend.modules.categories.dto.CategoryDTO;
+package com.locadora_rdt_backend.modules.categories.dto;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.Instant;
 
-public class ItemDetailsDTO implements Serializable {
+public class CategoryDetailsDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long id;
     private Long version;
     private String name;
-    private String description;
-    private CategoryDTO category;
-    private BigDecimal price;
     private Boolean active;
     private Instant createdAt;
     private Instant updatedAt;
     private String createdBy;
     private String updatedBy;
 
-    public ItemDetailsDTO() {
+    public CategoryDetailsDTO() {
         // Required by frameworks and serializers.
     }
 
@@ -35,18 +29,6 @@ public class ItemDetailsDTO implements Serializable {
 
     public String getName() {
         return name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public CategoryDTO getCategory() {
-        return category;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
     }
 
     public Boolean getActive() {
@@ -79,18 +61,6 @@ public class ItemDetailsDTO implements Serializable {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setCategory(CategoryDTO category) {
-        this.category = category;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
     }
 
     public void setActive(Boolean active) {
