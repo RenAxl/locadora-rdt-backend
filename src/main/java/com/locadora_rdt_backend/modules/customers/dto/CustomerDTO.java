@@ -1,5 +1,7 @@
 package com.locadora_rdt_backend.modules.customers.dto;
 
+import com.locadora_rdt_backend.modules.customers.model.Address;
+
 import java.io.Serializable;
 
 
@@ -11,7 +13,7 @@ public class CustomerDTO implements Serializable {
     private String cpf;
     private String email;
     private String phone;
-    private String address;
+    private Address address;
     private Boolean active = true;
     private String photoContentType;
 
@@ -59,11 +61,11 @@ public class CustomerDTO implements Serializable {
         this.phone = phone;
     }
 
-    public String getAddress() {
+    public Address getAddress() {
         return address;
     }
 
-    public void setAddress(String address) {
+    public void setAddress(Address address) {
         this.address = address;
     }
 

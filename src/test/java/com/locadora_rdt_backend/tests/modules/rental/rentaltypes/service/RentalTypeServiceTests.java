@@ -215,6 +215,18 @@ class RentalTypeServiceTests {
     }
 
     @Test
+    void insertShouldReturnDTOWithDays() {
+        Mockito.when(mapper.toEntity(insertDTO)).thenReturn(rentalType);
+        Mockito.when(authenticationFacade.getAuthenticatedUsername()).thenReturn("admin");
+        Mockito.when(repository.save(rentalType)).thenReturn(rentalType);
+        Mockito.when(mapper.toDTO(rentalType)).thenReturn(rentalTypeDTO);
+
+        RentalTypeDTO result = service.insert(insertDTO);
+
+        Assertions.assertEquals(rentalType.getDays(), result.getDays());
+    }
+
+    @Test
     void insertShouldCallRepositorySave() {
         Mockito.when(mapper.toEntity(insertDTO)).thenReturn(rentalType);
         Mockito.when(authenticationFacade.getAuthenticatedUsername()).thenReturn("admin");

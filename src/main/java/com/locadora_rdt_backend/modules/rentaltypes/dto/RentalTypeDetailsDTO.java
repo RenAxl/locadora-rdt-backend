@@ -10,6 +10,7 @@ public class RentalTypeDetailsDTO implements Serializable {
     private Long version;
     private String name;
     private String type;
+    private Integer days;
     private Boolean active;
     private Instant createdAt;
     private Instant updatedAt;
@@ -34,6 +35,10 @@ public class RentalTypeDetailsDTO implements Serializable {
 
     public String getType() {
         return type;
+    }
+
+    public Integer getDays() {
+        return days;
     }
 
     public Boolean getActive() {
@@ -70,6 +75,10 @@ public class RentalTypeDetailsDTO implements Serializable {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public void setDays(Integer days) {
+        this.days = days;
     }
 
     public void setActive(Boolean active) {

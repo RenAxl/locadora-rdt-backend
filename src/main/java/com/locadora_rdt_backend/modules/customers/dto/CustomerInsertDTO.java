@@ -1,9 +1,12 @@
 package com.locadora_rdt_backend.modules.customers.dto;
 
 import com.locadora_rdt_backend.modules.customers.validation.CustomerInsertValid;
+import com.locadora_rdt_backend.modules.customers.model.Address;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 
@@ -25,8 +28,9 @@ public class CustomerInsertDTO implements Serializable {
     @Size(max = 20, message = "Telefone deve ter no máximo 20 caracteres")
     private String phone;
 
-    @Size(max = 255, message = "Endereço deve ter no máximo 255 caracteres")
-    private String address;
+    @Valid
+    @NotNull(message = "Campo requerido")
+    private Address address;
 
     private Boolean active;
 
@@ -66,11 +70,11 @@ public class CustomerInsertDTO implements Serializable {
         this.phone = phone;
     }
 
-    public String getAddress() {
+    public Address getAddress() {
         return address;
     }
 
-    public void setAddress(String address) {
+    public void setAddress(Address address) {
         this.address = address;
     }
 

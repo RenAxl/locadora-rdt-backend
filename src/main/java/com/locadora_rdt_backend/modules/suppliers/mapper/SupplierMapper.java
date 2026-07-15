@@ -51,7 +51,7 @@ public class SupplierMapper {
         entity.setTradeName(dto.getTradeName().trim());
         entity.setCompanyName(dto.getCompanyName().trim());
         entity.setCnpj(dto.getCnpj().trim());
-        entity.setAddress(dto.getAddress().trim());
+        entity.setAddress(dto.getAddress());
         entity.setEmail(dto.getEmail().trim());
         entity.setPhoneNumber(dto.getPhoneNumber().trim());
     }

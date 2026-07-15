@@ -26,6 +26,9 @@ public class RentalType implements Serializable {
     @Column(nullable = false, length = 30)
     private String type;
 
+    @Column(nullable = false, columnDefinition = "integer default 1")
+    private Integer days;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -76,6 +79,10 @@ public class RentalType implements Serializable {
         return type;
     }
 
+    public Integer getDays() {
+        return days;
+    }
+
     public Instant getCreatedAt() {
         return createdAt;
     }
@@ -110,6 +117,10 @@ public class RentalType implements Serializable {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public void setDays(Integer days) {
+        this.days = days;
     }
 
     public void setCreatedAt(Instant createdAt) {

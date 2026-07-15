@@ -3,6 +3,7 @@ package com.locadora_rdt_backend.tests.modules.rental.service;
 import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
 import com.locadora_rdt_backend.infrastructure.security.AuthenticationFacade;
 import com.locadora_rdt_backend.modules.customers.dto.CustomerDTO;
+import com.locadora_rdt_backend.modules.customers.model.Address;
 import com.locadora_rdt_backend.modules.customers.model.Customer;
 import com.locadora_rdt_backend.modules.customers.repository.CustomerRepository;
 import com.locadora_rdt_backend.modules.financial.payment.methods.model.PaymentMethod;
@@ -541,7 +542,14 @@ class RentalServiceTests {
         entity.setCpf("11111111111");
         entity.setEmail("user@email.com");
         entity.setPhone("31999999999");
-        entity.setAddress("Rua A, 100");
+        Address address = new Address();
+        address.setStreet("Rua A");
+        address.setNumber("100");
+        address.setNeighborhood("Centro");
+        address.setCity("Belo Horizonte");
+        address.setState("MG");
+        address.setZipCode("30100-000");
+        entity.setAddress(address);
         entity.setActive(true);
         return entity;
     }

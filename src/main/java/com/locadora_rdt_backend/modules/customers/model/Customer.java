@@ -24,7 +24,9 @@ public class Customer implements Serializable {
     @Column(unique = true)
     private String email;
     private String phone;
-    private String address;
+
+    @Embedded
+    private Address address;
 
 
     @Column(nullable = false)
@@ -112,11 +114,11 @@ public class Customer implements Serializable {
         this.phone = phone;
     }
 
-    public String getAddress() {
+    public Address getAddress() {
         return address;
     }
 
-    public void setAddress(String address) {
+    public void setAddress(Address address) {
         this.address = address;
     }
 

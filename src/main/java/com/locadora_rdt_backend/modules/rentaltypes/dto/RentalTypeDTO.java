@@ -8,16 +8,18 @@ public class RentalTypeDTO implements Serializable {
     private Long id;
     private String name;
     private String type;
+    private Integer days;
     private Boolean active;
 
     public RentalTypeDTO() {
         // Required by frameworks and serializers.
     }
 
-    public RentalTypeDTO(Long id, String name, String type, Boolean active) {
+    public RentalTypeDTO(Long id, String name, String type, Integer days, Boolean active) {
         this.id = id;
         this.name = name;
         this.type = type;
+        this.days = days;
         this.active = active;
     }
 
@@ -31,6 +33,10 @@ public class RentalTypeDTO implements Serializable {
 
     public String getType() {
         return type;
+    }
+
+    public Integer getDays() {
+        return days;
     }
 
     public Boolean getActive() {
@@ -47,6 +53,10 @@ public class RentalTypeDTO implements Serializable {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public void setDays(Integer days) {
+        this.days = days;
     }
 
     public void setActive(Boolean active) {

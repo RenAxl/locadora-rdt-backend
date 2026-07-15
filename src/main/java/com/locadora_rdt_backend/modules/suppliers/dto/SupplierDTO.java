@@ -1,5 +1,7 @@
 package com.locadora_rdt_backend.modules.suppliers.dto;
 
+import com.locadora_rdt_backend.modules.suppliers.model.Address;
+
 import java.io.Serializable;
 
 public class SupplierDTO implements Serializable {
@@ -10,7 +12,7 @@ public class SupplierDTO implements Serializable {
     private String tradeName;
     private String companyName;
     private String cnpj;
-    private String address;
+    private Address address;
     private String email;
     private String phoneNumber;
     private String imageContentType;
@@ -24,7 +26,7 @@ public class SupplierDTO implements Serializable {
     public String getTradeName() { return tradeName; }
     public String getCompanyName() { return companyName; }
     public String getCnpj() { return cnpj; }
-    public String getAddress() { return address; }
+    public Address getAddress() { return address; }
     public String getEmail() { return email; }
     public String getPhoneNumber() { return phoneNumber; }
     public String getImageContentType() { return imageContentType; }
@@ -34,7 +36,7 @@ public class SupplierDTO implements Serializable {
     public void setTradeName(String tradeName) { this.tradeName = tradeName; }
     public void setCompanyName(String companyName) { this.companyName = companyName; }
     public void setCnpj(String cnpj) { this.cnpj = cnpj; }
-    public void setAddress(String address) { this.address = address; }
+    public void setAddress(Address address) { this.address = address; }
     public void setEmail(String email) { this.email = email; }
     public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
     public void setImageContentType(String imageContentType) { this.imageContentType = imageContentType; }

@@ -19,6 +19,7 @@ public class RentalTypeMapper {
                 entity.getId(),
                 entity.getName(),
                 entity.getType(),
+                entity.getDays(),
                 entity.getActive()
         );
     }
@@ -33,6 +34,7 @@ public class RentalTypeMapper {
         dto.setVersion(entity.getVersion());
         dto.setName(entity.getName());
         dto.setType(entity.getType());
+        dto.setDays(entity.getDays());
         dto.setActive(entity.getActive());
         dto.setCreatedAt(entity.getCreatedAt());
         dto.setUpdatedAt(entity.getUpdatedAt());
@@ -50,6 +52,7 @@ public class RentalTypeMapper {
         RentalType entity = new RentalType();
         entity.setName(dto.getName());
         entity.setType(dto.getType());
+        entity.setDays(dto.getDays());
         entity.setActive(true);
 
         return entity;
@@ -62,5 +65,6 @@ public class RentalTypeMapper {
 
         entity.setName(dto.getName());
         entity.setType(dto.getType());
+        entity.setDays(dto.getDays());
     }
 }

@@ -1,6 +1,7 @@
 package com.locadora_rdt_backend.modules.users.dto;
 
 import com.locadora_rdt_backend.modules.roles.dto.RoleDTO;
+import com.locadora_rdt_backend.modules.users.model.Address;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ public class UserDTO implements Serializable {
     private Boolean active;
     private String telephone;
     private String photoContentType;
-    private String address;
+    private Address address;
 
     private List<RoleDTO> roles = new ArrayList<>();
 
@@ -71,11 +72,11 @@ public class UserDTO implements Serializable {
         this.photoContentType = photoContentType;
     }
 
-    public String getAddress() {
+    public Address getAddress() {
         return address;
     }
 
-    public void setAddress(String address) {
+    public void setAddress(Address address) {
         this.address = address;
     }
 

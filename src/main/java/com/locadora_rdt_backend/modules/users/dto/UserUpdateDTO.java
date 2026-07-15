@@ -1,12 +1,14 @@
 package com.locadora_rdt_backend.modules.users.dto;
 
 import com.locadora_rdt_backend.modules.users.validation.UserUpdateValid;
+import com.locadora_rdt_backend.modules.users.model.Address;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import javax.validation.Valid;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +31,9 @@ public class UserUpdateDTO implements Serializable {
     @NotBlank(message = "Campo requerido")
     private String telephone;
 
-    private String address;
+    @Valid
+    @NotNull(message = "Campo requerido")
+    private Address address;
 
     @NotEmpty(message = "O usuário deve possuir ao menos um perfil")
     private List<Long> roleIds = new ArrayList<>();
@@ -54,7 +58,7 @@ public class UserUpdateDTO implements Serializable {
         return telephone;
     }
 
-    public String getAddress() {
+    public Address getAddress() {
         return address;
     }
 
@@ -78,7 +82,7 @@ public class UserUpdateDTO implements Serializable {
         this.telephone = telephone;
     }
 
-    public void setAddress(String address) {
+    public void setAddress(Address address) {
         this.address = address;
     }
 

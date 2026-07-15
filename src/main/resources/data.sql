@@ -1,25 +1,25 @@
 INSERT INTO tb_user
-(name, email, password, active, telephone, address, photo_data, photo_content_type, created_at, updated_at, created_by, updated_by)
+(name, email, password, active, telephone, street, number, complement, neighborhood, city, state, zip_code, photo_data, photo_content_type, created_at, updated_at, created_by, updated_by)
 VALUES
-    ('Renan Duarte', 'renandt30@gmail.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990001', 'Rua Alfa, 100 - Belo Horizonte - MG', NULL, NULL, '2025-01-10T09:00:00Z', NULL, 'SYSTEM', NULL),
+    ('Renan Duarte', 'renandt30@gmail.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990001', 'Rua Alfa', '100', NULL, NULL, 'Belo Horizonte', 'MG', NULL, NULL, NULL, '2025-01-10T09:00:00Z', NULL, 'SYSTEM', NULL),
 
-    ('Ana Silva', 'ana.silva@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990002', 'Rua Beta, 200 - Belo Horizonte - MG', NULL, NULL, '2025-01-11T10:15:00Z', NULL, 'SYSTEM', NULL),
+    ('Ana Silva', 'ana.silva@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990002', 'Rua Beta', '200', NULL, NULL, 'Belo Horizonte', 'MG', NULL, NULL, NULL, '2025-01-11T10:15:00Z', NULL, 'SYSTEM', NULL),
 
-    ('Bruno Costa', 'bruno.costa@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990003', 'Av. Amazonas, 300 - Belo Horizonte - MG', NULL, NULL, '2025-01-12T11:30:00Z', NULL, 'SYSTEM', NULL),
+    ('Bruno Costa', 'bruno.costa@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990003', 'Av. Amazonas', '300', NULL, NULL, 'Belo Horizonte', 'MG', NULL, NULL, NULL, '2025-01-12T11:30:00Z', NULL, 'SYSTEM', NULL),
 
-    ('Carla Mendes', 'carla.mendes@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990004', 'Rua Gama, 400 - Belo Horizonte - MG', NULL, NULL, '2025-01-13T14:45:00Z', NULL, 'SYSTEM', NULL),
+    ('Carla Mendes', 'carla.mendes@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990004', 'Rua Gama', '400', NULL, NULL, 'Belo Horizonte', 'MG', NULL, NULL, NULL, '2025-01-13T14:45:00Z', NULL, 'SYSTEM', NULL),
 
-    ('Daniel Rocha', 'daniel.rocha@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990005', 'Rua Delta, 500 - Belo Horizonte - MG', NULL, NULL, '2025-01-14T16:00:00Z', NULL, 'SYSTEM', NULL),
+    ('Daniel Rocha', 'daniel.rocha@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990005', 'Rua Delta', '500', NULL, NULL, 'Belo Horizonte', 'MG', NULL, NULL, NULL, '2025-01-14T16:00:00Z', NULL, 'SYSTEM', NULL),
 
-    ('Eduarda Lima', 'eduarda.lima@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', false, '31999990006', 'Av. Brasil, 600 - Belo Horizonte - MG', NULL, NULL, '2025-01-15T09:20:00Z', NULL, 'SYSTEM', NULL),
+    ('Eduarda Lima', 'eduarda.lima@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', false, '31999990006', 'Av. Brasil', '600', NULL, NULL, 'Belo Horizonte', 'MG', NULL, NULL, NULL, '2025-01-15T09:20:00Z', NULL, 'SYSTEM', NULL),
 
-    ('Felipe Nogueira', 'felipe.nogueira@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990007', 'Rua Goiás, 700 - Belo Horizonte - MG', NULL, NULL, '2025-01-16T13:10:00Z', NULL, 'SYSTEM', NULL),
+    ('Felipe Nogueira', 'felipe.nogueira@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990007', 'Rua Goiás', '700', NULL, NULL, 'Belo Horizonte', 'MG', NULL, NULL, NULL, '2025-01-16T13:10:00Z', NULL, 'SYSTEM', NULL),
 
-    ('Gabriela Torres', 'gabriela.torres@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990008', 'Av. Contorno, 800 - Belo Horizonte - MG', NULL, NULL, '2025-01-17T15:35:00Z', NULL, 'SYSTEM', NULL),
+    ('Gabriela Torres', 'gabriela.torres@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990008', 'Av. Contorno', '800', NULL, NULL, 'Belo Horizonte', 'MG', NULL, NULL, NULL, '2025-01-17T15:35:00Z', NULL, 'SYSTEM', NULL),
 
-    ('Henrique Alves', 'henrique.alves@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', false, '31999990009', 'Rua da Bahia, 900 - Belo Horizonte - MG', NULL, NULL, '2025-01-18T17:50:00Z', NULL, 'SYSTEM', NULL),
+    ('Henrique Alves', 'henrique.alves@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', false, '31999990009', 'Rua da Bahia', '900', NULL, NULL, 'Belo Horizonte', 'MG', NULL, NULL, NULL, '2025-01-18T17:50:00Z', NULL, 'SYSTEM', NULL),
 
-    ('Isabela Pires', 'isabela.pires@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990010', 'Av. Cristiano Machado, 1000 - Belo Horizonte - MG', NULL, NULL, '2025-01-19T18:30:00Z', NULL, 'SYSTEM', NULL);
+    ('Isabela Pires', 'isabela.pires@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990010', 'Av. Cristiano Machado', '1000', NULL, NULL, 'Belo Horizonte', 'MG', NULL, NULL, NULL, '2025-01-19T18:30:00Z', NULL, 'SYSTEM', NULL);
 
 
 INSERT INTO tb_role (authority, created_at, updated_at, created_by, updated_by) VALUES
@@ -123,17 +123,17 @@ INSERT INTO tb_role_permission (role_id, permission_id) VALUES
     (4, 37);
 
 
-INSERT INTO tb_customer (name, cpf, email, phone, address, active, photo_data, photo_content_type, created_at, updated_at, created_by, updated_by) VALUES
-    ('Renan Duarte', '11111111111', 'renandt30@gmail.com', '31999990001', 'Rua A, 100 - Belo Horizonte', true, NULL, NULL, NOW(), NULL, 'system', NULL),
-    ('Maria Oliveira', '22222222222', 'maria.oliveira@email.com', '31999990002', 'Rua B, 200 - Belo Horizonte', true, NULL, NULL, NOW(), NULL, 'system', NULL),
-    ('Carlos Souza', '33333333333', 'carlos.souza@email.com', '31999990003', 'Rua C, 300 - Belo Horizonte', true, NULL, NULL, NOW(), NULL, 'system', NULL),
-    ('Ana Costa', '44444444444', 'ana.costa@email.com', '31999990004', 'Rua D, 400 - Belo Horizonte', true, NULL, NULL, NOW(), NULL, 'system', NULL),
-    ('Pedro Santos', '55555555555', 'pedro.santos@email.com', '31999990005', 'Rua E, 500 - Belo Horizonte', true, NULL, NULL, NOW(), NULL, 'system', NULL),
-    ('Juliana Rocha', '66666666666', 'juliana.rocha@email.com', '31999990006', 'Rua F, 600 - Belo Horizonte', true, NULL, NULL, NOW(), NULL, 'system', NULL),
-    ('Lucas Ferreira', '77777777777', 'lucas.ferreira@email.com', '31999990007', 'Rua G, 700 - Belo Horizonte', true, NULL, NULL, NOW(), NULL, 'system', NULL),
-    ('Fernanda Alves', '88888888888', 'fernanda.alves@email.com', '31999990008', 'Rua H, 800 - Belo Horizonte', true, NULL, NULL, NOW(), NULL, 'system', NULL),
-    ('Rafael Martins', '99999999999', 'rafael.martins@email.com', '31999990009', 'Rua I, 900 - Belo Horizonte', true, NULL, NULL, NOW(), NULL, 'system', NULL),
-    ('Patricia Gomes', '10101010101', 'patricia.gomes@email.com', '31999990010', 'Rua J, 1000 - Belo Horizonte', true, NULL, NULL, NOW(), NULL, 'system', NULL);
+INSERT INTO tb_customer (name, cpf, email, phone, street, number, complement, neighborhood, city, state, zip_code, active, photo_data, photo_content_type, created_at, updated_at, created_by, updated_by) VALUES
+    ('Renan Duarte', '11111111111', 'renandt30@gmail.com', '31999990001', 'Rua A', '100', NULL, 'Centro', 'Belo Horizonte', 'MG', '30100-000', true, NULL, NULL, NOW(), NULL, 'system', NULL),
+    ('Maria Oliveira', '22222222222', 'maria.oliveira@email.com', '31999990002', 'Rua B', '200', NULL, 'Centro', 'Belo Horizonte', 'MG', '30110-000', true, NULL, NULL, NOW(), NULL, 'system', NULL),
+    ('Carlos Souza', '33333333333', 'carlos.souza@email.com', '31999990003', 'Rua C', '300', NULL, 'Centro', 'Belo Horizonte', 'MG', '30120-000', true, NULL, NULL, NOW(), NULL, 'system', NULL),
+    ('Ana Costa', '44444444444', 'ana.costa@email.com', '31999990004', 'Rua D', '400', NULL, 'Centro', 'Belo Horizonte', 'MG', '30130-000', true, NULL, NULL, NOW(), NULL, 'system', NULL),
+    ('Pedro Santos', '55555555555', 'pedro.santos@email.com', '31999990005', 'Rua E', '500', NULL, 'Centro', 'Belo Horizonte', 'MG', '30140-000', true, NULL, NULL, NOW(), NULL, 'system', NULL),
+    ('Juliana Rocha', '66666666666', 'juliana.rocha@email.com', '31999990006', 'Rua F', '600', NULL, 'Centro', 'Belo Horizonte', 'MG', '30150-000', true, NULL, NULL, NOW(), NULL, 'system', NULL),
+    ('Lucas Ferreira', '77777777777', 'lucas.ferreira@email.com', '31999990007', 'Rua G', '700', NULL, 'Centro', 'Belo Horizonte', 'MG', '30160-000', true, NULL, NULL, NOW(), NULL, 'system', NULL),
+    ('Fernanda Alves', '88888888888', 'fernanda.alves@email.com', '31999990008', 'Rua H', '800', NULL, 'Centro', 'Belo Horizonte', 'MG', '30170-000', true, NULL, NULL, NOW(), NULL, 'system', NULL),
+    ('Rafael Martins', '99999999999', 'rafael.martins@email.com', '31999990009', 'Rua I', '900', NULL, 'Centro', 'Belo Horizonte', 'MG', '30180-000', true, NULL, NULL, NOW(), NULL, 'system', NULL),
+    ('Patricia Gomes', '10101010101', 'patricia.gomes@email.com', '31999990010', 'Rua J', '1000', NULL, 'Centro', 'Belo Horizonte', 'MG', '30190-000', true, NULL, NULL, NOW(), NULL, 'system', NULL);
 
 
 INSERT INTO tb_position
@@ -207,18 +207,18 @@ INSERT INTO tb_employee (
       ('Juliana Castro', 'EMP010', 'juliana@empresa.com', '31999990010', 'BH - MG', 6100.00,
        '2022-06-05', NULL, 'CLT', true, NOW(), NOW(), 'SYSTEM', 'SYSTEM', 2, 8);
 
-INSERT INTO tb_supplier (version, name, trade_name, company_name, cnpj, address, email, phone_number, image_data, image_content_type, created_at, updated_at, created_by, updated_by)
+INSERT INTO tb_supplier (version, name, trade_name, company_name, cnpj, street, number, complement, neighborhood, city, state, zip_code, email, phone_number, image_data, image_content_type, created_at, updated_at, created_by, updated_by)
 VALUES
-    (0, 'Fornecedor de Veículos Premium', 'Premium Motors', 'Premium Motors LTDA', '12345678000101', 'Av. Amazonas, 1000 - Belo Horizonte/MG', '[contato@premiummotors.com.br](mailto:contato@premiummotors.com.br)', '3133331001', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
-    (0, 'Auto Peças Brasil', 'AP Brasil', 'Auto Peças Brasil LTDA', '12345678000102', 'Rua dos Andradas, 250 - Belo Horizonte/MG', '[vendas@apbrasil.com.br](mailto:vendas@apbrasil.com.br)', '3133331002', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
-    (0, 'Loca Pneus', 'Loca Pneus', 'Loca Pneus Comércio LTDA', '12345678000103', 'Av. Cristiano Machado, 4500 - Belo Horizonte/MG', '[contato@locapneus.com.br](mailto:contato@locapneus.com.br)', '3133331003', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
-    (0, 'Lubrificantes Gerais', 'Lub Gerais', 'Lubrificantes Gerais LTDA', '12345678000104', 'Rua Tupis, 800 - Belo Horizonte/MG', '[comercial@lubgerais.com.br](mailto:comercial@lubgerais.com.br)', '3133331004', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
-    (0, 'Baterias Energia', 'Energia Baterias', 'Energia Baterias S.A.', '12345678000105', 'Av. Antônio Carlos, 1500 - Belo Horizonte/MG', '[vendas@energiabaterias.com.br](mailto:vendas@energiabaterias.com.br)', '3133331005', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
-    (0, 'Oficina Mecânica Central', 'Mecânica Central', 'Oficina Mecânica Central LTDA', '12345678000106', 'Rua Espírito Santo, 900 - Belo Horizonte/MG', '[contato@mecanicacentral.com.br](mailto:contato@mecanicacentral.com.br)', '3133331006', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
-    (0, 'Vidros Automotivos BH', 'Vidros BH', 'Vidros Automotivos BH LTDA', '12345678000107', 'Av. Tereza Cristina, 2100 - Belo Horizonte/MG', '[atendimento@vidrosbh.com.br](mailto:atendimento@vidrosbh.com.br)', '3133331007', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
-    (0, 'Seguradora Protege', 'Protege Seguros', 'Protege Seguros S.A.', '12345678000108', 'Av. Afonso Pena, 3500 - Belo Horizonte/MG', '[contato@protegeseguros.com.br](mailto:contato@protegeseguros.com.br)', '3133331008', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
-    (0, 'Higienização Express', 'Express Clean', 'Express Clean Serviços LTDA', '12345678000109', 'Rua Goiás, 1200 - Belo Horizonte/MG', '[comercial@expressclean.com.br](mailto:comercial@expressclean.com.br)', '3133331009', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
-    (0, 'Tecnologia Veicular', 'Tech Car', 'Tech Car Tecnologia LTDA', '12345678000110', 'Av. Raja Gabaglia, 5000 - Belo Horizonte/MG', '[contato@techcar.com.br](mailto:contato@techcar.com.br)', '3133331010', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL);
+    (0, 'Fornecedor de Veículos Premium', 'Premium Motors', 'Premium Motors LTDA', '12345678000101', 'Av. Amazonas', '1000', NULL, 'Centro', 'Belo Horizonte', 'MG', '30100-000', '[contato@premiummotors.com.br](mailto:contato@premiummotors.com.br)', '3133331001', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Auto Peças Brasil', 'AP Brasil', 'Auto Peças Brasil LTDA', '12345678000102', 'Rua dos Andradas', '250', NULL, 'Centro', 'Belo Horizonte', 'MG', '30120-000', '[vendas@apbrasil.com.br](mailto:vendas@apbrasil.com.br)', '3133331002', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Loca Pneus', 'Loca Pneus', 'Loca Pneus Comércio LTDA', '12345678000103', 'Av. Cristiano Machado', '4500', NULL, 'União', 'Belo Horizonte', 'MG', '31160-000', '[contato@locapneus.com.br](mailto:contato@locapneus.com.br)', '3133331003', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Lubrificantes Gerais', 'Lub Gerais', 'Lubrificantes Gerais LTDA', '12345678000104', 'Rua Tupis', '800', NULL, 'Centro', 'Belo Horizonte', 'MG', '30190-000', '[comercial@lubgerais.com.br](mailto:comercial@lubgerais.com.br)', '3133331004', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Baterias Energia', 'Energia Baterias', 'Energia Baterias S.A.', '12345678000105', 'Av. Antônio Carlos', '1500', NULL, 'Cachoeirinha', 'Belo Horizonte', 'MG', '31210-000', '[vendas@energiabaterias.com.br](mailto:vendas@energiabaterias.com.br)', '3133331005', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Oficina Mecânica Central', 'Mecânica Central', 'Oficina Mecânica Central LTDA', '12345678000106', 'Rua Espírito Santo', '900', NULL, 'Centro', 'Belo Horizonte', 'MG', '30160-000', '[contato@mecanicacentral.com.br](mailto:contato@mecanicacentral.com.br)', '3133331006', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Vidros Automotivos BH', 'Vidros BH', 'Vidros Automotivos BH LTDA', '12345678000107', 'Av. Tereza Cristina', '2100', NULL, 'Calafate', 'Belo Horizonte', 'MG', '30411-000', '[atendimento@vidrosbh.com.br](mailto:atendimento@vidrosbh.com.br)', '3133331007', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Seguradora Protege', 'Protege Seguros', 'Protege Seguros S.A.', '12345678000108', 'Av. Afonso Pena', '3500', NULL, 'Funcionários', 'Belo Horizonte', 'MG', '30130-000', '[contato@protegeseguros.com.br](mailto:contato@protegeseguros.com.br)', '3133331008', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Higienização Express', 'Express Clean', 'Express Clean Serviços LTDA', '12345678000109', 'Rua Goiás', '1200', NULL, 'Savassi', 'Belo Horizonte', 'MG', '30190-000', '[comercial@expressclean.com.br](mailto:comercial@expressclean.com.br)', '3133331009', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Tecnologia Veicular', 'Tech Car', 'Tech Car Tecnologia LTDA', '12345678000110', 'Av. Raja Gabaglia', '5000', NULL, 'Santa Lúcia', 'Belo Horizonte', 'MG', '30360-000', '[contato@techcar.com.br](mailto:contato@techcar.com.br)', '3133331010', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL);
 
 
 INSERT INTO tb_payment_method
@@ -327,17 +327,22 @@ VALUES
     (0, 'Volantes e Simuladores', true, NULL, NOW(), 'Administrador'),
     (0, 'Acessórios para Games', true, NULL, NOW(), 'Administrador');
 
-INSERT INTO tb_rental_type (version, name, active, type, created_at, created_by) VALUES
-                                                                                     (0, 'Locação por Hora', true, 'DIA', NOW(), 'Administrador'),
-                                                                                     (0, 'Locação por Período', true, 'SEMANAL', NOW(), 'Administrador'),
-                                                                                     (0, 'Locação Diária', true, 'DIA', NOW(), 'Administrador'),
-                                                                                     (0, 'Locação Semanal', true, 'MÊS', NOW(), 'Administrador'),
-                                                                                     (0, 'Locação Quinzenal', true, 'SEMANAL', NOW(), 'Administrador'),
-                                                                                     (0, 'Locação Mensal', true, 'DIA', NOW(), 'Administrador'),
-                                                                                     (0, 'Locação para Final de Semana', true, 'MÊS', NOW(), 'Administrador'),
-                                                                                     (0, 'Locação para Evento', true, 'FIM DE SEMANA', NOW(), 'Administrador'),
-                                                                                     (0, 'Locação Personalizada', true, 'FIM DE SEMANA', NOW(), 'Administrador'),
-                                                                                     (0, 'Locação por Pacote', true, 'MÊS', NOW(), 'Administrador');
+INSERT INTO tb_rental_type (
+    version,
+    name,
+    active,
+    type,
+    days,
+    created_at,
+    updated_at,
+    created_by,
+    updated_by
+) VALUES
+      (0, 'Diária', TRUE, 'DAY', 1, '2026-07-15T10:00:00Z', NULL, 'admin', NULL),
+      (0, 'Final de Semana', TRUE, 'WEEKEND', 3, '2026-07-15T10:00:00Z', NULL, 'admin', NULL),
+      (0, 'Semanal', TRUE, 'WEEK', 7, '2026-07-15T10:00:00Z', NULL, 'admin', NULL),
+      (0, 'Quinzenal', TRUE, 'FORTNIGHT', 15, '2026-07-15T10:00:00Z', NULL, 'admin', NULL),
+      (0, 'Mensal', TRUE, 'MONTH', 30, '2026-07-15T10:00:00Z', NULL, 'admin', NULL);
 
 
 INSERT INTO tb_item (version, name, description, category_id, price, image_data, active, created_at, created_by) VALUES

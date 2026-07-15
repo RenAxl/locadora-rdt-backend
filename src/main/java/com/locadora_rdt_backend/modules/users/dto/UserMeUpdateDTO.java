@@ -1,7 +1,11 @@
 package com.locadora_rdt_backend.modules.users.dto;
 
+import com.locadora_rdt_backend.modules.users.model.Address;
+
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.Valid;
 
 public class UserMeUpdateDTO {
 
@@ -13,13 +17,15 @@ public class UserMeUpdateDTO {
     private String email;
 
     private String telephone;
-    private String address;
+    @Valid
+    @NotNull(message = "Campo requerido")
+    private Address address;
 
     public UserMeUpdateDTO() {
         // Required by frameworks and serializers.
     }
 
-    public UserMeUpdateDTO(String name, String email, String telephone, String address) {
+    public UserMeUpdateDTO(String name, String email, String telephone, Address address) {
         this.name = name;
         this.email = email;
         this.telephone = telephone;
@@ -50,11 +56,11 @@ public class UserMeUpdateDTO {
         this.telephone = telephone;
     }
 
-    public String getAddress() {
+    public Address getAddress() {
         return address;
     }
 
-    public void setAddress(String address) {
+    public void setAddress(Address address) {
         this.address = address;
     }
 }
