@@ -467,4 +467,3 @@ INSERT INTO tb_rental_status_history (
 
 
 
-
