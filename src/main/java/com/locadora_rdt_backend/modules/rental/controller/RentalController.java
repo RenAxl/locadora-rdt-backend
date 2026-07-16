@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.time.Instant;
+import java.util.List;
 import com.locadora_rdt_backend.modules.customers.dto.CustomerDTO;
 
 @RestController
@@ -66,6 +67,36 @@ public class RentalController {
 
     @PatchMapping("/{id}/confirm")
     public ResponseEntity<RentalDTO> confirm(@PathVariable Long id) { return ResponseEntity.ok(service.confirm(id)); }
+
+    @PatchMapping("/{id}/start")
+    public ResponseEntity<RentalDTO> start(@PathVariable Long id) {
+        return ResponseEntity.ok(service.start(id));
+    }
+
+    @PatchMapping("/{id}/cancel")
+    public ResponseEntity<RentalDTO> cancel(@PathVariable Long id) {
+        return ResponseEntity.ok(service.cancel(id));
+    }
+
+    @GetMapping("/availability/items/{itemId}")
+    public ResponseEntity<ItemAvailabilityDTO> findAvailability(@PathVariable Long itemId) {
+        return ResponseEntity.ok(service.findAvailability(itemId));
+    }
+
+    @GetMapping("/availability/items/{itemId}/units")
+    public ResponseEntity<List<ItemUnitDTO>> findAvailableUnits(@PathVariable Long itemId) {
+        return ResponseEntity.ok(service.findAvailableUnits(itemId));
+    }
+
+    @GetMapping("/{id}/units")
+    public ResponseEntity<List<RentalItemUnitDTO>> findRentalUnits(@PathVariable Long id) {
+        return ResponseEntity.ok(service.findRentalUnits(id));
+    }
+
+    @GetMapping("/{id}/history")
+    public ResponseEntity<List<RentalStatusHistoryDTO>> findHistory(@PathVariable Long id) {
+        return ResponseEntity.ok(service.findHistory(id));
+    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {

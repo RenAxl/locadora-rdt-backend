@@ -17,8 +17,12 @@ import com.locadora_rdt_backend.modules.rental.dto.RentalSaveDTO;
 import com.locadora_rdt_backend.modules.rental.mapper.RentalMapper;
 import com.locadora_rdt_backend.modules.rental.model.Rental;
 import com.locadora_rdt_backend.modules.rental.model.RentalItem;
+import com.locadora_rdt_backend.modules.rental.model.ItemUnit;
 import com.locadora_rdt_backend.modules.rental.repository.RentalItemRepository;
 import com.locadora_rdt_backend.modules.rental.repository.RentalRepository;
+import com.locadora_rdt_backend.modules.rental.repository.ItemUnitRepository;
+import com.locadora_rdt_backend.modules.rental.repository.RentalItemUnitRepository;
+import com.locadora_rdt_backend.modules.rental.repository.RentalStatusHistoryRepository;
 import com.locadora_rdt_backend.modules.rental.service.RentalServiceImpl;
 import com.locadora_rdt_backend.modules.rentaltypes.model.RentalType;
 import com.locadora_rdt_backend.modules.rentaltypes.repository.RentalTypeRepository;
@@ -56,6 +60,9 @@ class RentalServiceTests {
 
     @Mock private RentalRepository repository;
     @Mock private RentalItemRepository itemRepository;
+    @Mock private ItemUnitRepository itemUnitRepository;
+    @Mock private RentalItemUnitRepository rentalItemUnitRepository;
+    @Mock private RentalStatusHistoryRepository statusHistoryRepository;
     @Mock private CustomerRepository customerRepository;
     @Mock private RentalTypeRepository rentalTypeRepository;
     @Mock private ItemRepository inventoryItemRepository;
@@ -461,8 +468,21 @@ class RentalServiceTests {
     @Test
     void confirmShouldConfirmDraft() {
         RentalItem rentalItem = new RentalItem();
+        rentalItem.setId(1L);
+        rentalItem.setItem(item);
+        rentalItem.setQuantity(1);
+        ItemUnit itemUnit = new ItemUnit();
+        itemUnit.setId(1L);
+        itemUnit.setItem(item);
+        itemUnit.setAssetCode("CONTROLE-001");
+        itemUnit.setStatus("AVAILABLE");
+        itemUnit.setActive(true);
         Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(rental));
         Mockito.when(itemRepository.findByRentalIdOrderById(existingId)).thenReturn(List.of(rentalItem));
+        Mockito.when(itemUnitRepository.findAvailableForReservation(Mockito.eq(item.getId()), Mockito.any(PageRequest.class)))
+                .thenReturn(List.of(itemUnit));
+        Mockito.when(rentalItemUnitRepository.countByRentalItemIdAndStatusIn(Mockito.eq(rentalItem.getId()), Mockito.anyList()))
+                .thenReturn(1L);
         Mockito.when(authenticationFacade.getAuthenticatedUsername()).thenReturn("user@email.com");
         Mockito.when(repository.save(rental)).thenReturn(rental);
         Mockito.when(mapper.toDTO(rental)).thenReturn(rentalDTO);

@@ -424,3 +424,43 @@ INSERT INTO tb_rental (
 
 INSERT INTO tb_system_setting (singleton_key, company_name, street, number, complement, neighborhood, city, state, zip_code, created_at, updated_at, created_by, updated_by) VALUES
                                                                                                                                                                                  ('DEFAULT', 'Locadora RDT', 'Rua Edmon de Souza Melo', '33', 'Sala 501', 'Diamante', 'Belo Horizonte', 'MG', '30660-585', CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL);
+
+INSERT INTO tb_item_unit (
+    version, item_id, asset_code, serial_number, status, condition_status,
+    purchase_date, notes, active, created_at, updated_at, created_by, updated_by
+) VALUES
+      (0, (SELECT id FROM tb_item WHERE name = 'PlayStation 5 Slim'), 'PS5-001', 'SN-PS5-2026-001', 'AVAILABLE', 'GOOD', '2026-01-10', 'Console em boas condições.', TRUE, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT id FROM tb_item WHERE name = 'Xbox Series X'), 'XBOX-001', 'SN-XBOX-2026-001', 'RENTED', 'GOOD', '2026-01-15', 'Console entregue ao cliente.', TRUE, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT id FROM tb_item WHERE name = 'Nintendo Switch OLED'), 'SWITCH-001', 'SN-SWITCH-2026-001', 'RENTED', 'GOOD', '2026-02-05', 'Acompanha base e carregador.', TRUE, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT id FROM tb_item WHERE name = 'Controle DualSense'), 'DUALSENSE-001', 'SN-DUALSENSE-2026-001', 'AVAILABLE', 'NEW', '2026-03-20', 'Controle branco.', TRUE, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT id FROM tb_item WHERE name = 'Volante Logitech G29'), 'G29-001', 'SN-G29-2026-001', 'MAINTENANCE', 'DAMAGED', '2026-04-12', 'Pedal do freio em manutenção.', TRUE, CURRENT_TIMESTAMP, NULL, 'admin', NULL);
+
+INSERT INTO tb_rental_item (
+    rental_id, item_id, quantity, unit_price, discount, additional_fee, subtotal
+) VALUES
+      ((SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260001'), (SELECT id FROM tb_item WHERE name = 'PlayStation 5 Slim'), 1, 150.00, 0.00, 0.00, 150.00),
+      ((SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260002'), (SELECT id FROM tb_item WHERE name = 'Xbox Series X'), 1, 150.00, 0.00, 0.00, 150.00),
+      ((SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260003'), (SELECT id FROM tb_item WHERE name = 'Nintendo Switch OLED'), 1, 120.00, 0.00, 0.00, 120.00),
+      ((SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260004'), (SELECT id FROM tb_item WHERE name = 'Controle DualSense'), 1, 15.00, 0.00, 0.00, 15.00),
+      ((SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260005'), (SELECT id FROM tb_item WHERE name = 'Volante Logitech G29'), 1, 80.00, 0.00, 0.00, 80.00);
+
+INSERT INTO tb_rental_item_unit (
+    version, rental_item_id, item_unit_id, status, delivery_condition,
+    return_condition, reserved_at, delivered_at, returned_at,
+    created_at, updated_at, created_by, updated_by
+) VALUES
+      (0, (SELECT ri.id FROM tb_rental_item ri JOIN tb_rental r ON r.id = ri.rental_id WHERE r.rental_number = 'LOC-20260001'), (SELECT id FROM tb_item_unit WHERE asset_code = 'PS5-001'), 'RESERVED', 'Console sem avarias.', NULL, '2026-07-01T10:00:00Z', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT ri.id FROM tb_rental_item ri JOIN tb_rental r ON r.id = ri.rental_id WHERE r.rental_number = 'LOC-20260002'), (SELECT id FROM tb_item_unit WHERE asset_code = 'XBOX-001'), 'DELIVERED', 'Console e cabos conferidos.', NULL, '2026-07-02T11:00:00Z', '2026-07-06T08:30:00Z', NULL, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT ri.id FROM tb_rental_item ri JOIN tb_rental r ON r.id = ri.rental_id WHERE r.rental_number = 'LOC-20260003'), (SELECT id FROM tb_item_unit WHERE asset_code = 'SWITCH-001'), 'DELIVERED', 'Equipamento entregue em boas condições.', NULL, '2026-07-03T12:00:00Z', '2026-07-07T08:30:00Z', NULL, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT ri.id FROM tb_rental_item ri JOIN tb_rental r ON r.id = ri.rental_id WHERE r.rental_number = 'LOC-20260004'), (SELECT id FROM tb_item_unit WHERE asset_code = 'DUALSENSE-001'), 'RETURNED', 'Controle sem avarias.', 'Controle devolvido em boas condições.', '2026-06-20T09:00:00Z', '2026-06-21T08:30:00Z', '2026-06-25T17:00:00Z', CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT ri.id FROM tb_rental_item ri JOIN tb_rental r ON r.id = ri.rental_id WHERE r.rental_number = 'LOC-20260005'), (SELECT id FROM tb_item_unit WHERE asset_code = 'G29-001'), 'DAMAGED', 'Volante entregue funcionando.', 'Pedal do freio apresentou defeito.', '2026-06-10T10:00:00Z', '2026-06-12T08:30:00Z', '2026-06-17T10:00:00Z', CURRENT_TIMESTAMP, NULL, 'admin', NULL);
+
+INSERT INTO tb_rental_status_history (
+    version, rental_id, previous_status, new_status, reason, changed_at,
+    changed_by, created_at, updated_at, created_by, updated_by
+) VALUES
+      (0, (SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260001'), NULL, 'PENDING', 'Locação criada e aguardando confirmação.', '2026-07-01T09:00:00Z', 'admin', CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260002'), 'PENDING', 'CONFIRMED', 'Pagamento confirmado pelo cliente.', '2026-07-02T12:00:00Z', 'admin', CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260003'), 'CONFIRMED', 'RENTED', 'Itens entregues ao cliente.', '2026-07-07T09:00:00Z', 'admin', CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260004'), 'RENTED', 'RETURNED', 'Itens devolvidos sem ocorrências.', '2026-06-25T17:00:00Z', 'admin', CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260007'), 'PENDING', 'CANCELLED', 'Cancelamento solicitado pelo cliente.', '2026-07-04T12:00:00Z', 'admin', CURRENT_TIMESTAMP, NULL, 'admin', NULL);
