@@ -466,3 +466,4 @@ INSERT INTO tb_rental_status_history (
       (0, (SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260007'), 'PENDING', 'CANCELLED', 'Cancelamento solicitado pelo cliente.', '2026-07-04T12:00:00Z', 'admin', CURRENT_TIMESTAMP, NULL, 'admin', NULL);
 
 
+
