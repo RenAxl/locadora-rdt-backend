@@ -225,8 +225,9 @@ class RentalServiceTests {
         Assertions.assertTrue(savedRental.getRentalNumber().startsWith("LOC-"));
         Assertions.assertNotNull(savedRental.getRentalDate());
         Assertions.assertEquals(new BigDecimal("38.00"), savedRental.getSubtotal());
-        Assertions.assertEquals(new BigDecimal("43.00"), savedRental.getTotalAmount());
-        Assertions.assertEquals(new BigDecimal("33.00"), savedRental.getRemainingAmount());
+        Assertions.assertEquals(new BigDecimal("1.90"), savedRental.getDiscount());
+        Assertions.assertEquals(new BigDecimal("46.10"), savedRental.getTotalAmount());
+        Assertions.assertEquals(new BigDecimal("36.10"), savedRental.getRemainingAmount());
         Assertions.assertEquals("user@email.com", savedRental.getCreatedBy());
         Assertions.assertEquals(existingId, result.getId());
         Mockito.verify(itemRepository).save(Mockito.any(RentalItem.class));
@@ -256,6 +257,24 @@ class RentalServiceTests {
                 0,
                 new BigDecimal("0.00").compareTo(rentalCaptor.getValue().getRemainingAmount())
         );
+    }
+
+    @Test
+    void insertShouldApplyFivePercentDiscountForBankSlip() {
+        paymentMethod.setName("Boleto Bancário");
+        saveDTO.setPaymentMethodId(paymentMethod.getId());
+        saveDTO.setDiscount(new BigDecimal("99.00"));
+        mockInsertDependencies();
+        Mockito.when(paymentMethodRepository.findById(paymentMethod.getId())).thenReturn(Optional.of(paymentMethod));
+        Mockito.when(repository.save(Mockito.any(Rental.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        Mockito.when(mapper.toDTO(Mockito.any(Rental.class))).thenReturn(rentalDTO);
+
+        service.insert(saveDTO);
+
+        ArgumentCaptor<Rental> rentalCaptor = ArgumentCaptor.forClass(Rental.class);
+        Mockito.verify(repository).save(rentalCaptor.capture());
+        Assertions.assertEquals(new BigDecimal("2.00"), rentalCaptor.getValue().getDiscount());
+        Assertions.assertEquals(new BigDecimal("38.00"), rentalCaptor.getValue().getTotalAmount());
     }
 
     @Test

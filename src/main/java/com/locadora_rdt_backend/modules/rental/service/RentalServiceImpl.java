@@ -31,6 +31,7 @@ import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.text.Normalizer;
 import java.util.*;
 
 @Service
@@ -38,6 +39,7 @@ public class RentalServiceImpl implements RentalService {
     private static final String DRAFT = "DRAFT";
     private static final String CONFIRMED = "CONFIRMED";
     private static final BigDecimal ZERO = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+    private static final BigDecimal AUTOMATIC_PAYMENT_DISCOUNT_RATE = new BigDecimal("0.05");
     private static final Instant FIRST_DATE = Instant.parse("1900-01-01T00:00:00Z");
     private static final Instant LAST_DATE = Instant.parse("2999-12-31T23:59:59Z");
 
@@ -180,10 +182,10 @@ public class RentalServiceImpl implements RentalService {
 
         rental.setCustomer(customer);
         rental.setRentalType(rentalType);
-        rental.setPaymentMethod(findPaymentMethod(dto.getPaymentMethodId()));
+        PaymentMethod paymentMethod = findPaymentMethod(dto.getPaymentMethodId());
+        rental.setPaymentMethod(paymentMethod);
         rental.setStartDate(dto.getStartDate());
         rental.setExpectedReturnDate(dto.getExpectedReturnDate());
-        rental.setDiscount(money(dto.getDiscount()));
         rental.setShippingFee(money(dto.getShippingFee()));
         rental.setAdditionalFee(money(dto.getAdditionalFee()));
         rental.setDownPayment(money(dto.getDownPayment()));
@@ -196,6 +198,10 @@ public class RentalServiceImpl implements RentalService {
         rental.setActive(true);
 
         BigDecimal subtotal = calculateItems(dto.getItems());
+        BigDecimal discount = hasAutomaticPaymentDiscount(paymentMethod)
+                ? money(subtotal.multiply(AUTOMATIC_PAYMENT_DISCOUNT_RATE))
+                : money(dto.getDiscount());
+        rental.setDiscount(discount);
         BigDecimal total = subtotal.subtract(rental.getDiscount()).add(rental.getShippingFee()).add(rental.getAdditionalFee());
         if (total.compareTo(BigDecimal.ZERO) < 0) throw new IllegalArgumentException("O total da locação não pode ser negativo.");
         rental.setSubtotal(subtotal);
@@ -267,6 +273,14 @@ public class RentalServiceImpl implements RentalService {
     private PaymentMethod findPaymentMethod(Long id) {
         if (id == null) return null;
         return paymentMethodRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Forma de pagamento não encontrada."));
+    }
+    private boolean hasAutomaticPaymentDiscount(PaymentMethod paymentMethod) {
+        if (paymentMethod == null || paymentMethod.getName() == null) return false;
+        String name = Normalizer.normalize(paymentMethod.getName(), Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .trim()
+                .toLowerCase(Locale.ROOT);
+        return "pix".equals(name) || "boleto bancario".equals(name);
     }
     private void requireDraft(Rental rental) {
         if (!DRAFT.equals(rental.getStatus())) throw new IllegalArgumentException("Somente locações em rascunho podem ser alteradas ou excluídas.");
