@@ -30,7 +30,9 @@ public class User implements UserDetails, Serializable {
     @Column(nullable = false)
     private Boolean active;
     private String telephone;
-    private String address;
+
+    @Embedded
+    private Address address;
 
     @Lob
     @Basic(fetch = FetchType.LAZY)
@@ -131,11 +133,11 @@ public class User implements UserDetails, Serializable {
         this.telephone = telephone;
     }
 
-    public String getAddress() {
+    public Address getAddress() {
         return address;
     }
 
-    public void setAddress(String address) {
+    public void setAddress(Address address) {
         this.address = address;
     }
 

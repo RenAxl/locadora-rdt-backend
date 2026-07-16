@@ -1,25 +1,25 @@
 INSERT INTO tb_user
-(name, email, password, active, telephone, address, photo_data, photo_content_type, created_at, updated_at, created_by, updated_by)
+(name, email, password, active, telephone, street, number, complement, neighborhood, city, state, zip_code, photo_data, photo_content_type, created_at, updated_at, created_by, updated_by)
 VALUES
-    ('Renan Duarte', 'renandt30@gmail.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990001', 'Rua Alfa, 100 - Belo Horizonte - MG', NULL, NULL, '2025-01-10T09:00:00Z', NULL, 'SYSTEM', NULL),
+    ('Renan Duarte', 'renandt30@gmail.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990001', 'Rua Carlos Pinto Coelho', '510', NULL, 'Vale do Jatobá', 'Belo Horizonte', 'MG', '30664-790', NULL, NULL, '2025-01-10T09:00:00Z', NULL, 'SYSTEM', NULL),
 
-    ('Ana Silva', 'ana.silva@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990002', 'Rua Beta, 200 - Belo Horizonte - MG', NULL, NULL, '2025-01-11T10:15:00Z', NULL, 'SYSTEM', NULL),
+    ('Ana Silva', 'ana.silva@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990002', 'Rua Beta', '200', NULL, NULL, 'Belo Horizonte', 'MG', NULL, NULL, NULL, '2025-01-11T10:15:00Z', NULL, 'SYSTEM', NULL),
 
-    ('Bruno Costa', 'bruno.costa@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990003', 'Av. Amazonas, 300 - Belo Horizonte - MG', NULL, NULL, '2025-01-12T11:30:00Z', NULL, 'SYSTEM', NULL),
+    ('Bruno Costa', 'bruno.costa@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990003', 'Av. Amazonas', '300', NULL, NULL, 'Belo Horizonte', 'MG', NULL, NULL, NULL, '2025-01-12T11:30:00Z', NULL, 'SYSTEM', NULL),
 
-    ('Carla Mendes', 'carla.mendes@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990004', 'Rua Gama, 400 - Belo Horizonte - MG', NULL, NULL, '2025-01-13T14:45:00Z', NULL, 'SYSTEM', NULL),
+    ('Carla Mendes', 'carla.mendes@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990004', 'Rua Gama', '400', NULL, NULL, 'Belo Horizonte', 'MG', NULL, NULL, NULL, '2025-01-13T14:45:00Z', NULL, 'SYSTEM', NULL),
 
-    ('Daniel Rocha', 'daniel.rocha@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990005', 'Rua Delta, 500 - Belo Horizonte - MG', NULL, NULL, '2025-01-14T16:00:00Z', NULL, 'SYSTEM', NULL),
+    ('Daniel Rocha', 'daniel.rocha@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990005', 'Rua Delta', '500', NULL, NULL, 'Belo Horizonte', 'MG', NULL, NULL, NULL, '2025-01-14T16:00:00Z', NULL, 'SYSTEM', NULL),
 
-    ('Eduarda Lima', 'eduarda.lima@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', false, '31999990006', 'Av. Brasil, 600 - Belo Horizonte - MG', NULL, NULL, '2025-01-15T09:20:00Z', NULL, 'SYSTEM', NULL),
+    ('Eduarda Lima', 'eduarda.lima@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', false, '31999990006', 'Av. Brasil', '600', NULL, NULL, 'Belo Horizonte', 'MG', NULL, NULL, NULL, '2025-01-15T09:20:00Z', NULL, 'SYSTEM', NULL),
 
-    ('Felipe Nogueira', 'felipe.nogueira@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990007', 'Rua Goiás, 700 - Belo Horizonte - MG', NULL, NULL, '2025-01-16T13:10:00Z', NULL, 'SYSTEM', NULL),
+    ('Felipe Nogueira', 'felipe.nogueira@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990007', 'Rua Goiás', '700', NULL, NULL, 'Belo Horizonte', 'MG', NULL, NULL, NULL, '2025-01-16T13:10:00Z', NULL, 'SYSTEM', NULL),
 
-    ('Gabriela Torres', 'gabriela.torres@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990008', 'Av. Contorno, 800 - Belo Horizonte - MG', NULL, NULL, '2025-01-17T15:35:00Z', NULL, 'SYSTEM', NULL),
+    ('Gabriela Torres', 'gabriela.torres@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990008', 'Av. Contorno', '800', NULL, NULL, 'Belo Horizonte', 'MG', NULL, NULL, NULL, '2025-01-17T15:35:00Z', NULL, 'SYSTEM', NULL),
 
-    ('Henrique Alves', 'henrique.alves@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', false, '31999990009', 'Rua da Bahia, 900 - Belo Horizonte - MG', NULL, NULL, '2025-01-18T17:50:00Z', NULL, 'SYSTEM', NULL),
+    ('Henrique Alves', 'henrique.alves@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', false, '31999990009', 'Rua da Bahia', '900', NULL, NULL, 'Belo Horizonte', 'MG', NULL, NULL, NULL, '2025-01-18T17:50:00Z', NULL, 'SYSTEM', NULL),
 
-    ('Isabela Pires', 'isabela.pires@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990010', 'Av. Cristiano Machado, 1000 - Belo Horizonte - MG', NULL, NULL, '2025-01-19T18:30:00Z', NULL, 'SYSTEM', NULL);
+    ('Isabela Pires', 'isabela.pires@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990010', 'Av. Cristiano Machado', '1000', NULL, NULL, 'Belo Horizonte', 'MG', NULL, NULL, NULL, '2025-01-19T18:30:00Z', NULL, 'SYSTEM', NULL);
 
 
 INSERT INTO tb_role (authority, created_at, updated_at, created_by, updated_by) VALUES
@@ -76,7 +76,9 @@ INSERT INTO tb_permission (name, group_name) VALUES
 
                                                  ('RECEIVABLE_READ',        'RECEIVABLES'),
                                                  ('RECEIVABLE_WRITE',       'RECEIVABLES'),
-                                                 ('RECEIVABLE_DELETE',      'RECEIVABLES');
+                                                 ('RECEIVABLE_DELETE',      'RECEIVABLES'),
+
+                                                 ('RENTAL_PRICE_CHANGE',   'RENTALS');
 
 
 
@@ -107,7 +109,7 @@ INSERT INTO tb_role_permission (role_id, permission_id) VALUES
                                                             (1, 25),(1, 26),(1, 27), (1, 28),
                                                             (1, 29),(1, 30),(1, 31), (1, 32),
                                                             (1, 33),(1, 34),(1, 35), (1, 36),
-                                                            (1, 37),(1, 38);
+                                                            (1, 37),(1, 38),(1, 39);
 
 
 INSERT INTO tb_role_permission (role_id, permission_id) VALUES
@@ -121,17 +123,17 @@ INSERT INTO tb_role_permission (role_id, permission_id) VALUES
     (4, 37);
 
 
-INSERT INTO tb_customer (name, cpf, email, phone, address, active, photo_data, photo_content_type, created_at, updated_at, created_by, updated_by) VALUES
-    ('João Silva', '11111111111', 'joao.silva@email.com', '31999990001', 'Rua A, 100 - Belo Horizonte', true, NULL, NULL, NOW(), NULL, 'system', NULL),
-    ('Maria Oliveira', '22222222222', 'maria.oliveira@email.com', '31999990002', 'Rua B, 200 - Belo Horizonte', true, NULL, NULL, NOW(), NULL, 'system', NULL),
-    ('Carlos Souza', '33333333333', 'carlos.souza@email.com', '31999990003', 'Rua C, 300 - Belo Horizonte', true, NULL, NULL, NOW(), NULL, 'system', NULL),
-    ('Ana Costa', '44444444444', 'ana.costa@email.com', '31999990004', 'Rua D, 400 - Belo Horizonte', true, NULL, NULL, NOW(), NULL, 'system', NULL),
-    ('Pedro Santos', '55555555555', 'pedro.santos@email.com', '31999990005', 'Rua E, 500 - Belo Horizonte', true, NULL, NULL, NOW(), NULL, 'system', NULL),
-    ('Juliana Rocha', '66666666666', 'juliana.rocha@email.com', '31999990006', 'Rua F, 600 - Belo Horizonte', true, NULL, NULL, NOW(), NULL, 'system', NULL),
-    ('Lucas Ferreira', '77777777777', 'lucas.ferreira@email.com', '31999990007', 'Rua G, 700 - Belo Horizonte', true, NULL, NULL, NOW(), NULL, 'system', NULL),
-    ('Fernanda Alves', '88888888888', 'fernanda.alves@email.com', '31999990008', 'Rua H, 800 - Belo Horizonte', true, NULL, NULL, NOW(), NULL, 'system', NULL),
-    ('Rafael Martins', '99999999999', 'rafael.martins@email.com', '31999990009', 'Rua I, 900 - Belo Horizonte', true, NULL, NULL, NOW(), NULL, 'system', NULL),
-    ('Patricia Gomes', '10101010101', 'patricia.gomes@email.com', '31999990010', 'Rua J, 1000 - Belo Horizonte', true, NULL, NULL, NOW(), NULL, 'system', NULL);
+INSERT INTO tb_customer (name, cpf, email, phone, street, number, complement, neighborhood, city, state, zip_code, active, photo_data, photo_content_type, created_at, updated_at, created_by, updated_by) VALUES
+    ('Renan Duarte', '11111111111', 'renandt30@gmail.com', '31999990001', 'Rua A', '100', NULL, 'Centro', 'Belo Horizonte', 'MG', '30100-000', true, NULL, NULL, NOW(), NULL, 'system', NULL),
+    ('Maria Oliveira', '22222222222', 'maria.oliveira@email.com', '31999990002', 'Rua B', '200', NULL, 'Centro', 'Belo Horizonte', 'MG', '30110-000', true, NULL, NULL, NOW(), NULL, 'system', NULL),
+    ('Carlos Souza', '33333333333', 'carlos.souza@email.com', '31999990003', 'Rua C', '300', NULL, 'Centro', 'Belo Horizonte', 'MG', '30120-000', true, NULL, NULL, NOW(), NULL, 'system', NULL),
+    ('Ana Costa', '44444444444', 'ana.costa@email.com', '31999990004', 'Rua D', '400', NULL, 'Centro', 'Belo Horizonte', 'MG', '30130-000', true, NULL, NULL, NOW(), NULL, 'system', NULL),
+    ('Pedro Santos', '55555555555', 'pedro.santos@email.com', '31999990005', 'Rua E', '500', NULL, 'Centro', 'Belo Horizonte', 'MG', '30140-000', true, NULL, NULL, NOW(), NULL, 'system', NULL),
+    ('Juliana Rocha', '66666666666', 'juliana.rocha@email.com', '31999990006', 'Rua F', '600', NULL, 'Centro', 'Belo Horizonte', 'MG', '30150-000', true, NULL, NULL, NOW(), NULL, 'system', NULL),
+    ('Lucas Ferreira', '77777777777', 'lucas.ferreira@email.com', '31999990007', 'Rua G', '700', NULL, 'Centro', 'Belo Horizonte', 'MG', '30160-000', true, NULL, NULL, NOW(), NULL, 'system', NULL),
+    ('Fernanda Alves', '88888888888', 'fernanda.alves@email.com', '31999990008', 'Rua H', '800', NULL, 'Centro', 'Belo Horizonte', 'MG', '30170-000', true, NULL, NULL, NOW(), NULL, 'system', NULL),
+    ('Rafael Martins', '99999999999', 'rafael.martins@email.com', '31999990009', 'Rua I', '900', NULL, 'Centro', 'Belo Horizonte', 'MG', '30180-000', true, NULL, NULL, NOW(), NULL, 'system', NULL),
+    ('Patricia Gomes', '10101010101', 'patricia.gomes@email.com', '31999990010', 'Rua J', '1000', NULL, 'Centro', 'Belo Horizonte', 'MG', '30190-000', true, NULL, NULL, NOW(), NULL, 'system', NULL);
 
 
 INSERT INTO tb_position
@@ -205,18 +207,18 @@ INSERT INTO tb_employee (
       ('Juliana Castro', 'EMP010', 'juliana@empresa.com', '31999990010', 'BH - MG', 6100.00,
        '2022-06-05', NULL, 'CLT', true, NOW(), NOW(), 'SYSTEM', 'SYSTEM', 2, 8);
 
-INSERT INTO tb_supplier (version, name, trade_name, company_name, cnpj, address, email, phone_number, image_data, image_content_type, created_at, updated_at, created_by, updated_by)
+INSERT INTO tb_supplier (version, name, trade_name, company_name, cnpj, street, number, complement, neighborhood, city, state, zip_code, email, phone_number, image_data, image_content_type, created_at, updated_at, created_by, updated_by)
 VALUES
-    (0, 'Fornecedor de Veículos Premium', 'Premium Motors', 'Premium Motors LTDA', '12345678000101', 'Av. Amazonas, 1000 - Belo Horizonte/MG', '[contato@premiummotors.com.br](mailto:contato@premiummotors.com.br)', '3133331001', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
-    (0, 'Auto Peças Brasil', 'AP Brasil', 'Auto Peças Brasil LTDA', '12345678000102', 'Rua dos Andradas, 250 - Belo Horizonte/MG', '[vendas@apbrasil.com.br](mailto:vendas@apbrasil.com.br)', '3133331002', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
-    (0, 'Loca Pneus', 'Loca Pneus', 'Loca Pneus Comércio LTDA', '12345678000103', 'Av. Cristiano Machado, 4500 - Belo Horizonte/MG', '[contato@locapneus.com.br](mailto:contato@locapneus.com.br)', '3133331003', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
-    (0, 'Lubrificantes Gerais', 'Lub Gerais', 'Lubrificantes Gerais LTDA', '12345678000104', 'Rua Tupis, 800 - Belo Horizonte/MG', '[comercial@lubgerais.com.br](mailto:comercial@lubgerais.com.br)', '3133331004', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
-    (0, 'Baterias Energia', 'Energia Baterias', 'Energia Baterias S.A.', '12345678000105', 'Av. Antônio Carlos, 1500 - Belo Horizonte/MG', '[vendas@energiabaterias.com.br](mailto:vendas@energiabaterias.com.br)', '3133331005', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
-    (0, 'Oficina Mecânica Central', 'Mecânica Central', 'Oficina Mecânica Central LTDA', '12345678000106', 'Rua Espírito Santo, 900 - Belo Horizonte/MG', '[contato@mecanicacentral.com.br](mailto:contato@mecanicacentral.com.br)', '3133331006', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
-    (0, 'Vidros Automotivos BH', 'Vidros BH', 'Vidros Automotivos BH LTDA', '12345678000107', 'Av. Tereza Cristina, 2100 - Belo Horizonte/MG', '[atendimento@vidrosbh.com.br](mailto:atendimento@vidrosbh.com.br)', '3133331007', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
-    (0, 'Seguradora Protege', 'Protege Seguros', 'Protege Seguros S.A.', '12345678000108', 'Av. Afonso Pena, 3500 - Belo Horizonte/MG', '[contato@protegeseguros.com.br](mailto:contato@protegeseguros.com.br)', '3133331008', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
-    (0, 'Higienização Express', 'Express Clean', 'Express Clean Serviços LTDA', '12345678000109', 'Rua Goiás, 1200 - Belo Horizonte/MG', '[comercial@expressclean.com.br](mailto:comercial@expressclean.com.br)', '3133331009', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
-    (0, 'Tecnologia Veicular', 'Tech Car', 'Tech Car Tecnologia LTDA', '12345678000110', 'Av. Raja Gabaglia, 5000 - Belo Horizonte/MG', '[contato@techcar.com.br](mailto:contato@techcar.com.br)', '3133331010', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL);
+    (0, 'Fornecedor de Veículos Premium', 'Premium Motors', 'Premium Motors LTDA', '12345678000101', 'Av. Amazonas', '1000', NULL, 'Centro', 'Belo Horizonte', 'MG', '30100-000', '[contato@premiummotors.com.br](mailto:contato@premiummotors.com.br)', '3133331001', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Auto Peças Brasil', 'AP Brasil', 'Auto Peças Brasil LTDA', '12345678000102', 'Rua dos Andradas', '250', NULL, 'Centro', 'Belo Horizonte', 'MG', '30120-000', '[vendas@apbrasil.com.br](mailto:vendas@apbrasil.com.br)', '3133331002', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Loca Pneus', 'Loca Pneus', 'Loca Pneus Comércio LTDA', '12345678000103', 'Av. Cristiano Machado', '4500', NULL, 'União', 'Belo Horizonte', 'MG', '31160-000', '[contato@locapneus.com.br](mailto:contato@locapneus.com.br)', '3133331003', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Lubrificantes Gerais', 'Lub Gerais', 'Lubrificantes Gerais LTDA', '12345678000104', 'Rua Tupis', '800', NULL, 'Centro', 'Belo Horizonte', 'MG', '30190-000', '[comercial@lubgerais.com.br](mailto:comercial@lubgerais.com.br)', '3133331004', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Baterias Energia', 'Energia Baterias', 'Energia Baterias S.A.', '12345678000105', 'Av. Antônio Carlos', '1500', NULL, 'Cachoeirinha', 'Belo Horizonte', 'MG', '31210-000', '[vendas@energiabaterias.com.br](mailto:vendas@energiabaterias.com.br)', '3133331005', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Oficina Mecânica Central', 'Mecânica Central', 'Oficina Mecânica Central LTDA', '12345678000106', 'Rua Espírito Santo', '900', NULL, 'Centro', 'Belo Horizonte', 'MG', '30160-000', '[contato@mecanicacentral.com.br](mailto:contato@mecanicacentral.com.br)', '3133331006', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Vidros Automotivos BH', 'Vidros BH', 'Vidros Automotivos BH LTDA', '12345678000107', 'Av. Tereza Cristina', '2100', NULL, 'Calafate', 'Belo Horizonte', 'MG', '30411-000', '[atendimento@vidrosbh.com.br](mailto:atendimento@vidrosbh.com.br)', '3133331007', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Seguradora Protege', 'Protege Seguros', 'Protege Seguros S.A.', '12345678000108', 'Av. Afonso Pena', '3500', NULL, 'Funcionários', 'Belo Horizonte', 'MG', '30130-000', '[contato@protegeseguros.com.br](mailto:contato@protegeseguros.com.br)', '3133331008', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Higienização Express', 'Express Clean', 'Express Clean Serviços LTDA', '12345678000109', 'Rua Goiás', '1200', NULL, 'Savassi', 'Belo Horizonte', 'MG', '30190-000', '[comercial@expressclean.com.br](mailto:comercial@expressclean.com.br)', '3133331009', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Tecnologia Veicular', 'Tech Car', 'Tech Car Tecnologia LTDA', '12345678000110', 'Av. Raja Gabaglia', '5000', NULL, 'Santa Lúcia', 'Belo Horizonte', 'MG', '30360-000', '[contato@techcar.com.br](mailto:contato@techcar.com.br)', '3133331010', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL);
 
 
 INSERT INTO tb_payment_method
@@ -325,17 +327,22 @@ VALUES
     (0, 'Volantes e Simuladores', true, NULL, NOW(), 'Administrador'),
     (0, 'Acessórios para Games', true, NULL, NOW(), 'Administrador');
 
-INSERT INTO tb_rental_type (version, name, active, type, created_at, created_by) VALUES
-                                                                                     (0, 'Locação por Hora', true, 'DIA', NOW(), 'Administrador'),
-                                                                                     (0, 'Locação por Período', true, 'SEMANAL', NOW(), 'Administrador'),
-                                                                                     (0, 'Locação Diária', true, 'DIA', NOW(), 'Administrador'),
-                                                                                     (0, 'Locação Semanal', true, 'MÊS', NOW(), 'Administrador'),
-                                                                                     (0, 'Locação Quinzenal', true, 'SEMANAL', NOW(), 'Administrador'),
-                                                                                     (0, 'Locação Mensal', true, 'DIA', NOW(), 'Administrador'),
-                                                                                     (0, 'Locação para Final de Semana', true, 'MÊS', NOW(), 'Administrador'),
-                                                                                     (0, 'Locação para Evento', true, 'FIM DE SEMANA', NOW(), 'Administrador'),
-                                                                                     (0, 'Locação Personalizada', true, 'FIM DE SEMANA', NOW(), 'Administrador'),
-                                                                                     (0, 'Locação por Pacote', true, 'MÊS', NOW(), 'Administrador');
+INSERT INTO tb_rental_type (
+    version,
+    name,
+    active,
+    type,
+    days,
+    created_at,
+    updated_at,
+    created_by,
+    updated_by
+) VALUES
+      (0, 'Diária', TRUE, 'DAY', 1, '2026-07-15T10:00:00Z', NULL, 'admin', NULL),
+      (0, 'Final de Semana', TRUE, 'WEEKEND', 3, '2026-07-15T10:00:00Z', NULL, 'admin', NULL),
+      (0, 'Semanal', TRUE, 'WEEK', 7, '2026-07-15T10:00:00Z', NULL, 'admin', NULL),
+      (0, 'Quinzenal', TRUE, 'FORTNIGHT', 15, '2026-07-15T10:00:00Z', NULL, 'admin', NULL),
+      (0, 'Mensal', TRUE, 'MONTH', 30, '2026-07-15T10:00:00Z', NULL, 'admin', NULL);
 
 
 INSERT INTO tb_item (version, name, description, category_id, price, image_data, active, created_at, created_by) VALUES
@@ -361,3 +368,99 @@ INSERT INTO tb_stock_balance (version, item_id, total_quantity, reserved_quantit
                                                                                                                                                        (0, 8, 12, 0, 0, 3, NOW(), 'Administrador'),
                                                                                                                                                        (0, 9,  8, 0, 0, 2, NOW(), 'Administrador'),
                                                                                                                                                        (0, 10, 2, 0, 0, 1, NOW(), 'Administrador');
+
+
+INSERT INTO tb_rental (
+    version,
+    rental_number,
+    customer_id,
+    rental_type_id,
+    status,
+    rental_date,
+    start_date,
+    expected_return_date,
+    actual_return_date,
+    delivery_date,
+    subtotal,
+    discount,
+    shipping_fee,
+    additional_fee,
+    late_fee,
+    damage_fee,
+    total_amount,
+    down_payment,
+    remaining_amount,
+    payment_method_id,
+    delivery_address,
+    notes,
+    contract_generated,
+    whatsapp_sent,
+    active,
+    created_at,
+    updated_at,
+    created_by,
+    updated_by
+) VALUES
+      (0,'LOC-20260001',1,1,'PENDING','2026-07-01T09:00:00Z','2026-07-05T08:00:00Z','2026-07-08T18:00:00Z',NULL,'2026-07-05T09:00:00Z',500.00,20.00,30.00,0.00,0.00,0.00,510.00,100.00,410.00,1,'Rua A, 100 - Belo Horizonte/MG','Primeira locação do cliente.',TRUE,TRUE,TRUE,'2026-07-01T09:00:00Z',NULL,'admin',NULL),
+
+      (0,'LOC-20260002',2,2,'CONFIRMED','2026-07-02T10:00:00Z','2026-07-06T08:00:00Z','2026-07-09T18:00:00Z',NULL,NULL,750.00,50.00,40.00,10.00,0.00,0.00,750.00,250.00,500.00,2,'Av. Amazonas, 1500 - Belo Horizonte/MG','Retirada na loja.',TRUE,TRUE,TRUE,'2026-07-02T10:00:00Z',NULL,'admin',NULL),
+
+      (0,'LOC-20260003',3,1,'RENTED','2026-07-03T11:00:00Z','2026-07-07T08:00:00Z','2026-07-10T18:00:00Z',NULL,'2026-07-07T09:00:00Z',1200.00,100.00,50.00,20.00,0.00,0.00,1170.00,300.00,870.00,3,'Rua das Flores, 45 - Contagem/MG','Entrega pela manhã.',TRUE,TRUE,TRUE,'2026-07-03T11:00:00Z',NULL,'admin',NULL),
+
+      (0,'LOC-20260004',4,3,'RETURNED','2026-06-20T08:00:00Z','2026-06-21T08:00:00Z','2026-06-25T18:00:00Z','2026-06-25T17:00:00Z','2026-06-21T09:00:00Z',950.00,50.00,30.00,0.00,0.00,0.00,930.00,300.00,630.00,1,'Rua Goiás, 320 - Betim/MG','Locação encerrada sem ocorrências.',TRUE,TRUE,TRUE,'2026-06-20T08:00:00Z','2026-06-25T17:00:00Z','admin','admin'),
+
+      (0,'LOC-20260005',5,2,'RETURNED','2026-06-10T09:00:00Z','2026-06-12T08:00:00Z','2026-06-15T18:00:00Z','2026-06-17T10:00:00Z','2026-06-12T09:00:00Z',800.00,0.00,20.00,0.00,50.00,0.00,870.00,200.00,670.00,2,'Rua Bahia, 800 - Belo Horizonte/MG','Devolução com atraso.',TRUE,TRUE,TRUE,'2026-06-10T09:00:00Z','2026-06-17T10:00:00Z','admin','admin'),
+
+      (0,'LOC-20260006',6,1,'RETURNED','2026-06-05T09:00:00Z','2026-06-06T08:00:00Z','2026-06-09T18:00:00Z','2026-06-09T17:30:00Z',NULL,650.00,30.00,0.00,0.00,0.00,80.00,700.00,150.00,550.00,3,'Retirada na loja','Item retornou com pequeno dano.',TRUE,FALSE,TRUE,'2026-06-05T09:00:00Z','2026-06-09T17:30:00Z','admin','admin'),
+
+      (0,'LOC-20260007',7,3,'CANCELLED','2026-07-04T08:30:00Z','2026-07-08T08:00:00Z','2026-07-12T18:00:00Z',NULL,NULL,900.00,100.00,20.00,0.00,0.00,0.00,820.00,0.00,820.00,NULL,'','Cliente cancelou antes da retirada.',FALSE,FALSE,TRUE,'2026-07-04T08:30:00Z','2026-07-04T12:00:00Z','admin','admin'),
+
+      (0,'LOC-20260008',8,2,'RENTED','2026-07-06T14:00:00Z','2026-07-08T08:00:00Z','2026-07-11T18:00:00Z',NULL,'2026-07-08T09:00:00Z',1450.00,150.00,60.00,40.00,0.00,0.00,1400.00,500.00,900.00,4,'Av. João César, 1000 - Contagem/MG','Montagem incluída.',TRUE,TRUE,TRUE,'2026-07-06T14:00:00Z',NULL,'admin',NULL),
+
+      (0,'LOC-20260009',9,1,'CONFIRMED','2026-07-07T15:30:00Z','2026-07-10T08:00:00Z','2026-07-13T18:00:00Z',NULL,NULL,550.00,0.00,25.00,15.00,0.00,0.00,590.00,90.00,500.00,1,'Rua Espírito Santo, 500 - Belo Horizonte/MG','Cliente confirmou horário.',TRUE,TRUE,TRUE,'2026-07-07T15:30:00Z',NULL,'admin',NULL),
+
+      (0,'LOC-20260010',10,2,'PENDING','2026-07-08T16:00:00Z','2026-07-12T08:00:00Z','2026-07-15T18:00:00Z',NULL,NULL,2000.00,200.00,100.00,50.00,0.00,0.00,1950.00,500.00,1450.00,2,'Av. Cristiano Machado, 2000 - Belo Horizonte/MG','Cliente solicitou confirmação.',FALSE,FALSE,TRUE,'2026-07-08T16:00:00Z',NULL,'admin',NULL);
+
+
+INSERT INTO tb_system_setting (singleton_key, company_name, street, number, complement, neighborhood, city, state, zip_code, created_at, updated_at, created_by, updated_by) VALUES
+                                                                                                                                                                                 ('DEFAULT', 'Locadora RDT', 'Rua Edmon de Souza Melo', '33', 'Sala 501', 'Diamante', 'Belo Horizonte', 'MG', '30660-585', CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL);
+
+INSERT INTO tb_item_unit (
+    version, item_id, asset_code, serial_number, status, condition_status,
+    purchase_date, notes, active, created_at, updated_at, created_by, updated_by
+) VALUES
+      (0, (SELECT id FROM tb_item WHERE name = 'PlayStation 5 Slim'), 'PS5-001', 'SN-PS5-2026-001', 'AVAILABLE', 'GOOD', '2026-01-10', 'Console em boas condições.', TRUE, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT id FROM tb_item WHERE name = 'Xbox Series X'), 'XBOX-001', 'SN-XBOX-2026-001', 'RENTED', 'GOOD', '2026-01-15', 'Console entregue ao cliente.', TRUE, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT id FROM tb_item WHERE name = 'Nintendo Switch OLED'), 'SWITCH-001', 'SN-SWITCH-2026-001', 'RENTED', 'GOOD', '2026-02-05', 'Acompanha base e carregador.', TRUE, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT id FROM tb_item WHERE name = 'Controle DualSense'), 'DUALSENSE-001', 'SN-DUALSENSE-2026-001', 'AVAILABLE', 'NEW', '2026-03-20', 'Controle branco.', TRUE, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT id FROM tb_item WHERE name = 'Volante Logitech G29'), 'G29-001', 'SN-G29-2026-001', 'MAINTENANCE', 'DAMAGED', '2026-04-12', 'Pedal do freio em manutenção.', TRUE, CURRENT_TIMESTAMP, NULL, 'admin', NULL);
+
+INSERT INTO tb_rental_item (
+    rental_id, item_id, quantity, unit_price, discount, additional_fee, subtotal
+) VALUES
+      ((SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260001'), (SELECT id FROM tb_item WHERE name = 'PlayStation 5 Slim'), 1, 150.00, 0.00, 0.00, 150.00),
+      ((SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260002'), (SELECT id FROM tb_item WHERE name = 'Xbox Series X'), 1, 150.00, 0.00, 0.00, 150.00),
+      ((SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260003'), (SELECT id FROM tb_item WHERE name = 'Nintendo Switch OLED'), 1, 120.00, 0.00, 0.00, 120.00),
+      ((SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260004'), (SELECT id FROM tb_item WHERE name = 'Controle DualSense'), 1, 15.00, 0.00, 0.00, 15.00),
+      ((SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260005'), (SELECT id FROM tb_item WHERE name = 'Volante Logitech G29'), 1, 80.00, 0.00, 0.00, 80.00);
+
+INSERT INTO tb_rental_item_unit (
+    version, rental_item_id, item_unit_id, status, delivery_condition,
+    return_condition, reserved_at, delivered_at, returned_at,
+    created_at, updated_at, created_by, updated_by
+) VALUES
+      (0, (SELECT ri.id FROM tb_rental_item ri JOIN tb_rental r ON r.id = ri.rental_id WHERE r.rental_number = 'LOC-20260001'), (SELECT id FROM tb_item_unit WHERE asset_code = 'PS5-001'), 'RESERVED', 'Console sem avarias.', NULL, '2026-07-01T10:00:00Z', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT ri.id FROM tb_rental_item ri JOIN tb_rental r ON r.id = ri.rental_id WHERE r.rental_number = 'LOC-20260002'), (SELECT id FROM tb_item_unit WHERE asset_code = 'XBOX-001'), 'DELIVERED', 'Console e cabos conferidos.', NULL, '2026-07-02T11:00:00Z', '2026-07-06T08:30:00Z', NULL, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT ri.id FROM tb_rental_item ri JOIN tb_rental r ON r.id = ri.rental_id WHERE r.rental_number = 'LOC-20260003'), (SELECT id FROM tb_item_unit WHERE asset_code = 'SWITCH-001'), 'DELIVERED', 'Equipamento entregue em boas condições.', NULL, '2026-07-03T12:00:00Z', '2026-07-07T08:30:00Z', NULL, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT ri.id FROM tb_rental_item ri JOIN tb_rental r ON r.id = ri.rental_id WHERE r.rental_number = 'LOC-20260004'), (SELECT id FROM tb_item_unit WHERE asset_code = 'DUALSENSE-001'), 'RETURNED', 'Controle sem avarias.', 'Controle devolvido em boas condições.', '2026-06-20T09:00:00Z', '2026-06-21T08:30:00Z', '2026-06-25T17:00:00Z', CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT ri.id FROM tb_rental_item ri JOIN tb_rental r ON r.id = ri.rental_id WHERE r.rental_number = 'LOC-20260005'), (SELECT id FROM tb_item_unit WHERE asset_code = 'G29-001'), 'DAMAGED', 'Volante entregue funcionando.', 'Pedal do freio apresentou defeito.', '2026-06-10T10:00:00Z', '2026-06-12T08:30:00Z', '2026-06-17T10:00:00Z', CURRENT_TIMESTAMP, NULL, 'admin', NULL);
+
+INSERT INTO tb_rental_status_history (
+    version, rental_id, previous_status, new_status, reason, changed_at,
+    changed_by, created_at, updated_at, created_by, updated_by
+) VALUES
+      (0, (SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260001'), NULL, 'PENDING', 'Locação criada e aguardando confirmação.', '2026-07-01T09:00:00Z', 'admin', CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260002'), 'PENDING', 'CONFIRMED', 'Pagamento confirmado pelo cliente.', '2026-07-02T12:00:00Z', 'admin', CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260003'), 'CONFIRMED', 'RENTED', 'Itens entregues ao cliente.', '2026-07-07T09:00:00Z', 'admin', CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260004'), 'RENTED', 'RETURNED', 'Itens devolvidos sem ocorrências.', '2026-06-25T17:00:00Z', 'admin', CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260007'), 'PENDING', 'CANCELLED', 'Cancelamento solicitado pelo cliente.', '2026-07-04T12:00:00Z', 'admin', CURRENT_TIMESTAMP, NULL, 'admin', NULL);

@@ -1,10 +1,10 @@
 package com.locadora_rdt_backend.tests.modules.rental.rentaltypes.factory;
 
-import com.locadora_rdt_backend.modules.rental.rentaltypes.dto.RentalTypeDTO;
-import com.locadora_rdt_backend.modules.rental.rentaltypes.dto.RentalTypeDetailsDTO;
-import com.locadora_rdt_backend.modules.rental.rentaltypes.dto.RentalTypeInsertDTO;
-import com.locadora_rdt_backend.modules.rental.rentaltypes.dto.RentalTypeUpdateDTO;
-import com.locadora_rdt_backend.modules.rental.rentaltypes.model.RentalType;
+import com.locadora_rdt_backend.modules.rentaltypes.dto.RentalTypeDTO;
+import com.locadora_rdt_backend.modules.rentaltypes.dto.RentalTypeDetailsDTO;
+import com.locadora_rdt_backend.modules.rentaltypes.dto.RentalTypeInsertDTO;
+import com.locadora_rdt_backend.modules.rentaltypes.dto.RentalTypeUpdateDTO;
+import com.locadora_rdt_backend.modules.rentaltypes.model.RentalType;
 
 import java.time.Instant;
 
@@ -15,6 +15,7 @@ public class RentalTypeFactory {
         rentalType.setId(1L);
         rentalType.setName("Locação Diária");
         rentalType.setType("DAY");
+        rentalType.setDays(1);
         rentalType.setActive(true);
         rentalType.setCreatedAt(Instant.now());
         rentalType.setUpdatedAt(Instant.now());
@@ -28,6 +29,7 @@ public class RentalTypeFactory {
         rentalType.setId(id);
         rentalType.setName(name);
         rentalType.setType(type);
+        rentalType.setDays(1);
         rentalType.setActive(true);
         rentalType.setCreatedAt(Instant.now());
         rentalType.setUpdatedAt(Instant.now());
@@ -41,6 +43,7 @@ public class RentalTypeFactory {
                 rentalType.getId(),
                 rentalType.getName(),
                 rentalType.getType(),
+                rentalType.getDays(),
                 rentalType.getActive()
         );
     }
@@ -50,6 +53,7 @@ public class RentalTypeFactory {
         dto.setId(rentalType.getId());
         dto.setName(rentalType.getName());
         dto.setType(rentalType.getType());
+        dto.setDays(rentalType.getDays());
         dto.setActive(rentalType.getActive());
         dto.setCreatedAt(rentalType.getCreatedAt());
         dto.setUpdatedAt(rentalType.getUpdatedAt());
@@ -62,6 +66,7 @@ public class RentalTypeFactory {
         RentalTypeInsertDTO dto = new RentalTypeInsertDTO();
         dto.setName("Locação Diária");
         dto.setType("DAY");
+        dto.setDays(1);
         return dto;
     }
 
@@ -69,6 +74,7 @@ public class RentalTypeFactory {
         RentalTypeUpdateDTO dto = new RentalTypeUpdateDTO();
         dto.setName("Locação Mensal");
         dto.setType("MONTH");
+        dto.setDays(30);
         return dto;
     }
 }

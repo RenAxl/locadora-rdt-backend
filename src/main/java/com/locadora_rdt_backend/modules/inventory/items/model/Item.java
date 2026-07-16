@@ -1,6 +1,6 @@
 package com.locadora_rdt_backend.modules.inventory.items.model;
 
-import com.locadora_rdt_backend.modules.rental.categories.model.Category;
+import com.locadora_rdt_backend.modules.categories.model.Category;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;

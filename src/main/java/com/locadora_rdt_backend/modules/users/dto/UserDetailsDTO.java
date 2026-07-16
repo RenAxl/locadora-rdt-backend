@@ -1,5 +1,7 @@
 package com.locadora_rdt_backend.modules.users.dto;
 
+import com.locadora_rdt_backend.modules.users.model.Address;
+
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
@@ -14,7 +16,7 @@ public class UserDetailsDTO implements Serializable {
     private Boolean active;
 
     private String telephone;
-    private String address;
+    private Address address;
 
     private String photoContentType;
 
@@ -70,11 +72,11 @@ public class UserDetailsDTO implements Serializable {
         this.telephone = telephone;
     }
 
-    public String getAddress() {
+    public Address getAddress() {
         return address;
     }
 
-    public void setAddress(String address) {
+    public void setAddress(Address address) {
         this.address = address;
     }
 

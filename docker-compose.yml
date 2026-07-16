@@ -37,6 +37,8 @@ services:
       OAUTH_CLIENT_ID: locadorardt
       OAUTH_CLIENT_SECRET: locadorardt123
       APP_FRONTEND_BASE_URL: http://localhost:4200
+      GEOAPIFY_BASE_URL: ${GEOAPIFY_BASE_URL:-https://api.geoapify.com}
+      GEOAPIFY_API_KEY: ${GEOAPIFY_API_KEY}
     ports:
       - "8080:8080"
     networks:

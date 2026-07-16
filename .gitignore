@@ -35,3 +35,4 @@ build/
 # Runtime logs and local observability agent
 logs/
 observability/.agent/
+.env

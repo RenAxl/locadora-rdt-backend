@@ -1,6 +1,6 @@
 package com.locadora_rdt_backend.modules.inventory.items.mapper;
 
-import com.locadora_rdt_backend.modules.rental.categories.dto.CategoryDTO;
+import com.locadora_rdt_backend.modules.categories.dto.CategoryDTO;
 import com.locadora_rdt_backend.modules.inventory.items.dto.ItemDTO;
 import com.locadora_rdt_backend.modules.inventory.items.dto.ItemDetailsDTO;
 import com.locadora_rdt_backend.modules.inventory.items.dto.ItemInsertDTO;

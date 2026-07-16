@@ -9,6 +9,7 @@ import com.locadora_rdt_backend.modules.suppliers.dto.SupplierDetailsDTO;
 import com.locadora_rdt_backend.modules.suppliers.dto.SupplierInsertDTO;
 import com.locadora_rdt_backend.modules.suppliers.dto.SupplierUpdateDTO;
 import com.locadora_rdt_backend.modules.suppliers.mapper.SupplierMapper;
+import com.locadora_rdt_backend.modules.suppliers.model.Address;
 import com.locadora_rdt_backend.modules.suppliers.model.Supplier;
 import com.locadora_rdt_backend.modules.suppliers.repository.SupplierRepository;
 import com.locadora_rdt_backend.modules.suppliers.service.SupplierServiceImpl;
@@ -220,8 +221,19 @@ class SupplierServiceTests {
         dto.setTradeName("Fantasia");
         dto.setCompanyName("Empresa");
         dto.setCnpj("123");
-        dto.setAddress("Rua A");
+        dto.setAddress(createAddress());
         dto.setEmail("fornecedor@email.com");
         dto.setPhoneNumber("11999999999");
+    }
+
+    private Address createAddress() {
+        Address address = new Address();
+        address.setZipCode("30100-000");
+        address.setStreet("Rua A");
+        address.setNumber("100");
+        address.setNeighborhood("Centro");
+        address.setCity("Belo Horizonte");
+        address.setState("MG");
+        return address;
     }
 }

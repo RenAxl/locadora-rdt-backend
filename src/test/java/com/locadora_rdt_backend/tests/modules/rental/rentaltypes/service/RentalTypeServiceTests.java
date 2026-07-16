@@ -3,14 +3,14 @@ package com.locadora_rdt_backend.tests.modules.rental.rentaltypes.service;
 import com.locadora_rdt_backend.common.exception.DatabaseException;
 import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
 import com.locadora_rdt_backend.infrastructure.security.AuthenticationFacade;
-import com.locadora_rdt_backend.modules.rental.rentaltypes.dto.RentalTypeDTO;
-import com.locadora_rdt_backend.modules.rental.rentaltypes.dto.RentalTypeDetailsDTO;
-import com.locadora_rdt_backend.modules.rental.rentaltypes.dto.RentalTypeInsertDTO;
-import com.locadora_rdt_backend.modules.rental.rentaltypes.dto.RentalTypeUpdateDTO;
-import com.locadora_rdt_backend.modules.rental.rentaltypes.mapper.RentalTypeMapper;
-import com.locadora_rdt_backend.modules.rental.rentaltypes.model.RentalType;
-import com.locadora_rdt_backend.modules.rental.rentaltypes.repository.RentalTypeRepository;
-import com.locadora_rdt_backend.modules.rental.rentaltypes.service.RentalTypeServiceImpl;
+import com.locadora_rdt_backend.modules.rentaltypes.dto.RentalTypeDTO;
+import com.locadora_rdt_backend.modules.rentaltypes.dto.RentalTypeDetailsDTO;
+import com.locadora_rdt_backend.modules.rentaltypes.dto.RentalTypeInsertDTO;
+import com.locadora_rdt_backend.modules.rentaltypes.dto.RentalTypeUpdateDTO;
+import com.locadora_rdt_backend.modules.rentaltypes.mapper.RentalTypeMapper;
+import com.locadora_rdt_backend.modules.rentaltypes.model.RentalType;
+import com.locadora_rdt_backend.modules.rentaltypes.repository.RentalTypeRepository;
+import com.locadora_rdt_backend.modules.rentaltypes.service.RentalTypeServiceImpl;
 import com.locadora_rdt_backend.tests.modules.rental.rentaltypes.factory.RentalTypeFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -212,6 +212,18 @@ class RentalTypeServiceTests {
         RentalTypeDTO result = service.insert(insertDTO);
 
         Assertions.assertEquals(rentalType.getType(), result.getType());
+    }
+
+    @Test
+    void insertShouldReturnDTOWithDays() {
+        Mockito.when(mapper.toEntity(insertDTO)).thenReturn(rentalType);
+        Mockito.when(authenticationFacade.getAuthenticatedUsername()).thenReturn("admin");
+        Mockito.when(repository.save(rentalType)).thenReturn(rentalType);
+        Mockito.when(mapper.toDTO(rentalType)).thenReturn(rentalTypeDTO);
+
+        RentalTypeDTO result = service.insert(insertDTO);
+
+        Assertions.assertEquals(rentalType.getDays(), result.getDays());
     }
 
     @Test

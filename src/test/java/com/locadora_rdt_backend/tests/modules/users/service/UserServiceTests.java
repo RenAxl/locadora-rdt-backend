@@ -15,6 +15,7 @@ import com.locadora_rdt_backend.modules.users.dto.UserMeUpdateDTO;
 import com.locadora_rdt_backend.modules.users.dto.UserPhotoDTO;
 import com.locadora_rdt_backend.modules.users.dto.UserUpdateDTO;
 import com.locadora_rdt_backend.modules.users.mapper.UserMapper;
+import com.locadora_rdt_backend.modules.users.model.Address;
 import com.locadora_rdt_backend.modules.users.model.User;
 import com.locadora_rdt_backend.modules.users.repository.UserRepository;
 import com.locadora_rdt_backend.modules.users.service.UserServiceImpl;
@@ -95,7 +96,7 @@ class UserServiceTests {
         user.setPassword("encoded-password");
         user.setActive(true);
         user.setTelephone("11999999999");
-        user.setAddress("Rua A");
+        user.setAddress(createAddress("Rua A", "100"));
         user.getRoles().add(role);
 
         userDTO = new UserDTO();
@@ -113,7 +114,7 @@ class UserServiceTests {
         insertDTO.setName("Usuario");
         insertDTO.setEmail("usuario@email.com");
         insertDTO.setTelephone("11999999999");
-        insertDTO.setAddress("Rua A");
+        insertDTO.setAddress(createAddress("Rua A", "100"));
         insertDTO.setRoleIds(List.of(1L));
 
         updateDTO = new UserUpdateDTO();
@@ -121,7 +122,7 @@ class UserServiceTests {
         updateDTO.setEmail("usuario@email.com");
         updateDTO.setActive(true);
         updateDTO.setTelephone("11888888888");
-        updateDTO.setAddress("Rua B");
+        updateDTO.setAddress(createAddress("Rua B", "200"));
         updateDTO.setRoleIds(List.of(1L));
     }
 
@@ -351,7 +352,8 @@ class UserServiceTests {
 
     @Test
     void updateMeShouldSaveUserData() {
-        UserMeUpdateDTO dto = new UserMeUpdateDTO("Novo Nome", "novo@email.com", "11888888888", "Rua B");
+        UserMeUpdateDTO dto = new UserMeUpdateDTO("Novo Nome", "novo@email.com", "11888888888",
+                createAddress("Rua B", "200"));
 
         mockAuthenticatedUser();
         Mockito.when(repository.findByEmail("usuario@email.com")).thenReturn(user);
@@ -368,7 +370,8 @@ class UserServiceTests {
 
     @Test
     void updateMeShouldNotCheckDuplicateWhenEmailIsUnchangedIgnoringCase() {
-        UserMeUpdateDTO dto = new UserMeUpdateDTO("Novo Nome", "USUARIO@email.com", "11888888888", "Rua B");
+        UserMeUpdateDTO dto = new UserMeUpdateDTO("Novo Nome", "USUARIO@email.com", "11888888888",
+                createAddress("Rua B", "200"));
 
         mockAuthenticatedUser();
         Mockito.when(repository.findByEmail("usuario@email.com")).thenReturn(user);
@@ -409,7 +412,8 @@ class UserServiceTests {
 
     @Test
     void updateMeShouldThrowWhenEmailBelongsToAnotherUser() {
-        UserMeUpdateDTO dto = new UserMeUpdateDTO("Novo Nome", "outro@email.com", "11888888888", "Rua B");
+        UserMeUpdateDTO dto = new UserMeUpdateDTO("Novo Nome", "outro@email.com", "11888888888",
+                createAddress("Rua B", "200"));
         User otherUser = new User();
         otherUser.setId(2L);
 
@@ -432,6 +436,15 @@ class UserServiceTests {
         Assertions.assertArrayEquals(new byte[]{1}, user.getPhoto());
         Assertions.assertEquals("image/png", user.getPhotoContentType());
         Mockito.verify(repository).save(user);
+    }
+
+    private Address createAddress(String street, String number) {
+        Address address = new Address();
+        address.setStreet(street);
+        address.setNumber(number);
+        address.setCity("Belo Horizonte");
+        address.setState("MG");
+        return address;
     }
 
     @Test

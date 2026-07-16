@@ -1,6 +1,6 @@
 package com.locadora_rdt_backend.modules.inventory.items.dto;
 
-import com.locadora_rdt_backend.modules.rental.categories.dto.CategoryDTO;
+import com.locadora_rdt_backend.modules.categories.dto.CategoryDTO;
 
 import java.io.Serializable;
 import java.math.BigDecimal;

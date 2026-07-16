@@ -58,6 +58,17 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .antMatchers(HttpMethod.PATCH, "/users/*/active").hasAuthority("USER_STATUS_CHANGE")
                 .antMatchers(HttpMethod.PUT, "/users/me/password").authenticated()
 
+                .antMatchers(HttpMethod.POST, "/rentals")
+                .hasAnyAuthority("ROLE_ADMINISTRADOR", "ROLE_CLIENTE")
+                .antMatchers(HttpMethod.GET, "/rentals/current-customer")
+                .hasAnyAuthority("ROLE_ADMINISTRADOR", "ROLE_CLIENTE")
+                .antMatchers(HttpMethod.POST, "/rentals/shipping/calculate")
+                .hasAnyAuthority("ROLE_ADMINISTRADOR", "ROLE_CLIENTE")
+                .antMatchers(HttpMethod.PATCH, "/rentals/*/confirm")
+                .hasAnyAuthority("ROLE_ADMINISTRADOR", "ROLE_CLIENTE")
+
+                .antMatchers("/system-settings/**").hasAuthority("ROLE_ADMINISTRADOR")
+
                 .antMatchers(HttpMethod.GET, ROLES_ENDPOINT).hasAuthority("ROLE_READ")
                 .antMatchers(HttpMethod.POST, ROLES_ENDPOINT).hasAuthority("ROLE_WRITE")
                 .antMatchers(HttpMethod.PUT, ROLES_ENDPOINT).hasAuthority("ROLE_WRITE")
