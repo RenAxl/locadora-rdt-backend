@@ -40,3 +40,6 @@ app:
     base-url: http://localhost:4200
   activation:
     token-minutes: 30
+  geoapify:
+    base-url: ${GEOAPIFY_BASE_URL:https://api.geoapify.com}
+    api-key: ${GEOAPIFY_API_KEY:}

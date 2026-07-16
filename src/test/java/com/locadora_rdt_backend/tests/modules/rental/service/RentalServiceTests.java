@@ -22,6 +22,8 @@ import com.locadora_rdt_backend.modules.rental.repository.RentalRepository;
 import com.locadora_rdt_backend.modules.rental.service.RentalServiceImpl;
 import com.locadora_rdt_backend.modules.rentaltypes.model.RentalType;
 import com.locadora_rdt_backend.modules.rentaltypes.repository.RentalTypeRepository;
+import com.locadora_rdt_backend.modules.users.model.User;
+import com.locadora_rdt_backend.modules.users.repository.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,6 +62,7 @@ class RentalServiceTests {
     @Mock private PaymentMethodRepository paymentMethodRepository;
     @Mock private RentalMapper mapper;
     @Mock private AuthenticationFacade authenticationFacade;
+    @Mock private UserRepository userRepository;
 
     private Long existingId;
     private Long nonExistingId;
@@ -155,6 +158,8 @@ class RentalServiceTests {
     @Test
     void findCurrentCustomerShouldReturnAuthenticatedCustomer() {
         mockAuthenticatedCustomer();
+        User user = createUser();
+        Mockito.when(userRepository.findByEmail("user@email.com")).thenReturn(user);
 
         CustomerDTO result = service.findCurrentCustomer();
 
@@ -163,8 +168,18 @@ class RentalServiceTests {
         Assertions.assertEquals(customer.getCpf(), result.getCpf());
         Assertions.assertEquals(customer.getEmail(), result.getEmail());
         Assertions.assertEquals(customer.getPhone(), result.getPhone());
-        Assertions.assertEquals(customer.getAddress(), result.getAddress());
+        Assertions.assertEquals(user.getAddress().getStreet(), result.getAddress().getStreet());
+        Assertions.assertEquals(user.getAddress().getNumber(), result.getAddress().getNumber());
+        Assertions.assertEquals(user.getAddress().getZipCode(), result.getAddress().getZipCode());
         Assertions.assertTrue(result.getActive());
+    }
+
+    @Test
+    void findCurrentCustomerShouldThrowWhenAuthenticatedUserDoesNotExist() {
+        mockAuthenticatedCustomer();
+        Mockito.when(userRepository.findByEmail("user@email.com")).thenReturn(null);
+
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> service.findCurrentCustomer());
     }
 
     @Test
@@ -549,6 +564,24 @@ class RentalServiceTests {
         address.setCity("Belo Horizonte");
         address.setState("MG");
         address.setZipCode("30100-000");
+        entity.setAddress(address);
+        entity.setActive(true);
+        return entity;
+    }
+
+    private User createUser() {
+        User entity = new User();
+        entity.setId(1L);
+        entity.setName("Renan");
+        entity.setEmail("user@email.com");
+        com.locadora_rdt_backend.modules.users.model.Address address =
+                new com.locadora_rdt_backend.modules.users.model.Address();
+        address.setStreet("Rua do Usuário");
+        address.setNumber("510");
+        address.setNeighborhood("Bairro do Usuário");
+        address.setCity("Belo Horizonte");
+        address.setState("MG");
+        address.setZipCode("30664-790");
         entity.setAddress(address);
         entity.setActive(true);
         return entity;

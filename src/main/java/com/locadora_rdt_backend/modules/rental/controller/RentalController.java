@@ -2,6 +2,7 @@ package com.locadora_rdt_backend.modules.rental.controller;
 
 import com.locadora_rdt_backend.modules.rental.dto.*;
 import com.locadora_rdt_backend.modules.rental.service.RentalService;
+import com.locadora_rdt_backend.modules.rental.service.MapShippingService;
 import com.locadora_rdt_backend.shared.web.ControllerResponseBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,7 +17,12 @@ import com.locadora_rdt_backend.modules.customers.dto.CustomerDTO;
 @RequestMapping("/rentals")
 public class RentalController {
     private final RentalService service;
-    public RentalController(RentalService service) { this.service = service; }
+    private final MapShippingService shippingService;
+
+    public RentalController(RentalService service, MapShippingService shippingService) {
+        this.service = service;
+        this.shippingService = shippingService;
+    }
 
     @GetMapping
     public ResponseEntity<Page<RentalDTO>> findAll(
@@ -40,6 +46,11 @@ public class RentalController {
     @GetMapping("/current-customer")
     public ResponseEntity<CustomerDTO> findCurrentCustomer() {
         return ResponseEntity.ok(service.findCurrentCustomer());
+    }
+
+    @PostMapping("/shipping/calculate")
+    public ResponseEntity<ShippingPriceDTO> calculateShipping(@Valid @RequestBody ShippingCalculationDTO dto) {
+        return ResponseEntity.ok(shippingService.calculate(dto));
     }
 
     @PostMapping

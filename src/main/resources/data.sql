@@ -1,7 +1,7 @@
 INSERT INTO tb_user
 (name, email, password, active, telephone, street, number, complement, neighborhood, city, state, zip_code, photo_data, photo_content_type, created_at, updated_at, created_by, updated_by)
 VALUES
-    ('Renan Duarte', 'renandt30@gmail.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990001', 'Rua Alfa', '100', NULL, NULL, 'Belo Horizonte', 'MG', NULL, NULL, NULL, '2025-01-10T09:00:00Z', NULL, 'SYSTEM', NULL),
+    ('Renan Duarte', 'renandt30@gmail.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990001', 'Rua Carlos Pinto Coelho', '510', NULL, 'Vale do Jatobá', 'Belo Horizonte', 'MG', '30664-790', NULL, NULL, '2025-01-10T09:00:00Z', NULL, 'SYSTEM', NULL),
 
     ('Ana Silva', 'ana.silva@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990002', 'Rua Beta', '200', NULL, NULL, 'Belo Horizonte', 'MG', NULL, NULL, NULL, '2025-01-11T10:15:00Z', NULL, 'SYSTEM', NULL),
 
@@ -420,3 +420,7 @@ INSERT INTO tb_rental (
       (0,'LOC-20260009',9,1,'CONFIRMED','2026-07-07T15:30:00Z','2026-07-10T08:00:00Z','2026-07-13T18:00:00Z',NULL,NULL,550.00,0.00,25.00,15.00,0.00,0.00,590.00,90.00,500.00,1,'Rua Espírito Santo, 500 - Belo Horizonte/MG','Cliente confirmou horário.',TRUE,TRUE,TRUE,'2026-07-07T15:30:00Z',NULL,'admin',NULL),
 
       (0,'LOC-20260010',10,2,'PENDING','2026-07-08T16:00:00Z','2026-07-12T08:00:00Z','2026-07-15T18:00:00Z',NULL,NULL,2000.00,200.00,100.00,50.00,0.00,0.00,1950.00,500.00,1450.00,2,'Av. Cristiano Machado, 2000 - Belo Horizonte/MG','Cliente solicitou confirmação.',FALSE,FALSE,TRUE,'2026-07-08T16:00:00Z',NULL,'admin',NULL);
+
+
+INSERT INTO tb_system_setting (singleton_key, company_name, street, number, complement, neighborhood, city, state, zip_code, created_at, updated_at, created_by, updated_by) VALUES
+                                                                                                                                                                                 ('DEFAULT', 'Locadora RDT', 'Rua Edmon de Souza Melo', '33', 'Sala 501', 'Diamante', 'Belo Horizonte', 'MG', '30660-585', CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL);

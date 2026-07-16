@@ -17,6 +17,8 @@ import com.locadora_rdt_backend.modules.rental.repository.RentalItemRepository;
 import com.locadora_rdt_backend.modules.rental.repository.RentalRepository;
 import com.locadora_rdt_backend.modules.rentaltypes.model.RentalType;
 import com.locadora_rdt_backend.modules.rentaltypes.repository.RentalTypeRepository;
+import com.locadora_rdt_backend.modules.users.model.User;
+import com.locadora_rdt_backend.modules.users.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -47,11 +49,12 @@ public class RentalServiceImpl implements RentalService {
     private final PaymentMethodRepository paymentMethodRepository;
     private final RentalMapper mapper;
     private final AuthenticationFacade authenticationFacade;
+    private final UserRepository userRepository;
 
     public RentalServiceImpl(RentalRepository repository, RentalItemRepository itemRepository,
             CustomerRepository customerRepository, RentalTypeRepository rentalTypeRepository,
             ItemRepository inventoryItemRepository, PaymentMethodRepository paymentMethodRepository,
-            RentalMapper mapper, AuthenticationFacade authenticationFacade) {
+            RentalMapper mapper, AuthenticationFacade authenticationFacade, UserRepository userRepository) {
         this.repository = repository;
         this.itemRepository = itemRepository;
         this.customerRepository = customerRepository;
@@ -60,6 +63,7 @@ public class RentalServiceImpl implements RentalService {
         this.paymentMethodRepository = paymentMethodRepository;
         this.mapper = mapper;
         this.authenticationFacade = authenticationFacade;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -85,15 +89,34 @@ public class RentalServiceImpl implements RentalService {
     @Transactional(readOnly = true)
     public CustomerDTO findCurrentCustomer() {
         Customer customer = findAuthenticatedCustomer();
+        User user = userRepository.findByEmail(authenticationFacade.getAuthenticatedUsername());
+        if (user == null) {
+            throw new ResourceNotFoundException("Usuário autenticado não encontrado.");
+        }
         CustomerDTO dto = new CustomerDTO();
         dto.setId(customer.getId());
         dto.setName(customer.getName());
         dto.setCpf(customer.getCpf());
         dto.setEmail(customer.getEmail());
         dto.setPhone(customer.getPhone());
-        dto.setAddress(customer.getAddress());
+        dto.setAddress(toCustomerAddress(user.getAddress()));
         dto.setActive(customer.getActive());
         return dto;
+    }
+
+    private com.locadora_rdt_backend.modules.customers.model.Address toCustomerAddress(
+            com.locadora_rdt_backend.modules.users.model.Address userAddress) {
+        if (userAddress == null) return null;
+        com.locadora_rdt_backend.modules.customers.model.Address address =
+                new com.locadora_rdt_backend.modules.customers.model.Address();
+        address.setStreet(userAddress.getStreet());
+        address.setNumber(userAddress.getNumber());
+        address.setComplement(userAddress.getComplement());
+        address.setNeighborhood(userAddress.getNeighborhood());
+        address.setCity(userAddress.getCity());
+        address.setState(userAddress.getState());
+        address.setZipCode(userAddress.getZipCode());
+        return address;
     }
 
     @Override
