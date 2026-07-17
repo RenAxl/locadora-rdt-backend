@@ -9,6 +9,9 @@ import com.locadora_rdt_backend.modules.inventory.stockbalances.mapper.StockBala
 import com.locadora_rdt_backend.modules.inventory.stockbalances.model.StockBalance;
 import com.locadora_rdt_backend.modules.inventory.stockbalances.repository.StockBalanceRepository;
 import com.locadora_rdt_backend.modules.inventory.stockbalances.service.StockBalanceServiceImpl;
+import com.locadora_rdt_backend.modules.rental.repository.ItemUnitRepository;
+import com.locadora_rdt_backend.modules.rental.repository.RentalItemUnitRepository;
+import com.locadora_rdt_backend.modules.rental.model.ItemUnit;
 import com.locadora_rdt_backend.tests.modules.inventory.stock.factory.StockFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,6 +44,12 @@ class StockBalanceServiceTests {
     @Mock
     private AuthenticationFacade authenticationFacade;
 
+    @Mock
+    private ItemUnitRepository itemUnitRepository;
+
+    @Mock
+    private RentalItemUnitRepository rentalItemUnitRepository;
+
     private Long existingId;
     private Long nonExistingId;
     private StockBalance balance;
@@ -58,6 +67,12 @@ class StockBalanceServiceTests {
         detailsDTO = StockFactory.createStockBalanceDetailsDTO(balance);
         updateDTO = StockFactory.createStockBalanceUpdateDTO();
         page = new PageImpl<>(List.of(balance));
+        Mockito.lenient().when(itemUnitRepository.countByItemIdAndActiveTrue(existingId)).thenReturn(10L);
+        Mockito.lenient().when(itemUnitRepository.countByItemIdAndStatusAndActiveTrue(existingId, "RESERVED"))
+                .thenReturn(2L);
+        Mockito.lenient().when(itemUnitRepository.countUnavailableByItemId(existingId)).thenReturn(1L);
+        Mockito.lenient().when(itemUnitRepository.findActiveByItemIdForUpdate(existingId))
+                .thenReturn(createPhysicalUnits());
     }
 
     @Test
@@ -131,7 +146,7 @@ class StockBalanceServiceTests {
 
     @Test
     void updateShouldReturnDTOWhenIdExists() {
-        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(balance));
+        Mockito.when(repository.findByIdForUpdate(existingId)).thenReturn(Optional.of(balance));
         Mockito.when(authenticationFacade.getAuthenticatedUsername()).thenReturn("admin");
         Mockito.when(repository.save(balance)).thenReturn(balance);
         Mockito.when(mapper.toDTO(balance)).thenReturn(balanceDTO);
@@ -139,12 +154,12 @@ class StockBalanceServiceTests {
         StockBalanceDTO result = service.update(existingId, updateDTO);
 
         Assertions.assertNotNull(result);
-        Mockito.verify(mapper).copyToEntity(updateDTO, balance);
+        Assertions.assertEquals(updateDTO.getMinimumQuantity(), balance.getMinimumQuantity());
     }
 
     @Test
     void updateShouldSetUpdatedBy() {
-        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(balance));
+        Mockito.when(repository.findByIdForUpdate(existingId)).thenReturn(Optional.of(balance));
         Mockito.when(authenticationFacade.getAuthenticatedUsername()).thenReturn("admin");
         Mockito.when(repository.save(balance)).thenReturn(balance);
         Mockito.when(mapper.toDTO(balance)).thenReturn(balanceDTO);
@@ -156,17 +171,38 @@ class StockBalanceServiceTests {
 
     @Test
     void updateShouldThrowExceptionWhenIdDoesNotExist() {
-        Mockito.when(repository.findById(nonExistingId)).thenReturn(Optional.empty());
+        Mockito.when(repository.findByIdForUpdate(nonExistingId)).thenReturn(Optional.empty());
 
         Assertions.assertThrows(ResourceNotFoundException.class, () -> service.update(nonExistingId, updateDTO));
     }
 
     @Test
-    void updateShouldThrowExceptionWhenTotalIsInvalid() {
+    void updateShouldThrowExceptionWhenQuantitiesAreInvalid() {
         updateDTO.setTotalQuantity(2);
         updateDTO.setReservedQuantity(3);
         updateDTO.setUnavailableQuantity(1);
+        Mockito.when(repository.findByIdForUpdate(existingId)).thenReturn(Optional.of(balance));
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> service.update(existingId, updateDTO));
+    }
+
+    private List<ItemUnit> createPhysicalUnits() {
+        java.util.ArrayList<ItemUnit> units = new java.util.ArrayList<>();
+        for (int index = 0; index < 7; index++) {
+            units.add(createUnit((long) index + 1, "AVAILABLE"));
+        }
+        units.add(createUnit(8L, "RESERVED"));
+        units.add(createUnit(9L, "RESERVED"));
+        units.add(createUnit(10L, "MAINTENANCE"));
+        return units;
+    }
+
+    private ItemUnit createUnit(Long id, String status) {
+        ItemUnit unit = new ItemUnit();
+        unit.setId(id);
+        unit.setItem(balance.getItem());
+        unit.setStatus(status);
+        unit.setActive(true);
+        return unit;
     }
 }

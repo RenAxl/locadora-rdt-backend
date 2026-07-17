@@ -359,15 +359,15 @@ INSERT INTO tb_item (version, name, description, category_id, price, image_data,
 
 INSERT INTO tb_stock_balance (version, item_id, total_quantity, reserved_quantity, unavailable_quantity, minimum_quantity, created_at, created_by) VALUES
                                                                                                                                                        (0, 1,  5, 0, 0, 1, NOW(), 'Administrador'),
-                                                                                                                                                       (0, 2,  3, 0, 0, 1, NOW(), 'Administrador'),
-                                                                                                                                                       (0, 3,  4, 0, 0, 1, NOW(), 'Administrador'),
+                                                                                                                                                       (0, 2,  3, 0, 1, 1, NOW(), 'Administrador'),
+                                                                                                                                                       (0, 3,  4, 0, 1, 1, NOW(), 'Administrador'),
                                                                                                                                                        (0, 4, 10, 0, 0, 2, NOW(), 'Administrador'),
                                                                                                                                                        (0, 5,  8, 0, 0, 2, NOW(), 'Administrador'),
                                                                                                                                                        (0, 6,  6, 0, 0, 2, NOW(), 'Administrador'),
                                                                                                                                                        (0, 7,  7, 0, 0, 2, NOW(), 'Administrador'),
                                                                                                                                                        (0, 8, 12, 0, 0, 3, NOW(), 'Administrador'),
                                                                                                                                                        (0, 9,  8, 0, 0, 2, NOW(), 'Administrador'),
-                                                                                                                                                       (0, 10, 2, 0, 0, 1, NOW(), 'Administrador');
+                                                                                                                                                       (0, 10, 2, 0, 1, 1, NOW(), 'Administrador');
 
 
 INSERT INTO tb_rental (
@@ -401,25 +401,25 @@ INSERT INTO tb_rental (
     created_by,
     updated_by
 ) VALUES
-      (0,'LOC-20260001',1,1,'PENDING','2026-07-01T09:00:00Z','2026-07-05T08:00:00Z','2026-07-08T18:00:00Z',NULL,'2026-07-05T09:00:00Z',500.00,20.00,30.00,0.00,0.00,0.00,510.00,100.00,410.00,1,'Rua A, 100 - Belo Horizonte/MG','Primeira locação do cliente.',TRUE,TRUE,TRUE,'2026-07-01T09:00:00Z',NULL,'admin',NULL),
+      (0,'LOC-20260001',1,1,'RENTED','2026-07-01T09:00:00Z','2026-07-05T08:00:00Z','2026-07-08T18:00:00Z',NULL,'2026-07-05T09:00:00Z',500.00,20.00,30.00,0.00,0.00,0.00,510.00,100.00,410.00,1,'Rua A, 100 - Belo Horizonte/MG','Primeira locação do cliente.',TRUE,TRUE,TRUE,'2026-07-01T09:00:00Z',NULL,'admin',NULL),
 
-      (0,'LOC-20260002',2,2,'CONFIRMED','2026-07-02T10:00:00Z','2026-07-06T08:00:00Z','2026-07-09T18:00:00Z',NULL,NULL,750.00,50.00,40.00,10.00,0.00,0.00,750.00,250.00,500.00,2,'Av. Amazonas, 1500 - Belo Horizonte/MG','Retirada na loja.',TRUE,TRUE,TRUE,'2026-07-02T10:00:00Z',NULL,'admin',NULL),
+      (0,'LOC-20260002',2,2,'RENTED','2026-07-02T10:00:00Z','2026-07-06T08:00:00Z','2026-07-09T18:00:00Z',NULL,NULL,750.00,50.00,40.00,10.00,0.00,0.00,750.00,250.00,500.00,2,'Av. Amazonas, 1500 - Belo Horizonte/MG','Retirada na loja.',TRUE,TRUE,TRUE,'2026-07-02T10:00:00Z',NULL,'admin',NULL),
 
-      (0,'LOC-20260003',3,1,'RENTED','2026-07-03T11:00:00Z','2026-07-07T08:00:00Z','2026-07-10T18:00:00Z',NULL,'2026-07-07T09:00:00Z',1200.00,100.00,50.00,20.00,0.00,0.00,1170.00,300.00,870.00,3,'Rua das Flores, 45 - Contagem/MG','Entrega pela manhã.',TRUE,TRUE,TRUE,'2026-07-03T11:00:00Z',NULL,'admin',NULL),
+      (0,'LOC-20260003',3,1,'DELIVERED','2026-07-03T11:00:00Z','2026-07-07T08:00:00Z','2026-07-10T18:00:00Z',NULL,'2026-07-07T09:00:00Z',1200.00,100.00,50.00,20.00,0.00,0.00,1170.00,300.00,870.00,3,'Rua das Flores, 45 - Contagem/MG','Entrega pela manhã.',TRUE,TRUE,TRUE,'2026-07-03T11:00:00Z',NULL,'admin',NULL),
 
-      (0,'LOC-20260004',4,3,'RETURNED','2026-06-20T08:00:00Z','2026-06-21T08:00:00Z','2026-06-25T18:00:00Z','2026-06-25T17:00:00Z','2026-06-21T09:00:00Z',950.00,50.00,30.00,0.00,0.00,0.00,930.00,300.00,630.00,1,'Rua Goiás, 320 - Betim/MG','Locação encerrada sem ocorrências.',TRUE,TRUE,TRUE,'2026-06-20T08:00:00Z','2026-06-25T17:00:00Z','admin','admin'),
+      (0,'LOC-20260004',4,3,'DELIVERED','2026-06-20T08:00:00Z','2026-06-21T08:00:00Z','2026-06-25T18:00:00Z','2026-06-25T17:00:00Z','2026-06-21T09:00:00Z',950.00,50.00,30.00,0.00,0.00,0.00,930.00,300.00,630.00,1,'Rua Goiás, 320 - Betim/MG','Locação encerrada sem ocorrências.',TRUE,TRUE,TRUE,'2026-06-20T08:00:00Z','2026-06-25T17:00:00Z','admin','admin'),
 
-      (0,'LOC-20260005',5,2,'RETURNED','2026-06-10T09:00:00Z','2026-06-12T08:00:00Z','2026-06-15T18:00:00Z','2026-06-17T10:00:00Z','2026-06-12T09:00:00Z',800.00,0.00,20.00,0.00,50.00,0.00,870.00,200.00,670.00,2,'Rua Bahia, 800 - Belo Horizonte/MG','Devolução com atraso.',TRUE,TRUE,TRUE,'2026-06-10T09:00:00Z','2026-06-17T10:00:00Z','admin','admin'),
+      (0,'LOC-20260005',5,2,'DELIVERED','2026-06-10T09:00:00Z','2026-06-12T08:00:00Z','2026-06-15T18:00:00Z','2026-06-17T10:00:00Z','2026-06-12T09:00:00Z',800.00,0.00,20.00,0.00,50.00,0.00,870.00,200.00,670.00,2,'Rua Bahia, 800 - Belo Horizonte/MG','Devolução com atraso.',TRUE,TRUE,TRUE,'2026-06-10T09:00:00Z','2026-06-17T10:00:00Z','admin','admin'),
 
-      (0,'LOC-20260006',6,1,'RETURNED','2026-06-05T09:00:00Z','2026-06-06T08:00:00Z','2026-06-09T18:00:00Z','2026-06-09T17:30:00Z',NULL,650.00,30.00,0.00,0.00,0.00,80.00,700.00,150.00,550.00,3,'Retirada na loja','Item retornou com pequeno dano.',TRUE,FALSE,TRUE,'2026-06-05T09:00:00Z','2026-06-09T17:30:00Z','admin','admin'),
+      (0,'LOC-20260006',6,1,'DELIVERED','2026-06-05T09:00:00Z','2026-06-06T08:00:00Z','2026-06-09T18:00:00Z','2026-06-09T17:30:00Z',NULL,650.00,30.00,0.00,0.00,0.00,80.00,700.00,150.00,550.00,3,'Retirada na loja','Item retornou com pequeno dano.',TRUE,FALSE,TRUE,'2026-06-05T09:00:00Z','2026-06-09T17:30:00Z','admin','admin'),
 
-      (0,'LOC-20260007',7,3,'CANCELLED','2026-07-04T08:30:00Z','2026-07-08T08:00:00Z','2026-07-12T18:00:00Z',NULL,NULL,900.00,100.00,20.00,0.00,0.00,0.00,820.00,0.00,820.00,NULL,'','Cliente cancelou antes da retirada.',FALSE,FALSE,TRUE,'2026-07-04T08:30:00Z','2026-07-04T12:00:00Z','admin','admin'),
+      (0,'LOC-20260007',7,3,'RENTED','2026-07-04T08:30:00Z','2026-07-08T08:00:00Z','2026-07-12T18:00:00Z',NULL,NULL,900.00,100.00,20.00,0.00,0.00,0.00,820.00,0.00,820.00,NULL,'','Cliente cancelou antes da retirada.',FALSE,FALSE,TRUE,'2026-07-04T08:30:00Z','2026-07-04T12:00:00Z','admin','admin'),
 
-      (0,'LOC-20260008',8,2,'RENTED','2026-07-06T14:00:00Z','2026-07-08T08:00:00Z','2026-07-11T18:00:00Z',NULL,'2026-07-08T09:00:00Z',1450.00,150.00,60.00,40.00,0.00,0.00,1400.00,500.00,900.00,4,'Av. João César, 1000 - Contagem/MG','Montagem incluída.',TRUE,TRUE,TRUE,'2026-07-06T14:00:00Z',NULL,'admin',NULL),
+      (0,'LOC-20260008',8,2,'DELIVERED','2026-07-06T14:00:00Z','2026-07-08T08:00:00Z','2026-07-11T18:00:00Z',NULL,'2026-07-08T09:00:00Z',1450.00,150.00,60.00,40.00,0.00,0.00,1400.00,500.00,900.00,4,'Av. João César, 1000 - Contagem/MG','Montagem incluída.',TRUE,TRUE,TRUE,'2026-07-06T14:00:00Z',NULL,'admin',NULL),
 
-      (0,'LOC-20260009',9,1,'CONFIRMED','2026-07-07T15:30:00Z','2026-07-10T08:00:00Z','2026-07-13T18:00:00Z',NULL,NULL,550.00,0.00,25.00,15.00,0.00,0.00,590.00,90.00,500.00,1,'Rua Espírito Santo, 500 - Belo Horizonte/MG','Cliente confirmou horário.',TRUE,TRUE,TRUE,'2026-07-07T15:30:00Z',NULL,'admin',NULL),
+      (0,'LOC-20260009',9,1,'RENTED','2026-07-07T15:30:00Z','2026-07-10T08:00:00Z','2026-07-13T18:00:00Z',NULL,NULL,550.00,0.00,25.00,15.00,0.00,0.00,590.00,90.00,500.00,1,'Rua Espírito Santo, 500 - Belo Horizonte/MG','Cliente confirmou horário.',TRUE,TRUE,TRUE,'2026-07-07T15:30:00Z',NULL,'admin',NULL),
 
-      (0,'LOC-20260010',10,2,'PENDING','2026-07-08T16:00:00Z','2026-07-12T08:00:00Z','2026-07-15T18:00:00Z',NULL,NULL,2000.00,200.00,100.00,50.00,0.00,0.00,1950.00,500.00,1450.00,2,'Av. Cristiano Machado, 2000 - Belo Horizonte/MG','Cliente solicitou confirmação.',FALSE,FALSE,TRUE,'2026-07-08T16:00:00Z',NULL,'admin',NULL);
+      (0,'LOC-20260010',10,2,'RENTED','2026-07-08T16:00:00Z','2026-07-12T08:00:00Z','2026-07-15T18:00:00Z',NULL,NULL,2000.00,200.00,100.00,50.00,0.00,0.00,1950.00,500.00,1450.00,2,'Av. Cristiano Machado, 2000 - Belo Horizonte/MG','Cliente solicitou confirmação.',FALSE,FALSE,TRUE,'2026-07-08T16:00:00Z',NULL,'admin',NULL);
 
 
 INSERT INTO tb_system_setting (singleton_key, company_name, street, number, complement, neighborhood, city, state, zip_code, created_at, updated_at, created_by, updated_by) VALUES
@@ -429,11 +429,55 @@ INSERT INTO tb_item_unit (
     version, item_id, asset_code, serial_number, status, condition_status,
     purchase_date, notes, active, created_at, updated_at, created_by, updated_by
 ) VALUES
-      (0, (SELECT id FROM tb_item WHERE name = 'PlayStation 5 Slim'), 'PS5-001', 'SN-PS5-2026-001', 'AVAILABLE', 'GOOD', '2026-01-10', 'Console em boas condições.', TRUE, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
-      (0, (SELECT id FROM tb_item WHERE name = 'Xbox Series X'), 'XBOX-001', 'SN-XBOX-2026-001', 'RENTED', 'GOOD', '2026-01-15', 'Console entregue ao cliente.', TRUE, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
-      (0, (SELECT id FROM tb_item WHERE name = 'Nintendo Switch OLED'), 'SWITCH-001', 'SN-SWITCH-2026-001', 'RENTED', 'GOOD', '2026-02-05', 'Acompanha base e carregador.', TRUE, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
-      (0, (SELECT id FROM tb_item WHERE name = 'Controle DualSense'), 'DUALSENSE-001', 'SN-DUALSENSE-2026-001', 'AVAILABLE', 'NEW', '2026-03-20', 'Controle branco.', TRUE, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
-      (0, (SELECT id FROM tb_item WHERE name = 'Volante Logitech G29'), 'G29-001', 'SN-G29-2026-001', 'MAINTENANCE', 'DAMAGED', '2026-04-12', 'Pedal do freio em manutenção.', TRUE, CURRENT_TIMESTAMP, NULL, 'admin', NULL);
+      (0, (SELECT id FROM tb_item WHERE name = 'PlayStation 5 Slim'), 'ITEM-1-00000001', 'SN-PS5-2026-001', 'AVAILABLE', 'GOOD', '2026-01-10', 'Console em boas condições.', TRUE, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT id FROM tb_item WHERE name = 'Xbox Series X'), 'ITEM-2-00000001', 'SN-XBOX-2026-001', 'RENTED', 'GOOD', '2026-01-15', 'Console entregue ao cliente.', TRUE, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT id FROM tb_item WHERE name = 'Nintendo Switch OLED'), 'ITEM-3-00000001', 'SN-SWITCH-2026-001', 'RENTED', 'GOOD', '2026-02-05', 'Acompanha base e carregador.', TRUE, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT id FROM tb_item WHERE name = 'Controle DualSense'), 'ITEM-8-00000001', 'SN-DUALSENSE-2026-001', 'AVAILABLE', 'NEW', '2026-03-20', 'Controle branco.', TRUE, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT id FROM tb_item WHERE name = 'Controle DualSense'), 'ITEM-8-00000002', 'SN-DUALSENSE-2026-002', 'AVAILABLE', 'NEW', '2026-03-20', 'Controle branco.', TRUE, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT id FROM tb_item WHERE name = 'Controle DualSense'), 'ITEM-8-00000003', 'SN-DUALSENSE-2026-003', 'AVAILABLE', 'NEW', '2026-03-20', 'Controle branco.', TRUE, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT id FROM tb_item WHERE name = 'Controle DualSense'), 'ITEM-8-00000004', 'SN-DUALSENSE-2026-004', 'AVAILABLE', 'NEW', '2026-03-20', 'Controle preto.', TRUE, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT id FROM tb_item WHERE name = 'Controle DualSense'), 'ITEM-8-00000005', 'SN-DUALSENSE-2026-005', 'AVAILABLE', 'NEW', '2026-03-20', 'Controle preto.', TRUE, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT id FROM tb_item WHERE name = 'Controle DualSense'), 'ITEM-8-00000006', 'SN-DUALSENSE-2026-006', 'AVAILABLE', 'GOOD', '2026-03-20', 'Controle azul.', TRUE, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT id FROM tb_item WHERE name = 'Controle DualSense'), 'ITEM-8-00000007', 'SN-DUALSENSE-2026-007', 'AVAILABLE', 'GOOD', '2026-03-20', 'Controle azul.', TRUE, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT id FROM tb_item WHERE name = 'Controle DualSense'), 'ITEM-8-00000008', 'SN-DUALSENSE-2026-008', 'AVAILABLE', 'GOOD', '2026-03-20', 'Controle vermelho.', TRUE, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT id FROM tb_item WHERE name = 'Controle DualSense'), 'ITEM-8-00000009', 'SN-DUALSENSE-2026-009', 'AVAILABLE', 'GOOD', '2026-03-20', 'Controle vermelho.', TRUE, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT id FROM tb_item WHERE name = 'Controle DualSense'), 'ITEM-8-00000010', 'SN-DUALSENSE-2026-010', 'AVAILABLE', 'GOOD', '2026-03-20', 'Controle rosa.', TRUE, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT id FROM tb_item WHERE name = 'Controle DualSense'), 'ITEM-8-00000011', 'SN-DUALSENSE-2026-011', 'AVAILABLE', 'GOOD', '2026-03-20', 'Controle rosa.', TRUE, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT id FROM tb_item WHERE name = 'Controle DualSense'), 'ITEM-8-00000012', 'SN-DUALSENSE-2026-012', 'AVAILABLE', 'GOOD', '2026-03-20', 'Controle cinza.', TRUE, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT id FROM tb_item WHERE name = 'Volante Logitech G29'), 'ITEM-10-00000001', 'SN-G29-2026-001', 'MAINTENANCE', 'DAMAGED', '2026-04-12', 'Pedal do freio em manutenção.', TRUE, CURRENT_TIMESTAMP, NULL, 'admin', NULL);
+
+INSERT INTO tb_item_unit (
+    version, item_id, asset_code, serial_number, status, condition_status,
+    purchase_date, notes, active, created_at, updated_at, created_by, updated_by
+)
+SELECT
+    0,
+    balance.item_id,
+    'ITEM-' || CAST(balance.item_id AS VARCHAR) || '-A000000' || CAST(numbers.unit_number AS VARCHAR),
+    NULL,
+    'AVAILABLE',
+    'GOOD',
+    CURRENT_DATE,
+    'Unidade física criada conforme o saldo inicial do estoque.',
+    TRUE,
+    CURRENT_TIMESTAMP,
+    NULL,
+    'SYSTEM',
+    NULL
+FROM tb_stock_balance balance
+JOIN (
+    VALUES (1), (2), (3), (4), (5), (6),
+           (7), (8), (9), (10), (11), (12)
+) AS numbers(unit_number)
+    ON numbers.unit_number <= (
+        balance.total_quantity
+        - (
+            SELECT COUNT(*)
+            FROM tb_item_unit existing_unit
+            WHERE existing_unit.item_id = balance.item_id
+              AND existing_unit.active = TRUE
+        )
+    );
 
 INSERT INTO tb_rental_item (
     rental_id, item_id, quantity, unit_price, discount, additional_fee, subtotal
@@ -449,21 +493,18 @@ INSERT INTO tb_rental_item_unit (
     return_condition, reserved_at, delivered_at, returned_at,
     created_at, updated_at, created_by, updated_by
 ) VALUES
-      (0, (SELECT ri.id FROM tb_rental_item ri JOIN tb_rental r ON r.id = ri.rental_id WHERE r.rental_number = 'LOC-20260001'), (SELECT id FROM tb_item_unit WHERE asset_code = 'PS5-001'), 'RESERVED', 'Console sem avarias.', NULL, '2026-07-01T10:00:00Z', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
-      (0, (SELECT ri.id FROM tb_rental_item ri JOIN tb_rental r ON r.id = ri.rental_id WHERE r.rental_number = 'LOC-20260002'), (SELECT id FROM tb_item_unit WHERE asset_code = 'XBOX-001'), 'DELIVERED', 'Console e cabos conferidos.', NULL, '2026-07-02T11:00:00Z', '2026-07-06T08:30:00Z', NULL, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
-      (0, (SELECT ri.id FROM tb_rental_item ri JOIN tb_rental r ON r.id = ri.rental_id WHERE r.rental_number = 'LOC-20260003'), (SELECT id FROM tb_item_unit WHERE asset_code = 'SWITCH-001'), 'DELIVERED', 'Equipamento entregue em boas condições.', NULL, '2026-07-03T12:00:00Z', '2026-07-07T08:30:00Z', NULL, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
-      (0, (SELECT ri.id FROM tb_rental_item ri JOIN tb_rental r ON r.id = ri.rental_id WHERE r.rental_number = 'LOC-20260004'), (SELECT id FROM tb_item_unit WHERE asset_code = 'DUALSENSE-001'), 'RETURNED', 'Controle sem avarias.', 'Controle devolvido em boas condições.', '2026-06-20T09:00:00Z', '2026-06-21T08:30:00Z', '2026-06-25T17:00:00Z', CURRENT_TIMESTAMP, NULL, 'admin', NULL),
-      (0, (SELECT ri.id FROM tb_rental_item ri JOIN tb_rental r ON r.id = ri.rental_id WHERE r.rental_number = 'LOC-20260005'), (SELECT id FROM tb_item_unit WHERE asset_code = 'G29-001'), 'DAMAGED', 'Volante entregue funcionando.', 'Pedal do freio apresentou defeito.', '2026-06-10T10:00:00Z', '2026-06-12T08:30:00Z', '2026-06-17T10:00:00Z', CURRENT_TIMESTAMP, NULL, 'admin', NULL);
+      (0, (SELECT ri.id FROM tb_rental_item ri JOIN tb_rental r ON r.id = ri.rental_id WHERE r.rental_number = 'LOC-20260001'), (SELECT id FROM tb_item_unit WHERE asset_code = 'ITEM-1-00000001'), 'RESERVED', 'Console sem avarias.', NULL, '2026-07-01T10:00:00Z', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT ri.id FROM tb_rental_item ri JOIN tb_rental r ON r.id = ri.rental_id WHERE r.rental_number = 'LOC-20260002'), (SELECT id FROM tb_item_unit WHERE asset_code = 'ITEM-2-00000001'), 'DELIVERED', 'Console e cabos conferidos.', NULL, '2026-07-02T11:00:00Z', '2026-07-06T08:30:00Z', NULL, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT ri.id FROM tb_rental_item ri JOIN tb_rental r ON r.id = ri.rental_id WHERE r.rental_number = 'LOC-20260003'), (SELECT id FROM tb_item_unit WHERE asset_code = 'ITEM-3-00000001'), 'DELIVERED', 'Equipamento entregue em boas condições.', NULL, '2026-07-03T12:00:00Z', '2026-07-07T08:30:00Z', NULL, CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT ri.id FROM tb_rental_item ri JOIN tb_rental r ON r.id = ri.rental_id WHERE r.rental_number = 'LOC-20260004'), (SELECT id FROM tb_item_unit WHERE asset_code = 'ITEM-8-00000001'), 'RETURNED', 'Controle sem avarias.', 'Controle devolvido em boas condições.', '2026-06-20T09:00:00Z', '2026-06-21T08:30:00Z', '2026-06-25T17:00:00Z', CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT ri.id FROM tb_rental_item ri JOIN tb_rental r ON r.id = ri.rental_id WHERE r.rental_number = 'LOC-20260005'), (SELECT id FROM tb_item_unit WHERE asset_code = 'ITEM-10-00000001'), 'DAMAGED', 'Volante entregue funcionando.', 'Pedal do freio apresentou defeito.', '2026-06-10T10:00:00Z', '2026-06-12T08:30:00Z', '2026-06-17T10:00:00Z', CURRENT_TIMESTAMP, NULL, 'admin', NULL);
 
 INSERT INTO tb_rental_status_history (
     version, rental_id, previous_status, new_status, reason, changed_at,
     changed_by, created_at, updated_at, created_by, updated_by
 ) VALUES
-      (0, (SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260001'), NULL, 'PENDING', 'Locação criada e aguardando confirmação.', '2026-07-01T09:00:00Z', 'admin', CURRENT_TIMESTAMP, NULL, 'admin', NULL),
-      (0, (SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260002'), 'PENDING', 'CONFIRMED', 'Pagamento confirmado pelo cliente.', '2026-07-02T12:00:00Z', 'admin', CURRENT_TIMESTAMP, NULL, 'admin', NULL),
-      (0, (SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260003'), 'CONFIRMED', 'RENTED', 'Itens entregues ao cliente.', '2026-07-07T09:00:00Z', 'admin', CURRENT_TIMESTAMP, NULL, 'admin', NULL),
-      (0, (SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260004'), 'RENTED', 'RETURNED', 'Itens devolvidos sem ocorrências.', '2026-06-25T17:00:00Z', 'admin', CURRENT_TIMESTAMP, NULL, 'admin', NULL),
-      (0, (SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260007'), 'PENDING', 'CANCELLED', 'Cancelamento solicitado pelo cliente.', '2026-07-04T12:00:00Z', 'admin', CURRENT_TIMESTAMP, NULL, 'admin', NULL);
-
-
-
+      (0, (SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260001'), NULL, 'RENTED', 'Locação realizada.', '2026-07-01T09:00:00Z', 'admin', CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260002'), NULL, 'RENTED', 'Locação realizada pelo cliente.', '2026-07-02T12:00:00Z', 'admin', CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260003'), 'RENTED', 'DELIVERED', 'Itens entregues ao cliente.', '2026-07-07T09:00:00Z', 'admin', CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260004'), 'RENTED', 'DELIVERED', 'Itens entregues ao cliente.', '2026-06-25T17:00:00Z', 'admin', CURRENT_TIMESTAMP, NULL, 'admin', NULL),
+      (0, (SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260007'), NULL, 'RENTED', 'Locação realizada.', '2026-07-04T12:00:00Z', 'admin', CURRENT_TIMESTAMP, NULL, 'admin', NULL);

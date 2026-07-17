@@ -6,10 +6,10 @@ import com.locadora_rdt_backend.modules.customers.dto.CustomerDTO;
 import com.locadora_rdt_backend.modules.customers.model.Address;
 import com.locadora_rdt_backend.modules.customers.model.Customer;
 import com.locadora_rdt_backend.modules.customers.repository.CustomerRepository;
-import com.locadora_rdt_backend.modules.financial.payment.methods.model.PaymentMethod;
-import com.locadora_rdt_backend.modules.financial.payment.methods.repository.PaymentMethodRepository;
 import com.locadora_rdt_backend.modules.inventory.items.model.Item;
 import com.locadora_rdt_backend.modules.inventory.items.repository.ItemRepository;
+import com.locadora_rdt_backend.modules.inventory.stockbalances.model.StockBalance;
+import com.locadora_rdt_backend.modules.inventory.stockbalances.repository.StockBalanceRepository;
 import com.locadora_rdt_backend.modules.rental.dto.RentalDTO;
 import com.locadora_rdt_backend.modules.rental.dto.RentalDetailsDTO;
 import com.locadora_rdt_backend.modules.rental.dto.RentalItemSaveDTO;
@@ -66,7 +66,7 @@ class RentalServiceTests {
     @Mock private CustomerRepository customerRepository;
     @Mock private RentalTypeRepository rentalTypeRepository;
     @Mock private ItemRepository inventoryItemRepository;
-    @Mock private PaymentMethodRepository paymentMethodRepository;
+    @Mock private StockBalanceRepository stockBalanceRepository;
     @Mock private RentalMapper mapper;
     @Mock private AuthenticationFacade authenticationFacade;
     @Mock private UserRepository userRepository;
@@ -75,7 +75,6 @@ class RentalServiceTests {
     private Long nonExistingId;
     private Customer customer;
     private RentalType rentalType;
-    private PaymentMethod paymentMethod;
     private Item item;
     private Rental rental;
     private RentalDTO rentalDTO;
@@ -90,7 +89,6 @@ class RentalServiceTests {
 
         customer = createCustomer();
         rentalType = createRentalType();
-        paymentMethod = createPaymentMethod();
         item = createItem();
         rental = createRental();
         rentalDTO = new RentalDTO();
@@ -207,7 +205,7 @@ class RentalServiceTests {
 
     @Test
     void insertShouldCreateDraftAndCalculateValues() {
-        saveDTO.setPaymentMethodId(paymentMethod.getId());
+        saveDTO.setPaymentMethodId(1L);
         saveDTO.setDiscount(new BigDecimal("5.00"));
         saveDTO.setShippingFee(new BigDecimal("8.00"));
         saveDTO.setAdditionalFee(new BigDecimal("2.00"));
@@ -215,7 +213,6 @@ class RentalServiceTests {
         itemDTO.setDiscount(new BigDecimal("3.00"));
         itemDTO.setAdditionalFee(new BigDecimal("1.00"));
         mockInsertDependencies();
-        Mockito.when(paymentMethodRepository.findById(paymentMethod.getId())).thenReturn(Optional.of(paymentMethod));
         Mockito.when(repository.save(Mockito.any(Rental.class))).thenAnswer(invocation -> {
             Rental saved = invocation.getArgument(0);
             saved.setId(existingId);
@@ -228,13 +225,14 @@ class RentalServiceTests {
         ArgumentCaptor<Rental> rentalCaptor = ArgumentCaptor.forClass(Rental.class);
         Mockito.verify(repository).save(rentalCaptor.capture());
         Rental savedRental = rentalCaptor.getValue();
-        Assertions.assertEquals("DRAFT", savedRental.getStatus());
+        Assertions.assertEquals("RENTED", savedRental.getStatus());
         Assertions.assertTrue(savedRental.getRentalNumber().startsWith("LOC-"));
         Assertions.assertNotNull(savedRental.getRentalDate());
         Assertions.assertEquals(new BigDecimal("38.00"), savedRental.getSubtotal());
-        Assertions.assertEquals(new BigDecimal("1.90"), savedRental.getDiscount());
-        Assertions.assertEquals(new BigDecimal("46.10"), savedRental.getTotalAmount());
-        Assertions.assertEquals(new BigDecimal("36.10"), savedRental.getRemainingAmount());
+        Assertions.assertNull(savedRental.getPaymentMethod());
+        Assertions.assertEquals(new BigDecimal("0.00"), savedRental.getDiscount());
+        Assertions.assertEquals(new BigDecimal("48.00"), savedRental.getTotalAmount());
+        Assertions.assertEquals(new BigDecimal("38.00"), savedRental.getRemainingAmount());
         Assertions.assertEquals("user@email.com", savedRental.getCreatedBy());
         Assertions.assertEquals(existingId, result.getId());
         Mockito.verify(itemRepository).save(Mockito.any(RentalItem.class));
@@ -267,12 +265,10 @@ class RentalServiceTests {
     }
 
     @Test
-    void insertShouldApplyFivePercentDiscountForBankSlip() {
-        paymentMethod.setName("Boleto Bancário");
-        saveDTO.setPaymentMethodId(paymentMethod.getId());
+    void insertShouldIgnorePaymentMethodAndGeneralDiscount() {
+        saveDTO.setPaymentMethodId(1L);
         saveDTO.setDiscount(new BigDecimal("99.00"));
         mockInsertDependencies();
-        Mockito.when(paymentMethodRepository.findById(paymentMethod.getId())).thenReturn(Optional.of(paymentMethod));
         Mockito.when(repository.save(Mockito.any(Rental.class))).thenAnswer(invocation -> invocation.getArgument(0));
         Mockito.when(mapper.toDTO(Mockito.any(Rental.class))).thenReturn(rentalDTO);
 
@@ -280,18 +276,18 @@ class RentalServiceTests {
 
         ArgumentCaptor<Rental> rentalCaptor = ArgumentCaptor.forClass(Rental.class);
         Mockito.verify(repository).save(rentalCaptor.capture());
-        Assertions.assertEquals(new BigDecimal("2.00"), rentalCaptor.getValue().getDiscount());
-        Assertions.assertEquals(new BigDecimal("38.00"), rentalCaptor.getValue().getTotalAmount());
+        Assertions.assertNull(rentalCaptor.getValue().getPaymentMethod());
+        Assertions.assertEquals(new BigDecimal("0.00"), rentalCaptor.getValue().getDiscount());
+        Assertions.assertEquals(new BigDecimal("40.00"), rentalCaptor.getValue().getTotalAmount());
     }
 
     @Test
-    void insertShouldAcceptNullItemList() {
+    void insertShouldRejectNullItemList() {
         saveDTO.setItems(null);
         mockBasicInsertDependencies();
         Mockito.when(repository.save(Mockito.any(Rental.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        Mockito.when(mapper.toDTO(Mockito.any(Rental.class))).thenReturn(rentalDTO);
 
-        Assertions.assertDoesNotThrow(() -> service.insert(saveDTO));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> service.insert(saveDTO));
         Mockito.verify(itemRepository, Mockito.never()).save(Mockito.any());
     }
 
@@ -321,12 +317,13 @@ class RentalServiceTests {
     }
 
     @Test
-    void insertShouldThrowWhenPaymentMethodDoesNotExist() {
+    void insertShouldNotSearchPaymentMethodDuringRentalCreation() {
         saveDTO.setPaymentMethodId(99L);
-        mockBasicInsertDependencies();
-        Mockito.when(paymentMethodRepository.findById(99L)).thenReturn(Optional.empty());
+        mockInsertDependencies();
+        Mockito.when(repository.save(Mockito.any(Rental.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        Mockito.when(mapper.toDTO(Mockito.any(Rental.class))).thenReturn(rentalDTO);
 
-        Assertions.assertThrows(ResourceNotFoundException.class, () -> service.insert(saveDTO));
+        Assertions.assertDoesNotThrow(() -> service.insert(saveDTO));
     }
 
     @Test
@@ -380,11 +377,13 @@ class RentalServiceTests {
     }
 
     @Test
-    void insertShouldThrowWhenRentalTotalIsNegative() {
+    void insertShouldIgnoreGeneralDiscountDuringRentalCreation() {
         saveDTO.setDiscount(new BigDecimal("100.00"));
         mockInsertDependencies();
+        Mockito.when(repository.save(Mockito.any(Rental.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        Mockito.when(mapper.toDTO(Mockito.any(Rental.class))).thenReturn(rentalDTO);
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> service.insert(saveDTO));
+        Assertions.assertDoesNotThrow(() -> service.insert(saveDTO));
     }
 
     @Test
@@ -427,18 +426,10 @@ class RentalServiceTests {
     }
 
     @Test
-    void updateShouldUpdateDraftAndReplaceItems() {
-        mockUpdateDependencies();
-        Mockito.when(repository.save(rental)).thenReturn(rental);
-        Mockito.when(mapper.toDTO(rental)).thenReturn(rentalDTO);
+    void updateShouldRejectRentedRental() {
+        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(rental));
 
-        RentalDTO result = service.update(existingId, saveDTO);
-
-        Assertions.assertEquals(existingId, result.getId());
-        Assertions.assertEquals("user@email.com", rental.getUpdatedBy());
-        Mockito.verify(itemRepository).deleteByRentalId(existingId);
-        Mockito.verify(itemRepository).flush();
-        Mockito.verify(itemRepository).save(Mockito.any(RentalItem.class));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> service.update(existingId, saveDTO));
     }
 
     @Test
@@ -450,80 +441,20 @@ class RentalServiceTests {
 
     @Test
     void updateShouldThrowWhenRentalIsNotDraft() {
-        rental.setStatus("CONFIRMED");
+        rental.setStatus("DELIVERED");
         Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(rental));
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> service.update(existingId, saveDTO));
     }
 
     @Test
-    void updateShouldThrowWhenCustomerDoesNotExist() {
+    void confirmShouldReturnRentedRental() {
         Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(rental));
-        Mockito.when(authenticationFacade.getAuthenticatedUsername()).thenReturn("user@email.com");
-        Mockito.when(customerRepository.findById(customer.getId())).thenReturn(Optional.empty());
-
-        Assertions.assertThrows(ResourceNotFoundException.class, () -> service.update(existingId, saveDTO));
-    }
-
-    @Test
-    void confirmShouldConfirmDraft() {
-        RentalItem rentalItem = new RentalItem();
-        rentalItem.setId(1L);
-        rentalItem.setItem(item);
-        rentalItem.setQuantity(1);
-        ItemUnit itemUnit = new ItemUnit();
-        itemUnit.setId(1L);
-        itemUnit.setItem(item);
-        itemUnit.setAssetCode("CONTROLE-001");
-        itemUnit.setStatus("AVAILABLE");
-        itemUnit.setActive(true);
-        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(rental));
-        Mockito.when(itemRepository.findByRentalIdOrderById(existingId)).thenReturn(List.of(rentalItem));
-        Mockito.when(itemUnitRepository.findAvailableForReservation(Mockito.eq(item.getId()), Mockito.any(PageRequest.class)))
-                .thenReturn(List.of(itemUnit));
-        Mockito.when(rentalItemUnitRepository.countByRentalItemIdAndStatusIn(Mockito.eq(rentalItem.getId()), Mockito.anyList()))
-                .thenReturn(1L);
-        Mockito.when(authenticationFacade.getAuthenticatedUsername()).thenReturn("user@email.com");
-        Mockito.when(repository.save(rental)).thenReturn(rental);
         Mockito.when(mapper.toDTO(rental)).thenReturn(rentalDTO);
 
         RentalDTO result = service.confirm(existingId);
 
         Assertions.assertEquals(existingId, result.getId());
-        Assertions.assertEquals("CONFIRMED", rental.getStatus());
-        Assertions.assertEquals("user@email.com", rental.getUpdatedBy());
-    }
-
-    @Test
-    void confirmShouldThrowWhenCustomerIsNull() {
-        rental.setCustomer(null);
-        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(rental));
-
-        Assertions.assertThrows(IllegalArgumentException.class, () -> service.confirm(existingId));
-    }
-
-    @Test
-    void confirmShouldThrowWhenCustomerIsInactive() {
-        customer.setActive(false);
-        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(rental));
-
-        Assertions.assertThrows(IllegalArgumentException.class, () -> service.confirm(existingId));
-    }
-
-    @Test
-    void confirmShouldThrowWhenRentalHasNoItems() {
-        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(rental));
-        Mockito.when(itemRepository.findByRentalIdOrderById(existingId)).thenReturn(Collections.emptyList());
-
-        Assertions.assertThrows(IllegalArgumentException.class, () -> service.confirm(existingId));
-    }
-
-    @Test
-    void confirmShouldThrowWhenRentalIsNotDraft() {
-        rental.setStatus("CONFIRMED");
-        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(rental));
-
-        Assertions.assertThrows(IllegalArgumentException.class, () -> service.confirm(existingId));
     }
 
     @Test
@@ -534,17 +465,15 @@ class RentalServiceTests {
     }
 
     @Test
-    void deleteShouldDeleteDraftAndItsItems() {
+    void deleteShouldRejectRentedRental() {
         Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(rental));
 
-        Assertions.assertDoesNotThrow(() -> service.delete(existingId));
-        Mockito.verify(itemRepository).deleteByRentalId(existingId);
-        Mockito.verify(repository).delete(rental);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> service.delete(existingId));
     }
 
     @Test
     void deleteShouldThrowWhenRentalIsNotDraft() {
-        rental.setStatus("CONFIRMED");
+        rental.setStatus("DELIVERED");
         Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(rental));
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> service.delete(existingId));
@@ -570,6 +499,30 @@ class RentalServiceTests {
     private void mockInsertDependencies() {
         mockBasicInsertDependencies();
         Mockito.when(inventoryItemRepository.findById(item.getId())).thenReturn(Optional.of(item));
+        ItemUnit firstUnit = createAvailableUnit(1L, "CONTROLE-001");
+        ItemUnit secondUnit = createAvailableUnit(2L, "CONTROLE-002");
+        StockBalance stockBalance = new StockBalance();
+        stockBalance.setItem(item);
+        stockBalance.setTotalQuantity(2);
+        stockBalance.setReservedQuantity(0);
+        stockBalance.setUnavailableQuantity(0);
+        Mockito.lenient().when(itemUnitRepository.findAvailableForReservation(
+                Mockito.eq(item.getId()), Mockito.any(PageRequest.class)))
+                .thenReturn(List.of(firstUnit, secondUnit));
+        Mockito.lenient().when(rentalItemUnitRepository.countByRentalItemIdAndStatusIn(
+                Mockito.isNull(), Mockito.anyList())).thenReturn(2L);
+        Mockito.lenient().when(stockBalanceRepository.findByItemIdForUpdate(item.getId()))
+                .thenReturn(Optional.of(stockBalance));
+    }
+
+    private ItemUnit createAvailableUnit(Long id, String assetCode) {
+        ItemUnit unit = new ItemUnit();
+        unit.setId(id);
+        unit.setItem(item);
+        unit.setAssetCode(assetCode);
+        unit.setStatus("AVAILABLE");
+        unit.setActive(true);
+        return unit;
     }
 
     private void mockUpdateDependencies() {
@@ -631,14 +584,8 @@ class RentalServiceTests {
         entity.setId(1L);
         entity.setName("Diária");
         entity.setType("DIA");
+        entity.setDays(1);
         entity.setActive(true);
-        return entity;
-    }
-
-    private PaymentMethod createPaymentMethod() {
-        PaymentMethod entity = new PaymentMethod();
-        entity.setId(1L);
-        entity.setName("Pix");
         return entity;
     }
 
@@ -655,7 +602,7 @@ class RentalServiceTests {
         Rental entity = new Rental();
         entity.setId(existingId);
         entity.setRentalNumber("LOC-1");
-        entity.setStatus("DRAFT");
+        entity.setStatus("RENTED");
         entity.setCustomer(customer);
         entity.setRentalType(rentalType);
         entity.setRentalDate(Instant.parse("2026-07-15T10:00:00Z"));

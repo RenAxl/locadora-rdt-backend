@@ -5,10 +5,10 @@ import com.locadora_rdt_backend.infrastructure.security.AuthenticationFacade;
 import com.locadora_rdt_backend.modules.customers.model.Customer;
 import com.locadora_rdt_backend.modules.customers.dto.CustomerDTO;
 import com.locadora_rdt_backend.modules.customers.repository.CustomerRepository;
-import com.locadora_rdt_backend.modules.financial.payment.methods.model.PaymentMethod;
-import com.locadora_rdt_backend.modules.financial.payment.methods.repository.PaymentMethodRepository;
 import com.locadora_rdt_backend.modules.inventory.items.model.Item;
 import com.locadora_rdt_backend.modules.inventory.items.repository.ItemRepository;
+import com.locadora_rdt_backend.modules.inventory.stockbalances.model.StockBalance;
+import com.locadora_rdt_backend.modules.inventory.stockbalances.repository.StockBalanceRepository;
 import com.locadora_rdt_backend.modules.rental.dto.*;
 import com.locadora_rdt_backend.modules.rental.mapper.RentalMapper;
 import com.locadora_rdt_backend.modules.rental.model.Rental;
@@ -39,19 +39,15 @@ import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.text.Normalizer;
 import java.util.*;
 
 @Service
 public class RentalServiceImpl implements RentalService {
-    private static final String DRAFT = "DRAFT";
-    private static final String CONFIRMED = "CONFIRMED";
     private static final String RENTED = "RENTED";
-    private static final String CANCELLED = "CANCELLED";
+    private static final String DELIVERED = "DELIVERED";
     private static final String AVAILABLE = "AVAILABLE";
     private static final String RESERVED = "RESERVED";
     private static final BigDecimal ZERO = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
-    private static final BigDecimal AUTOMATIC_PAYMENT_DISCOUNT_RATE = new BigDecimal("0.05");
     private static final Instant FIRST_DATE = Instant.parse("1900-01-01T00:00:00Z");
     private static final Instant LAST_DATE = Instant.parse("2999-12-31T23:59:59Z");
 
@@ -63,7 +59,7 @@ public class RentalServiceImpl implements RentalService {
     private final CustomerRepository customerRepository;
     private final RentalTypeRepository rentalTypeRepository;
     private final ItemRepository inventoryItemRepository;
-    private final PaymentMethodRepository paymentMethodRepository;
+    private final StockBalanceRepository stockBalanceRepository;
     private final RentalMapper mapper;
     private final AuthenticationFacade authenticationFacade;
     private final UserRepository userRepository;
@@ -72,7 +68,8 @@ public class RentalServiceImpl implements RentalService {
             ItemUnitRepository itemUnitRepository, RentalItemUnitRepository rentalItemUnitRepository,
             RentalStatusHistoryRepository statusHistoryRepository,
             CustomerRepository customerRepository, RentalTypeRepository rentalTypeRepository,
-            ItemRepository inventoryItemRepository, PaymentMethodRepository paymentMethodRepository,
+            ItemRepository inventoryItemRepository,
+            StockBalanceRepository stockBalanceRepository,
             RentalMapper mapper, AuthenticationFacade authenticationFacade, UserRepository userRepository) {
         this.repository = repository;
         this.itemRepository = itemRepository;
@@ -82,7 +79,7 @@ public class RentalServiceImpl implements RentalService {
         this.customerRepository = customerRepository;
         this.rentalTypeRepository = rentalTypeRepository;
         this.inventoryItemRepository = inventoryItemRepository;
-        this.paymentMethodRepository = paymentMethodRepository;
+        this.stockBalanceRepository = stockBalanceRepository;
         this.mapper = mapper;
         this.authenticationFacade = authenticationFacade;
         this.userRepository = userRepository;
@@ -166,13 +163,19 @@ public class RentalServiceImpl implements RentalService {
     public RentalDTO insert(RentalSaveDTO dto) {
         Rental rental = new Rental();
         rental.setRentalNumber(generateNumber());
-        rental.setStatus(DRAFT);
+        rental.setStatus(RENTED);
         rental.setRentalDate(Instant.now());
         rental.setCreatedBy(authenticationFacade.getAuthenticatedUsername());
         fillRental(rental, dto, true);
         Rental savedRental = repository.save(rental);
-        saveItems(savedRental, dto.getItems());
-        registerHistory(savedRental, null, DRAFT, "Locação criada como rascunho.");
+        List<RentalItem> items = saveItems(savedRental, dto.getItems());
+        if (items.isEmpty()) {
+            throw new IllegalArgumentException("Adicione pelo menos um item.");
+        }
+        for (RentalItem rentalItem : items) {
+            reserveUnits(rentalItem);
+        }
+        registerHistory(savedRental, null, RENTED, "Locação realizada e unidades reservadas.");
         RentalDTO result = mapper.toDTO(savedRental);
         return result;
     }
@@ -196,34 +199,18 @@ public class RentalServiceImpl implements RentalService {
     @Transactional
     public RentalDTO confirm(Long id) {
         Rental rental = findEntity(id);
-        requireDraft(rental);
-        if (rental.getCustomer() == null) {
-            throw new IllegalArgumentException("Cliente é obrigatório.");
+        if (!RENTED.equals(rental.getStatus())) {
+            throw new IllegalArgumentException("A locação não está alugada.");
         }
-        if (!Boolean.TRUE.equals(rental.getCustomer().getActive())) {
-            throw new IllegalArgumentException("O cliente deve estar ativo.");
-        }
-        List<RentalItem> items = itemRepository.findByRentalIdOrderById(id);
-        if (items.isEmpty()) {
-            throw new IllegalArgumentException("Adicione pelo menos um item.");
-        }
-        for (RentalItem rentalItem : items) {
-            reserveUnits(rentalItem);
-        }
-        rental.setStatus(CONFIRMED);
-        rental.setUpdatedBy(authenticationFacade.getAuthenticatedUsername());
-        Rental savedRental = repository.save(rental);
-        registerHistory(savedRental, DRAFT, CONFIRMED, "Locação confirmada e unidades reservadas.");
-        RentalDTO result = mapper.toDTO(savedRental);
-        return result;
+        return mapper.toDTO(rental);
     }
 
     @Override
     @Transactional
     public RentalDTO start(Long id) {
         Rental rental = findEntity(id);
-        if (!CONFIRMED.equals(rental.getStatus())) {
-            throw new IllegalArgumentException("Somente uma locação confirmada pode ser iniciada.");
+        if (!RENTED.equals(rental.getStatus())) {
+            throw new IllegalArgumentException("Somente uma locação alugada pode ser entregue.");
         }
 
         List<RentalItemUnit> units = rentalItemUnitRepository.findByRentalItemRentalIdOrderById(id);
@@ -247,49 +234,34 @@ public class RentalServiceImpl implements RentalService {
             rentalItemUnitRepository.save(rentalItemUnit);
         }
 
-        rental.setStatus(RENTED);
+        List<RentalItem> rentalItems = itemRepository.findByRentalIdOrderById(id);
+        for (RentalItem rentalItem : rentalItems) {
+            synchronizeStockBalance(rentalItem.getItem().getId());
+        }
+
+        rental.setStatus(DELIVERED);
         rental.setUpdatedBy(authenticationFacade.getAuthenticatedUsername());
         Rental savedRental = repository.save(rental);
-        registerHistory(savedRental, CONFIRMED, RENTED, "Locação iniciada e unidades entregues.");
+        registerHistory(savedRental, RENTED, DELIVERED, "Unidades entregues ao cliente.");
         return mapper.toDTO(savedRental);
     }
 
     @Override
     @Transactional
     public RentalDTO cancel(Long id) {
-        Rental rental = findEntity(id);
-        if (!CONFIRMED.equals(rental.getStatus())) {
-            throw new IllegalArgumentException("Somente uma locação confirmada pode ser cancelada.");
-        }
-
-        List<RentalItemUnit> units = rentalItemUnitRepository.findByRentalItemRentalIdOrderById(id);
-        for (RentalItemUnit rentalItemUnit : units) {
-            if (rentalItemUnit.getStatus() == RentalItemUnitStatus.RESERVED) {
-                ItemUnit itemUnit = rentalItemUnit.getItemUnit();
-                itemUnit.setStatus(AVAILABLE);
-                itemUnit.setUpdatedBy(authenticationFacade.getAuthenticatedUsername());
-                rentalItemUnit.setStatus(RentalItemUnitStatus.CANCELED);
-                rentalItemUnit.setUpdatedBy(authenticationFacade.getAuthenticatedUsername());
-                itemUnitRepository.save(itemUnit);
-                rentalItemUnitRepository.save(rentalItemUnit);
-            }
-        }
-
-        rental.setStatus(CANCELLED);
-        rental.setUpdatedBy(authenticationFacade.getAuthenticatedUsername());
-        Rental savedRental = repository.save(rental);
-        registerHistory(savedRental, CONFIRMED, CANCELLED, "Locação cancelada e unidades liberadas.");
-        return mapper.toDTO(savedRental);
+        findEntity(id);
+        throw new IllegalArgumentException("O cancelamento de locação não está disponível.");
     }
 
     @Override
     @Transactional(readOnly = true)
     public ItemAvailabilityDTO findAvailability(Long itemId) {
         Item item = findActiveItem(itemId);
+        long availableQuantity = itemUnitRepository.countByItemIdAndStatusAndActiveTrue(itemId, AVAILABLE);
         ItemAvailabilityDTO dto = new ItemAvailabilityDTO();
         dto.setItemId(item.getId());
         dto.setItemName(item.getName());
-        dto.setAvailableQuantity(itemUnitRepository.countByItemIdAndStatusAndActiveTrue(itemId, AVAILABLE));
+        dto.setAvailableQuantity(availableQuantity);
         dto.setReservedQuantity(itemUnitRepository.countByItemIdAndStatusAndActiveTrue(itemId, RESERVED));
         dto.setRentedQuantity(itemUnitRepository.countByItemIdAndStatusAndActiveTrue(itemId, RENTED));
         return dto;
@@ -300,6 +272,18 @@ public class RentalServiceImpl implements RentalService {
     public List<ItemUnitDTO> findAvailableUnits(Long itemId) {
         findActiveItem(itemId);
         List<ItemUnit> units = itemUnitRepository.findByItemIdAndStatusAndActiveTrueOrderByAssetCode(itemId, AVAILABLE);
+        List<ItemUnitDTO> result = new ArrayList<>();
+        for (ItemUnit unit : units) {
+            result.add(toItemUnitDTO(unit));
+        }
+        return result;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ItemUnitDTO> findItemUnits(Long itemId) {
+        findActiveItem(itemId);
+        List<ItemUnit> units = itemUnitRepository.findByItemIdOrderByAssetCode(itemId);
         List<ItemUnitDTO> result = new ArrayList<>();
         for (ItemUnit unit : units) {
             result.add(toItemUnitDTO(unit));
@@ -370,8 +354,7 @@ public class RentalServiceImpl implements RentalService {
 
         rental.setCustomer(customer);
         rental.setRentalType(rentalType);
-        PaymentMethod paymentMethod = findPaymentMethod(dto.getPaymentMethodId());
-        rental.setPaymentMethod(paymentMethod);
+        rental.setPaymentMethod(null);
         rental.setStartDate(dto.getStartDate());
         rental.setExpectedReturnDate(dto.getExpectedReturnDate());
         rental.setShippingFee(money(dto.getShippingFee()));
@@ -385,15 +368,8 @@ public class RentalServiceImpl implements RentalService {
         rental.setWhatsappSent(false);
         rental.setActive(true);
 
-        BigDecimal subtotal = calculateItems(dto.getItems());
-        BigDecimal discount;
-        if (hasAutomaticPaymentDiscount(paymentMethod)) {
-            discount = subtotal.multiply(AUTOMATIC_PAYMENT_DISCOUNT_RATE);
-            discount = money(discount);
-        } else {
-            discount = money(dto.getDiscount());
-        }
-        rental.setDiscount(discount);
+        BigDecimal subtotal = calculateItems(dto.getItems(), rentalType.getDays());
+        rental.setDiscount(ZERO);
         BigDecimal total = subtotal.subtract(rental.getDiscount());
         total = total.add(rental.getShippingFee());
         total = total.add(rental.getAdditionalFee());
@@ -409,9 +385,12 @@ public class RentalServiceImpl implements RentalService {
         rental.setRemainingAmount(remainingAmount);
     }
 
-    private BigDecimal calculateItems(List<RentalItemSaveDTO> items) {
+    private BigDecimal calculateItems(List<RentalItemSaveDTO> items, Integer rentalDays) {
         BigDecimal total = ZERO;
         Set<Long> ids = new HashSet<>();
+        if (rentalDays == null || rentalDays <= 0) {
+            throw new IllegalArgumentException("A quantidade de dias da locação deve ser maior que zero.");
+        }
         if (items == null) {
             return total;
         }
@@ -430,7 +409,8 @@ public class RentalServiceImpl implements RentalService {
             }
             validatePricePermission(item, price);
             BigDecimal quantity = BigDecimal.valueOf(dto.getQuantity());
-            BigDecimal subtotal = price.multiply(quantity);
+            BigDecimal days = BigDecimal.valueOf(rentalDays);
+            BigDecimal subtotal = price.multiply(quantity).multiply(days);
             subtotal = subtotal.subtract(money(dto.getDiscount()));
             subtotal = subtotal.add(money(dto.getAdditionalFee()));
             if (subtotal.compareTo(BigDecimal.ZERO) < 0) {
@@ -441,9 +421,10 @@ public class RentalServiceImpl implements RentalService {
         return money(total);
     }
 
-    private void saveItems(Rental rental, List<RentalItemSaveDTO> dtos) {
+    private List<RentalItem> saveItems(Rental rental, List<RentalItemSaveDTO> dtos) {
+        List<RentalItem> savedItems = new ArrayList<>();
         if (dtos == null) {
-            return;
+            return savedItems;
         }
         for (RentalItemSaveDTO dto : dtos) {
             Item item = findActiveItem(dto.getItemId());
@@ -462,12 +443,15 @@ public class RentalServiceImpl implements RentalService {
             entity.setDiscount(money(dto.getDiscount()));
             entity.setAdditionalFee(money(dto.getAdditionalFee()));
             BigDecimal quantity = BigDecimal.valueOf(entity.getQuantity());
-            BigDecimal subtotal = entity.getUnitPrice().multiply(quantity);
+            BigDecimal days = BigDecimal.valueOf(rental.getRentalType().getDays());
+            BigDecimal subtotal = entity.getUnitPrice().multiply(quantity).multiply(days);
             subtotal = subtotal.subtract(entity.getDiscount());
             subtotal = subtotal.add(entity.getAdditionalFee());
             entity.setSubtotal(subtotal);
             itemRepository.save(entity);
+            savedItems.add(entity);
         }
+        return savedItems;
     }
 
     private void reserveUnits(RentalItem rentalItem) {
@@ -521,6 +505,23 @@ public class RentalServiceImpl implements RentalService {
         if (linkedQuantity != requestedQuantity) {
             throw new IllegalArgumentException("A quantidade de unidades vinculadas não corresponde à quantidade solicitada.");
         }
+        synchronizeStockBalance(rentalItem.getItem().getId());
+    }
+
+    private void synchronizeStockBalance(Long itemId) {
+        Optional<StockBalance> balance = stockBalanceRepository.findByItemIdForUpdate(itemId);
+        if (!balance.isPresent()) {
+            throw new IllegalArgumentException("O item não possui saldo de estoque cadastrado.");
+        }
+        StockBalance stockBalance = balance.get();
+        int total = (int) itemUnitRepository.countByItemIdAndActiveTrue(itemId);
+        int reserved = (int) itemUnitRepository.countByItemIdAndStatusAndActiveTrue(itemId, RESERVED);
+        int unavailable = (int) itemUnitRepository.countUnavailableByItemId(itemId);
+        stockBalance.setTotalQuantity(total);
+        stockBalance.setReservedQuantity(reserved);
+        stockBalance.setUnavailableQuantity(unavailable);
+        stockBalance.setUpdatedBy(authenticationFacade.getAuthenticatedUsername());
+        stockBalanceRepository.save(stockBalance);
     }
 
     private void validateReservedUnitQuantity(Long rentalId, List<RentalItemUnit> units) {
@@ -608,33 +609,8 @@ public class RentalServiceImpl implements RentalService {
         }
         return item;
     }
-    private PaymentMethod findPaymentMethod(Long id) {
-        if (id == null) {
-            return null;
-        }
-        Optional<PaymentMethod> paymentMethod = paymentMethodRepository.findById(id);
-        if (!paymentMethod.isPresent()) {
-            throw new ResourceNotFoundException("Forma de pagamento não encontrada.");
-        }
-        return paymentMethod.get();
-    }
-    private boolean hasAutomaticPaymentDiscount(PaymentMethod paymentMethod) {
-        if (paymentMethod == null || paymentMethod.getName() == null) {
-            return false;
-        }
-        String name = Normalizer.normalize(paymentMethod.getName(), Normalizer.Form.NFD)
-                .replaceAll("\\p{M}", "")
-                .trim()
-                .toLowerCase(Locale.ROOT);
-        if ("pix".equals(name)) {
-            return true;
-        }
-        return "boleto bancario".equals(name);
-    }
     private void requireDraft(Rental rental) {
-        if (!DRAFT.equals(rental.getStatus())) {
-            throw new IllegalArgumentException("Somente locações em rascunho podem ser alteradas ou excluídas.");
-        }
+        throw new IllegalArgumentException("Locações alugadas ou entregues não podem ser alteradas diretamente.");
     }
     private void validatePricePermission(Item item, BigDecimal unitPrice) {
         BigDecimal itemPrice = money(item.getPrice());

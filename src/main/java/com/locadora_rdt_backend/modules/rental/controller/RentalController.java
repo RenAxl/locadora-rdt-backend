@@ -88,6 +88,11 @@ public class RentalController {
         return ResponseEntity.ok(service.findAvailableUnits(itemId));
     }
 
+    @GetMapping("/availability/items/{itemId}/all-units")
+    public ResponseEntity<List<ItemUnitDTO>> findItemUnits(@PathVariable Long itemId) {
+        return ResponseEntity.ok(service.findItemUnits(itemId));
+    }
+
     @GetMapping("/{id}/units")
     public ResponseEntity<List<RentalItemUnitDTO>> findRentalUnits(@PathVariable Long id) {
         return ResponseEntity.ok(service.findRentalUnits(id));

@@ -19,6 +19,7 @@ public interface RentalService {
     RentalDTO cancel(Long id);
     ItemAvailabilityDTO findAvailability(Long itemId);
     List<ItemUnitDTO> findAvailableUnits(Long itemId);
+    List<ItemUnitDTO> findItemUnits(Long itemId);
     List<RentalItemUnitDTO> findRentalUnits(Long rentalId);
     List<RentalStatusHistoryDTO> findHistory(Long rentalId);
     void delete(Long id);

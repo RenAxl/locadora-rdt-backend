@@ -5,9 +5,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import javax.persistence.LockModeType;
 
 @Repository
 public interface StockBalanceRepository extends JpaRepository<StockBalance, Long> {
@@ -16,4 +19,12 @@ public interface StockBalanceRepository extends JpaRepository<StockBalance, Long
     Page<StockBalance> find(String name, Pageable pageable);
 
     Optional<StockBalance> findByItemId(Long itemId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select balance from StockBalance balance where balance.id = :id")
+    Optional<StockBalance> findByIdForUpdate(@Param("id") Long id);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select balance from StockBalance balance where balance.item.id = :itemId")
+    Optional<StockBalance> findByItemIdForUpdate(@Param("itemId") Long itemId);
 }
