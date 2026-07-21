@@ -1,6 +1,7 @@
 package com.locadora_rdt_backend.tests.infrastructure.whatsapp.service;
 
 import com.locadora_rdt_backend.infrastructure.whatsapp.service.EvolutionWhatsAppService;
+import com.locadora_rdt_backend.infrastructure.whatsapp.service.LoggingWhatsAppService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,6 +56,16 @@ class EvolutionWhatsAppServiceTests {
         Assertions.assertThrows(
                 IllegalArgumentException.class,
                 () -> service.sendDocument("", new byte[]{1}, "recibo.pdf", "Recibo")
+        );
+    }
+
+    @Test
+    void disabledServiceShouldRejectSending() {
+        LoggingWhatsAppService disabledService = new LoggingWhatsAppService();
+
+        Assertions.assertThrows(
+                IllegalStateException.class,
+                () -> disabledService.sendDocument("31999999999", new byte[]{1}, "recibo.pdf", "Recibo")
         );
     }
 }
