@@ -46,12 +46,17 @@ public class RentalMapper {
         dto.setCustomerName(rental.getCustomer().getName());
         dto.setRentalTypeId(rental.getRentalType().getId());
         dto.setRentalTypeName(rental.getRentalType().getName());
+        if (rental.getPaymentMethod() != null) {
+            dto.setPaymentMethodId(rental.getPaymentMethod().getId());
+            dto.setPaymentMethodName(rental.getPaymentMethod().getName());
+        }
         dto.setStatus(rental.getStatus());
         dto.setRentalDate(rental.getRentalDate());
         dto.setStartDate(rental.getStartDate());
         dto.setExpectedReturnDate(rental.getExpectedReturnDate());
         dto.setActualReturnDate(rental.getActualReturnDate());
         dto.setPaid("DELIVERED".equals(rental.getStatus()) || Boolean.TRUE.equals(rental.getPaid()));
+        dto.setWhatsappSent(Boolean.TRUE.equals(rental.getWhatsappSent()));
         dto.setTotalAmount(rental.getTotalAmount());
     }
 

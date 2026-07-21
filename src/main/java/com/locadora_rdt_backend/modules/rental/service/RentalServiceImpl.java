@@ -24,6 +24,9 @@ import com.locadora_rdt_backend.modules.rental.repository.RentalItemUnitReposito
 import com.locadora_rdt_backend.modules.rental.repository.RentalStatusHistoryRepository;
 import com.locadora_rdt_backend.modules.rentaltypes.model.RentalType;
 import com.locadora_rdt_backend.modules.rentaltypes.repository.RentalTypeRepository;
+import com.locadora_rdt_backend.modules.financial.payment.methods.model.PaymentMethod;
+import com.locadora_rdt_backend.modules.financial.payment.methods.repository.PaymentMethodRepository;
+import com.locadora_rdt_backend.infrastructure.whatsapp.service.WhatsAppService;
 import com.locadora_rdt_backend.modules.users.model.User;
 import com.locadora_rdt_backend.modules.users.repository.UserRepository;
 import org.springframework.data.domain.Page;
@@ -62,6 +65,9 @@ public class RentalServiceImpl implements RentalService {
     private final StockBalanceRepository stockBalanceRepository;
     private final RentalMapper mapper;
     private final RentalFinancialCalculator financialCalculator;
+    private final PaymentMethodRepository paymentMethodRepository;
+    private final RentalDocumentPdfService documentPdfService;
+    private final WhatsAppService whatsAppService;
     private final AuthenticationFacade authenticationFacade;
     private final UserRepository userRepository;
 
@@ -72,6 +78,9 @@ public class RentalServiceImpl implements RentalService {
             ItemRepository inventoryItemRepository,
             StockBalanceRepository stockBalanceRepository,
             RentalMapper mapper, RentalFinancialCalculator financialCalculator,
+            PaymentMethodRepository paymentMethodRepository,
+            RentalDocumentPdfService documentPdfService,
+            WhatsAppService whatsAppService,
             AuthenticationFacade authenticationFacade, UserRepository userRepository) {
         this.repository = repository;
         this.itemRepository = itemRepository;
@@ -84,6 +93,9 @@ public class RentalServiceImpl implements RentalService {
         this.stockBalanceRepository = stockBalanceRepository;
         this.mapper = mapper;
         this.financialCalculator = financialCalculator;
+        this.paymentMethodRepository = paymentMethodRepository;
+        this.documentPdfService = documentPdfService;
+        this.whatsAppService = whatsAppService;
         this.authenticationFacade = authenticationFacade;
         this.userRepository = userRepository;
     }
@@ -216,12 +228,14 @@ public class RentalServiceImpl implements RentalService {
 
     @Override
     @Transactional
-    public RentalDTO start(Long id) {
+    public RentalDTO start(Long id, RentalCheckoutDTO dto) {
         Rental rental = findEntity(id);
         if (!RENTED.equals(rental.getStatus())) {
             throw new IllegalArgumentException("Somente uma locação alugada pode ser entregue.");
         }
 
+        PaymentMethod paymentMethod = paymentMethodRepository.findById(dto.getPaymentMethodId())
+                .orElseThrow(() -> new ResourceNotFoundException("Forma de pagamento não encontrada."));
         List<RentalItemUnit> units = rentalItemUnitRepository.findByRentalItemRentalIdOrderById(id);
         validateReservedUnitQuantity(id, units);
         Instant now = Instant.now();
@@ -248,12 +262,29 @@ public class RentalServiceImpl implements RentalService {
             synchronizeStockBalance(rentalItem.getItem().getId());
         }
 
+        RentalDTO financialValues = new RentalDTO();
+        financialCalculator.fillLateFee(rental, rentalItems, financialValues);
+        BigDecimal lateFee = money(financialValues.getCalculatedLateFee());
+        BigDecimal discount = ZERO;
+        String paymentName = paymentMethod.getName() == null ? "" : paymentMethod.getName().toLowerCase();
+        if (lateFee.compareTo(ZERO) == 0
+                && (paymentName.equals("pix") || paymentName.contains("boleto banc"))) {
+            discount = money(rental.getTotalAmount().multiply(new BigDecimal("0.05")));
+        }
+
         rental.setStatus(DELIVERED);
         rental.setActualReturnDate(now);
         rental.setPaid(true);
+        rental.setPaymentMethod(paymentMethod);
+        rental.setLateFee(lateFee);
+        rental.setDiscount(discount);
+        rental.setRemainingAmount(money(rental.getTotalAmount().add(lateFee).subtract(discount)));
         rental.setUpdatedBy(authenticationFacade.getAuthenticatedUsername());
         Rental savedRental = repository.save(rental);
         registerHistory(savedRental, RENTED, DELIVERED, "Unidades entregues ao cliente.");
+        sendRentalDocumentsByWhatsApp(savedRental, rentalItems);
+        savedRental.setWhatsappSent(true);
+        repository.save(savedRental);
         return mapper.toDTO(savedRental);
     }
 
@@ -331,6 +362,64 @@ public class RentalServiceImpl implements RentalService {
             result.add(dto);
         }
         return result;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public byte[] receipt(Long id) {
+        Rental rental = findEntity(id);
+        validateDeliveredRental(rental, "Recibo");
+        List<RentalItem> items = itemRepository.findByRentalIdOrderById(id);
+
+        try {
+            return documentPdfService.buildReceiptPdf(rental, items);
+        } catch (com.lowagie.text.DocumentException e) {
+            throw new IllegalStateException("Erro ao gerar recibo da locação.", e);
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public byte[] fiscalCoupon(Long id) {
+        Rental rental = findEntity(id);
+        validateDeliveredRental(rental, "Cupom fiscal");
+        List<RentalItem> items = itemRepository.findByRentalIdOrderById(id);
+
+        try {
+            return documentPdfService.buildFiscalCouponPdf(rental, items);
+        } catch (com.lowagie.text.DocumentException e) {
+            throw new IllegalStateException("Erro ao gerar cupom fiscal da locação.", e);
+        }
+    }
+
+    private void validateDeliveredRental(Rental rental, String documentName) {
+        if (!DELIVERED.equals(rental.getStatus())) {
+            throw new IllegalArgumentException(documentName + " disponível apenas para locações entregues.");
+        }
+    }
+
+    private void sendRentalDocumentsByWhatsApp(Rental rental, List<RentalItem> items) {
+        try {
+            byte[] receipt = documentPdfService.buildReceiptPdf(rental, items);
+            byte[] fiscalCoupon = documentPdfService.buildFiscalCouponPdf(rental, items);
+            String rentalNumber = rental.getRentalNumber();
+            String phone = rental.getCustomer().getPhone();
+
+            whatsAppService.sendDocument(
+                    phone,
+                    receipt,
+                    "recibo-locacao-" + rental.getId() + ".pdf",
+                    "Recibo da locação " + rentalNumber
+            );
+            whatsAppService.sendDocument(
+                    phone,
+                    fiscalCoupon,
+                    "cupom-fiscal-locacao-" + rental.getId() + ".pdf",
+                    "Cupom fiscal da locação " + rentalNumber
+            );
+        } catch (com.lowagie.text.DocumentException e) {
+            throw new IllegalStateException("Erro ao gerar documentos da locação para o WhatsApp.", e);
+        }
     }
 
     @Override

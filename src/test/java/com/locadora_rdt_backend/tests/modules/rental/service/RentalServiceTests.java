@@ -2,6 +2,7 @@ package com.locadora_rdt_backend.tests.modules.rental.service;
 
 import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
 import com.locadora_rdt_backend.infrastructure.security.AuthenticationFacade;
+import com.locadora_rdt_backend.infrastructure.whatsapp.service.WhatsAppService;
 import com.locadora_rdt_backend.modules.customers.dto.CustomerDTO;
 import com.locadora_rdt_backend.modules.customers.model.Address;
 import com.locadora_rdt_backend.modules.customers.model.Customer;
@@ -25,6 +26,7 @@ import com.locadora_rdt_backend.modules.rental.repository.RentalItemUnitReposito
 import com.locadora_rdt_backend.modules.rental.repository.RentalStatusHistoryRepository;
 import com.locadora_rdt_backend.modules.rental.service.RentalServiceImpl;
 import com.locadora_rdt_backend.modules.rental.service.RentalFinancialCalculator;
+import com.locadora_rdt_backend.modules.rental.service.RentalDocumentPdfService;
 import com.locadora_rdt_backend.modules.rentaltypes.model.RentalType;
 import com.locadora_rdt_backend.modules.rentaltypes.repository.RentalTypeRepository;
 import com.locadora_rdt_backend.modules.users.model.User;
@@ -70,6 +72,8 @@ class RentalServiceTests {
     @Mock private StockBalanceRepository stockBalanceRepository;
     @Mock private RentalMapper mapper;
     @Mock private RentalFinancialCalculator financialCalculator;
+    @Mock private RentalDocumentPdfService documentPdfService;
+    @Mock private WhatsAppService whatsAppService;
     @Mock private AuthenticationFacade authenticationFacade;
     @Mock private UserRepository userRepository;
 
@@ -497,6 +501,48 @@ class RentalServiceTests {
         Mockito.when(repository.findById(nonExistingId)).thenReturn(Optional.empty());
 
         Assertions.assertThrows(ResourceNotFoundException.class, () -> service.delete(nonExistingId));
+    }
+
+    @Test
+    void receiptShouldReturnPdfForDeliveredRental() throws Exception {
+        rental.setStatus("DELIVERED");
+        byte[] pdf = new byte[]{'%', 'P', 'D', 'F'};
+        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(rental));
+        Mockito.when(itemRepository.findByRentalIdOrderById(existingId)).thenReturn(Collections.emptyList());
+        Mockito.when(documentPdfService.buildReceiptPdf(rental, Collections.emptyList())).thenReturn(pdf);
+
+        byte[] result = service.receipt(existingId);
+
+        Assertions.assertArrayEquals(pdf, result);
+    }
+
+    @Test
+    void receiptShouldThrowWhenRentalIsNotDelivered() {
+        rental.setStatus("RENTED");
+        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(rental));
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> service.receipt(existingId));
+    }
+
+    @Test
+    void fiscalCouponShouldReturnPdfForDeliveredRental() throws Exception {
+        rental.setStatus("DELIVERED");
+        byte[] pdf = new byte[]{'%', 'P', 'D', 'F'};
+        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(rental));
+        Mockito.when(itemRepository.findByRentalIdOrderById(existingId)).thenReturn(Collections.emptyList());
+        Mockito.when(documentPdfService.buildFiscalCouponPdf(rental, Collections.emptyList())).thenReturn(pdf);
+
+        byte[] result = service.fiscalCoupon(existingId);
+
+        Assertions.assertArrayEquals(pdf, result);
+    }
+
+    @Test
+    void fiscalCouponShouldThrowWhenRentalIsNotDelivered() {
+        rental.setStatus("RENTED");
+        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(rental));
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> service.fiscalCoupon(existingId));
     }
 
     private void mockAuthenticatedCustomer() {
