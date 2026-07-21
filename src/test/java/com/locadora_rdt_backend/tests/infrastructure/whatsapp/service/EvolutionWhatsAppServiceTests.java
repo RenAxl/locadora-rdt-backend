@@ -60,12 +60,33 @@ class EvolutionWhatsAppServiceTests {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
+    void sendTextShouldSendMessageWithBrazilianPhone() {
+        service.sendText("(31) 99999-9999", "Seu item está a caminho.");
+
+        ArgumentCaptor<HttpEntity> requestCaptor = ArgumentCaptor.forClass(HttpEntity.class);
+        Mockito.verify(restTemplate).postForEntity(
+                Mockito.eq("http://localhost:8081/message/sendText/locadora-rdt"),
+                requestCaptor.capture(),
+                Mockito.eq(String.class)
+        );
+        Map<String, Object> body = (Map<String, Object>) requestCaptor.getValue().getBody();
+        Assertions.assertEquals("5531999999999", body.get("number"));
+        Assertions.assertEquals("Seu item está a caminho.", body.get("text"));
+        Assertions.assertEquals("test-key", requestCaptor.getValue().getHeaders().getFirst("apikey"));
+    }
+
+    @Test
     void disabledServiceShouldRejectSending() {
         LoggingWhatsAppService disabledService = new LoggingWhatsAppService();
 
         Assertions.assertThrows(
                 IllegalStateException.class,
                 () -> disabledService.sendDocument("31999999999", new byte[]{1}, "recibo.pdf", "Recibo")
+        );
+        Assertions.assertThrows(
+                IllegalStateException.class,
+                () -> disabledService.sendText("31999999999", "Mensagem")
         );
     }
 }

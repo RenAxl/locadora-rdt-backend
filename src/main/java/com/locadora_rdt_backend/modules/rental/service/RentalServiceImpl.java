@@ -197,6 +197,7 @@ public class RentalServiceImpl implements RentalService {
             reserveUnits(rentalItem);
         }
         registerHistory(savedRental, null, RENTED, "Locação realizada e unidades reservadas.");
+        sendRentalOnTheWayMessage(savedRental, items);
         RentalDTO result = mapper.toDTO(savedRental);
         return result;
     }
@@ -398,12 +399,50 @@ public class RentalServiceImpl implements RentalService {
         }
     }
 
+    private void sendRentalOnTheWayMessage(Rental rental, List<RentalItem> items) {
+        StringBuilder itemList = new StringBuilder();
+        for (RentalItem rentalItem : items) {
+            itemList.append("• ")
+                    .append(rentalItem.getQuantity())
+                    .append("x ")
+                    .append(rentalItem.getItem().getName())
+                    .append("\n");
+        }
+
+        String message = "🚚 *Seu pedido está a caminho!*\n\n"
+                + "Olá, *" + rental.getCustomer().getName() + "*! 😊\n\n"
+                + "Temos uma ótima notícia: os itens da sua locação já foram despachados e estão a caminho do endereço informado.\n\n"
+                + "📦 **Itens da sua locação:**\n"
+                + itemList + "\n"
+                + "📍 **Endereço de entrega:**\n"
+                + rental.getDeliveryAddress() + "\n\n"
+                + "Em breve você poderá aproveitar seus itens! Caso tenha qualquer dúvida ou precise de suporte, basta responder esta mensagem.\n\n"
+                + "Obrigado por escolher a *Locadora RDT*! 🎮\n\n"
+                + "Atenciosamente,\n"
+                + "**Equipe Locadora RDT**";
+
+        whatsAppService.sendText(rental.getCustomer().getPhone(), message);
+    }
+
     private void sendRentalDocumentsByWhatsApp(Rental rental, List<RentalItem> items) {
         try {
             byte[] receipt = documentPdfService.buildReceiptPdf(rental, items);
             byte[] fiscalCoupon = documentPdfService.buildFiscalCouponPdf(rental, items);
             String rentalNumber = rental.getRentalNumber();
             String phone = rental.getCustomer().getPhone();
+
+            String message = "🧾 Recibo e Cupom Fiscal\n\n"
+                    + "Olá, " + rental.getCustomer().getName() + "! 😊\n\n"
+                    + "Seguem o Recibo e o Cupom Fiscal referentes à sua locação.\n\n"
+                    + "📎 Documentos enviados:\n"
+                    + "• Recibo de Pagamento\n"
+                    + "• Cupom Fiscal\n\n"
+                    + "Guarde esses documentos, pois eles poderão ser solicitados em caso de dúvidas ou para sua conferência.\n\n"
+                    + "Agradecemos por escolher a Locadora RDT. Esperamos atendê-lo novamente em breve!\n\n"
+                    + "Atenciosamente,\n"
+                    + "Equipe Locadora RDT 🎮";
+
+            whatsAppService.sendText(phone, message);
 
             whatsAppService.sendDocument(
                     phone,

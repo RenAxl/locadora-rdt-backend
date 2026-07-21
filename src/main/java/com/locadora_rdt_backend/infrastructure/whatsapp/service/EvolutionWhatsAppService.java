@@ -31,6 +31,22 @@ public class EvolutionWhatsAppService implements WhatsAppService {
     }
 
     @Override
+    public void sendText(String phone, String message) {
+        String number = normalizePhone(phone);
+        String url = removeLastSlash(baseUrl) + "/message/sendText/" + instanceName;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("apikey", apiKey);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("number", number);
+        body.put("text", message);
+
+        restTemplate.postForEntity(url, new HttpEntity<>(body, headers), String.class);
+    }
+
+    @Override
     public void sendDocument(String phone, byte[] document, String fileName, String caption) {
         String number = normalizePhone(phone);
         String url = removeLastSlash(baseUrl) + "/message/sendMedia/" + instanceName;

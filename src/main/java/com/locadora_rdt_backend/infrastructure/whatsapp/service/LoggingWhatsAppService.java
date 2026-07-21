@@ -7,6 +7,11 @@ import org.springframework.stereotype.Service;
 @ConditionalOnProperty(name = "app.whatsapp.enabled", havingValue = "false", matchIfMissing = true)
 public class LoggingWhatsAppService implements WhatsAppService {
     @Override
+    public void sendText(String phone, String message) {
+        throw new IllegalStateException("O envio por WhatsApp não está configurado.");
+    }
+
+    @Override
     public void sendDocument(String phone, byte[] document, String fileName, String caption) {
         throw new IllegalStateException("O envio por WhatsApp não está configurado.");
     }

@@ -242,6 +242,20 @@ class RentalServiceTests {
         Assertions.assertEquals("user@email.com", savedRental.getCreatedBy());
         Assertions.assertEquals(existingId, result.getId());
         Mockito.verify(itemRepository).save(Mockito.any(RentalItem.class));
+        Mockito.verify(whatsAppService).sendText(
+                "31999999999",
+                "🚚 *Seu pedido está a caminho!*\n\n"
+                        + "Olá, *Renan*! 😊\n\n"
+                        + "Temos uma ótima notícia: os itens da sua locação já foram despachados e estão a caminho do endereço informado.\n\n"
+                        + "📦 **Itens da sua locação:**\n"
+                        + "• 2x Controle\n\n"
+                        + "📍 **Endereço de entrega:**\n"
+                        + "Rua A, 100\n\n"
+                        + "Em breve você poderá aproveitar seus itens! Caso tenha qualquer dúvida ou precise de suporte, basta responder esta mensagem.\n\n"
+                        + "Obrigado por escolher a *Locadora RDT*! 🎮\n\n"
+                        + "Atenciosamente,\n"
+                        + "**Equipe Locadora RDT**"
+        );
     }
 
     @Test
