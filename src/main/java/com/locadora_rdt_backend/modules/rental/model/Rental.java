@@ -78,6 +78,9 @@ public class Rental implements Serializable {
     @Column(name = "remaining_amount", nullable = false, precision = 12, scale = 2)
     private BigDecimal remainingAmount;
 
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private Boolean paid = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "payment_method_id")
     private PaymentMethod paymentMethod;
@@ -120,6 +123,9 @@ public class Rental implements Serializable {
     @PrePersist
     public void prePersist() {
         this.createdAt = Instant.now();
+        if (this.paid == null) {
+            this.paid = false;
+        }
     }
 
     @PreUpdate
@@ -205,6 +211,10 @@ public class Rental implements Serializable {
 
     public BigDecimal getRemainingAmount() {
         return remainingAmount;
+    }
+
+    public Boolean getPaid() {
+        return paid;
     }
 
     public PaymentMethod getPaymentMethod() {
@@ -325,6 +335,10 @@ public class Rental implements Serializable {
 
     public void setRemainingAmount(BigDecimal remainingAmount) {
         this.remainingAmount = remainingAmount;
+    }
+
+    public void setPaid(Boolean paid) {
+        this.paid = paid;
     }
 
     public void setPaymentMethod(PaymentMethod paymentMethod) {

@@ -401,25 +401,25 @@ INSERT INTO tb_rental (
     created_by,
     updated_by
 ) VALUES
-      (0,'LOC-20260001',1,1,'RENTED','2026-07-01T09:00:00Z','2026-07-05T08:00:00Z','2026-07-08T18:00:00Z',NULL,'2026-07-05T09:00:00Z',500.00,20.00,30.00,0.00,0.00,0.00,510.00,100.00,410.00,1,'Rua A, 100 - Belo Horizonte/MG','Primeira locação do cliente.',TRUE,TRUE,TRUE,'2026-07-01T09:00:00Z',NULL,'admin',NULL),
+      (0,'LOC-20260001',1,1,'RENTED','2026-07-01T09:00:00Z','2026-07-05T08:00:00Z','2026-07-08T18:00:00Z',NULL,'2026-07-05T09:00:00Z',150.00,20.00,30.00,0.00,0.00,0.00,160.00,100.00,60.00,1,'Rua A, 100 - Belo Horizonte/MG','Primeira locação do cliente.',TRUE,TRUE,TRUE,'2026-07-01T09:00:00Z',NULL,'admin',NULL),
 
-      (0,'LOC-20260002',2,2,'RENTED','2026-07-02T10:00:00Z','2026-07-06T08:00:00Z','2026-07-09T18:00:00Z',NULL,NULL,750.00,50.00,40.00,10.00,0.00,0.00,750.00,250.00,500.00,2,'Av. Amazonas, 1500 - Belo Horizonte/MG','Retirada na loja.',TRUE,TRUE,TRUE,'2026-07-02T10:00:00Z',NULL,'admin',NULL),
+      (0,'LOC-20260002',2,2,'RENTED','2026-07-02T10:00:00Z','2026-07-06T08:00:00Z','2026-07-09T18:00:00Z',NULL,NULL,450.00,50.00,40.00,10.00,0.00,0.00,450.00,250.00,200.00,2,'Av. Amazonas, 1500 - Belo Horizonte/MG','Retirada na loja.',TRUE,TRUE,TRUE,'2026-07-02T10:00:00Z',NULL,'admin',NULL),
 
-      (0,'LOC-20260003',3,1,'DELIVERED','2026-07-03T11:00:00Z','2026-07-07T08:00:00Z','2026-07-10T18:00:00Z',NULL,'2026-07-07T09:00:00Z',1200.00,100.00,50.00,20.00,0.00,0.00,1170.00,300.00,870.00,3,'Rua das Flores, 45 - Contagem/MG','Entrega pela manhã.',TRUE,TRUE,TRUE,'2026-07-03T11:00:00Z',NULL,'admin',NULL),
+      (0,'LOC-20260003',3,1,'DELIVERED','2026-07-03T11:00:00Z','2026-07-07T08:00:00Z','2026-07-10T18:00:00Z','2026-07-10T17:00:00Z','2026-07-07T09:00:00Z',120.00,100.00,50.00,20.00,0.00,0.00,90.00,90.00,0.00,3,'Rua das Flores, 45 - Contagem/MG','Entrega pela manhã.',TRUE,TRUE,TRUE,'2026-07-03T11:00:00Z',NULL,'admin',NULL),
 
-      (0,'LOC-20260004',4,3,'DELIVERED','2026-06-20T08:00:00Z','2026-06-21T08:00:00Z','2026-06-25T18:00:00Z','2026-06-25T17:00:00Z','2026-06-21T09:00:00Z',950.00,50.00,30.00,0.00,0.00,0.00,930.00,300.00,630.00,1,'Rua Goiás, 320 - Betim/MG','Locação encerrada sem ocorrências.',TRUE,TRUE,TRUE,'2026-06-20T08:00:00Z','2026-06-25T17:00:00Z','admin','admin'),
+      (0,'LOC-20260004',4,3,'DELIVERED','2026-06-20T08:00:00Z','2026-06-21T08:00:00Z','2026-06-25T18:00:00Z','2026-06-25T17:00:00Z','2026-06-21T09:00:00Z',105.00,50.00,30.00,0.00,0.00,0.00,85.00,85.00,0.00,1,'Rua Goiás, 320 - Betim/MG','Locação encerrada sem ocorrências.',TRUE,TRUE,TRUE,'2026-06-20T08:00:00Z','2026-06-25T17:00:00Z','admin','admin'),
 
-      (0,'LOC-20260005',5,2,'DELIVERED','2026-06-10T09:00:00Z','2026-06-12T08:00:00Z','2026-06-15T18:00:00Z','2026-06-17T10:00:00Z','2026-06-12T09:00:00Z',800.00,0.00,20.00,0.00,50.00,0.00,870.00,200.00,670.00,2,'Rua Bahia, 800 - Belo Horizonte/MG','Devolução com atraso.',TRUE,TRUE,TRUE,'2026-06-10T09:00:00Z','2026-06-17T10:00:00Z','admin','admin'),
+      (0,'LOC-20260005',5,2,'DELIVERED','2026-06-10T09:00:00Z','2026-06-12T08:00:00Z','2026-06-15T18:00:00Z','2026-06-17T10:00:00Z','2026-06-12T09:00:00Z',240.00,0.00,20.00,0.00,50.00,0.00,260.00,200.00,60.00,2,'Rua Bahia, 800 - Belo Horizonte/MG','Devolução com atraso.',TRUE,TRUE,TRUE,'2026-06-10T09:00:00Z','2026-06-17T10:00:00Z','admin','admin'),
 
-      (0,'LOC-20260006',6,1,'DELIVERED','2026-06-05T09:00:00Z','2026-06-06T08:00:00Z','2026-06-09T18:00:00Z','2026-06-09T17:30:00Z',NULL,650.00,30.00,0.00,0.00,0.00,80.00,700.00,150.00,550.00,3,'Retirada na loja','Item retornou com pequeno dano.',TRUE,FALSE,TRUE,'2026-06-05T09:00:00Z','2026-06-09T17:30:00Z','admin','admin'),
+      (0,'LOC-20260006',6,1,'DELIVERED','2026-06-05T09:00:00Z','2026-06-06T08:00:00Z','2026-06-09T18:00:00Z','2026-06-09T17:30:00Z',NULL,18.00,0.00,0.00,0.00,0.00,80.00,18.00,18.00,0.00,3,'Retirada na loja','Item retornou com pequeno dano.',TRUE,FALSE,TRUE,'2026-06-05T09:00:00Z','2026-06-09T17:30:00Z','admin','admin'),
 
-      (0,'LOC-20260007',7,3,'RENTED','2026-07-04T08:30:00Z','2026-07-08T08:00:00Z','2026-07-12T18:00:00Z',NULL,NULL,900.00,100.00,20.00,0.00,0.00,0.00,820.00,0.00,820.00,NULL,'','Cliente cancelou antes da retirada.',FALSE,FALSE,TRUE,'2026-07-04T08:30:00Z','2026-07-04T12:00:00Z','admin','admin'),
+      (0,'LOC-20260007',7,3,'RENTED','2026-07-04T08:30:00Z','2026-07-08T08:00:00Z','2026-07-12T18:00:00Z',NULL,NULL,140.00,100.00,20.00,0.00,0.00,0.00,60.00,0.00,60.00,NULL,'','Cliente cancelou antes da retirada.',FALSE,FALSE,TRUE,'2026-07-04T08:30:00Z','2026-07-04T12:00:00Z','admin','admin'),
 
-      (0,'LOC-20260008',8,2,'DELIVERED','2026-07-06T14:00:00Z','2026-07-08T08:00:00Z','2026-07-11T18:00:00Z',NULL,'2026-07-08T09:00:00Z',1450.00,150.00,60.00,40.00,0.00,0.00,1400.00,500.00,900.00,4,'Av. João César, 1000 - Contagem/MG','Montagem incluída.',TRUE,TRUE,TRUE,'2026-07-06T14:00:00Z',NULL,'admin',NULL),
+      (0,'LOC-20260008',8,2,'DELIVERED','2026-07-06T14:00:00Z','2026-07-08T08:00:00Z','2026-07-11T18:00:00Z','2026-07-11T17:00:00Z','2026-07-08T09:00:00Z',240.00,150.00,60.00,40.00,0.00,0.00,190.00,190.00,0.00,4,'Av. João César, 1000 - Contagem/MG','Montagem incluída.',TRUE,TRUE,TRUE,'2026-07-06T14:00:00Z',NULL,'admin',NULL),
 
-      (0,'LOC-20260009',9,1,'RENTED','2026-07-07T15:30:00Z','2026-07-10T08:00:00Z','2026-07-13T18:00:00Z',NULL,NULL,550.00,0.00,25.00,15.00,0.00,0.00,590.00,90.00,500.00,1,'Rua Espírito Santo, 500 - Belo Horizonte/MG','Cliente confirmou horário.',TRUE,TRUE,TRUE,'2026-07-07T15:30:00Z',NULL,'admin',NULL),
+      (0,'LOC-20260009',9,1,'RENTED','2026-07-07T15:30:00Z','2026-07-10T08:00:00Z','2026-07-13T18:00:00Z',NULL,NULL,18.00,0.00,25.00,15.00,0.00,0.00,58.00,58.00,0.00,1,'Rua Espírito Santo, 500 - Belo Horizonte/MG','Cliente confirmou horário.',TRUE,TRUE,TRUE,'2026-07-07T15:30:00Z',NULL,'admin',NULL),
 
-      (0,'LOC-20260010',10,2,'RENTED','2026-07-08T16:00:00Z','2026-07-12T08:00:00Z','2026-07-15T18:00:00Z',NULL,NULL,2000.00,200.00,100.00,50.00,0.00,0.00,1950.00,500.00,1450.00,2,'Av. Cristiano Machado, 2000 - Belo Horizonte/MG','Cliente solicitou confirmação.',FALSE,FALSE,TRUE,'2026-07-08T16:00:00Z',NULL,'admin',NULL);
+      (0,'LOC-20260010',10,2,'RENTED','2026-07-08T16:00:00Z','2026-07-12T08:00:00Z','2026-07-15T18:00:00Z',NULL,NULL,900.00,200.00,100.00,50.00,0.00,0.00,850.00,500.00,350.00,2,'Av. Cristiano Machado, 2000 - Belo Horizonte/MG','Cliente solicitou confirmação.',FALSE,FALSE,TRUE,'2026-07-08T16:00:00Z',NULL,'admin',NULL);
 
 
 INSERT INTO tb_system_setting (singleton_key, company_name, street, number, complement, neighborhood, city, state, zip_code, created_at, updated_at, created_by, updated_by) VALUES
@@ -483,10 +483,15 @@ INSERT INTO tb_rental_item (
     rental_id, item_id, quantity, unit_price, discount, additional_fee, subtotal
 ) VALUES
       ((SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260001'), (SELECT id FROM tb_item WHERE name = 'PlayStation 5 Slim'), 1, 150.00, 0.00, 0.00, 150.00),
-      ((SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260002'), (SELECT id FROM tb_item WHERE name = 'Xbox Series X'), 1, 150.00, 0.00, 0.00, 150.00),
+      ((SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260002'), (SELECT id FROM tb_item WHERE name = 'Xbox Series X'), 1, 150.00, 0.00, 0.00, 450.00),
       ((SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260003'), (SELECT id FROM tb_item WHERE name = 'Nintendo Switch OLED'), 1, 120.00, 0.00, 0.00, 120.00),
-      ((SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260004'), (SELECT id FROM tb_item WHERE name = 'Controle DualSense'), 1, 15.00, 0.00, 0.00, 15.00),
-      ((SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260005'), (SELECT id FROM tb_item WHERE name = 'Volante Logitech G29'), 1, 80.00, 0.00, 0.00, 80.00);
+      ((SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260004'), (SELECT id FROM tb_item WHERE name = 'Controle DualSense'), 1, 15.00, 0.00, 0.00, 105.00),
+      ((SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260005'), (SELECT id FROM tb_item WHERE name = 'Volante Logitech G29'), 1, 80.00, 0.00, 0.00, 240.00),
+      ((SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260006'), (SELECT id FROM tb_item WHERE name = 'Headset HyperX Cloud II'), 1, 18.00, 0.00, 0.00, 18.00),
+      ((SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260007'), (SELECT id FROM tb_item WHERE name = 'EA Sports FC 26 - PS5'), 1, 20.00, 0.00, 0.00, 140.00),
+      ((SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260008'), (SELECT id FROM tb_item WHERE name = 'Volante Logitech G29'), 1, 80.00, 0.00, 0.00, 240.00),
+      ((SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260009'), (SELECT id FROM tb_item WHERE name = 'Halo Infinite - Xbox'), 1, 18.00, 0.00, 0.00, 18.00),
+      ((SELECT id FROM tb_rental WHERE rental_number = 'LOC-20260010'), (SELECT id FROM tb_item WHERE name = 'PlayStation 5 Slim'), 2, 150.00, 0.00, 0.00, 900.00);
 
 INSERT INTO tb_rental_item_unit (
     version, rental_item_id, item_unit_id, status, delivery_condition,

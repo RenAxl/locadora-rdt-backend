@@ -14,7 +14,13 @@ public class RentalDTO {
     private Instant rentalDate;
     private Instant startDate;
     private Instant expectedReturnDate;
+    private Instant actualReturnDate;
+    private Boolean paid;
     private BigDecimal totalAmount;
+    private Long overdueDays;
+    private BigDecimal lateFeePerDay;
+    private BigDecimal calculatedLateFee;
+    private BigDecimal totalWithLateFee;
     public Long getId() { return id; }
     public String getRentalNumber() { return rentalNumber; }
     public Long getCustomerId() { return customerId; }
@@ -25,7 +31,13 @@ public class RentalDTO {
     public Instant getRentalDate() { return rentalDate; }
     public Instant getStartDate() { return startDate; }
     public Instant getExpectedReturnDate() { return expectedReturnDate; }
+    public Instant getActualReturnDate() { return actualReturnDate; }
+    public Boolean getPaid() { return paid; }
     public BigDecimal getTotalAmount() { return totalAmount; }
+    public Long getOverdueDays() { return overdueDays; }
+    public BigDecimal getLateFeePerDay() { return lateFeePerDay; }
+    public BigDecimal getCalculatedLateFee() { return calculatedLateFee; }
+    public BigDecimal getTotalWithLateFee() { return totalWithLateFee; }
     public void setId(Long id) { this.id = id; }
     public void setRentalNumber(String rentalNumber) { this.rentalNumber = rentalNumber; }
     public void setCustomerId(Long customerId) { this.customerId = customerId; }
@@ -36,5 +48,11 @@ public class RentalDTO {
     public void setRentalDate(Instant rentalDate) { this.rentalDate = rentalDate; }
     public void setStartDate(Instant startDate) { this.startDate = startDate; }
     public void setExpectedReturnDate(Instant expectedReturnDate) { this.expectedReturnDate = expectedReturnDate; }
+    public void setActualReturnDate(Instant actualReturnDate) { this.actualReturnDate = actualReturnDate; }
+    public void setPaid(Boolean paid) { this.paid = paid; }
     public void setTotalAmount(BigDecimal totalAmount) { this.totalAmount = totalAmount; }
+    public void setOverdueDays(Long overdueDays) { this.overdueDays = overdueDays; }
+    public void setLateFeePerDay(BigDecimal lateFeePerDay) { this.lateFeePerDay = lateFeePerDay; }
+    public void setCalculatedLateFee(BigDecimal calculatedLateFee) { this.calculatedLateFee = calculatedLateFee; }
+    public void setTotalWithLateFee(BigDecimal totalWithLateFee) { this.totalWithLateFee = totalWithLateFee; }
 }

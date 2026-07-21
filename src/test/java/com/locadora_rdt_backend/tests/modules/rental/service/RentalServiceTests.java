@@ -24,6 +24,7 @@ import com.locadora_rdt_backend.modules.rental.repository.ItemUnitRepository;
 import com.locadora_rdt_backend.modules.rental.repository.RentalItemUnitRepository;
 import com.locadora_rdt_backend.modules.rental.repository.RentalStatusHistoryRepository;
 import com.locadora_rdt_backend.modules.rental.service.RentalServiceImpl;
+import com.locadora_rdt_backend.modules.rental.service.RentalFinancialCalculator;
 import com.locadora_rdt_backend.modules.rentaltypes.model.RentalType;
 import com.locadora_rdt_backend.modules.rentaltypes.repository.RentalTypeRepository;
 import com.locadora_rdt_backend.modules.users.model.User;
@@ -68,6 +69,7 @@ class RentalServiceTests {
     @Mock private ItemRepository inventoryItemRepository;
     @Mock private StockBalanceRepository stockBalanceRepository;
     @Mock private RentalMapper mapper;
+    @Mock private RentalFinancialCalculator financialCalculator;
     @Mock private AuthenticationFacade authenticationFacade;
     @Mock private UserRepository userRepository;
 
@@ -297,6 +299,17 @@ class RentalServiceTests {
         Mockito.when(rentalTypeRepository.findById(rentalType.getId())).thenReturn(Optional.empty());
 
         Assertions.assertThrows(ResourceNotFoundException.class, () -> service.insert(saveDTO));
+    }
+
+    @Test
+    void insertShouldAcceptStartDateBeforeCurrentDate() {
+        saveDTO.setStartDate(Instant.parse("2020-01-01T10:00:00Z"));
+        saveDTO.setExpectedReturnDate(Instant.parse("2020-01-02T10:00:00Z"));
+        mockInsertDependencies();
+        Mockito.when(repository.save(Mockito.any(Rental.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        Mockito.when(mapper.toDTO(Mockito.any(Rental.class))).thenReturn(rentalDTO);
+
+        Assertions.assertDoesNotThrow(() -> service.insert(saveDTO));
     }
 
     @Test
@@ -633,8 +646,8 @@ class RentalServiceTests {
         RentalSaveDTO dto = new RentalSaveDTO();
         dto.setCustomerId(customer.getId());
         dto.setRentalTypeId(rentalType.getId());
-        dto.setStartDate(Instant.parse("2026-07-16T10:00:00Z"));
-        dto.setExpectedReturnDate(Instant.parse("2026-07-17T10:00:00Z"));
+        dto.setStartDate(Instant.parse("2990-07-16T10:00:00Z"));
+        dto.setExpectedReturnDate(Instant.parse("2990-07-17T10:00:00Z"));
         dto.setDiscount(BigDecimal.ZERO);
         dto.setShippingFee(BigDecimal.ZERO);
         dto.setAdditionalFee(BigDecimal.ZERO);

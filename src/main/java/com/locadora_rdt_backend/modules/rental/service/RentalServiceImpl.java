@@ -61,6 +61,7 @@ public class RentalServiceImpl implements RentalService {
     private final ItemRepository inventoryItemRepository;
     private final StockBalanceRepository stockBalanceRepository;
     private final RentalMapper mapper;
+    private final RentalFinancialCalculator financialCalculator;
     private final AuthenticationFacade authenticationFacade;
     private final UserRepository userRepository;
 
@@ -70,7 +71,8 @@ public class RentalServiceImpl implements RentalService {
             CustomerRepository customerRepository, RentalTypeRepository rentalTypeRepository,
             ItemRepository inventoryItemRepository,
             StockBalanceRepository stockBalanceRepository,
-            RentalMapper mapper, AuthenticationFacade authenticationFacade, UserRepository userRepository) {
+            RentalMapper mapper, RentalFinancialCalculator financialCalculator,
+            AuthenticationFacade authenticationFacade, UserRepository userRepository) {
         this.repository = repository;
         this.itemRepository = itemRepository;
         this.itemUnitRepository = itemUnitRepository;
@@ -81,6 +83,7 @@ public class RentalServiceImpl implements RentalService {
         this.inventoryItemRepository = inventoryItemRepository;
         this.stockBalanceRepository = stockBalanceRepository;
         this.mapper = mapper;
+        this.financialCalculator = financialCalculator;
         this.authenticationFacade = authenticationFacade;
         this.userRepository = userRepository;
     }
@@ -109,7 +112,12 @@ public class RentalServiceImpl implements RentalService {
         String rentalStatus = text(status);
         Page<Rental> rentals = repository.findFiltered(rentalNumber, customerName, rentalStatus,
                 typeId, initialDate, finalDate, pageRequest);
-        return rentals.map(mapper::toDTO);
+        return rentals.map(rental -> {
+            List<RentalItem> items = itemRepository.findByRentalIdOrderById(rental.getId());
+            RentalDTO dto = mapper.toDTO(rental);
+            financialCalculator.fillLateFee(rental, items, dto);
+            return dto;
+        });
     }
 
     @Override
@@ -118,6 +126,7 @@ public class RentalServiceImpl implements RentalService {
         Rental rental = findEntity(id);
         List<RentalItem> items = itemRepository.findByRentalIdOrderById(id);
         RentalDetailsDTO result = mapper.toDetailsDTO(rental, items);
+        financialCalculator.fillLateFee(rental, items, result);
         return result;
     }
 
@@ -240,6 +249,8 @@ public class RentalServiceImpl implements RentalService {
         }
 
         rental.setStatus(DELIVERED);
+        rental.setActualReturnDate(now);
+        rental.setPaid(true);
         rental.setUpdatedBy(authenticationFacade.getAuthenticatedUsername());
         Rental savedRental = repository.save(rental);
         registerHistory(savedRental, RENTED, DELIVERED, "Unidades entregues ao cliente.");

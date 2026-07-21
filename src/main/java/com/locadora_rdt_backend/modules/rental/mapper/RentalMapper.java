@@ -50,6 +50,8 @@ public class RentalMapper {
         dto.setRentalDate(rental.getRentalDate());
         dto.setStartDate(rental.getStartDate());
         dto.setExpectedReturnDate(rental.getExpectedReturnDate());
+        dto.setActualReturnDate(rental.getActualReturnDate());
+        dto.setPaid("DELIVERED".equals(rental.getStatus()) || Boolean.TRUE.equals(rental.getPaid()));
         dto.setTotalAmount(rental.getTotalAmount());
     }
 
