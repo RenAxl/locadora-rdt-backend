@@ -7,6 +7,8 @@ import com.locadora_rdt_backend.shared.web.ControllerResponseBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -69,8 +71,8 @@ public class RentalController {
     public ResponseEntity<RentalDTO> confirm(@PathVariable Long id) { return ResponseEntity.ok(service.confirm(id)); }
 
     @PatchMapping("/{id}/start")
-    public ResponseEntity<RentalDTO> start(@PathVariable Long id) {
-        return ResponseEntity.ok(service.start(id));
+    public ResponseEntity<RentalDTO> start(@PathVariable Long id, @Valid @RequestBody RentalCheckoutDTO dto) {
+        return ResponseEntity.ok(service.start(id, dto));
     }
 
     @PatchMapping("/{id}/cancel")
@@ -88,6 +90,11 @@ public class RentalController {
         return ResponseEntity.ok(service.findAvailableUnits(itemId));
     }
 
+    @GetMapping("/availability/items/{itemId}/all-units")
+    public ResponseEntity<List<ItemUnitDTO>> findItemUnits(@PathVariable Long itemId) {
+        return ResponseEntity.ok(service.findItemUnits(itemId));
+    }
+
     @GetMapping("/{id}/units")
     public ResponseEntity<List<RentalItemUnitDTO>> findRentalUnits(@PathVariable Long id) {
         return ResponseEntity.ok(service.findRentalUnits(id));
@@ -96,6 +103,22 @@ public class RentalController {
     @GetMapping("/{id}/history")
     public ResponseEntity<List<RentalStatusHistoryDTO>> findHistory(@PathVariable Long id) {
         return ResponseEntity.ok(service.findHistory(id));
+    }
+
+    @GetMapping(value = "/{id}/receipt", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> receipt(@PathVariable Long id) {
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=recibo-locacao-" + id + ".pdf")
+                .body(service.receipt(id));
+    }
+
+    @GetMapping(value = "/{id}/fiscal-coupon", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> fiscalCoupon(@PathVariable Long id) {
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=cupom-fiscal-locacao-" + id + ".pdf")
+                .body(service.fiscalCoupon(id));
     }
 
     @DeleteMapping("/{id}")

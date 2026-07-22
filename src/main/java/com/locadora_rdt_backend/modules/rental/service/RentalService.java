@@ -15,11 +15,14 @@ public interface RentalService {
     RentalDTO insert(RentalSaveDTO dto);
     RentalDTO update(Long id, RentalSaveDTO dto);
     RentalDTO confirm(Long id);
-    RentalDTO start(Long id);
+    RentalDTO start(Long id, RentalCheckoutDTO dto);
     RentalDTO cancel(Long id);
     ItemAvailabilityDTO findAvailability(Long itemId);
     List<ItemUnitDTO> findAvailableUnits(Long itemId);
+    List<ItemUnitDTO> findItemUnits(Long itemId);
     List<RentalItemUnitDTO> findRentalUnits(Long rentalId);
     List<RentalStatusHistoryDTO> findHistory(Long rentalId);
+    byte[] receipt(Long id);
+    byte[] fiscalCoupon(Long id);
     void delete(Long id);
 }

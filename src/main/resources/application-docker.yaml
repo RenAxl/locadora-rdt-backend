@@ -40,3 +40,8 @@ app:
     base-url: ${APP_FRONTEND_BASE_URL:http://localhost:4200}
   activation:
     token-minutes: ${APP_ACTIVATION_TOKEN_MINUTES:30}
+  whatsapp:
+    enabled: ${APP_WHATSAPP_ENABLED:false}
+    base-url: ${EVOLUTION_API_BASE_URL:http://evolution-api:8080}
+    api-key: ${EVOLUTION_API_KEY:}
+    instance-name: ${EVOLUTION_INSTANCE_NAME:locadora-rdt}

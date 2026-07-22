@@ -13,6 +13,8 @@ import com.locadora_rdt_backend.modules.inventory.stockmovements.mapper.StockMov
 import com.locadora_rdt_backend.modules.inventory.stockmovements.model.StockMovement;
 import com.locadora_rdt_backend.modules.inventory.stockmovements.repository.StockMovementRepository;
 import com.locadora_rdt_backend.modules.inventory.stockmovements.service.StockMovementServiceImpl;
+import com.locadora_rdt_backend.modules.rental.model.ItemUnit;
+import com.locadora_rdt_backend.modules.rental.repository.ItemUnitRepository;
 import com.locadora_rdt_backend.tests.modules.inventory.items.factory.ItemFactory;
 import com.locadora_rdt_backend.tests.modules.inventory.stock.factory.StockFactory;
 import org.junit.jupiter.api.Assertions;
@@ -42,6 +44,9 @@ class StockMovementServiceTests {
 
     @Mock
     private StockBalanceRepository stockBalanceRepository;
+
+    @Mock
+    private ItemUnitRepository itemUnitRepository;
 
     @Mock
     private ItemService itemService;
@@ -126,6 +131,7 @@ class StockMovementServiceTests {
     void insertEntryShouldIncreaseTotalQuantity() {
         StockMovementInsertDTO dto = StockFactory.createStockMovementInsertDTO(" entry ", 2);
         prepareInsert(dto);
+        prepareBalanceCounts(12, 2, 1);
 
         service.insert(dto);
 
@@ -136,6 +142,9 @@ class StockMovementServiceTests {
     void insertExitShouldDecreaseTotalQuantity() {
         StockMovementInsertDTO dto = StockFactory.createStockMovementInsertDTO("EXIT", 2);
         prepareInsert(dto);
+        Mockito.when(itemUnitRepository.findByStatusForUpdate(Mockito.eq(item.getId()), Mockito.eq("AVAILABLE"), Mockito.any(PageRequest.class)))
+                .thenReturn(createUnits(2, "AVAILABLE"));
+        prepareBalanceCounts(8, 2, 1);
 
         service.insert(dto);
 
@@ -146,6 +155,9 @@ class StockMovementServiceTests {
     void insertReserveShouldIncreaseReservedQuantity() {
         StockMovementInsertDTO dto = StockFactory.createStockMovementInsertDTO("RESERVE", 2);
         prepareInsert(dto);
+        Mockito.when(itemUnitRepository.findByStatusForUpdate(Mockito.eq(item.getId()), Mockito.eq("AVAILABLE"), Mockito.any(PageRequest.class)))
+                .thenReturn(createUnits(2, "AVAILABLE"));
+        prepareBalanceCounts(10, 4, 1);
 
         service.insert(dto);
 
@@ -156,6 +168,9 @@ class StockMovementServiceTests {
     void insertReturnShouldDecreaseReservedQuantity() {
         StockMovementInsertDTO dto = StockFactory.createStockMovementInsertDTO("RETURN", 1);
         prepareInsert(dto);
+        Mockito.when(itemUnitRepository.findByStatusForUpdate(Mockito.eq(item.getId()), Mockito.eq("RESERVED"), Mockito.any(PageRequest.class)))
+                .thenReturn(createUnits(1, "RESERVED"));
+        prepareBalanceCounts(10, 1, 1);
 
         service.insert(dto);
 
@@ -166,6 +181,9 @@ class StockMovementServiceTests {
     void insertAdjustmentShouldSetTotalQuantity() {
         StockMovementInsertDTO dto = StockFactory.createStockMovementInsertDTO("ADJUSTMENT", 20);
         prepareInsert(dto);
+        Mockito.when(itemUnitRepository.countByItemIdAndActiveTrue(item.getId())).thenReturn(10L, 20L);
+        Mockito.when(itemUnitRepository.countByItemIdAndStatusAndActiveTrue(item.getId(), "RESERVED")).thenReturn(2L);
+        Mockito.when(itemUnitRepository.countUnavailableByItemId(item.getId())).thenReturn(1L);
 
         service.insert(dto);
 
@@ -182,6 +200,7 @@ class StockMovementServiceTests {
         Mockito.when(mapper.toEntity(dto)).thenReturn(newMovement);
         Mockito.when(repository.save(newMovement)).thenReturn(newMovement);
         Mockito.when(mapper.toDTO(newMovement)).thenReturn(movementDTO);
+        prepareBalanceCounts(5, 0, 0);
 
         service.insert(dto);
 
@@ -197,6 +216,7 @@ class StockMovementServiceTests {
     void insertShouldSetItemTypeAndCreatedBy() {
         StockMovementInsertDTO dto = StockFactory.createStockMovementInsertDTO(" entry ", 2);
         prepareInsert(dto);
+        prepareBalanceCounts(12, 2, 1);
 
         service.insert(dto);
 
@@ -233,6 +253,9 @@ class StockMovementServiceTests {
     void insertAdjustmentShouldThrowExceptionWhenQuantityIsInvalid() {
         StockMovementInsertDTO dto = StockFactory.createStockMovementInsertDTO("ADJUSTMENT", 1);
         prepareInsertUntilBalance(dto);
+        Mockito.when(itemUnitRepository.countByItemIdAndActiveTrue(item.getId())).thenReturn(10L);
+        Mockito.when(itemUnitRepository.findByStatusForUpdate(Mockito.eq(item.getId()), Mockito.eq("AVAILABLE"), Mockito.any(PageRequest.class)))
+                .thenReturn(List.of());
 
         Assertions.assertThrows(DatabaseException.class, () -> service.insert(dto));
     }
@@ -260,6 +283,7 @@ class StockMovementServiceTests {
         balance.setReservedQuantity(null);
         balance.setUnavailableQuantity(null);
         prepareInsert(dto);
+        prepareBalanceCounts(3, 0, 0);
 
         service.insert(dto);
 
@@ -277,5 +301,24 @@ class StockMovementServiceTests {
     private void prepareInsertUntilBalance(StockMovementInsertDTO dto) {
         Mockito.when(itemService.findEntityById(dto.getItemId())).thenReturn(item);
         Mockito.when(stockBalanceRepository.findByItemId(item.getId())).thenReturn(Optional.of(balance));
+    }
+
+    private void prepareBalanceCounts(int total, int reserved, int unavailable) {
+        Mockito.when(itemUnitRepository.countByItemIdAndActiveTrue(item.getId())).thenReturn((long) total);
+        Mockito.when(itemUnitRepository.countByItemIdAndStatusAndActiveTrue(item.getId(), "RESERVED"))
+                .thenReturn((long) reserved);
+        Mockito.when(itemUnitRepository.countUnavailableByItemId(item.getId())).thenReturn((long) unavailable);
+    }
+
+    private List<ItemUnit> createUnits(int quantity, String status) {
+        java.util.ArrayList<ItemUnit> units = new java.util.ArrayList<>();
+        for (int index = 0; index < quantity; index++) {
+            ItemUnit unit = new ItemUnit();
+            unit.setItem(item);
+            unit.setStatus(status);
+            unit.setActive(true);
+            units.add(unit);
+        }
+        return units;
     }
 }

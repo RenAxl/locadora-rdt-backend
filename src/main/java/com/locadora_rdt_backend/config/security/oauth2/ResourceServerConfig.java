@@ -43,6 +43,9 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/users/activate").permitAll()
                 .antMatchers(HttpMethod.POST, "/users/forgot-password").permitAll()
                 .antMatchers(HttpMethod.POST, "/users/reset-password").permitAll()
+                .antMatchers(HttpMethod.POST, "/customer-accounts").permitAll()
+                .antMatchers(HttpMethod.POST, "/customer-accounts/create-password").permitAll()
+                .antMatchers(HttpMethod.POST, "/customer-accounts/resend-activation").permitAll()
                 .antMatchers(HttpMethod.GET, "/users/me").authenticated()
 
                 .antMatchers(HttpMethod.GET, USERS_ENDPOINT)
@@ -61,7 +64,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/rentals")
                 .hasAnyAuthority("ROLE_ADMINISTRADOR", "ROLE_CLIENTE")
                 .antMatchers(HttpMethod.GET, "/rentals/current-customer")
-                .hasAnyAuthority("ROLE_ADMINISTRADOR", "ROLE_CLIENTE")
+                .authenticated()
                 .antMatchers(HttpMethod.POST, "/rentals/shipping/calculate")
                 .hasAnyAuthority("ROLE_ADMINISTRADOR", "ROLE_CLIENTE")
                 .antMatchers(HttpMethod.PATCH, "/rentals/*/confirm")

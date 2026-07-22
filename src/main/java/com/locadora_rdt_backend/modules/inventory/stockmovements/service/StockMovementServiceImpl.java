@@ -13,10 +13,15 @@ import com.locadora_rdt_backend.modules.inventory.stockmovements.dto.StockMoveme
 import com.locadora_rdt_backend.modules.inventory.stockmovements.mapper.StockMovementMapper;
 import com.locadora_rdt_backend.modules.inventory.stockmovements.model.StockMovement;
 import com.locadora_rdt_backend.modules.inventory.stockmovements.repository.StockMovementRepository;
+import com.locadora_rdt_backend.modules.rental.model.ItemUnit;
+import com.locadora_rdt_backend.modules.rental.repository.ItemUnitRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 public class StockMovementServiceImpl implements StockMovementService {
@@ -29,6 +34,7 @@ public class StockMovementServiceImpl implements StockMovementService {
 
     private final StockMovementRepository repository;
     private final StockBalanceRepository stockBalanceRepository;
+    private final ItemUnitRepository itemUnitRepository;
     private final ItemService itemService;
     private final StockMovementMapper mapper;
     private final AuthenticationFacade authenticationFacade;
@@ -36,12 +42,14 @@ public class StockMovementServiceImpl implements StockMovementService {
     public StockMovementServiceImpl(
             StockMovementRepository repository,
             StockBalanceRepository stockBalanceRepository,
+            ItemUnitRepository itemUnitRepository,
             ItemService itemService,
             StockMovementMapper mapper,
             AuthenticationFacade authenticationFacade
     ) {
         this.repository = repository;
         this.stockBalanceRepository = stockBalanceRepository;
+        this.itemUnitRepository = itemUnitRepository;
         this.itemService = itemService;
         this.mapper = mapper;
         this.authenticationFacade = authenticationFacade;
@@ -72,7 +80,7 @@ public class StockMovementServiceImpl implements StockMovementService {
         StockBalance balance = getOrCreateBalance(item);
         String type = normalizeType(dto.getType());
 
-        applyMovement(balance, type, dto.getQuantity());
+        applyMovement(balance, item, type, dto.getQuantity());
 
         StockMovement entity = mapper.toEntity(dto);
         entity.setItem(item);
@@ -99,57 +107,100 @@ public class StockMovementServiceImpl implements StockMovementService {
                 });
     }
 
-    private void applyMovement(StockBalance balance, String type, Integer quantity) {
-        Integer total = zeroIfNull(balance.getTotalQuantity());
-        Integer reserved = zeroIfNull(balance.getReservedQuantity());
-        Integer unavailable = zeroIfNull(balance.getUnavailableQuantity());
-
+    private void applyMovement(StockBalance balance, Item item, String type, Integer quantity) {
         if (ENTRY.equals(type)) {
-            balance.setTotalQuantity(total + quantity);
+            createAvailableUnits(item, quantity);
+            synchronizeBalance(balance, item.getId());
             return;
         }
 
         if (EXIT.equals(type)) {
-            if (available(total, reserved, unavailable) < quantity) {
-                throw new DatabaseException(StockMovementErrorMessages.INVALID_QUANTITY);
-            }
-            balance.setTotalQuantity(total - quantity);
+            removeAvailableUnits(item.getId(), quantity);
+            synchronizeBalance(balance, item.getId());
             return;
         }
 
         if (RESERVE.equals(type)) {
-            if (available(total, reserved, unavailable) < quantity) {
-                throw new DatabaseException(StockMovementErrorMessages.INVALID_QUANTITY);
-            }
-            balance.setReservedQuantity(reserved + quantity);
+            changeUnitStatus(item.getId(), AVAILABLE, RESERVED, quantity);
+            synchronizeBalance(balance, item.getId());
             return;
         }
 
         if (RETURN.equals(type)) {
-            if (reserved < quantity) {
-                throw new DatabaseException(StockMovementErrorMessages.INVALID_QUANTITY);
-            }
-            balance.setReservedQuantity(reserved - quantity);
+            changeUnitStatus(item.getId(), RESERVED, AVAILABLE, quantity);
+            synchronizeBalance(balance, item.getId());
             return;
         }
 
         if (ADJUSTMENT.equals(type)) {
-            if (quantity < reserved + unavailable) {
-                throw new DatabaseException(StockMovementErrorMessages.INVALID_QUANTITY);
+            int currentTotal = (int) itemUnitRepository.countByItemIdAndActiveTrue(item.getId());
+            if (quantity > currentTotal) {
+                createAvailableUnits(item, quantity - currentTotal);
+            } else if (quantity < currentTotal) {
+                removeAvailableUnits(item.getId(), currentTotal - quantity);
             }
-            balance.setTotalQuantity(quantity);
+            synchronizeBalance(balance, item.getId());
             return;
         }
 
         throw new DatabaseException(StockMovementErrorMessages.INVALID_MOVEMENT_TYPE);
     }
 
-    private Integer available(Integer total, Integer reserved, Integer unavailable) {
-        return total - reserved - unavailable;
+    private static final String AVAILABLE = "AVAILABLE";
+    private static final String RESERVED = "RESERVED";
+
+    private void createAvailableUnits(Item item, int quantity) {
+        String username = authenticationFacade.getAuthenticatedUsername();
+        for (int index = 0; index < quantity; index++) {
+            ItemUnit unit = new ItemUnit();
+            unit.setItem(item);
+            unit.setAssetCode("ITEM-" + item.getId() + "-" + UUID.randomUUID().toString().substring(0, 8));
+            unit.setStatus(AVAILABLE);
+            unit.setConditionStatus("GOOD");
+            unit.setPurchaseDate(LocalDate.now());
+            unit.setNotes("Unidade criada por movimentação de estoque.");
+            unit.setActive(true);
+            unit.setCreatedBy(username);
+            itemUnitRepository.save(unit);
+        }
     }
 
-    private Integer zeroIfNull(Integer value) {
-        return value == null ? 0 : value;
+    private void removeAvailableUnits(Long itemId, int quantity) {
+        List<ItemUnit> units = itemUnitRepository.findByStatusForUpdate(
+                itemId, AVAILABLE, PageRequest.of(0, quantity));
+        if (units.size() < quantity) {
+            throw new DatabaseException(StockMovementErrorMessages.INVALID_QUANTITY);
+        }
+        String username = authenticationFacade.getAuthenticatedUsername();
+        for (ItemUnit unit : units) {
+            unit.setActive(false);
+            unit.setUpdatedBy(username);
+            itemUnitRepository.save(unit);
+        }
+    }
+
+    private void changeUnitStatus(Long itemId, String currentStatus, String newStatus, int quantity) {
+        List<ItemUnit> units = itemUnitRepository.findByStatusForUpdate(
+                itemId, currentStatus, PageRequest.of(0, quantity));
+        if (units.size() < quantity) {
+            throw new DatabaseException(StockMovementErrorMessages.INVALID_QUANTITY);
+        }
+        String username = authenticationFacade.getAuthenticatedUsername();
+        for (ItemUnit unit : units) {
+            unit.setStatus(newStatus);
+            unit.setUpdatedBy(username);
+            itemUnitRepository.save(unit);
+        }
+    }
+
+    private void synchronizeBalance(StockBalance balance, Long itemId) {
+        int total = (int) itemUnitRepository.countByItemIdAndActiveTrue(itemId);
+        int reserved = (int) itemUnitRepository.countByItemIdAndStatusAndActiveTrue(itemId, RESERVED);
+        int unavailable = (int) itemUnitRepository.countUnavailableByItemId(itemId);
+        balance.setTotalQuantity(total);
+        balance.setReservedQuantity(reserved);
+        balance.setUnavailableQuantity(unavailable);
+        balance.setUpdatedBy(authenticationFacade.getAuthenticatedUsername());
     }
 
     private String normalizeType(String type) {

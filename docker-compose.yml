@@ -39,6 +39,10 @@ services:
       APP_FRONTEND_BASE_URL: http://localhost:4200
       GEOAPIFY_BASE_URL: ${GEOAPIFY_BASE_URL:-https://api.geoapify.com}
       GEOAPIFY_API_KEY: ${GEOAPIFY_API_KEY}
+      APP_WHATSAPP_ENABLED: ${APP_WHATSAPP_ENABLED:-false}
+      EVOLUTION_API_BASE_URL: ${EVOLUTION_API_BASE_URL:-http://host.docker.internal:8081}
+      EVOLUTION_API_KEY: ${EVOLUTION_API_KEY:-}
+      EVOLUTION_INSTANCE_NAME: ${EVOLUTION_INSTANCE_NAME:-locadora-rdt}
     ports:
       - "8080:8080"
     networks:

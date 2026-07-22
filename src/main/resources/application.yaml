@@ -43,3 +43,8 @@ app:
   geoapify:
     base-url: ${GEOAPIFY_BASE_URL:https://api.geoapify.com}
     api-key: ${GEOAPIFY_API_KEY:}
+  whatsapp:
+    enabled: ${APP_WHATSAPP_ENABLED:false}
+    base-url: ${EVOLUTION_API_BASE_URL:http://localhost:8081}
+    api-key: ${EVOLUTION_API_KEY:}
+    instance-name: ${EVOLUTION_INSTANCE_NAME:locadora-rdt}
