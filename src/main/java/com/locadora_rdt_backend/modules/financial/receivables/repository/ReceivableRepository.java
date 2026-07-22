@@ -103,4 +103,6 @@ public interface ReceivableRepository extends JpaRepository<Receivable, Long> {
     );
 
     boolean existsByParentReceivableId(Long parentReceivableId);
+
+    boolean existsByReferenceAndReferenceId(String reference, Long referenceId);
 }

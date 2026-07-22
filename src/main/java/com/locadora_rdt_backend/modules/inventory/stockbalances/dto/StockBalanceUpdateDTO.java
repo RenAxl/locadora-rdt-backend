@@ -12,7 +12,7 @@ public class StockBalanceUpdateDTO implements Serializable {
     private Integer totalQuantity;
 
     @NotNull(message = "Campo requerido")
-    @Min(value = 0, message = "A quantidade reservada não pode ser negativa")
+    @Min(value = 0, message = "A quantidade alugada não pode ser negativa")
     private Integer reservedQuantity;
 
     @NotNull(message = "Campo requerido")

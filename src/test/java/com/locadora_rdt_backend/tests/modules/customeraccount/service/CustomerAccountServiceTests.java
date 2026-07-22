@@ -54,7 +54,7 @@ class CustomerAccountServiceTests {
         ReflectionTestUtils.setField(service, "tokenMinutes", 30L);
         registrationDTO = new CustomerAccountRegistrationDTO();
         registrationDTO.setName("Ana Silva");
-        registrationDTO.setCpf("529.982.247-25");
+        registrationDTO.setCpf("52998224725");
         registrationDTO.setEmail("ana@email.com");
         registrationDTO.setPhone("31999999999");
         user = new User();

@@ -1,25 +1,18 @@
 INSERT INTO tb_user
 (name, email, password, active, telephone, street, number, complement, neighborhood, city, state, zip_code, photo_data, photo_content_type, created_at, updated_at, created_by, updated_by)
 VALUES
-    ('Renan Duarte', 'renandt30@gmail.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '5531982357166', 'Rua Carlos Pinto Coelho', '510', NULL, 'Vale do Jatobá', 'Belo Horizonte', 'MG', '30664-790', NULL, NULL, '2025-01-10T09:00:00Z', NULL, 'SYSTEM', NULL),
+    ('Renan Teste 01', 'renandt30@gmail.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '5531982331518', 'Avenida do Contorno', '8000', NULL, 'Savassi', 'Belo Horizonte', 'MG', '30664-790', NULL, NULL, '2025-01-10T09:00:00Z', NULL, 'SYSTEM', NULL),
 
-    ('Ana Silva', 'ana.silva@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990002', 'Rua Beta', '200', NULL, NULL, 'Belo Horizonte', 'MG', NULL, NULL, NULL, '2025-01-11T10:15:00Z', NULL, 'SYSTEM', NULL),
+    ('Thayana Teste 02', 'thayanarm@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31982357166', 'Avenida Afonso Pena', '1500', NULL, 'Centro', 'Belo Horizonte', 'MG', '30130-003', NULL, NULL, '2025-01-11T10:15:00Z', NULL, 'SYSTEM', NULL),
 
     ('Bruno Costa', 'bruno.costa@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990003', 'Av. Amazonas', '300', NULL, NULL, 'Belo Horizonte', 'MG', NULL, NULL, NULL, '2025-01-12T11:30:00Z', NULL, 'SYSTEM', NULL),
 
     ('Carla Mendes', 'carla.mendes@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990004', 'Rua Gama', '400', NULL, NULL, 'Belo Horizonte', 'MG', NULL, NULL, NULL, '2025-01-13T14:45:00Z', NULL, 'SYSTEM', NULL),
 
-    ('Daniel Rocha', 'daniel.rocha@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990005', 'Rua Delta', '500', NULL, NULL, 'Belo Horizonte', 'MG', NULL, NULL, NULL, '2025-01-14T16:00:00Z', NULL, 'SYSTEM', NULL),
+    ('Daniel Teste 03', 'teste03@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31119990003', 'Rua Rio de Janeiro', '471', NULL, 'Centro', 'Belo Horizonte', 'MG', '30160-040', NULL, NULL, '2025-01-14T16:00:00Z', NULL, 'SYSTEM', NULL),
 
-    ('Eduarda Lima', 'eduarda.lima@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', false, '31999990006', 'Av. Brasil', '600', NULL, NULL, 'Belo Horizonte', 'MG', NULL, NULL, NULL, '2025-01-15T09:20:00Z', NULL, 'SYSTEM', NULL),
+    ('Eduarda Teste 04', 'teste04@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', false, '31119990004', 'Avenida Álvares Cabral', '1707', NULL, 'Santo Agostinho', 'Belo Horizonte', 'MG', '30170-008', NULL, NULL, '2025-01-15T09:20:00Z', NULL, 'SYSTEM', NULL);
 
-    ('Felipe Nogueira', 'felipe.nogueira@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990007', 'Rua Goiás', '700', NULL, NULL, 'Belo Horizonte', 'MG', NULL, NULL, NULL, '2025-01-16T13:10:00Z', NULL, 'SYSTEM', NULL),
-
-    ('Gabriela Torres', 'gabriela.torres@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990008', 'Av. Contorno', '800', NULL, NULL, 'Belo Horizonte', 'MG', NULL, NULL, NULL, '2025-01-17T15:35:00Z', NULL, 'SYSTEM', NULL),
-
-    ('Henrique Alves', 'henrique.alves@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', false, '31999990009', 'Rua da Bahia', '900', NULL, NULL, 'Belo Horizonte', 'MG', NULL, NULL, NULL, '2025-01-18T17:50:00Z', NULL, 'SYSTEM', NULL),
-
-    ('Isabela Pires', 'isabela.pires@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990010', 'Av. Cristiano Machado', '1000', NULL, NULL, 'Belo Horizonte', 'MG', NULL, NULL, NULL, '2025-01-19T18:30:00Z', NULL, 'SYSTEM', NULL);
 
 
 INSERT INTO tb_role (authority, created_at, updated_at, created_by, updated_by) VALUES
@@ -89,15 +82,12 @@ INSERT INTO tb_permission (name, group_name) VALUES
 INSERT INTO tb_user_role (user_id, role_id) VALUES
                                                 (1, 1),
                                                 (1, 5),
-                                                (2, 2),
+                                                (2, 5),
                                                 (3, 3),
                                                 (4, 4),
                                                 (5, 5),
-                                                (6, 5),
-                                                (7, 3),
-                                                (8, 2),
-                                                (9, 4),
-                                                (10, 5);
+                                                (6, 5);
+
 
 
 INSERT INTO tb_role_permission (role_id, permission_id) VALUES
@@ -125,16 +115,13 @@ INSERT INTO tb_role_permission (role_id, permission_id) VALUES
 
 
 INSERT INTO tb_customer (name, cpf, email, phone, street, number, complement, neighborhood, city, state, zip_code, active, photo_data, photo_content_type, created_at, updated_at, created_by, updated_by) VALUES
-    ('Renan Duarte', '11111111111', 'renandt30@gmail.com', '31982357166', 'Rua Carlos Pinto Coelho', '510', NULL, 'Vale do Jatoba', 'Belo Horizonte', 'MG', '30664-790', true, NULL, NULL, NOW(), NULL, 'system', NULL),
-    ('Maria Oliveira', '22222222222', 'maria.oliveira@email.com', '31999990002', 'Rua B', '200', NULL, 'Centro', 'Belo Horizonte', 'MG', '30110-000', true, NULL, NULL, NOW(), NULL, 'system', NULL),
-    ('Carlos Souza', '33333333333', 'carlos.souza@email.com', '31999990003', 'Rua C', '300', NULL, 'Centro', 'Belo Horizonte', 'MG', '30120-000', true, NULL, NULL, NOW(), NULL, 'system', NULL),
-    ('Ana Costa', '44444444444', 'ana.costa@email.com', '31999990004', 'Rua D', '400', NULL, 'Centro', 'Belo Horizonte', 'MG', '30130-000', true, NULL, NULL, NOW(), NULL, 'system', NULL),
-    ('Pedro Santos', '55555555555', 'pedro.santos@email.com', '31999990005', 'Rua E', '500', NULL, 'Centro', 'Belo Horizonte', 'MG', '30140-000', true, NULL, NULL, NOW(), NULL, 'system', NULL),
-    ('Juliana Rocha', '66666666666', 'juliana.rocha@email.com', '31999990006', 'Rua F', '600', NULL, 'Centro', 'Belo Horizonte', 'MG', '30150-000', true, NULL, NULL, NOW(), NULL, 'system', NULL),
-    ('Lucas Ferreira', '77777777777', 'lucas.ferreira@email.com', '31999990007', 'Rua G', '700', NULL, 'Centro', 'Belo Horizonte', 'MG', '30160-000', true, NULL, NULL, NOW(), NULL, 'system', NULL),
-    ('Fernanda Alves', '88888888888', 'fernanda.alves@email.com', '31999990008', 'Rua H', '800', NULL, 'Centro', 'Belo Horizonte', 'MG', '30170-000', true, NULL, NULL, NOW(), NULL, 'system', NULL),
-    ('Rafael Martins', '99999999999', 'rafael.martins@email.com', '31999990009', 'Rua I', '900', NULL, 'Centro', 'Belo Horizonte', 'MG', '30180-000', true, NULL, NULL, NOW(), NULL, 'system', NULL),
-    ('Patricia Gomes', '10101010101', 'patricia.gomes@email.com', '31999990010', 'Rua J', '1000', NULL, 'Centro', 'Belo Horizonte', 'MG', '30190-000', true, NULL, NULL, NOW(), NULL, 'system', NULL);
+                                                                                                                                                                                                               ('Renan Teste 01', '11111111155', 'renandt30@gmail.com', '31982331518', 'Avenida do Contorno', '8000', NULL, 'Savassi', 'Belo Horizonte', 'MG', '30110-932', true, NULL, NULL, NOW(), NULL, 'system', NULL),
+
+                                                                                                                                                                                                               ('Thayana Teste 02', '22222222244', 'thayanarm@hotmail.com', '31982357166', 'Avenida Afonso Pena', '1500', NULL, 'Centro', 'Belo Horizonte', 'MG', '30130-003', true, NULL, NULL, NOW(), NULL, 'system', NULL),
+
+                                                                                                                                                                                                               ('Daniel Teste 03', '33333333311', 'teste03@email.com', '31119990003', 'Rua Rio de Janeiro', '471', 'Edifício Central', 'Centro', 'Belo Horizonte', 'MG', '30160-040', true, NULL, NULL, NOW(), NULL, 'system', NULL),
+
+                                                                                                                                                                                                               ('Eduarda Teste 04', '44444444400', 'teste04@email.com', '31119990004', 'Avenida Álvares Cabral', '1707', 'Edifício Comercial', 'Santo Agostinho', 'Belo Horizonte', 'MG', '30170-008', true, NULL, NULL, NOW(), NULL, 'system', NULL);
 
 
 INSERT INTO tb_position
@@ -287,19 +274,10 @@ VALUES
 
     ('Locação Game 02', 3, 99.90, '2026-07-15', '2026-07-15', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 3, 2, 'Pago com cartão de débito.', 'receipt_003.pdf', 'PAID', 'MEMBERSHIP', 1003, 0.00, 0.00, 0.00, 1.49, 101.39, 1, NULL, 2, TRUE, 0.00),
 
-    ('Locação Game 03', 4, 35.00, '2026-07-08', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 1, 1, 'Cliente notificado.', NULL, 'PENDING', 'LATE_FEE', 1004, 5.00, 1.50, 0.00, 0.00, 0.00, 1, NULL, NULL, FALSE, 35.00),
+    ('Locação Game 03', 2, 35.00, '2026-07-08', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 1, 1, 'Cliente notificado.', NULL, 'PENDING', 'LATE_FEE', 1004, 5.00, 1.50, 0.00, 0.00, 0.00, 1, NULL, NULL, FALSE, 35.00),
 
-    ('Locação Acessório 02', 5, 25.00, '2026-07-12', '2026-07-12', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 4, 1, 'Pagamento com cartão de crédito.', 'receipt_005.pdf', 'PAID', 'RESERVATION', 1005, 0.00, 0.00, 2.00, 0.87, 23.87, 1, NULL, 2, TRUE, 0.00),
+    ('Locação Acessório 02', 1, 25.00, '2026-07-12', '2026-07-12', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 4, 1, 'Pagamento com cartão de crédito.', 'receipt_005.pdf', 'PAID', 'RESERVATION', 1005, 0.00, 0.00, 2.00, 0.87, 23.87, 1, NULL, 2, TRUE, 0.00);
 
-    ('Locação Console 01', 6, 18.50, '2026-07-20', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 5, 1, 'Transferência bancária pendente.', NULL, 'PENDING', 'ACCESSORY', 1006, 0.00, 0.00, 0.00, 0.00, 0.00, 1, NULL, NULL, FALSE, 18.50),
-
-    ('Locação Console 02', 7, 120.00, '2026-07-25', '2026-07-24', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 6, 3, 'Assinatura mensal.', 'receipt_007.pdf', 'PAID', 'SUBSCRIPTION', 1007, 0.00, 0.00, 10.00, 2.99, 112.99, 1, NULL, 2, TRUE, 0.00),
-
-    ('Locação Acessório 03', 8, 150.00, '2026-07-30', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 7, 2, 'Pagamento por carteira digital pendente.', NULL, 'PENDING', 'PACKAGE', 1008, 0.00, 0.00, 15.00, 3.00, 0.00, 1, NULL, NULL, FALSE, 150.00),
-
-    ('Locação Game 04', 9, 80.00, '2026-08-02', '2026-08-01', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 8, 1, 'Crédito da loja utilizado.', 'receipt_009.pdf', 'PAID', 'REPLACEMENT', 1009, 0.00, 0.00, 20.00, 0.00, 60.00, 1, NULL, 2, TRUE, 0.00),
-
-    ('Locação Game 05', 10, 65.00, '2026-08-05', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 9, 1, 'Aguardando confirmação.', NULL, 'PENDING', 'SPECIAL_ORDER', 1010, 0.00, 0.00, 0.00, 0.00, 0.00, 1, NULL, NULL, FALSE, 65.00);
 
 INSERT INTO tb_payable (description, amount, due_date, payment_date, created_date, created_at, updated_at, note, file_name, status, reference, reference_id, late_fee, late_interest, discount, fee, subtotal, paid, remaining_balance, residual, canceled, supplier_id, employee_id, payment_method_id, payment_frequency_id, frequency_id, created_by, updated_by, paid_by, parent_payable_id) VALUES
                                                                                                                                                                                                                                                                                                                                                                                                      ('Compra de jogos para estoque', 850.00, '2026-07-15', '2026-07-12', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 'Pagamento antecipado.', 'nota_fiscal_001.pdf', 'PAID', 'PURCHASE', 1001, 0.00, 0.00, 20.00, 0.00, 830.00, TRUE, 0.00, FALSE, FALSE, 1, 1, 2, 1, 1, 1, NULL, 2, NULL),
@@ -360,15 +338,15 @@ INSERT INTO tb_item (version, name, description, category_id, price, image_data,
 
 INSERT INTO tb_stock_balance (version, item_id, total_quantity, reserved_quantity, unavailable_quantity, minimum_quantity, created_at, created_by) VALUES
                                                                                                                                                        (0, 1,  5, 0, 0, 1, NOW(), 'Administrador'),
-                                                                                                                                                       (0, 2,  3, 0, 1, 1, NOW(), 'Administrador'),
-                                                                                                                                                       (0, 3,  4, 0, 1, 1, NOW(), 'Administrador'),
+                                                                                                                                                       (0, 2,  3, 0, 0, 1, NOW(), 'Administrador'),
+                                                                                                                                                       (0, 3,  4, 0, 0, 1, NOW(), 'Administrador'),
                                                                                                                                                        (0, 4, 10, 0, 0, 2, NOW(), 'Administrador'),
                                                                                                                                                        (0, 5,  8, 0, 0, 2, NOW(), 'Administrador'),
                                                                                                                                                        (0, 6,  6, 0, 0, 2, NOW(), 'Administrador'),
                                                                                                                                                        (0, 7,  7, 0, 0, 2, NOW(), 'Administrador'),
                                                                                                                                                        (0, 8, 12, 0, 0, 3, NOW(), 'Administrador'),
                                                                                                                                                        (0, 9,  8, 0, 0, 2, NOW(), 'Administrador'),
-                                                                                                                                                       (0, 10, 2, 0, 1, 1, NOW(), 'Administrador');
+                                                                                                                                                       (0, 10, 2, 0, 0, 1, NOW(), 'Administrador');
 
 
 INSERT INTO tb_rental (
@@ -410,17 +388,17 @@ INSERT INTO tb_rental (
 
       (0,'LOC-20260004',4,3,'DELIVERED','2026-06-20T08:00:00Z','2026-06-21T08:00:00Z','2026-06-25T18:00:00Z','2026-06-25T17:00:00Z','2026-06-21T09:00:00Z',105.00,50.00,30.00,0.00,0.00,0.00,85.00,85.00,0.00,1,'Rua Goiás, 320 - Betim/MG','Locação encerrada sem ocorrências.',TRUE,TRUE,TRUE,'2026-06-20T08:00:00Z','2026-06-25T17:00:00Z','admin','admin'),
 
-      (0,'LOC-20260005',5,2,'DELIVERED','2026-06-10T09:00:00Z','2026-06-12T08:00:00Z','2026-06-15T18:00:00Z','2026-06-17T10:00:00Z','2026-06-12T09:00:00Z',240.00,0.00,20.00,0.00,50.00,0.00,260.00,200.00,60.00,2,'Rua Bahia, 800 - Belo Horizonte/MG','Devolução com atraso.',TRUE,TRUE,TRUE,'2026-06-10T09:00:00Z','2026-06-17T10:00:00Z','admin','admin'),
+      (0,'LOC-20260005',2,2,'DELIVERED','2026-06-10T09:00:00Z','2026-06-12T08:00:00Z','2026-06-15T18:00:00Z','2026-06-17T10:00:00Z','2026-06-12T09:00:00Z',240.00,0.00,20.00,0.00,50.00,0.00,260.00,200.00,60.00,2,'Rua Bahia, 800 - Belo Horizonte/MG','Devolução com atraso.',TRUE,TRUE,TRUE,'2026-06-10T09:00:00Z','2026-06-17T10:00:00Z','admin','admin'),
 
-      (0,'LOC-20260006',6,1,'DELIVERED','2026-06-05T09:00:00Z','2026-06-06T08:00:00Z','2026-06-09T18:00:00Z','2026-06-09T17:30:00Z',NULL,18.00,0.00,0.00,0.00,0.00,80.00,18.00,18.00,0.00,3,'Retirada na loja','Item retornou com pequeno dano.',TRUE,FALSE,TRUE,'2026-06-05T09:00:00Z','2026-06-09T17:30:00Z','admin','admin'),
+      (0,'LOC-20260006',1,1,'DELIVERED','2026-06-05T09:00:00Z','2026-06-06T08:00:00Z','2026-06-09T18:00:00Z','2026-06-09T17:30:00Z',NULL,18.00,0.00,0.00,0.00,0.00,80.00,18.00,18.00,0.00,3,'Retirada na loja','Item retornou com pequeno dano.',TRUE,FALSE,TRUE,'2026-06-05T09:00:00Z','2026-06-09T17:30:00Z','admin','admin'),
 
-      (0,'LOC-20260007',7,3,'RENTED','2026-07-04T08:30:00Z','2026-07-08T08:00:00Z','2026-07-12T18:00:00Z',NULL,NULL,140.00,100.00,20.00,0.00,0.00,0.00,60.00,0.00,60.00,NULL,'','Cliente cancelou antes da retirada.',FALSE,FALSE,TRUE,'2026-07-04T08:30:00Z','2026-07-04T12:00:00Z','admin','admin'),
+      (0,'LOC-20260007',2,3,'RENTED','2026-07-04T08:30:00Z','2026-07-08T08:00:00Z','2026-07-12T18:00:00Z',NULL,NULL,140.00,100.00,20.00,0.00,0.00,0.00,60.00,0.00,60.00,NULL,'','Cliente cancelou antes da retirada.',FALSE,FALSE,TRUE,'2026-07-04T08:30:00Z','2026-07-04T12:00:00Z','admin','admin'),
 
-      (0,'LOC-20260008',8,2,'DELIVERED','2026-07-06T14:00:00Z','2026-07-08T08:00:00Z','2026-07-11T18:00:00Z','2026-07-11T17:00:00Z','2026-07-08T09:00:00Z',240.00,150.00,60.00,40.00,0.00,0.00,190.00,190.00,0.00,4,'Av. João César, 1000 - Contagem/MG','Montagem incluída.',TRUE,TRUE,TRUE,'2026-07-06T14:00:00Z',NULL,'admin',NULL),
+      (0,'LOC-20260008',3,2,'DELIVERED','2026-07-06T14:00:00Z','2026-07-08T08:00:00Z','2026-07-11T18:00:00Z','2026-07-11T17:00:00Z','2026-07-08T09:00:00Z',240.00,150.00,60.00,40.00,0.00,0.00,190.00,190.00,0.00,4,'Av. João César, 1000 - Contagem/MG','Montagem incluída.',TRUE,TRUE,TRUE,'2026-07-06T14:00:00Z',NULL,'admin',NULL),
 
-      (0,'LOC-20260009',9,1,'RENTED','2026-07-07T15:30:00Z','2026-07-10T08:00:00Z','2026-07-13T18:00:00Z',NULL,NULL,18.00,0.00,25.00,15.00,0.00,0.00,58.00,58.00,0.00,1,'Rua Espírito Santo, 500 - Belo Horizonte/MG','Cliente confirmou horário.',TRUE,TRUE,TRUE,'2026-07-07T15:30:00Z',NULL,'admin',NULL),
+      (0,'LOC-20260009',4,1,'RENTED','2026-07-07T15:30:00Z','2026-07-10T08:00:00Z','2026-07-13T18:00:00Z',NULL,NULL,18.00,0.00,25.00,15.00,0.00,0.00,58.00,58.00,0.00,1,'Rua Espírito Santo, 500 - Belo Horizonte/MG','Cliente confirmou horário.',TRUE,TRUE,TRUE,'2026-07-07T15:30:00Z',NULL,'admin',NULL),
 
-      (0,'LOC-20260010',10,2,'RENTED','2026-07-08T16:00:00Z','2026-07-12T08:00:00Z','2026-07-15T18:00:00Z',NULL,NULL,900.00,200.00,100.00,50.00,0.00,0.00,850.00,500.00,350.00,2,'Av. Cristiano Machado, 2000 - Belo Horizonte/MG','Cliente solicitou confirmação.',FALSE,FALSE,TRUE,'2026-07-08T16:00:00Z',NULL,'admin',NULL);
+      (0,'LOC-20260010',3,2,'RENTED','2026-07-08T16:00:00Z','2026-07-12T08:00:00Z','2026-07-15T18:00:00Z',NULL,NULL,900.00,200.00,100.00,50.00,0.00,0.00,850.00,500.00,350.00,2,'Av. Cristiano Machado, 2000 - Belo Horizonte/MG','Cliente solicitou confirmação.',FALSE,FALSE,TRUE,'2026-07-08T16:00:00Z',NULL,'admin',NULL);
 
 
 INSERT INTO tb_system_setting (singleton_key, company_name, street, number, complement, neighborhood, city, state, zip_code, created_at, updated_at, created_by, updated_by) VALUES

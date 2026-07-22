@@ -12,6 +12,7 @@ import com.locadora_rdt_backend.modules.inventory.items.repository.ItemRepositor
 import com.locadora_rdt_backend.modules.inventory.stockbalances.model.StockBalance;
 import com.locadora_rdt_backend.modules.inventory.stockbalances.repository.StockBalanceRepository;
 import com.locadora_rdt_backend.modules.rental.dto.RentalDTO;
+import com.locadora_rdt_backend.modules.financial.receivables.service.ReceivableService;
 import com.locadora_rdt_backend.modules.rental.dto.RentalDetailsDTO;
 import com.locadora_rdt_backend.modules.rental.dto.RentalItemSaveDTO;
 import com.locadora_rdt_backend.modules.rental.dto.RentalSaveDTO;
@@ -76,6 +77,7 @@ class RentalServiceTests {
     @Mock private WhatsAppService whatsAppService;
     @Mock private AuthenticationFacade authenticationFacade;
     @Mock private UserRepository userRepository;
+    @Mock private ReceivableService receivableService;
 
     private Long existingId;
     private Long nonExistingId;

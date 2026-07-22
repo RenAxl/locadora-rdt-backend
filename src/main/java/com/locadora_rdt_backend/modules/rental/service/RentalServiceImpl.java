@@ -26,6 +26,7 @@ import com.locadora_rdt_backend.modules.rentaltypes.model.RentalType;
 import com.locadora_rdt_backend.modules.rentaltypes.repository.RentalTypeRepository;
 import com.locadora_rdt_backend.modules.financial.payment.methods.model.PaymentMethod;
 import com.locadora_rdt_backend.modules.financial.payment.methods.repository.PaymentMethodRepository;
+import com.locadora_rdt_backend.modules.financial.receivables.service.ReceivableService;
 import com.locadora_rdt_backend.infrastructure.whatsapp.service.WhatsAppService;
 import com.locadora_rdt_backend.modules.users.model.User;
 import com.locadora_rdt_backend.modules.users.repository.UserRepository;
@@ -70,18 +71,17 @@ public class RentalServiceImpl implements RentalService {
     private final WhatsAppService whatsAppService;
     private final AuthenticationFacade authenticationFacade;
     private final UserRepository userRepository;
+    private final ReceivableService receivableService;
 
     public RentalServiceImpl(RentalRepository repository, RentalItemRepository itemRepository,
             ItemUnitRepository itemUnitRepository, RentalItemUnitRepository rentalItemUnitRepository,
             RentalStatusHistoryRepository statusHistoryRepository,
             CustomerRepository customerRepository, RentalTypeRepository rentalTypeRepository,
-            ItemRepository inventoryItemRepository,
-            StockBalanceRepository stockBalanceRepository,
+            ItemRepository inventoryItemRepository, StockBalanceRepository stockBalanceRepository,
             RentalMapper mapper, RentalFinancialCalculator financialCalculator,
-            PaymentMethodRepository paymentMethodRepository,
-            RentalDocumentPdfService documentPdfService,
-            WhatsAppService whatsAppService,
-            AuthenticationFacade authenticationFacade, UserRepository userRepository) {
+            PaymentMethodRepository paymentMethodRepository, RentalDocumentPdfService documentPdfService,
+            WhatsAppService whatsAppService, AuthenticationFacade authenticationFacade,
+            UserRepository userRepository, ReceivableService receivableService) {
         this.repository = repository;
         this.itemRepository = itemRepository;
         this.itemUnitRepository = itemUnitRepository;
@@ -98,6 +98,7 @@ public class RentalServiceImpl implements RentalService {
         this.whatsAppService = whatsAppService;
         this.authenticationFacade = authenticationFacade;
         this.userRepository = userRepository;
+        this.receivableService = receivableService;
     }
 
     @Override
@@ -241,10 +242,11 @@ public class RentalServiceImpl implements RentalService {
             if (!RESERVED.equals(itemUnit.getStatus())) {
                 throw new IllegalArgumentException("A unidade " + itemUnit.getAssetCode() + " não está reservada.");
             }
-            itemUnit.setStatus(RENTED);
+            itemUnit.setStatus(AVAILABLE);
             itemUnit.setUpdatedBy(authenticationFacade.getAuthenticatedUsername());
-            rentalItemUnit.setStatus(RentalItemUnitStatus.DELIVERED);
+            rentalItemUnit.setStatus(RentalItemUnitStatus.RETURNED);
             rentalItemUnit.setDeliveredAt(now);
+            rentalItemUnit.setReturnedAt(now);
             rentalItemUnit.setUpdatedBy(authenticationFacade.getAuthenticatedUsername());
             itemUnitRepository.save(itemUnit);
             rentalItemUnitRepository.save(rentalItemUnit);
@@ -274,7 +276,8 @@ public class RentalServiceImpl implements RentalService {
         rental.setRemainingAmount(money(rental.getTotalAmount().add(lateFee).subtract(discount)));
         rental.setUpdatedBy(authenticationFacade.getAuthenticatedUsername());
         Rental savedRental = repository.save(rental);
-        registerHistory(savedRental, RENTED, DELIVERED, "Unidades entregues ao cliente.");
+        receivableService.createFromRental(savedRental);
+        registerHistory(savedRental, RENTED, DELIVERED, "Locação baixada e unidades devolvidas ao estoque.");
         sendRentalDocumentsByWhatsApp(savedRental, rentalItems);
         savedRental.setWhatsappSent(true);
         repository.save(savedRental);

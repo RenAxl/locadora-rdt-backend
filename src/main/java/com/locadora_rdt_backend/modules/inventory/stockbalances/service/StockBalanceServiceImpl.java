@@ -103,7 +103,7 @@ public class StockBalanceServiceImpl implements StockBalanceService {
         int usedQuantity = dto.getReservedQuantity() + dto.getUnavailableQuantity();
         if (usedQuantity > dto.getTotalQuantity()) {
             throw new IllegalArgumentException(
-                    "A quantidade reservada e indisponível não pode ser maior que a quantidade total.");
+                    "A quantidade alugada e indisponível não pode ser maior que a quantidade total.");
         }
     }
 
@@ -197,7 +197,7 @@ public class StockBalanceServiceImpl implements StockBalanceService {
             }
         }
         if (changed < quantity) {
-            throw new IllegalArgumentException("Não é possível liberar unidades reservadas por uma locação ativa.");
+            throw new IllegalArgumentException("Não é possível liberar unidades alugadas por uma locação ativa.");
         }
     }
 

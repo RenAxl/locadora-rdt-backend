@@ -1,7 +1,5 @@
 package com.locadora_rdt_backend.modules.customeraccount.dto;
 
-import org.hibernate.validator.constraints.br.CPF;
-
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
@@ -13,7 +11,7 @@ public class CustomerAccountRegistrationDTO {
     private String name;
 
     @NotBlank(message = "Informe o CPF")
-    @CPF(message = "Informe um CPF válido")
+    @Pattern(regexp = "\\d{11}", message = "O CPF deve conter 11 dígitos")
     private String cpf;
 
     @NotBlank(message = "Informe o e-mail")
