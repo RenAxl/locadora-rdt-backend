@@ -82,6 +82,19 @@ public class StockBalanceServiceImpl implements StockBalanceService {
 
     @Override
     @Transactional
+    public StockBalanceDTO updateMinimum(Long id, Integer minimumQuantity) {
+        StockBalance entity = repository.findByIdForUpdate(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        StockBalanceErrorMessages.STOCK_BALANCE_NOT_FOUND
+                ));
+        entity.setMinimumQuantity(minimumQuantity);
+        entity.setUpdatedBy(authenticationFacade.getAuthenticatedUsername());
+        synchronizeBalance(entity);
+        return mapper.toDTO(repository.save(entity));
+    }
+
+    @Override
+    @Transactional
     public StockBalanceDTO update(Long id, StockBalanceUpdateDTO dto) {
         StockBalance entity = repository.findByIdForUpdate(id)
                 .orElseThrow(() -> new ResourceNotFoundException(

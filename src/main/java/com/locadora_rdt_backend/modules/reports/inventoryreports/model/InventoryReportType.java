@@ -3,8 +3,7 @@ package com.locadora_rdt_backend.modules.reports.inventoryreports.model;
 public enum InventoryReportType {
     CURRENT_STOCK,
     LOW_STOCK,
-    MOVEMENT_HISTORY,
-    MANUAL_ADJUSTMENTS;
+    MOVEMENT_HISTORY;
 
     public static InventoryReportType from(String value) {
         if (value == null) {

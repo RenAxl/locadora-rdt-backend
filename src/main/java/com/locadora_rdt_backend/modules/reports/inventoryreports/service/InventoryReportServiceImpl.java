@@ -61,12 +61,7 @@ public class InventoryReportServiceImpl implements InventoryReportService {
             return tableService.lowStockReport(items);
         }
 
-        if (type == InventoryReportType.MOVEMENT_HISTORY) {
-            List<StockMovement> items = queryService.findMovementHistory(filters);
-            return tableService.movementHistoryReport(items);
-        }
-
-        List<StockMovement> items = queryService.findManualAdjustments(filters);
-        return tableService.manualAdjustmentsReport(items);
+        List<StockMovement> items = queryService.findMovementHistory(filters);
+        return tableService.movementHistoryReport(items);
     }
 }

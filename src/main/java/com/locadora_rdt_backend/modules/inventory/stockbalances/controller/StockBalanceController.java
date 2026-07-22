@@ -2,7 +2,7 @@ package com.locadora_rdt_backend.modules.inventory.stockbalances.controller;
 
 import com.locadora_rdt_backend.modules.inventory.stockbalances.dto.StockBalanceDTO;
 import com.locadora_rdt_backend.modules.inventory.stockbalances.dto.StockBalanceDetailsDTO;
-import com.locadora_rdt_backend.modules.inventory.stockbalances.dto.StockBalanceUpdateDTO;
+import com.locadora_rdt_backend.modules.inventory.stockbalances.dto.StockBalanceMinimumUpdateDTO;
 import com.locadora_rdt_backend.modules.inventory.stockbalances.service.StockBalanceService;
 import com.locadora_rdt_backend.shared.web.ControllerResponseBuilder;
 import org.springframework.data.domain.Page;
@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+
 
 @RestController
 @RequestMapping("/inventory/stock-balances")
@@ -49,13 +50,12 @@ public class StockBalanceController {
         return ResponseEntity.ok(dto);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<StockBalanceDTO> update(
+    @PatchMapping("/{id}/minimum")
+    public ResponseEntity<StockBalanceDTO> updateMinimum(
             @PathVariable Long id,
-            @Valid @RequestBody StockBalanceUpdateDTO dto
+            @Valid @RequestBody StockBalanceMinimumUpdateDTO dto
     ) {
-        StockBalanceDTO result = service.update(id, dto);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(service.updateMinimum(id, dto.getMinimumQuantity()));
     }
 
     private String normalizeOrderBy(String orderBy) {

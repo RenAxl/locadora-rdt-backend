@@ -14,5 +14,7 @@ public interface StockBalanceService {
 
     StockBalanceDetailsDTO findByItemId(Long itemId);
 
+    StockBalanceDTO updateMinimum(Long id, Integer minimumQuantity);
+
     StockBalanceDTO update(Long id, StockBalanceUpdateDTO dto);
 }

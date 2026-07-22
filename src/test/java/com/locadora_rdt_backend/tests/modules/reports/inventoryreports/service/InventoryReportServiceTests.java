@@ -97,19 +97,9 @@ class InventoryReportServiceTests {
     }
 
     @Test
-    void generateManualAdjustmentsShouldReturnReport() {
-        List<StockMovement> movements = List.of(StockFactory.createStockMovement("ADJUSTMENT"));
-        Mockito.when(queryService.findManualAdjustments(ArgumentMatchers.any())).thenReturn(movements);
-
-        ReportFileDTO file = service.generate("manual-adjustments", "pdf", new InventoryReportFilterDTO());
-
-        Assertions.assertEquals("manual_adjustments.pdf", file.getFileName());
-        Mockito.verify(generator).generate(
-                ArgumentMatchers.eq("Ajustes Manuais de Estoque"),
-                ArgumentMatchers.anyList(),
-                ArgumentMatchers.anyList(),
-                ArgumentMatchers.eq(ReportFormat.PDF)
-        );
+    void generateManualAdjustmentsShouldBeRejected() {
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> service.generate("manual-adjustments", "pdf", new InventoryReportFilterDTO()));
     }
 
     @Test
