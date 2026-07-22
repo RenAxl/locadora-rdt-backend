@@ -179,15 +179,15 @@ class RentalServiceTests {
         Assertions.assertEquals(customer.getCpf(), result.getCpf());
         Assertions.assertEquals(customer.getEmail(), result.getEmail());
         Assertions.assertEquals(customer.getPhone(), result.getPhone());
-        Assertions.assertEquals(user.getAddress().getStreet(), result.getAddress().getStreet());
-        Assertions.assertEquals(user.getAddress().getNumber(), result.getAddress().getNumber());
-        Assertions.assertEquals(user.getAddress().getZipCode(), result.getAddress().getZipCode());
+        Assertions.assertEquals(customer.getAddress().getStreet(), result.getAddress().getStreet());
+        Assertions.assertEquals(customer.getAddress().getNumber(), result.getAddress().getNumber());
+        Assertions.assertEquals(customer.getAddress().getZipCode(), result.getAddress().getZipCode());
         Assertions.assertTrue(result.getActive());
     }
 
     @Test
     void findCurrentCustomerShouldThrowWhenAuthenticatedUserDoesNotExist() {
-        mockAuthenticatedCustomer();
+        Mockito.when(authenticationFacade.getAuthenticatedUsername()).thenReturn("user@email.com");
         Mockito.when(userRepository.findByEmail("user@email.com")).thenReturn(null);
 
         Assertions.assertThrows(ResourceNotFoundException.class, () -> service.findCurrentCustomer());
@@ -196,15 +196,24 @@ class RentalServiceTests {
     @Test
     void findCurrentCustomerShouldThrowWhenCustomerDoesNotExist() {
         Mockito.when(authenticationFacade.getAuthenticatedUsername()).thenReturn("user@email.com");
+        Mockito.when(userRepository.findByEmail("user@email.com")).thenReturn(createUser());
         Mockito.when(customerRepository.findByEmail("user@email.com")).thenReturn(null);
 
-        Assertions.assertThrows(ResourceNotFoundException.class, () -> service.findCurrentCustomer());
+        ResourceNotFoundException exception = Assertions.assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.findCurrentCustomer()
+        );
+        Assertions.assertEquals(
+                "O usuário Renan não é um Cliente da Locadora RDT.",
+                exception.getMessage()
+        );
     }
 
     @Test
     void findCurrentCustomerShouldThrowWhenCustomerIsInactive() {
         customer.setActive(false);
         mockAuthenticatedCustomer();
+        Mockito.when(userRepository.findByEmail("user@email.com")).thenReturn(createUser());
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> service.findCurrentCustomer());
     }

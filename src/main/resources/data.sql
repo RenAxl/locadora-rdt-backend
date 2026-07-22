@@ -1,7 +1,7 @@
 INSERT INTO tb_user
 (name, email, password, active, telephone, street, number, complement, neighborhood, city, state, zip_code, photo_data, photo_content_type, created_at, updated_at, created_by, updated_by)
 VALUES
-    ('Renan Duarte', 'renandt30@gmail.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '5531982331518', 'Rua Carlos Pinto Coelho', '510', NULL, 'Vale do Jatobá', 'Belo Horizonte', 'MG', '30664-790', NULL, NULL, '2025-01-10T09:00:00Z', NULL, 'SYSTEM', NULL),
+    ('Renan Duarte', 'renandt30@gmail.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '5531982357166', 'Rua Carlos Pinto Coelho', '510', NULL, 'Vale do Jatobá', 'Belo Horizonte', 'MG', '30664-790', NULL, NULL, '2025-01-10T09:00:00Z', NULL, 'SYSTEM', NULL),
 
     ('Ana Silva', 'ana.silva@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990002', 'Rua Beta', '200', NULL, NULL, 'Belo Horizonte', 'MG', NULL, NULL, NULL, '2025-01-11T10:15:00Z', NULL, 'SYSTEM', NULL),
 
@@ -88,6 +88,7 @@ INSERT INTO tb_permission (name, group_name) VALUES
 
 INSERT INTO tb_user_role (user_id, role_id) VALUES
                                                 (1, 1),
+                                                (1, 5),
                                                 (2, 2),
                                                 (3, 3),
                                                 (4, 4),
@@ -124,7 +125,7 @@ INSERT INTO tb_role_permission (role_id, permission_id) VALUES
 
 
 INSERT INTO tb_customer (name, cpf, email, phone, street, number, complement, neighborhood, city, state, zip_code, active, photo_data, photo_content_type, created_at, updated_at, created_by, updated_by) VALUES
-    ('Renan Duarte', '11111111111', 'renandt30@gmail.com', '31982357166', 'Rua A', '100', NULL, 'Centro', 'Belo Horizonte', 'MG', '30100-000', true, NULL, NULL, NOW(), NULL, 'system', NULL),
+    ('Renan Duarte', '11111111111', 'renandt30@gmail.com', '31982357166', 'Rua Carlos Pinto Coelho', '510', NULL, 'Vale do Jatoba', 'Belo Horizonte', 'MG', '30664-790', true, NULL, NULL, NOW(), NULL, 'system', NULL),
     ('Maria Oliveira', '22222222222', 'maria.oliveira@email.com', '31999990002', 'Rua B', '200', NULL, 'Centro', 'Belo Horizonte', 'MG', '30110-000', true, NULL, NULL, NOW(), NULL, 'system', NULL),
     ('Carlos Souza', '33333333333', 'carlos.souza@email.com', '31999990003', 'Rua C', '300', NULL, 'Centro', 'Belo Horizonte', 'MG', '30120-000', true, NULL, NULL, NOW(), NULL, 'system', NULL),
     ('Ana Costa', '44444444444', 'ana.costa@email.com', '31999990004', 'Rua D', '400', NULL, 'Centro', 'Belo Horizonte', 'MG', '30130-000', true, NULL, NULL, NOW(), NULL, 'system', NULL),

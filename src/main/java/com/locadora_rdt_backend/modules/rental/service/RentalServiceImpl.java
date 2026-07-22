@@ -145,38 +145,30 @@ public class RentalServiceImpl implements RentalService {
     @Override
     @Transactional(readOnly = true)
     public CustomerDTO findCurrentCustomer() {
-        Customer customer = findAuthenticatedCustomer();
         String username = authenticationFacade.getAuthenticatedUsername();
         User user = userRepository.findByEmail(username);
         if (user == null) {
             throw new ResourceNotFoundException("Usuário autenticado não encontrado.");
         }
+        Customer customer = customerRepository.findByEmail(username);
+        if (customer == null) {
+            throw new ResourceNotFoundException(
+                    "O usuário " + user.getName() + " não é um Cliente da Locadora RDT."
+            );
+        }
+        if (!Boolean.TRUE.equals(customer.getActive())) {
+            throw new IllegalArgumentException("O cliente do usuário autenticado deve estar ativo.");
+        }
+
         CustomerDTO dto = new CustomerDTO();
         dto.setId(customer.getId());
         dto.setName(customer.getName());
         dto.setCpf(customer.getCpf());
         dto.setEmail(customer.getEmail());
         dto.setPhone(customer.getPhone());
-        dto.setAddress(toCustomerAddress(user.getAddress()));
+        dto.setAddress(customer.getAddress());
         dto.setActive(customer.getActive());
         return dto;
-    }
-
-    private com.locadora_rdt_backend.modules.customers.model.Address toCustomerAddress(
-            com.locadora_rdt_backend.modules.users.model.Address userAddress) {
-        if (userAddress == null) {
-            return null;
-        }
-        com.locadora_rdt_backend.modules.customers.model.Address address =
-                new com.locadora_rdt_backend.modules.customers.model.Address();
-        address.setStreet(userAddress.getStreet());
-        address.setNumber(userAddress.getNumber());
-        address.setComplement(userAddress.getComplement());
-        address.setNeighborhood(userAddress.getNeighborhood());
-        address.setCity(userAddress.getCity());
-        address.setState(userAddress.getState());
-        address.setZipCode(userAddress.getZipCode());
-        return address;
     }
 
     @Override

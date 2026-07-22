@@ -237,7 +237,7 @@ public class User implements UserDetails, Serializable {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return isActive();
     }
 
     @Override
