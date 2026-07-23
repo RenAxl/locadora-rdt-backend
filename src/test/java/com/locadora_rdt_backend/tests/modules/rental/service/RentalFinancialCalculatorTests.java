@@ -1,10 +1,10 @@
 package com.locadora_rdt_backend.tests.modules.rental.service;
 
-import com.locadora_rdt_backend.modules.rental.dto.RentalDTO;
-import com.locadora_rdt_backend.modules.rental.model.Rental;
-import com.locadora_rdt_backend.modules.rental.model.RentalItem;
-import com.locadora_rdt_backend.modules.rental.service.RentalFinancialCalculator;
-import com.locadora_rdt_backend.modules.rentaltypes.model.RentalType;
+import com.locadora_rdt_backend.modules.rentals.rental.dto.RentalDTO;
+import com.locadora_rdt_backend.modules.rentals.rental.model.Rental;
+import com.locadora_rdt_backend.modules.rentals.rental.model.RentalItem;
+import com.locadora_rdt_backend.modules.rentals.rental.service.RentalFinancialCalculator;
+import com.locadora_rdt_backend.modules.rentals.rentaltypes.model.RentalType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

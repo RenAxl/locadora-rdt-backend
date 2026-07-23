@@ -1,10 +1,10 @@
 package com.locadora_rdt_backend.tests.modules.positions.factory;
 
-import com.locadora_rdt_backend.modules.positions.dto.PositionDTO;
-import com.locadora_rdt_backend.modules.positions.dto.PositionDetailsDTO;
-import com.locadora_rdt_backend.modules.positions.dto.PositionInsertDTO;
-import com.locadora_rdt_backend.modules.positions.dto.PositionUpdateDTO;
-import com.locadora_rdt_backend.modules.positions.model.Position;
+import com.locadora_rdt_backend.modules.organization.positions.dto.PositionDTO;
+import com.locadora_rdt_backend.modules.organization.positions.dto.PositionDetailsDTO;
+import com.locadora_rdt_backend.modules.organization.positions.dto.PositionInsertDTO;
+import com.locadora_rdt_backend.modules.organization.positions.dto.PositionUpdateDTO;
+import com.locadora_rdt_backend.modules.organization.positions.model.Position;
 
 import java.time.Instant;
 

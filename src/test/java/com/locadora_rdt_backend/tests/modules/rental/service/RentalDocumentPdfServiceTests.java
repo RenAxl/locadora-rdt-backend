@@ -1,11 +1,11 @@
 package com.locadora_rdt_backend.tests.modules.rental.service;
 
-import com.locadora_rdt_backend.modules.customers.model.Customer;
+import com.locadora_rdt_backend.modules.organization.customers.model.Customer;
 import com.locadora_rdt_backend.modules.financial.payment.methods.model.PaymentMethod;
-import com.locadora_rdt_backend.modules.inventory.items.model.Item;
-import com.locadora_rdt_backend.modules.rental.model.Rental;
-import com.locadora_rdt_backend.modules.rental.model.RentalItem;
-import com.locadora_rdt_backend.modules.rental.service.RentalDocumentPdfService;
+import com.locadora_rdt_backend.modules.stocks.items.model.Item;
+import com.locadora_rdt_backend.modules.rentals.rental.model.Rental;
+import com.locadora_rdt_backend.modules.rentals.rental.model.RentalItem;
+import com.locadora_rdt_backend.modules.rentals.rental.service.RentalDocumentPdfService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

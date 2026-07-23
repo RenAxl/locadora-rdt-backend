@@ -8,7 +8,7 @@ import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableInst
 import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivablePaymentDTO;
 import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableReportDTO;
 import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableUpdateDTO;
-import com.locadora_rdt_backend.modules.rental.model.Rental;
+import com.locadora_rdt_backend.modules.rentals.rental.model.Rental;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 

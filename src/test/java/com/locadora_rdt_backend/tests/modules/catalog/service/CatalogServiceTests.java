@@ -1,12 +1,12 @@
 package com.locadora_rdt_backend.tests.modules.catalog.service;
 
 import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
-import com.locadora_rdt_backend.modules.catalog.service.CatalogServiceImpl;
-import com.locadora_rdt_backend.modules.inventory.items.dto.ItemDTO;
-import com.locadora_rdt_backend.modules.inventory.items.dto.ItemDetailsDTO;
-import com.locadora_rdt_backend.modules.inventory.items.mapper.ItemMapper;
-import com.locadora_rdt_backend.modules.inventory.items.model.Item;
-import com.locadora_rdt_backend.modules.inventory.items.repository.ItemRepository;
+import com.locadora_rdt_backend.modules.rentals.catalog.service.CatalogServiceImpl;
+import com.locadora_rdt_backend.modules.stocks.items.dto.ItemDTO;
+import com.locadora_rdt_backend.modules.stocks.items.dto.ItemDetailsDTO;
+import com.locadora_rdt_backend.modules.stocks.items.mapper.ItemMapper;
+import com.locadora_rdt_backend.modules.stocks.items.model.Item;
+import com.locadora_rdt_backend.modules.stocks.items.repository.ItemRepository;
 import com.locadora_rdt_backend.tests.modules.inventory.items.factory.ItemFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

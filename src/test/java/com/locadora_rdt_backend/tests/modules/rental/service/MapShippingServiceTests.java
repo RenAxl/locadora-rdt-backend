@@ -2,12 +2,12 @@ package com.locadora_rdt_backend.tests.modules.rental.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.locadora_rdt_backend.modules.rental.dto.ShippingCalculationDTO;
-import com.locadora_rdt_backend.modules.rental.dto.ShippingPriceDTO;
-import com.locadora_rdt_backend.modules.rental.service.MapShippingService;
-import com.locadora_rdt_backend.modules.systemsettings.model.Address;
-import com.locadora_rdt_backend.modules.systemsettings.model.SystemSetting;
-import com.locadora_rdt_backend.modules.systemsettings.service.SystemSettingService;
+import com.locadora_rdt_backend.modules.rentals.rental.dto.ShippingCalculationDTO;
+import com.locadora_rdt_backend.modules.rentals.rental.dto.ShippingPriceDTO;
+import com.locadora_rdt_backend.modules.rentals.rental.service.MapShippingService;
+import com.locadora_rdt_backend.modules.settings.systemsettings.model.Address;
+import com.locadora_rdt_backend.modules.settings.systemsettings.model.SystemSetting;
+import com.locadora_rdt_backend.modules.settings.systemsettings.service.SystemSettingService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

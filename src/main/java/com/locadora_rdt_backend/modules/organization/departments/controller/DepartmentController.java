@@ -1,0 +1,68 @@
+package com.locadora_rdt_backend.modules.organization.departments.controller;
+
+import com.locadora_rdt_backend.modules.organization.departments.dto.DepartmentDTO;
+import com.locadora_rdt_backend.modules.organization.departments.dto.DepartmentDetailsDTO;
+import com.locadora_rdt_backend.modules.organization.departments.dto.DepartmentInsertDTO;
+import com.locadora_rdt_backend.modules.organization.departments.dto.DepartmentUpdateDTO;
+import com.locadora_rdt_backend.modules.organization.departments.service.DepartmentService;
+import com.locadora_rdt_backend.shared.web.ControllerResponseBuilder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+
+@RestController
+@RequestMapping(value = "/departments")
+public class DepartmentController {
+
+    private final DepartmentService service;
+
+    public DepartmentController(DepartmentService service) {
+        this.service = service;
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<DepartmentDTO>> findAllPaged(
+            @RequestParam(value = "name", defaultValue = "") String name,
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "linesPerPage", defaultValue = "3") Integer linesPerPage,
+            @RequestParam(value = "direction", defaultValue = "ASC") String direction,
+            @RequestParam(value = "orderBy", defaultValue = "name") String orderBy
+    ) {
+        PageRequest pageRequest = ControllerResponseBuilder.pageRequest(page, linesPerPage, direction, orderBy);
+
+        Page<DepartmentDTO> list = service.findAllPaged(name.trim(), pageRequest);
+
+        return ResponseEntity.ok(list);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<DepartmentDetailsDTO> findById(@PathVariable Long id) {
+        DepartmentDetailsDTO dto = service.findById(id);
+        return ResponseEntity.ok(dto);
+    }
+
+    @PostMapping
+    public ResponseEntity<DepartmentDTO> insert(@Valid @RequestBody DepartmentInsertDTO dto) {
+        DepartmentDTO result = service.insert(dto);
+
+        return ControllerResponseBuilder.created(result.getId(), result);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<DepartmentDTO> update(
+            @PathVariable Long id,
+            @Valid @RequestBody DepartmentUpdateDTO dto
+    ) {
+        DepartmentDTO result = service.update(id, dto);
+        return ResponseEntity.ok(result);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+}

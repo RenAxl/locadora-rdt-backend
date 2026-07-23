@@ -1,7 +1,6 @@
 package com.locadora_rdt_backend.tests.modules.reports.inventoryreports.service;
 
-import com.locadora_rdt_backend.modules.inventory.stockbalances.model.StockBalance;
-import com.locadora_rdt_backend.modules.inventory.stockmovements.model.StockMovement;
+import com.locadora_rdt_backend.modules.stocks.stockmovements.model.StockMovement;
 import com.locadora_rdt_backend.shared.reports.ReportFileDTO;
 import com.locadora_rdt_backend.shared.reports.ReportFormat;
 import com.locadora_rdt_backend.shared.reports.JasperReportGenerator;

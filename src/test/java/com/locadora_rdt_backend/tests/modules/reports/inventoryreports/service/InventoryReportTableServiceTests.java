@@ -1,7 +1,7 @@
 package com.locadora_rdt_backend.tests.modules.reports.inventoryreports.service;
 
-import com.locadora_rdt_backend.modules.inventory.stockbalances.model.StockBalance;
-import com.locadora_rdt_backend.modules.inventory.stockmovements.model.StockMovement;
+import com.locadora_rdt_backend.modules.stocks.stockbalances.model.StockBalance;
+import com.locadora_rdt_backend.modules.stocks.stockmovements.model.StockMovement;
 import com.locadora_rdt_backend.modules.reports.inventoryreports.service.InventoryReportTableService;
 import com.locadora_rdt_backend.tests.modules.inventory.stock.factory.StockFactory;
 import org.junit.jupiter.api.Assertions;

@@ -11,8 +11,8 @@ import com.locadora_rdt_backend.modules.identity.passwordreset.model.enums.Token
 import com.locadora_rdt_backend.modules.identity.passwordreset.repository.PasswordResetTokenRepository;
 import com.locadora_rdt_backend.modules.identity.passwordreset.service.PasswordResetService;
 import com.locadora_rdt_backend.modules.identity.token.service.IdentityTokenService;
-import com.locadora_rdt_backend.modules.users.model.User;
-import com.locadora_rdt_backend.modules.users.repository.UserRepository;
+import com.locadora_rdt_backend.modules.identity.users.model.User;
+import com.locadora_rdt_backend.modules.identity.users.repository.UserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

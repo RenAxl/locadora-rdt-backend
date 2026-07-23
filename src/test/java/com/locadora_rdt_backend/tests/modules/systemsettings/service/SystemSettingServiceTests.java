@@ -1,11 +1,11 @@
 package com.locadora_rdt_backend.tests.modules.systemsettings.service;
 
 import com.locadora_rdt_backend.infrastructure.security.AuthenticationFacade;
-import com.locadora_rdt_backend.modules.systemsettings.dto.SystemSettingDTO;
-import com.locadora_rdt_backend.modules.systemsettings.model.Address;
-import com.locadora_rdt_backend.modules.systemsettings.model.SystemSetting;
-import com.locadora_rdt_backend.modules.systemsettings.repository.SystemSettingRepository;
-import com.locadora_rdt_backend.modules.systemsettings.service.SystemSettingServiceImpl;
+import com.locadora_rdt_backend.modules.settings.systemsettings.dto.SystemSettingDTO;
+import com.locadora_rdt_backend.modules.settings.systemsettings.model.Address;
+import com.locadora_rdt_backend.modules.settings.systemsettings.model.SystemSetting;
+import com.locadora_rdt_backend.modules.settings.systemsettings.repository.SystemSettingRepository;
+import com.locadora_rdt_backend.modules.settings.systemsettings.service.SystemSettingServiceImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

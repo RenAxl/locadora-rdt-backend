@@ -1,10 +1,10 @@
 package com.locadora_rdt_backend.tests.modules.departments.factory;
 
-import com.locadora_rdt_backend.modules.departments.dto.DepartmentDTO;
-import com.locadora_rdt_backend.modules.departments.dto.DepartmentDetailsDTO;
-import com.locadora_rdt_backend.modules.departments.dto.DepartmentInsertDTO;
-import com.locadora_rdt_backend.modules.departments.dto.DepartmentUpdateDTO;
-import com.locadora_rdt_backend.modules.departments.model.Department;
+import com.locadora_rdt_backend.modules.organization.departments.dto.DepartmentDTO;
+import com.locadora_rdt_backend.modules.organization.departments.dto.DepartmentDetailsDTO;
+import com.locadora_rdt_backend.modules.organization.departments.dto.DepartmentInsertDTO;
+import com.locadora_rdt_backend.modules.organization.departments.dto.DepartmentUpdateDTO;
+import com.locadora_rdt_backend.modules.organization.departments.model.Department;
 
 import java.time.Instant;
 

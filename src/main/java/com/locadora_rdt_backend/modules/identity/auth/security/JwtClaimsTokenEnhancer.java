@@ -3,8 +3,8 @@ package com.locadora_rdt_backend.modules.identity.auth.security;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.locadora_rdt_backend.modules.users.model.User;
-import com.locadora_rdt_backend.modules.users.repository.UserRepository;
+import com.locadora_rdt_backend.modules.identity.users.model.User;
+import com.locadora_rdt_backend.modules.identity.users.repository.UserRepository;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 
