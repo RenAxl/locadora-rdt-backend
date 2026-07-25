@@ -6,6 +6,7 @@ import com.locadora_rdt_backend.shared.web.BinaryResponseBuilder;
 import com.locadora_rdt_backend.shared.web.ControllerResponseBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +18,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+import static com.locadora_rdt_backend.modules.financial.receivables.constants.ReceivableAuthorizationExpressions.*;
+
 @RestController
 @RequestMapping("/receivables/{receivableId}/files")
 public class ReceivableFileController {
@@ -27,6 +30,7 @@ public class ReceivableFileController {
         this.service = service;
     }
 
+    @PreAuthorize(RECEIVABLES_WRITE)
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ReceivableFileDTO> upload(
             @PathVariable Long receivableId,
@@ -37,11 +41,13 @@ public class ReceivableFileController {
         return ControllerResponseBuilder.created("/{fileId}", dto.getId(), dto);
     }
 
+    @PreAuthorize(RECEIVABLES_READ)
     @GetMapping
     public ResponseEntity<List<ReceivableFileDTO>> findAllByReceivable(@PathVariable Long receivableId) {
         return ResponseEntity.ok(service.findAllByReceivable(receivableId));
     }
 
+    @PreAuthorize(RECEIVABLES_READ)
     @GetMapping("/{fileId}/view")
     public ResponseEntity<byte[]> view(
             @PathVariable Long receivableId,
@@ -50,6 +56,7 @@ public class ReceivableFileController {
         return BinaryResponseBuilder.inlineFile(service.download(receivableId, fileId));
     }
 
+    @PreAuthorize(RECEIVABLES_READ)
     @GetMapping("/{fileId}/download")
     public ResponseEntity<byte[]> download(
             @PathVariable Long receivableId,
@@ -58,6 +65,7 @@ public class ReceivableFileController {
         return BinaryResponseBuilder.attachmentFile(service.download(receivableId, fileId));
     }
 
+    @PreAuthorize(RECEIVABLES_DELETE)
     @DeleteMapping("/{fileId}")
     public ResponseEntity<Void> delete(
             @PathVariable Long receivableId,

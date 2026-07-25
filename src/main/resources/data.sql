@@ -27,7 +27,6 @@ INSERT INTO tb_permission (name, group_name) VALUES
                                                  ('USER_READ',          'USERS'),
                                                  ('USER_WRITE',         'USERS'),
                                                  ('USER_DELETE',        'USERS'),
-                                                 ('USER_STATUS_CHANGE', 'USERS'),
 
                                                  ('ROLE_READ',          'ROLES'),
                                                  ('ROLE_WRITE',         'ROLES'),
@@ -35,44 +34,53 @@ INSERT INTO tb_permission (name, group_name) VALUES
 
                                                  ('PERMISSION_READ',        'PERMISSIONS'),
 
-                                                 ('CUSTOMER_READ',          'CUSTOMERS'),
-                                                 ('CUSTOMER_WRITE',         'CUSTOMERS'),
-                                                 ('CUSTOMER_DELETE',        'CUSTOMERS'),
-                                                 ('CUSTOMER_STATUS_CHANGE', 'CUSTOMERS'),
-                                                 ('CUSTOMER_FILE_READ',     'CUSTOMERS'),
-                                                 ('CUSTOMER_FILE_WRITE',     'CUSTOMERS'),
-                                                 ('CUSTOMER_FILE_DELETE',     'CUSTOMERS'),
+                                                 ('CUSTOMERS_READ',          'CUSTOMERS'),
+                                                 ('CUSTOMERS_WRITE',         'CUSTOMERS'),
+                                                 ('CUSTOMERS_DELETE',        'CUSTOMERS'),
 
-                                                 ('POSITION_READ',          'POSITIONS'),
-                                                 ('POSITION_WRITE',         'POSITIONS'),
-                                                 ('POSITION_DELETE',        'POSITIONS'),
+                                                 ('POSITIONS_READ',          'POSITIONS'),
+                                                 ('POSITIONS_WRITE',         'POSITIONS'),
+                                                 ('POSITIONS_DELETE',        'POSITIONS'),
 
-                                                 ('DEPARTMENT_READ',          'DEPARTMENTS'),
-                                                 ('DEPARTMENT_WRITE',         'DEPARTMENTS'),
-                                                 ('DEPARTMENT_DELETE',        'DEPARTMENTS'),
+                                                 ('DEPARTMENTS_READ',          'DEPARTMENTS'),
+                                                 ('DEPARTMENTS_WRITE',         'DEPARTMENTS'),
+                                                 ('DEPARTMENTS_DELETE',        'DEPARTMENTS'),
 
-                                                 ('EMPLOYEE_READ',          'EMPLOYEES'),
-                                                 ('EMPLOYEE_WRITE',         'EMPLOYEES'),
-                                                 ('EMPLOYEE_DELETE',        'EMPLOYEES'),
-                                                 ('EMPLOYEE_STATUS_CHANGE', 'EMPLOYEES'),
-                                                 ('EMPLOYEE_FILE_READ',     'EMPLOYEES'),
-                                                 ('EMPLOYEE_FILE_WRITE',    'EMPLOYEES'),
-                                                 ('EMPLOYEE_FILE_DELETE',   'EMPLOYEES'),
+                                                 ('EMPLOYEES_READ',          'EMPLOYEES'),
+                                                 ('EMPLOYEES_WRITE',         'EMPLOYEES'),
+                                                 ('EMPLOYEES_DELETE',        'EMPLOYEES'),
 
-                                                 ('SUPPLIER_READ',          'SUPPLIERS'),
-                                                 ('SUPPLIER_WRITE',         'SUPPLIERS'),
-                                                 ('SUPPLIER_DELETE',        'SUPPLIERS'),
-                                                 ('SUPPLIER_IMAGE_WRITE',   'SUPPLIERS'),
-                                                 ('SUPPLIER_FILE_READ',     'SUPPLIERS'),
-                                                 ('SUPPLIER_FILE_WRITE',    'SUPPLIERS'),
-                                                 ('SUPPLIER_FILE_DELETE',   'SUPPLIERS'),
+                                                 ('PAYABLES_READ',          'PAYABLES'),
+                                                 ('PAYABLE_WRITE',         'PAYABLES'),
+                                                 ('PAYABLE_DELETE',        'PAYABLES'),
 
-                                                 ('RECEIVABLE_READ',        'RECEIVABLES'),
-                                                 ('RECEIVABLE_WRITE',       'RECEIVABLES'),
-                                                 ('RECEIVABLE_DELETE',      'RECEIVABLES'),
+                                                 ('RECEIVABLES_READ',          'RECEIVABLES'),
+                                                 ('RECEIVABLES_WRITE',         'RECEIVABLES'),
+                                                 ('RECEIVABLES_DELETE',        'RECEIVABLES'),
 
-                                                 ('RENTAL_PRICE_CHANGE',   'RENTALS');
+                                                 ('FREQUENCIES_READ',          'FREQUENCIES'),
+                                                 ('FREQUENCIES_WRITE',         'FREQUENCIES'),
+                                                 ('FREQUENCIES_DELETE',        'FREQUENCIES'),
 
+                                                 ('METHODS_READ',          'METHODS'),
+                                                 ('METHODS_WRITE',         'METHODS'),
+                                                 ('METHODS_DELETE',        'METHODS'),
+
+                                                 ('SUPPLIERS_READ',          'SUPPLIERS'),
+                                                 ('SUPPLIERS_WRITE',         'SUPPLIERS'),
+                                                 ('SUPPLIERS_DELETE',        'SUPPLIERS'),
+
+                                                 ('CATALOG_READ',          'CATALOG'),
+                                                 ('CATALOG_WRITE',         'CATALOG'),
+                                                 ('CATALOG_DELETE',        'CATALOG'),
+
+                                                 ('RENTALS_READ',          'RENTALS'),
+                                                 ('RENTALS_WRITE',         'RENTALS'),
+                                                 ('RENTALS_DELETE',        'RENTALS'),
+
+                                                 ('RENTAL_TYPES_READ',          'RENTAL_TYPES'),
+                                                 ('RENTAL_TYPES_WRITE',          'RENTAL_TYPES'),
+                                                 ('RENTAL_TYPES_DELETE',          'RENTAL_TYPES');
 
 
 
@@ -88,30 +96,22 @@ INSERT INTO tb_user_role (user_id, role_id) VALUES
                                                 (5, 5),
                                                 (6, 5);
 
-
-
 INSERT INTO tb_role_permission (role_id, permission_id) VALUES
                                                             (1, 1),(1, 2),(1, 3),(1, 4),
                                                             (1, 5),(1, 6),(1, 7), (1, 8),
                                                             (1, 9),(1, 10),(1, 11), (1, 12),
-                                                            (1, 13),(1, 14),(1, 15),(1, 16),
+                                                            (1, 13),(1, 14),(1, 15), (1, 16),
                                                             (1, 17),(1, 18),(1, 19), (1, 20),
-                                                            (1, 21),(1, 22),(1, 23), (1, 24),
-                                                            (1, 25),(1, 26),(1, 27), (1, 28),
-                                                            (1, 29),(1, 30),(1, 31), (1, 32),
-                                                            (1, 33),(1, 34),(1, 35), (1, 36),
-                                                            (1, 37),(1, 38),(1, 39);
-
+                                                            (1, 21), (1, 22), (1, 23), (1, 24),
+                                                            (1, 25), (1, 26), (1, 27), (1, 28),
+                                                            (1, 29), (1, 30), (1, 31), (1, 32),
+                                                            (1, 33),  (1, 34), (1, 35), (1, 36),
+                                                            (1, 37),  (1, 38), (1, 39), (1, 40),
+                                                            (1, 41), (1, 42), (1, 43);
 
 INSERT INTO tb_role_permission (role_id, permission_id) VALUES
                                                             (2, 1),
                                                             (2, 5);
-
-
-INSERT INTO tb_role_permission (role_id, permission_id) VALUES
-    (4, 1),
-    (4, 36),
-    (4, 37);
 
 
 INSERT INTO tb_customer (name, cpf, email, phone, street, number, complement, neighborhood, city, state, zip_code, active, photo_data, photo_content_type, created_at, updated_at, created_by, updated_by) VALUES

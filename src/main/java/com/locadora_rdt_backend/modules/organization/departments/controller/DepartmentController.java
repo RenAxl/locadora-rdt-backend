@@ -9,9 +9,12 @@ import com.locadora_rdt_backend.shared.web.ControllerResponseBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+
+import static com.locadora_rdt_backend.modules.organization.departments.constants.DepartmentAuthorizationExpressions.*;
 
 @RestController
 @RequestMapping(value = "/departments")
@@ -23,6 +26,7 @@ public class DepartmentController {
         this.service = service;
     }
 
+    @PreAuthorize(DEPARTMENTS_READ)
     @GetMapping
     public ResponseEntity<Page<DepartmentDTO>> findAllPaged(
             @RequestParam(value = "name", defaultValue = "") String name,
@@ -38,12 +42,14 @@ public class DepartmentController {
         return ResponseEntity.ok(list);
     }
 
+    @PreAuthorize(DEPARTMENTS_READ)
     @GetMapping("/{id}")
     public ResponseEntity<DepartmentDetailsDTO> findById(@PathVariable Long id) {
         DepartmentDetailsDTO dto = service.findById(id);
         return ResponseEntity.ok(dto);
     }
 
+    @PreAuthorize(DEPARTMENTS_WRITE)
     @PostMapping
     public ResponseEntity<DepartmentDTO> insert(@Valid @RequestBody DepartmentInsertDTO dto) {
         DepartmentDTO result = service.insert(dto);
@@ -51,6 +57,7 @@ public class DepartmentController {
         return ControllerResponseBuilder.created(result.getId(), result);
     }
 
+    @PreAuthorize(DEPARTMENTS_WRITE)
     @PutMapping("/{id}")
     public ResponseEntity<DepartmentDTO> update(
             @PathVariable Long id,
@@ -60,6 +67,7 @@ public class DepartmentController {
         return ResponseEntity.ok(result);
     }
 
+    @PreAuthorize(DEPARTMENTS_DELETE)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);

@@ -6,6 +6,7 @@ import com.locadora_rdt_backend.shared.web.BinaryResponseBuilder;
 import com.locadora_rdt_backend.shared.web.ControllerResponseBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +18,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+import static com.locadora_rdt_backend.modules.financial.payables.constants.PayableAuthorizationExpressions.*;
+
 @RestController
 @RequestMapping("/payables/{payableId}/files")
 public class PayableFileController {
@@ -27,6 +30,7 @@ public class PayableFileController {
         this.service = service;
     }
 
+    @PreAuthorize(PAYABLES_WRITE)
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PayableFileDTO> upload(
             @PathVariable Long payableId,
@@ -37,11 +41,13 @@ public class PayableFileController {
         return ControllerResponseBuilder.created("/{fileId}", dto.getId(), dto);
     }
 
+    @PreAuthorize(PAYABLES_READ)
     @GetMapping
     public ResponseEntity<List<PayableFileDTO>> findAllByPayable(@PathVariable Long payableId) {
         return ResponseEntity.ok(service.findAllByPayable(payableId));
     }
 
+    @PreAuthorize(PAYABLES_READ)
     @GetMapping("/{fileId}/view")
     public ResponseEntity<byte[]> view(
             @PathVariable Long payableId,
@@ -50,6 +56,7 @@ public class PayableFileController {
         return BinaryResponseBuilder.inlineFile(service.download(payableId, fileId));
     }
 
+    @PreAuthorize(PAYABLES_READ)
     @GetMapping("/{fileId}/download")
     public ResponseEntity<byte[]> download(
             @PathVariable Long payableId,
@@ -58,6 +65,7 @@ public class PayableFileController {
         return BinaryResponseBuilder.attachmentFile(service.download(payableId, fileId));
     }
 
+    @PreAuthorize(PAYABLES_DELETE)
     @DeleteMapping("/{fileId}")
     public ResponseEntity<Void> delete(
             @PathVariable Long payableId,

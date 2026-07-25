@@ -9,12 +9,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.time.Instant;
 import java.util.List;
 import com.locadora_rdt_backend.modules.organization.customers.dto.CustomerDTO;
+
+import static com.locadora_rdt_backend.modules.rentals.rental.constants.RentalAuthorizationExpressions.*;
 
 @RestController
 @RequestMapping("/rentals")
@@ -27,6 +30,7 @@ public class RentalController {
         this.shippingService = shippingService;
     }
 
+    @PreAuthorize(RENTALS_READ)
     @GetMapping
     public ResponseEntity<Page<RentalDTO>> findAll(
             @RequestParam(defaultValue = "") String number,
@@ -43,68 +47,82 @@ public class RentalController {
         return ResponseEntity.ok(service.findAllPaged(number, customer, status, rentalTypeId, dateFrom, dateTo, request));
     }
 
+    @PreAuthorize(RENTALS_READ)
     @GetMapping("/{id}")
     public ResponseEntity<RentalDetailsDTO> findById(@PathVariable Long id) { return ResponseEntity.ok(service.findById(id)); }
 
+    @PreAuthorize(RENTALS_READ)
     @GetMapping("/current-customer")
     public ResponseEntity<CustomerDTO> findCurrentCustomer() {
         return ResponseEntity.ok(service.findCurrentCustomer());
     }
 
+    @PreAuthorize(RENTALS_WRITE)
     @PostMapping("/shipping/calculate")
     public ResponseEntity<ShippingPriceDTO> calculateShipping(@Valid @RequestBody ShippingCalculationDTO dto) {
         return ResponseEntity.ok(shippingService.calculate(dto));
     }
 
+    @PreAuthorize(RENTALS_WRITE)
     @PostMapping
     public ResponseEntity<RentalDTO> insert(@Valid @RequestBody RentalSaveDTO dto) {
         RentalDTO result = service.insert(dto);
         return ControllerResponseBuilder.created(result.getId(), result);
     }
 
+    @PreAuthorize(RENTALS_WRITE)
     @PutMapping("/{id}")
     public ResponseEntity<RentalDTO> update(@PathVariable Long id, @Valid @RequestBody RentalSaveDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
 
+    @PreAuthorize(RENTALS_WRITE)
     @PatchMapping("/{id}/confirm")
     public ResponseEntity<RentalDTO> confirm(@PathVariable Long id) { return ResponseEntity.ok(service.confirm(id)); }
 
+    @PreAuthorize(RENTALS_WRITE)
     @PatchMapping("/{id}/start")
     public ResponseEntity<RentalDTO> start(@PathVariable Long id, @Valid @RequestBody RentalCheckoutDTO dto) {
         return ResponseEntity.ok(service.start(id, dto));
     }
 
+    @PreAuthorize(RENTALS_WRITE)
     @PatchMapping("/{id}/cancel")
     public ResponseEntity<RentalDTO> cancel(@PathVariable Long id) {
         return ResponseEntity.ok(service.cancel(id));
     }
 
+    @PreAuthorize(RENTALS_READ)
     @GetMapping("/availability/items/{itemId}")
     public ResponseEntity<ItemAvailabilityDTO> findAvailability(@PathVariable Long itemId) {
         return ResponseEntity.ok(service.findAvailability(itemId));
     }
 
+    @PreAuthorize(RENTALS_READ)
     @GetMapping("/availability/items/{itemId}/units")
     public ResponseEntity<List<ItemUnitDTO>> findAvailableUnits(@PathVariable Long itemId) {
         return ResponseEntity.ok(service.findAvailableUnits(itemId));
     }
 
+    @PreAuthorize(RENTALS_READ)
     @GetMapping("/availability/items/{itemId}/all-units")
     public ResponseEntity<List<ItemUnitDTO>> findItemUnits(@PathVariable Long itemId) {
         return ResponseEntity.ok(service.findItemUnits(itemId));
     }
 
+    @PreAuthorize(RENTALS_READ)
     @GetMapping("/{id}/units")
     public ResponseEntity<List<RentalItemUnitDTO>> findRentalUnits(@PathVariable Long id) {
         return ResponseEntity.ok(service.findRentalUnits(id));
     }
 
+    @PreAuthorize(RENTALS_READ)
     @GetMapping("/{id}/history")
     public ResponseEntity<List<RentalStatusHistoryDTO>> findHistory(@PathVariable Long id) {
         return ResponseEntity.ok(service.findHistory(id));
     }
 
+    @PreAuthorize(RENTALS_READ)
     @GetMapping(value = "/{id}/receipt", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> receipt(@PathVariable Long id) {
         return ResponseEntity.ok()
@@ -113,6 +131,7 @@ public class RentalController {
                 .body(service.receipt(id));
     }
 
+    @PreAuthorize(RENTALS_READ)
     @GetMapping(value = "/{id}/fiscal-coupon", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> fiscalCoupon(@PathVariable Long id) {
         return ResponseEntity.ok()
@@ -121,6 +140,7 @@ public class RentalController {
                 .body(service.fiscalCoupon(id));
     }
 
+    @PreAuthorize(RENTALS_DELETE)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);

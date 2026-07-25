@@ -7,10 +7,13 @@ import com.locadora_rdt_backend.shared.web.BinaryResponseBuilder;
 import com.locadora_rdt_backend.shared.web.ControllerResponseBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+
+import static com.locadora_rdt_backend.modules.organization.employees.constants.EmployeeAuthorizationExpressions.*;
 
 @RestController
 @RequestMapping("/employees/{employeeId}/files")
@@ -22,6 +25,7 @@ public class EmployeeFileController {
         this.service = service;
     }
 
+    @PreAuthorize(EMPLOYEES_WRITE)
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<EmployeeFileDTO> upload(
             @PathVariable Long employeeId,
@@ -33,12 +37,14 @@ public class EmployeeFileController {
         return ControllerResponseBuilder.created("/{fileId}", dto.getId(), dto);
     }
 
+    @PreAuthorize(EMPLOYEES_READ)
     @GetMapping
     public ResponseEntity<List<EmployeeFileDTO>> findAllByEmployee(@PathVariable Long employeeId) {
         List<EmployeeFileDTO> list = service.findAllByEmployee(employeeId);
         return ResponseEntity.ok(list);
     }
 
+    @PreAuthorize(EMPLOYEES_READ)
     @GetMapping("/{fileId}/view")
     public ResponseEntity<byte[]> view(
             @PathVariable Long employeeId,
@@ -49,6 +55,7 @@ public class EmployeeFileController {
         return BinaryResponseBuilder.inlineFile(dto);
     }
 
+    @PreAuthorize(EMPLOYEES_READ)
     @GetMapping("/{fileId}/download")
     public ResponseEntity<byte[]> download(
             @PathVariable Long employeeId,
@@ -59,6 +66,7 @@ public class EmployeeFileController {
         return BinaryResponseBuilder.attachmentFile(dto);
     }
 
+    @PreAuthorize(EMPLOYEES_DELETE)
     @DeleteMapping("/{fileId}")
     public ResponseEntity<Void> delete(
             @PathVariable Long employeeId,

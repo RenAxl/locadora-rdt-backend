@@ -9,9 +9,12 @@ import com.locadora_rdt_backend.shared.web.ControllerResponseBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+
+import static com.locadora_rdt_backend.modules.organization.positions.constants.PositionAuthorizationExpressions.*;
 
 @RestController
 @RequestMapping("/positions")
@@ -23,6 +26,7 @@ public class PositionController {
         this.service = service;
     }
 
+    @PreAuthorize(POSITIONS_READ)
     @GetMapping
     public ResponseEntity<Page<PositionDTO>> findAllPaged(
             @RequestParam(value = "name", defaultValue = "") String name,
@@ -38,13 +42,14 @@ public class PositionController {
         return ResponseEntity.ok(list);
     }
 
+    @PreAuthorize(POSITIONS_READ)
     @GetMapping("/{id}")
     public ResponseEntity<PositionDetailsDTO> findById(@PathVariable Long id) {
         PositionDetailsDTO dto = service.findById(id);
         return ResponseEntity.ok(dto);
     }
 
-
+    @PreAuthorize(POSITIONS_WRITE)
     @PostMapping
     public ResponseEntity<PositionDTO> insert(@Valid @RequestBody PositionInsertDTO dto) {
         PositionDTO result = service.insert(dto);
@@ -52,6 +57,7 @@ public class PositionController {
         return ControllerResponseBuilder.created(result.getId(), result);
     }
 
+    @PreAuthorize(POSITIONS_WRITE)
     @PutMapping("/{id}")
     public ResponseEntity<PositionDTO> update(
             @PathVariable Long id,
@@ -61,6 +67,7 @@ public class PositionController {
         return ResponseEntity.ok(result);
     }
 
+    @PreAuthorize(POSITIONS_DELETE)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);

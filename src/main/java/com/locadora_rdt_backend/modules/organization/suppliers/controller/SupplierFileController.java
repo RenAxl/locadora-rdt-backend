@@ -6,10 +6,13 @@ import com.locadora_rdt_backend.shared.web.BinaryResponseBuilder;
 import com.locadora_rdt_backend.shared.web.ControllerResponseBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+
+import static com.locadora_rdt_backend.modules.organization.suppliers.constants.SupplierAuthorizationExpressions.*;
 
 @RestController
 @RequestMapping("/suppliers/{supplierId}/files")
@@ -21,6 +24,7 @@ public class SupplierFileController {
         this.service = service;
     }
 
+    @PreAuthorize(SUPPLIERS_WRITE)
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<SupplierFileDTO> upload(
             @PathVariable Long supplierId,
@@ -31,6 +35,7 @@ public class SupplierFileController {
         return ControllerResponseBuilder.created("/{fileId}", dto.getId(), dto);
     }
 
+    @PreAuthorize(SUPPLIERS_READ)
     @GetMapping
     public ResponseEntity<List<SupplierFileDTO>> findAllBySupplier(
             @PathVariable Long supplierId
@@ -38,6 +43,7 @@ public class SupplierFileController {
         return ResponseEntity.ok(service.findAllBySupplier(supplierId));
     }
 
+    @PreAuthorize(SUPPLIERS_READ)
     @GetMapping("/{fileId}/view")
     public ResponseEntity<byte[]> view(
             @PathVariable Long supplierId,
@@ -46,6 +52,7 @@ public class SupplierFileController {
         return BinaryResponseBuilder.inlineFile(service.download(supplierId, fileId));
     }
 
+    @PreAuthorize(SUPPLIERS_READ)
     @GetMapping("/{fileId}/download")
     public ResponseEntity<byte[]> download(
             @PathVariable Long supplierId,
@@ -54,6 +61,7 @@ public class SupplierFileController {
         return BinaryResponseBuilder.attachmentFile(service.download(supplierId, fileId));
     }
 
+    @PreAuthorize(SUPPLIERS_DELETE)
     @DeleteMapping("/{fileId}")
     public ResponseEntity<Void> delete(
             @PathVariable Long supplierId,

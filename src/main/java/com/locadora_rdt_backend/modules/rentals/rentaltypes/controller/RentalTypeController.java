@@ -9,6 +9,7 @@ import com.locadora_rdt_backend.shared.web.ControllerResponseBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -23,6 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.util.List;
 
+import static com.locadora_rdt_backend.modules.rentals.rentaltypes.constants.RentalTypeAuthorizationExpressions.*;
+
 @RestController
 @RequestMapping("/rental/rentaltypes")
 public class RentalTypeController {
@@ -33,6 +36,7 @@ public class RentalTypeController {
         this.service = service;
     }
 
+    @PreAuthorize(RENTAL_TYPES_READ)
     @GetMapping
     public ResponseEntity<Page<RentalTypeDTO>> findAllPaged(
             @RequestParam(value = "name", defaultValue = "") String name,
@@ -48,12 +52,14 @@ public class RentalTypeController {
         return ResponseEntity.ok(list);
     }
 
+    @PreAuthorize(RENTAL_TYPES_READ)
     @GetMapping("/{id}")
     public ResponseEntity<RentalTypeDetailsDTO> findById(@PathVariable Long id) {
         RentalTypeDetailsDTO dto = service.findById(id);
         return ResponseEntity.ok(dto);
     }
 
+    @PreAuthorize(RENTAL_TYPES_WRITE)
     @PostMapping
     public ResponseEntity<RentalTypeDTO> insert(@Valid @RequestBody RentalTypeInsertDTO dto) {
         RentalTypeDTO result = service.insert(dto);
@@ -61,6 +67,7 @@ public class RentalTypeController {
         return ControllerResponseBuilder.created(result.getId(), result);
     }
 
+    @PreAuthorize(RENTAL_TYPES_WRITE)
     @PutMapping("/{id}")
     public ResponseEntity<RentalTypeDTO> update(
             @PathVariable Long id,
@@ -70,18 +77,21 @@ public class RentalTypeController {
         return ResponseEntity.ok(result);
     }
 
+    @PreAuthorize(RENTAL_TYPES_DELETE)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize(RENTAL_TYPES_DELETE)
     @DeleteMapping("/all")
     public ResponseEntity<Void> deleteAll(@RequestBody List<Long> ids) {
         service.deleteAll(ids);
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize(RENTAL_TYPES_WRITE)
     @PatchMapping("/{id}/active")
     public ResponseEntity<Void> changeActive(
             @PathVariable Long id,

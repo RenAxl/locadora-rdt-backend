@@ -9,6 +9,7 @@ import com.locadora_rdt_backend.shared.web.ControllerResponseBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,6 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.util.List;
 
+import static com.locadora_rdt_backend.modules.financial.payment.frequencies.constants.PaymentFrequencyAuthorizationExpressions.*;
+
 @RestController
 @RequestMapping("/payment-frequencies")
 public class PaymentFrequencyController {
@@ -32,6 +35,7 @@ public class PaymentFrequencyController {
         this.service = service;
     }
 
+    @PreAuthorize(FREQUENCIES_READ)
     @GetMapping
     public ResponseEntity<Page<PaymentFrequencyDTO>> findAllPaged(
             @RequestParam(value = "frequency", defaultValue = "") String frequency,
@@ -47,12 +51,14 @@ public class PaymentFrequencyController {
         return ResponseEntity.ok(list);
     }
 
+    @PreAuthorize(FREQUENCIES_READ)
     @GetMapping("/{id}")
     public ResponseEntity<PaymentFrequencyDetailsDTO> findById(@PathVariable Long id) {
         PaymentFrequencyDetailsDTO dto = service.findById(id);
         return ResponseEntity.ok(dto);
     }
 
+    @PreAuthorize(FREQUENCIES_WRITE)
     @PostMapping
     public ResponseEntity<PaymentFrequencyDTO> insert(@Valid @RequestBody PaymentFrequencyInsertDTO dto) {
         PaymentFrequencyDTO result = service.insert(dto);
@@ -60,6 +66,7 @@ public class PaymentFrequencyController {
         return ControllerResponseBuilder.created(result.getId(), result);
     }
 
+    @PreAuthorize(FREQUENCIES_WRITE)
     @PutMapping("/{id}")
     public ResponseEntity<PaymentFrequencyDTO> update(
             @PathVariable Long id,
@@ -69,12 +76,14 @@ public class PaymentFrequencyController {
         return ResponseEntity.ok(result);
     }
 
+    @PreAuthorize(FREQUENCIES_DELETE)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize(FREQUENCIES_DELETE)
     @DeleteMapping("/all")
     public ResponseEntity<Void> deleteAll(@RequestBody List<Long> ids) {
         service.deleteAll(ids);

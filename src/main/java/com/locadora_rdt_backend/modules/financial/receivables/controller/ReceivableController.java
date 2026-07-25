@@ -16,6 +16,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,6 +32,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+import static com.locadora_rdt_backend.modules.financial.receivables.constants.ReceivableAuthorizationExpressions.*;
+
 @RestController
 @RequestMapping("/receivables")
 public class ReceivableController {
@@ -41,6 +44,7 @@ public class ReceivableController {
         this.service = service;
     }
 
+    @PreAuthorize(RECEIVABLES_READ)
     @GetMapping
     public ResponseEntity<Page<ReceivableDTO>> findAllPaged(
             @RequestParam(value = "description", defaultValue = "") String description,
@@ -80,17 +84,20 @@ public class ReceivableController {
         return ResponseEntity.ok(list);
     }
 
+    @PreAuthorize(RECEIVABLES_READ)
     @GetMapping("/{id}")
     public ResponseEntity<ReceivableDetailsDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(service.findById(id));
     }
 
+    @PreAuthorize(RECEIVABLES_WRITE)
     @PostMapping
     public ResponseEntity<ReceivableDTO> insert(@Valid @RequestBody ReceivableInsertDTO dto) {
         ReceivableDTO result = service.insert(dto);
         return ControllerResponseBuilder.created(result.getId(), result);
     }
 
+    @PreAuthorize(RECEIVABLES_WRITE)
     @PutMapping("/{id}")
     public ResponseEntity<ReceivableDTO> update(
             @PathVariable Long id,
@@ -99,12 +106,14 @@ public class ReceivableController {
         return ResponseEntity.ok(service.update(id, dto));
     }
 
+    @PreAuthorize(RECEIVABLES_DELETE)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize(RECEIVABLES_WRITE)
     @PostMapping("/{id}/payments")
     public ResponseEntity<ReceivableDTO> pay(
             @PathVariable Long id,
@@ -113,6 +122,7 @@ public class ReceivableController {
         return ResponseEntity.ok(service.pay(id, dto));
     }
 
+    @PreAuthorize(RECEIVABLES_WRITE)
     @PostMapping("/{id}/installments")
     public ResponseEntity<List<ReceivableDTO>> installment(
             @PathVariable Long id,
@@ -121,6 +131,7 @@ public class ReceivableController {
         return ResponseEntity.ok(service.installment(id, dto));
     }
 
+    @PreAuthorize(RECEIVABLES_READ)
     @GetMapping("/report")
     public ResponseEntity<ReceivableReportDTO> report(
             @RequestParam(value = "description", defaultValue = "") String description,
@@ -132,6 +143,7 @@ public class ReceivableController {
         return ResponseEntity.ok(service.report(description, startDate, endDate, status, dateType));
     }
 
+    @PreAuthorize(RECEIVABLES_READ)
     @GetMapping(value = "/{id}/receipt", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> receipt(@PathVariable Long id) {
         return ResponseEntity.ok()
@@ -140,6 +152,7 @@ public class ReceivableController {
                 .body(service.receipt(id));
     }
 
+    @PreAuthorize(RECEIVABLES_READ)
     @GetMapping(value = "/{id}/fiscal-coupon", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> fiscalCoupon(@PathVariable Long id) {
         return ResponseEntity.ok()

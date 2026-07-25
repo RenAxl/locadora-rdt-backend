@@ -9,6 +9,7 @@ import com.locadora_rdt_backend.shared.web.ControllerResponseBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,6 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.util.List;
 
+import static com.locadora_rdt_backend.modules.financial.payment.methods.constants.PaymentMethodAuthorizationExpressions.*;
+
 @RestController
 @RequestMapping("/payment-methods")
 public class PaymentMethodController {
@@ -32,6 +35,7 @@ public class PaymentMethodController {
         this.service = service;
     }
 
+    @PreAuthorize(METHODS_READ)
     @GetMapping
     public ResponseEntity<Page<PaymentMethodDTO>> findAllPaged(
             @RequestParam(value = "name", defaultValue = "") String name,
@@ -47,12 +51,14 @@ public class PaymentMethodController {
         return ResponseEntity.ok(list);
     }
 
+    @PreAuthorize(METHODS_READ)
     @GetMapping("/{id}")
     public ResponseEntity<PaymentMethodDetailsDTO> findById(@PathVariable Long id) {
         PaymentMethodDetailsDTO dto = service.findById(id);
         return ResponseEntity.ok(dto);
     }
 
+    @PreAuthorize(METHODS_WRITE)
     @PostMapping
     public ResponseEntity<PaymentMethodDTO> insert(@Valid @RequestBody PaymentMethodInsertDTO dto) {
         PaymentMethodDTO result = service.insert(dto);
@@ -60,6 +66,7 @@ public class PaymentMethodController {
         return ControllerResponseBuilder.created(result.getId(), result);
     }
 
+    @PreAuthorize(METHODS_WRITE)
     @PutMapping("/{id}")
     public ResponseEntity<PaymentMethodDTO> update(
             @PathVariable Long id,
@@ -69,12 +76,14 @@ public class PaymentMethodController {
         return ResponseEntity.ok(result);
     }
 
+    @PreAuthorize(METHODS_DELETE)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize(METHODS_DELETE)
     @DeleteMapping("/all")
     public ResponseEntity<Void> deleteAll(@RequestBody List<Long> ids) {
         service.deleteAll(ids);

@@ -12,11 +12,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.List;
+
+import static com.locadora_rdt_backend.modules.organization.employees.constants.EmployeeAuthorizationExpressions.*;
 
 @RestController
 @RequestMapping("/employees")
@@ -28,6 +31,7 @@ public class EmployeeController {
         this.service = service;
     }
 
+    @PreAuthorize(EMPLOYEES_READ)
     @GetMapping
     public ResponseEntity<Page<EmployeeDTO>> findAllPaged(
             @RequestParam(value = "name", defaultValue = "") String name,
@@ -43,12 +47,14 @@ public class EmployeeController {
         return ResponseEntity.ok(list);
     }
 
+    @PreAuthorize(EMPLOYEES_READ)
     @GetMapping("/{id}")
     public ResponseEntity<EmployeeDetailsDTO> findById(@PathVariable Long id) {
         EmployeeDetailsDTO dto = service.findById(id);
         return ResponseEntity.ok(dto);
     }
 
+    @PreAuthorize(EMPLOYEES_WRITE)
     @PostMapping
     public ResponseEntity<EmployeeDTO> insert(@Valid @RequestBody EmployeeInsertDTO dto) {
         EmployeeDTO result = service.insert(dto);
@@ -56,6 +62,7 @@ public class EmployeeController {
         return ControllerResponseBuilder.created(result.getId(), result);
     }
 
+    @PreAuthorize(EMPLOYEES_WRITE)
     @PutMapping("/{id}")
     public ResponseEntity<EmployeeDTO> update(
             @PathVariable Long id,
@@ -65,6 +72,7 @@ public class EmployeeController {
         return ResponseEntity.ok(result);
     }
 
+    @PreAuthorize(EMPLOYEES_WRITE)
     @PutMapping(value = "/{id}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> updatePhoto(
             @PathVariable Long id,
@@ -74,6 +82,7 @@ public class EmployeeController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize(EMPLOYEES_READ)
     @GetMapping("/{id}/photo")
     public ResponseEntity<byte[]> getPhoto(@PathVariable Long id) {
         Employee entity = service.findEntityById(id);
@@ -81,18 +90,21 @@ public class EmployeeController {
         return BinaryResponseBuilder.media(entity.getPhoto(), entity.getPhotoContentType());
     }
 
+    @PreAuthorize(EMPLOYEES_DELETE)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize(EMPLOYEES_DELETE)
     @DeleteMapping("/all")
     public ResponseEntity<Void> deleteAll(@RequestBody List<Long> ids) {
         service.deleteAll(ids);
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize(EMPLOYEES_WRITE)
     @PatchMapping("/{id}/active")
     public ResponseEntity<Void> changeActive(
             @PathVariable Long id,

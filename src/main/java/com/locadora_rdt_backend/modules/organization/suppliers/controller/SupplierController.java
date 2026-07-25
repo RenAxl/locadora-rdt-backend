@@ -12,10 +12,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+
+import static com.locadora_rdt_backend.modules.organization.suppliers.constants.SupplierAuthorizationExpressions.*;
 
 @RestController
 @RequestMapping("/suppliers")
@@ -27,6 +30,7 @@ public class SupplierController {
         this.service = service;
     }
 
+    @PreAuthorize(SUPPLIERS_READ)
     @GetMapping
     public ResponseEntity<Page<SupplierDTO>> findAllPaged(
             @RequestParam(value = "name", defaultValue = "") String name,
@@ -39,17 +43,20 @@ public class SupplierController {
         return ResponseEntity.ok(service.findAllPaged(name, pageRequest));
     }
 
+    @PreAuthorize(SUPPLIERS_READ)
     @GetMapping("/{id}")
     public ResponseEntity<SupplierDetailsDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(service.findById(id));
     }
 
+    @PreAuthorize(SUPPLIERS_WRITE)
     @PostMapping
     public ResponseEntity<SupplierDTO> insert(@Valid @RequestBody SupplierInsertDTO dto) {
         SupplierDTO result = service.insert(dto);
         return ControllerResponseBuilder.created(result.getId(), result);
     }
 
+    @PreAuthorize(SUPPLIERS_WRITE)
     @PutMapping("/{id}")
     public ResponseEntity<SupplierDTO> update(
             @PathVariable Long id,
@@ -58,6 +65,7 @@ public class SupplierController {
         return ResponseEntity.ok(service.update(id, dto));
     }
 
+    @PreAuthorize(SUPPLIERS_WRITE)
     @PutMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> updateImage(
             @PathVariable Long id,
@@ -67,6 +75,7 @@ public class SupplierController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize(SUPPLIERS_READ)
     @GetMapping("/{id}/image")
     public ResponseEntity<byte[]> getImage(@PathVariable Long id) {
         Supplier entity = service.findEntityById(id);
@@ -74,6 +83,7 @@ public class SupplierController {
         return BinaryResponseBuilder.media(entity.getImage(), entity.getImageContentType());
     }
 
+    @PreAuthorize(SUPPLIERS_DELETE)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
