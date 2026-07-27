@@ -3,14 +3,14 @@ package com.locadora_rdt_backend.tests.modules.positions.service;
 import com.locadora_rdt_backend.common.exception.DatabaseException;
 import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
 import com.locadora_rdt_backend.infrastructure.security.AuthenticationFacade;
-import com.locadora_rdt_backend.modules.positions.dto.PositionDTO;
-import com.locadora_rdt_backend.modules.positions.dto.PositionDetailsDTO;
-import com.locadora_rdt_backend.modules.positions.dto.PositionInsertDTO;
-import com.locadora_rdt_backend.modules.positions.dto.PositionUpdateDTO;
-import com.locadora_rdt_backend.modules.positions.mapper.PositionMapper;
-import com.locadora_rdt_backend.modules.positions.model.Position;
-import com.locadora_rdt_backend.modules.positions.repository.PositionRepository;
-import com.locadora_rdt_backend.modules.positions.service.PositionServiceImpl;
+import com.locadora_rdt_backend.modules.organization.positions.dto.PositionDTO;
+import com.locadora_rdt_backend.modules.organization.positions.dto.PositionDetailsDTO;
+import com.locadora_rdt_backend.modules.organization.positions.dto.PositionInsertDTO;
+import com.locadora_rdt_backend.modules.organization.positions.dto.PositionUpdateDTO;
+import com.locadora_rdt_backend.modules.organization.positions.mapper.PositionMapper;
+import com.locadora_rdt_backend.modules.organization.positions.model.Position;
+import com.locadora_rdt_backend.modules.organization.positions.repository.PositionRepository;
+import com.locadora_rdt_backend.modules.organization.positions.service.PositionServiceImpl;
 
 
 import com.locadora_rdt_backend.tests.modules.positions.factory.PositionFactory;

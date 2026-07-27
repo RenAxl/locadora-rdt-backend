@@ -1,12 +1,12 @@
 package com.locadora_rdt_backend.tests.modules.financial.payment.settings.service;
 
 import com.locadora_rdt_backend.infrastructure.security.AuthenticationFacade;
-import com.locadora_rdt_backend.modules.financial.payment.settings.dto.FinancialSettingDTO;
-import com.locadora_rdt_backend.modules.financial.payment.settings.dto.FinancialSettingUpdateDTO;
-import com.locadora_rdt_backend.modules.financial.payment.settings.mapper.FinancialSettingMapper;
-import com.locadora_rdt_backend.modules.financial.payment.settings.model.FinancialSetting;
-import com.locadora_rdt_backend.modules.financial.payment.settings.repository.FinancialSettingRepository;
-import com.locadora_rdt_backend.modules.financial.payment.settings.service.FinancialSettingServiceImpl;
+import com.locadora_rdt_backend.modules.settings.financialsettings.dto.FinancialSettingDTO;
+import com.locadora_rdt_backend.modules.settings.financialsettings.dto.FinancialSettingUpdateDTO;
+import com.locadora_rdt_backend.modules.settings.financialsettings.mapper.FinancialSettingMapper;
+import com.locadora_rdt_backend.modules.settings.financialsettings.model.FinancialSetting;
+import com.locadora_rdt_backend.modules.settings.financialsettings.repository.FinancialSettingRepository;
+import com.locadora_rdt_backend.modules.settings.financialsettings.service.FinancialSettingServiceImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -1,10 +1,10 @@
 package com.locadora_rdt_backend.tests.modules.rental.categories.factory;
 
-import com.locadora_rdt_backend.modules.categories.dto.CategoryDTO;
-import com.locadora_rdt_backend.modules.categories.dto.CategoryDetailsDTO;
-import com.locadora_rdt_backend.modules.categories.dto.CategoryInsertDTO;
-import com.locadora_rdt_backend.modules.categories.dto.CategoryUpdateDTO;
-import com.locadora_rdt_backend.modules.categories.model.Category;
+import com.locadora_rdt_backend.modules.stocks.categories.dto.CategoryDTO;
+import com.locadora_rdt_backend.modules.stocks.categories.dto.CategoryDetailsDTO;
+import com.locadora_rdt_backend.modules.stocks.categories.dto.CategoryInsertDTO;
+import com.locadora_rdt_backend.modules.stocks.categories.dto.CategoryUpdateDTO;
+import com.locadora_rdt_backend.modules.stocks.categories.model.Category;
 
 import java.time.Instant;
 

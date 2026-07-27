@@ -1,7 +1,7 @@
 package com.locadora_rdt_backend.modules.reports.inventoryreports.service;
 
-import com.locadora_rdt_backend.modules.inventory.stockbalances.model.StockBalance;
-import com.locadora_rdt_backend.modules.inventory.stockmovements.model.StockMovement;
+import com.locadora_rdt_backend.modules.stocks.stockbalances.model.StockBalance;
+import com.locadora_rdt_backend.modules.stocks.stockmovements.model.StockMovement;
 import com.locadora_rdt_backend.modules.reports.inventoryreports.dto.InventoryReportFilterDTO;
 import com.locadora_rdt_backend.modules.reports.inventoryreports.model.InventoryReportType;
 import com.locadora_rdt_backend.shared.reports.JasperReportGenerator;
@@ -61,12 +61,7 @@ public class InventoryReportServiceImpl implements InventoryReportService {
             return tableService.lowStockReport(items);
         }
 
-        if (type == InventoryReportType.MOVEMENT_HISTORY) {
-            List<StockMovement> items = queryService.findMovementHistory(filters);
-            return tableService.movementHistoryReport(items);
-        }
-
-        List<StockMovement> items = queryService.findManualAdjustments(filters);
-        return tableService.manualAdjustmentsReport(items);
+        List<StockMovement> items = queryService.findMovementHistory(filters);
+        return tableService.movementHistoryReport(items);
     }
 }

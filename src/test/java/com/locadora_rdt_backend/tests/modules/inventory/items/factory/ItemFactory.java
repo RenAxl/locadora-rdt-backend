@@ -1,11 +1,11 @@
 package com.locadora_rdt_backend.tests.modules.inventory.items.factory;
 
-import com.locadora_rdt_backend.modules.inventory.items.dto.ItemDTO;
-import com.locadora_rdt_backend.modules.inventory.items.dto.ItemDetailsDTO;
-import com.locadora_rdt_backend.modules.inventory.items.dto.ItemInsertDTO;
-import com.locadora_rdt_backend.modules.inventory.items.dto.ItemUpdateDTO;
-import com.locadora_rdt_backend.modules.inventory.items.model.Item;
-import com.locadora_rdt_backend.modules.categories.model.Category;
+import com.locadora_rdt_backend.modules.stocks.items.dto.ItemDTO;
+import com.locadora_rdt_backend.modules.stocks.items.dto.ItemDetailsDTO;
+import com.locadora_rdt_backend.modules.stocks.items.dto.ItemInsertDTO;
+import com.locadora_rdt_backend.modules.stocks.items.dto.ItemUpdateDTO;
+import com.locadora_rdt_backend.modules.stocks.items.model.Item;
+import com.locadora_rdt_backend.modules.stocks.categories.model.Category;
 import com.locadora_rdt_backend.tests.modules.rental.categories.factory.CategoryFactory;
 
 import java.math.BigDecimal;

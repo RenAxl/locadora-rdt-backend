@@ -1,7 +1,7 @@
 package com.locadora_rdt_backend.modules.financial.receivables.service;
 
-import com.locadora_rdt_backend.modules.financial.payment.settings.model.FinancialSetting;
-import com.locadora_rdt_backend.modules.financial.payment.settings.repository.FinancialSettingRepository;
+import com.locadora_rdt_backend.modules.settings.financialsettings.model.FinancialSetting;
+import com.locadora_rdt_backend.modules.settings.financialsettings.repository.FinancialSettingRepository;
 import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableDTO;
 import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivablePaymentDTO;
 import com.locadora_rdt_backend.modules.financial.receivables.model.Receivable;

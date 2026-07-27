@@ -1,10 +1,10 @@
 package com.locadora_rdt_backend.tests.modules.permissions.service;
 
 import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
-import com.locadora_rdt_backend.modules.permissions.dto.PermissionDTO;
-import com.locadora_rdt_backend.modules.permissions.model.Permission;
-import com.locadora_rdt_backend.modules.permissions.repository.PermissionRepository;
-import com.locadora_rdt_backend.modules.permissions.service.PermissionServiceImpl;
+import com.locadora_rdt_backend.modules.identity.permissions.dto.PermissionDTO;
+import com.locadora_rdt_backend.modules.identity.permissions.model.Permission;
+import com.locadora_rdt_backend.modules.identity.permissions.repository.PermissionRepository;
+import com.locadora_rdt_backend.modules.identity.permissions.service.PermissionServiceImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

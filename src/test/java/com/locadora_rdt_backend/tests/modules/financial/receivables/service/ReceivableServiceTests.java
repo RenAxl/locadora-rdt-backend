@@ -3,14 +3,14 @@ package com.locadora_rdt_backend.tests.modules.financial.receivables.service;
 import com.locadora_rdt_backend.common.exception.DatabaseException;
 import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
 import com.locadora_rdt_backend.infrastructure.security.AuthenticationFacade;
-import com.locadora_rdt_backend.modules.customers.model.Customer;
-import com.locadora_rdt_backend.modules.customers.repository.CustomerRepository;
+import com.locadora_rdt_backend.modules.organization.customers.model.Customer;
+import com.locadora_rdt_backend.modules.organization.customers.repository.CustomerRepository;
 import com.locadora_rdt_backend.modules.financial.payment.frequencies.model.PaymentFrequency;
 import com.locadora_rdt_backend.modules.financial.payment.frequencies.repository.PaymentFrequencyRepository;
 import com.locadora_rdt_backend.modules.financial.payment.methods.model.PaymentMethod;
 import com.locadora_rdt_backend.modules.financial.payment.methods.repository.PaymentMethodRepository;
-import com.locadora_rdt_backend.modules.financial.payment.settings.model.FinancialSetting;
-import com.locadora_rdt_backend.modules.financial.payment.settings.repository.FinancialSettingRepository;
+import com.locadora_rdt_backend.modules.settings.financialsettings.model.FinancialSetting;
+import com.locadora_rdt_backend.modules.settings.financialsettings.repository.FinancialSettingRepository;
 import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableDTO;
 import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableDetailsDTO;
 import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableFilterDTO;
@@ -26,8 +26,9 @@ import com.locadora_rdt_backend.modules.financial.receivables.service.Receivable
 import com.locadora_rdt_backend.modules.financial.receivables.service.ReceivableFilterNormalizer;
 import com.locadora_rdt_backend.modules.financial.receivables.service.ReceivableFinancialCalculator;
 import com.locadora_rdt_backend.modules.financial.receivables.service.ReceivableServiceImpl;
-import com.locadora_rdt_backend.modules.users.model.User;
-import com.locadora_rdt_backend.modules.users.repository.UserRepository;
+import com.locadora_rdt_backend.modules.rentals.rental.model.Rental;
+import com.locadora_rdt_backend.modules.identity.users.model.User;
+import com.locadora_rdt_backend.modules.identity.users.repository.UserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -143,6 +144,34 @@ class ReceivableServiceTests {
         Mockito.lenient()
                 .when(financialSettingRepository.findBySingletonKey(FinancialSetting.DEFAULT_SINGLETON_KEY))
                 .thenReturn(Optional.of(financialSetting));
+    }
+
+    @Test
+    void createFromRentalShouldCreatePaidReceivable() {
+        Rental rental = new Rental();
+        rental.setId(10L);
+        rental.setRentalNumber("LOC-10");
+        rental.setCustomer(customer);
+        rental.setPaymentMethod(paymentMethod);
+        rental.setRemainingAmount(new BigDecimal("95.00"));
+        Mockito.when(authenticationFacade.getAuthenticatedUsername()).thenReturn(user.getEmail());
+        Mockito.when(userRepository.findByEmail(user.getEmail())).thenReturn(user);
+
+        service.createFromRental(rental);
+
+        ArgumentCaptor<Receivable> captor = ArgumentCaptor.forClass(Receivable.class);
+        Mockito.verify(repository).save(captor.capture());
+        Receivable saved = captor.getValue();
+        Assertions.assertEquals("Locação LOC-10", saved.getDescription());
+        Assertions.assertEquals(new BigDecimal("95.00"), saved.getAmount());
+        Assertions.assertEquals(LocalDate.of(2026, 7, 6), saved.getDueDate());
+        Assertions.assertEquals(LocalDate.of(2026, 7, 6), saved.getPaymentDate());
+        Assertions.assertEquals("RENTAL", saved.getReference());
+        Assertions.assertEquals(10L, saved.getReferenceId());
+        Assertions.assertTrue(saved.getPaid());
+        Assertions.assertEquals(BigDecimal.ZERO, saved.getRemainingBalance());
+        Assertions.assertSame(customer, saved.getCustomer());
+        Assertions.assertSame(paymentMethod, saved.getPaymentMethod());
     }
 
     @Test

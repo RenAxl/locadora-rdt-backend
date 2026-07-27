@@ -1,7 +1,7 @@
 package com.locadora_rdt_backend.modules.identity.passwordreset.model;
 
 import com.locadora_rdt_backend.modules.identity.passwordreset.model.enums.TokenType;
-import com.locadora_rdt_backend.modules.users.model.User;
+import com.locadora_rdt_backend.modules.identity.users.model.User;
 
 import java.io.Serializable;
 import java.time.Instant;

@@ -2,8 +2,8 @@ package com.locadora_rdt_backend.tests.modules.customeraccount.listener;
 
 import com.locadora_rdt_backend.infrastructure.mail.service.EmailService;
 import com.locadora_rdt_backend.infrastructure.mail.template.ActivationEmailTemplateService;
-import com.locadora_rdt_backend.modules.customeraccount.event.CustomerAccountActivationEvent;
-import com.locadora_rdt_backend.modules.customeraccount.listener.CustomerAccountEmailListener;
+import com.locadora_rdt_backend.modules.identity.customeraccount.event.CustomerAccountActivationEvent;
+import com.locadora_rdt_backend.modules.identity.customeraccount.listener.CustomerAccountEmailListener;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

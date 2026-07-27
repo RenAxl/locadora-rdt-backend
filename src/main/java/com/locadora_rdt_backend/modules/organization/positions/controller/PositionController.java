@@ -1,0 +1,76 @@
+package com.locadora_rdt_backend.modules.organization.positions.controller;
+
+import com.locadora_rdt_backend.modules.organization.positions.dto.PositionDTO;
+import com.locadora_rdt_backend.modules.organization.positions.dto.PositionDetailsDTO;
+import com.locadora_rdt_backend.modules.organization.positions.dto.PositionInsertDTO;
+import com.locadora_rdt_backend.modules.organization.positions.dto.PositionUpdateDTO;
+import com.locadora_rdt_backend.modules.organization.positions.service.PositionService;
+import com.locadora_rdt_backend.shared.web.ControllerResponseBuilder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+
+import static com.locadora_rdt_backend.modules.organization.positions.constants.PositionAuthorizationExpressions.*;
+
+@RestController
+@RequestMapping("/positions")
+public class PositionController {
+
+    private final PositionService service;
+
+    public PositionController(PositionService service) {
+        this.service = service;
+    }
+
+    @PreAuthorize(POSITIONS_READ)
+    @GetMapping
+    public ResponseEntity<Page<PositionDTO>> findAllPaged(
+            @RequestParam(value = "name", defaultValue = "") String name,
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "linesPerPage", defaultValue = "10") Integer linesPerPage,
+            @RequestParam(value = "direction", defaultValue = "ASC") String direction,
+            @RequestParam(value = "orderBy", defaultValue = "name") String orderBy
+    ) {
+        PageRequest pageRequest = ControllerResponseBuilder.pageRequest(page, linesPerPage, direction, orderBy);
+
+        Page<PositionDTO> list = service.findAllPaged(name, pageRequest);
+
+        return ResponseEntity.ok(list);
+    }
+
+    @PreAuthorize(POSITIONS_READ)
+    @GetMapping("/{id}")
+    public ResponseEntity<PositionDetailsDTO> findById(@PathVariable Long id) {
+        PositionDetailsDTO dto = service.findById(id);
+        return ResponseEntity.ok(dto);
+    }
+
+    @PreAuthorize(POSITIONS_WRITE)
+    @PostMapping
+    public ResponseEntity<PositionDTO> insert(@Valid @RequestBody PositionInsertDTO dto) {
+        PositionDTO result = service.insert(dto);
+
+        return ControllerResponseBuilder.created(result.getId(), result);
+    }
+
+    @PreAuthorize(POSITIONS_WRITE)
+    @PutMapping("/{id}")
+    public ResponseEntity<PositionDTO> update(
+            @PathVariable Long id,
+            @Valid @RequestBody PositionUpdateDTO dto
+    ) {
+        PositionDTO result = service.update(id, dto);
+        return ResponseEntity.ok(result);
+    }
+
+    @PreAuthorize(POSITIONS_DELETE)
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+}

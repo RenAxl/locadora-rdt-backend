@@ -4,8 +4,8 @@ import com.locadora_rdt_backend.common.exception.DatabaseException;
 import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
 import com.locadora_rdt_backend.infrastructure.security.AuthenticationFacade;
 import com.locadora_rdt_backend.modules.financial.receivables.constants.ReceivableErrorMessages;
-import com.locadora_rdt_backend.modules.customers.model.Customer;
-import com.locadora_rdt_backend.modules.customers.repository.CustomerRepository;
+import com.locadora_rdt_backend.modules.organization.customers.model.Customer;
+import com.locadora_rdt_backend.modules.organization.customers.repository.CustomerRepository;
 import com.locadora_rdt_backend.modules.financial.payment.frequencies.model.PaymentFrequency;
 import com.locadora_rdt_backend.modules.financial.payment.frequencies.repository.PaymentFrequencyRepository;
 import com.locadora_rdt_backend.modules.financial.payment.methods.model.PaymentMethod;
@@ -22,8 +22,9 @@ import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableUpda
 import com.locadora_rdt_backend.modules.financial.receivables.mapper.ReceivableMapper;
 import com.locadora_rdt_backend.modules.financial.receivables.model.Receivable;
 import com.locadora_rdt_backend.modules.financial.receivables.repository.ReceivableRepository;
-import com.locadora_rdt_backend.modules.users.model.User;
-import com.locadora_rdt_backend.modules.users.repository.UserRepository;
+import com.locadora_rdt_backend.modules.rentals.rental.model.Rental;
+import com.locadora_rdt_backend.modules.identity.users.model.User;
+import com.locadora_rdt_backend.modules.identity.users.repository.UserRepository;
 import com.lowagie.text.DocumentException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -149,6 +150,35 @@ public class ReceivableServiceImpl implements ReceivableService {
 
         entity = repository.save(entity);
         return toDTOWithLateCharges(entity);
+    }
+
+    @Override
+    @Transactional
+    public void createFromRental(Rental rental) {
+        if (repository.existsByReferenceAndReferenceId("RENTAL", rental.getId())) {
+            return;
+        }
+
+        LocalDate paymentDate = today();
+        BigDecimal amount = financialCalculator.valueOrZero(rental.getRemainingAmount());
+        User user = getAuthenticatedUser();
+
+        Receivable entity = new Receivable();
+        entity.setDescription("Locação " + rental.getRentalNumber());
+        entity.setAmount(amount);
+        entity.setDueDate(paymentDate);
+        entity.setPaymentDate(paymentDate);
+        entity.setCustomer(rental.getCustomer());
+        entity.setPaymentMethod(rental.getPaymentMethod());
+        entity.setReference("RENTAL");
+        entity.setReferenceId(rental.getId());
+        entity.setNote("Conta gerada automaticamente na baixa da locação.");
+        entity.setPaid(true);
+        entity.setSubtotal(amount);
+        entity.setRemainingBalance(ZERO);
+        entity.setCreatedBy(user);
+        entity.setPaidBy(user);
+        repository.save(entity);
     }
 
     @Override

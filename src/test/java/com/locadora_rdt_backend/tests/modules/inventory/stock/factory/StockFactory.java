@@ -1,13 +1,13 @@
 package com.locadora_rdt_backend.tests.modules.inventory.stock.factory;
 
-import com.locadora_rdt_backend.modules.inventory.items.model.Item;
-import com.locadora_rdt_backend.modules.inventory.stockbalances.dto.StockBalanceDTO;
-import com.locadora_rdt_backend.modules.inventory.stockbalances.dto.StockBalanceDetailsDTO;
-import com.locadora_rdt_backend.modules.inventory.stockbalances.dto.StockBalanceUpdateDTO;
-import com.locadora_rdt_backend.modules.inventory.stockbalances.model.StockBalance;
-import com.locadora_rdt_backend.modules.inventory.stockmovements.dto.StockMovementDTO;
-import com.locadora_rdt_backend.modules.inventory.stockmovements.dto.StockMovementInsertDTO;
-import com.locadora_rdt_backend.modules.inventory.stockmovements.model.StockMovement;
+import com.locadora_rdt_backend.modules.stocks.items.model.Item;
+import com.locadora_rdt_backend.modules.stocks.stockbalances.dto.StockBalanceDTO;
+import com.locadora_rdt_backend.modules.stocks.stockbalances.dto.StockBalanceDetailsDTO;
+import com.locadora_rdt_backend.modules.stocks.stockbalances.dto.StockBalanceUpdateDTO;
+import com.locadora_rdt_backend.modules.stocks.stockbalances.model.StockBalance;
+import com.locadora_rdt_backend.modules.stocks.stockmovements.dto.StockMovementDTO;
+import com.locadora_rdt_backend.modules.stocks.stockmovements.dto.StockMovementInsertDTO;
+import com.locadora_rdt_backend.modules.stocks.stockmovements.model.StockMovement;
 import com.locadora_rdt_backend.tests.modules.inventory.items.factory.ItemFactory;
 
 import java.time.Instant;

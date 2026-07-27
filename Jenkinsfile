@@ -98,7 +98,7 @@ pipeline {
                           | sed 's#^#**/#' \
                           | paste -sd, -)"
 
-                        ./mvnw sonar:sonar \
+                        ./mvnw org.sonarsource.scanner.maven:sonar-maven-plugin:5.7.0.6970:sonar \
                           -Dsonar.projectKey=locadora-rdt-backend \
                           -Dsonar.projectName=locadora-rdt-backend \
                           -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \

@@ -8,8 +8,8 @@ import com.locadora_rdt_backend.modules.identity.passwordreset.model.PasswordRes
 import com.locadora_rdt_backend.modules.identity.passwordreset.model.enums.TokenType;
 import com.locadora_rdt_backend.modules.identity.passwordreset.repository.PasswordResetTokenRepository;
 import com.locadora_rdt_backend.modules.identity.token.service.IdentityTokenService;
-import com.locadora_rdt_backend.modules.users.model.User;
-import com.locadora_rdt_backend.modules.users.repository.UserRepository;
+import com.locadora_rdt_backend.modules.identity.users.model.User;
+import com.locadora_rdt_backend.modules.identity.users.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;

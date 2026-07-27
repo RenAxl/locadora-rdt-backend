@@ -1,8 +1,8 @@
 package com.locadora_rdt_backend.tests.modules.identity.service;
 
 import com.locadora_rdt_backend.modules.identity.auth.security.CustomUserDetailsService;
-import com.locadora_rdt_backend.modules.users.model.User;
-import com.locadora_rdt_backend.modules.users.repository.UserRepository;
+import com.locadora_rdt_backend.modules.identity.users.model.User;
+import com.locadora_rdt_backend.modules.identity.users.repository.UserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

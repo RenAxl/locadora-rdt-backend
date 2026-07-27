@@ -1,7 +1,7 @@
 package com.locadora_rdt_backend.modules.financial.payables.service;
 
-import com.locadora_rdt_backend.modules.financial.payment.settings.model.FinancialSetting;
-import com.locadora_rdt_backend.modules.financial.payment.settings.repository.FinancialSettingRepository;
+import com.locadora_rdt_backend.modules.settings.financialsettings.model.FinancialSetting;
+import com.locadora_rdt_backend.modules.settings.financialsettings.repository.FinancialSettingRepository;
 import com.locadora_rdt_backend.modules.financial.payables.dto.PayableDTO;
 import com.locadora_rdt_backend.modules.financial.payables.dto.PayablePaymentDTO;
 import com.locadora_rdt_backend.modules.financial.payables.model.Payable;

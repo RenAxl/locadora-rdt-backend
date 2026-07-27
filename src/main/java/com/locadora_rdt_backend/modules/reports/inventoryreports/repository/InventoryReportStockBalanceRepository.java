@@ -1,6 +1,6 @@
 package com.locadora_rdt_backend.modules.reports.inventoryreports.repository;
 
-import com.locadora_rdt_backend.modules.inventory.stockbalances.model.StockBalance;
+import com.locadora_rdt_backend.modules.stocks.stockbalances.model.StockBalance;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,6 +30,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+import static com.locadora_rdt_backend.modules.financial.payables.constants.PayableAuthorizationExpressions.*;
+
 @RestController
 @RequestMapping("/payables")
 public class PayableController {
@@ -39,6 +42,7 @@ public class PayableController {
         this.service = service;
     }
 
+    @PreAuthorize(PAYABLES_READ)
     @GetMapping
     public ResponseEntity<Page<PayableDTO>> findAllPaged(
             @RequestParam(value = "description", defaultValue = "") String description,
@@ -80,17 +84,20 @@ public class PayableController {
         return ResponseEntity.ok(list);
     }
 
+    @PreAuthorize(PAYABLES_READ)
     @GetMapping("/{id}")
     public ResponseEntity<PayableDetailsDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(service.findById(id));
     }
 
+    @PreAuthorize(PAYABLES_WRITE)
     @PostMapping
     public ResponseEntity<PayableDTO> insert(@Valid @RequestBody PayableInsertDTO dto) {
         PayableDTO result = service.insert(dto);
         return ControllerResponseBuilder.created(result.getId(), result);
     }
 
+    @PreAuthorize(PAYABLES_WRITE)
     @PutMapping("/{id}")
     public ResponseEntity<PayableDTO> update(
             @PathVariable Long id,
@@ -99,12 +106,14 @@ public class PayableController {
         return ResponseEntity.ok(service.update(id, dto));
     }
 
+    @PreAuthorize(PAYABLES_DELETE)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize(PAYABLES_WRITE)
     @PostMapping("/{id}/payments")
     public ResponseEntity<PayableDTO> pay(
             @PathVariable Long id,
@@ -113,6 +122,7 @@ public class PayableController {
         return ResponseEntity.ok(service.pay(id, dto));
     }
 
+    @PreAuthorize(PAYABLES_WRITE)
     @PostMapping("/{id}/installments")
     public ResponseEntity<List<PayableDTO>> installment(
             @PathVariable Long id,
@@ -121,6 +131,7 @@ public class PayableController {
         return ResponseEntity.ok(service.installment(id, dto));
     }
 
+    @PreAuthorize(PAYABLES_READ)
     @GetMapping("/report")
     public ResponseEntity<PayableReportDTO> report(
             @RequestParam(value = "description", defaultValue = "") String description,
