@@ -4,17 +4,17 @@ import com.locadora_rdt_backend.modules.organization.customers.model.Customer;
 import com.locadora_rdt_backend.modules.organization.employees.model.Employee;
 import com.locadora_rdt_backend.modules.financial.payables.model.Payable;
 import com.locadora_rdt_backend.modules.financial.receivables.model.Receivable;
-import com.locadora_rdt_backend.modules.reports.financialreports.dto.ReportComparisonDTO;
+import com.locadora_rdt_backend.modules.reports.financialreports.dto.FinancialReportComparisonDTO;
 import com.locadora_rdt_backend.shared.reports.ReportFileDTO;
-import com.locadora_rdt_backend.modules.reports.financialreports.dto.ReportFilterDTO;
+import com.locadora_rdt_backend.modules.reports.financialreports.dto.FinancialReportFilterDTO;
 import com.locadora_rdt_backend.shared.reports.ReportFormat;
-import com.locadora_rdt_backend.modules.reports.financialreports.repository.ReportPayableRepository;
-import com.locadora_rdt_backend.modules.reports.financialreports.repository.ReportReceivableRepository;
+import com.locadora_rdt_backend.modules.reports.financialreports.repository.FinancialReportPayableRepository;
+import com.locadora_rdt_backend.modules.reports.financialreports.repository.FinancialReportReceivableRepository;
 import com.locadora_rdt_backend.shared.reports.JasperReportGenerator;
-import com.locadora_rdt_backend.modules.reports.financialreports.service.ReportCalculationService;
-import com.locadora_rdt_backend.modules.reports.financialreports.service.ReportQueryService;
-import com.locadora_rdt_backend.modules.reports.financialreports.service.ReportServiceImpl;
-import com.locadora_rdt_backend.modules.reports.financialreports.service.ReportTableService;
+import com.locadora_rdt_backend.modules.reports.financialreports.service.FinancialReportCalculationService;
+import com.locadora_rdt_backend.modules.reports.financialreports.service.FinancialReportQueryService;
+import com.locadora_rdt_backend.modules.reports.financialreports.service.FinancialReportServiceImpl;
+import com.locadora_rdt_backend.modules.reports.financialreports.service.FinancialReportTableService;
 import com.locadora_rdt_backend.modules.organization.suppliers.model.Supplier;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,23 +29,23 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
 
-class ReportServiceTests {
+class FinancialReportServiceTests {
 
-    private ReportReceivableRepository receivableRepository;
-    private ReportPayableRepository payableRepository;
+    private FinancialReportReceivableRepository receivableRepository;
+    private FinancialReportPayableRepository payableRepository;
     private JasperReportGenerator generator;
-    private ReportServiceImpl service;
+    private FinancialReportServiceImpl service;
 
     @BeforeEach
     void setup() {
-        receivableRepository = Mockito.mock(ReportReceivableRepository.class);
-        payableRepository = Mockito.mock(ReportPayableRepository.class);
+        receivableRepository = Mockito.mock(FinancialReportReceivableRepository.class);
+        payableRepository = Mockito.mock(FinancialReportPayableRepository.class);
         generator = Mockito.mock(JasperReportGenerator.class);
         Clock clock = Clock.fixed(Instant.parse("2026-07-07T00:00:00Z"), ZoneOffset.UTC);
-        ReportQueryService queryService = new ReportQueryService(receivableRepository, payableRepository);
-        ReportCalculationService calculationService = new ReportCalculationService();
-        ReportTableService tableService = new ReportTableService(calculationService, clock);
-        service = new ReportServiceImpl(queryService, calculationService, tableService, generator, clock);
+        FinancialReportQueryService queryService = new FinancialReportQueryService(receivableRepository, payableRepository);
+        FinancialReportCalculationService calculationService = new FinancialReportCalculationService();
+        FinancialReportTableService tableService = new FinancialReportTableService(calculationService, clock);
+        service = new FinancialReportServiceImpl(queryService, calculationService, tableService, generator, clock);
         Mockito.when(generator.generate(ArgumentMatchers.anyString(), ArgumentMatchers.anyList(),
                         ArgumentMatchers.anyList(), ArgumentMatchers.any(ReportFormat.class)))
                 .thenReturn(new byte[]{1, 2, 3});
@@ -55,7 +55,7 @@ class ReportServiceTests {
     void generateReceivablesShouldReturnPdfFile() {
         mockReceivables(List.of(receivable(1L, true)));
 
-        ReportFilterDTO filters = new ReportFilterDTO();
+        FinancialReportFilterDTO filters = new FinancialReportFilterDTO();
         filters.setStatus("paid");
         ReportFileDTO file = service.generate("receivables", "pdf", filters);
 
@@ -71,7 +71,7 @@ class ReportServiceTests {
         mockReceivables(List.of(receivable(1L, true)));
         mockPayables(List.of(payable(2L, true)));
 
-        ReportFileDTO file = service.generate("financial", "xlsx", new ReportFilterDTO());
+        ReportFileDTO file = service.generate("financial", "xlsx", new FinancialReportFilterDTO());
 
         Assertions.assertEquals("financial.xlsx", file.getFileName());
         Assertions.assertEquals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", file.getContentType());
@@ -84,7 +84,7 @@ class ReportServiceTests {
         mockReceivables(List.of(receivable(1L, true), receivable(2L, false)));
         mockPayables(List.of(payable(3L, true)));
 
-        ReportComparisonDTO comparison = service.comparison(new ReportFilterDTO());
+        FinancialReportComparisonDTO comparison = service.comparison(new FinancialReportFilterDTO());
 
         Assertions.assertEquals(new BigDecimal("200.00"), comparison.getReceivableTotal());
         Assertions.assertEquals(new BigDecimal("50.00"), comparison.getPayableTotal());
@@ -99,12 +99,12 @@ class ReportServiceTests {
 
     @Test
     void comparisonShouldUseYearFromFilters() {
-        ReportFilterDTO filters = new ReportFilterDTO();
+        FinancialReportFilterDTO filters = new FinancialReportFilterDTO();
         filters.setYear(2025);
         mockReceivables(List.of(receivable(1L, true)));
         mockPayables(List.of(payable(3L, true)));
 
-        ReportComparisonDTO comparison = service.comparison(filters);
+        FinancialReportComparisonDTO comparison = service.comparison(filters);
 
         Assertions.assertEquals(2025, comparison.getYear());
     }
@@ -113,7 +113,7 @@ class ReportServiceTests {
     void generatePayablesShouldReturnReport() {
         mockPayables(List.of(payable(2L, false)));
 
-        ReportFileDTO file = service.generate("payables", "pdf", new ReportFilterDTO());
+        ReportFileDTO file = service.generate("payables", "pdf", new FinancialReportFilterDTO());
 
         Assertions.assertEquals("payables.pdf", file.getFileName());
         Mockito.verify(generator).generate(ArgumentMatchers.eq("Relatório de Contas a Pagar"),
@@ -126,9 +126,9 @@ class ReportServiceTests {
         mockPayables(List.of(payableWithSupplierAndEmployee("Fornecedor A", "Funcionário A", true),
                 payableWithSupplierAndEmployee("Fornecedor B", "Funcionário A", false)));
 
-        service.generate("summary-customer", "pdf", new ReportFilterDTO());
-        service.generate("summary-supplier", "pdf", new ReportFilterDTO());
-        service.generate("summary-employee", "pdf", new ReportFilterDTO());
+        service.generate("summary-customer", "pdf", new FinancialReportFilterDTO());
+        service.generate("summary-supplier", "pdf", new FinancialReportFilterDTO());
+        service.generate("summary-employee", "pdf", new FinancialReportFilterDTO());
 
         Mockito.verify(generator).generate(ArgumentMatchers.eq("Relatório Sintético por Cliente"),
                 ArgumentMatchers.anyList(), ArgumentMatchers.anyList(), ArgumentMatchers.eq(ReportFormat.PDF));
@@ -140,7 +140,7 @@ class ReportServiceTests {
 
     @Test
     void generateAnnualBalanceShouldReturnMonthlyRows() {
-        ReportFilterDTO filters = new ReportFilterDTO();
+        FinancialReportFilterDTO filters = new FinancialReportFilterDTO();
         filters.setYear(2026);
         mockReceivables(List.of(receivable(1L, true)));
         mockPayables(List.of(payable(2L, true)));
@@ -157,7 +157,7 @@ class ReportServiceTests {
         mockReceivables(List.of(receivable(1L, true)));
         mockPayables(List.of(payable(2L, true)));
 
-        ReportFileDTO file = service.generate("annual-balance", "pdf", new ReportFilterDTO());
+        ReportFileDTO file = service.generate("annual-balance", "pdf", new FinancialReportFilterDTO());
 
         Assertions.assertEquals("annual_balance.pdf", file.getFileName());
         Mockito.verify(generator).generate(ArgumentMatchers.eq("Balanço Anual 2026"),
@@ -166,10 +166,10 @@ class ReportServiceTests {
 
     @Test
     void generateShouldRejectInvalidValues() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> service.generate(null, "pdf", new ReportFilterDTO()));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> service.generate("receivables", null, new ReportFilterDTO()));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> service.generate("invalid", "pdf", new ReportFilterDTO()));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> service.generate("receivables", "doc", new ReportFilterDTO()));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> service.generate(null, "pdf", new FinancialReportFilterDTO()));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> service.generate("receivables", null, new FinancialReportFilterDTO()));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> service.generate("invalid", "pdf", new FinancialReportFilterDTO()));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> service.generate("receivables", "doc", new FinancialReportFilterDTO()));
     }
 
     private void mockReceivables(List<Receivable> receivables) {

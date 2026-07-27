@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public class ReportFilterDTO implements Serializable {
+public class FinancialReportFilterDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String search;

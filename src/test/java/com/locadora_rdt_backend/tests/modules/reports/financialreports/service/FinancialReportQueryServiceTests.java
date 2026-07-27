@@ -2,36 +2,35 @@ package com.locadora_rdt_backend.tests.modules.reports.financialreports.service;
 
 import com.locadora_rdt_backend.modules.financial.payables.model.Payable;
 import com.locadora_rdt_backend.modules.financial.receivables.model.Receivable;
-import com.locadora_rdt_backend.modules.reports.financialreports.dto.ReportFilterDTO;
-import com.locadora_rdt_backend.modules.reports.financialreports.repository.ReportPayableRepository;
-import com.locadora_rdt_backend.modules.reports.financialreports.repository.ReportReceivableRepository;
-import com.locadora_rdt_backend.modules.reports.financialreports.service.ReportQueryService;
+import com.locadora_rdt_backend.modules.reports.financialreports.dto.FinancialReportFilterDTO;
+import com.locadora_rdt_backend.modules.reports.financialreports.repository.FinancialReportPayableRepository;
+import com.locadora_rdt_backend.modules.reports.financialreports.repository.FinancialReportReceivableRepository;
+import com.locadora_rdt_backend.modules.reports.financialreports.service.FinancialReportQueryService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-class ReportQueryServiceTests {
+class FinancialReportQueryServiceTests {
 
-    private ReportReceivableRepository receivableRepository;
-    private ReportPayableRepository payableRepository;
-    private ReportQueryService service;
+    private FinancialReportReceivableRepository receivableRepository;
+    private FinancialReportPayableRepository payableRepository;
+    private FinancialReportQueryService service;
 
     @BeforeEach
     void setup() {
-        receivableRepository = Mockito.mock(ReportReceivableRepository.class);
-        payableRepository = Mockito.mock(ReportPayableRepository.class);
-        service = new ReportQueryService(receivableRepository, payableRepository);
+        receivableRepository = Mockito.mock(FinancialReportReceivableRepository.class);
+        payableRepository = Mockito.mock(FinancialReportPayableRepository.class);
+        service = new FinancialReportQueryService(receivableRepository, payableRepository);
     }
 
     @Test
     void normalizeShouldCreateDefaultFiltersWhenNull() {
-        ReportFilterDTO filters = service.normalize(null);
+        FinancialReportFilterDTO filters = service.normalize(null);
 
         Assertions.assertEquals("ALL", filters.getStatus());
         Assertions.assertEquals("DUE_DATE", filters.getPeriodType());
@@ -39,11 +38,11 @@ class ReportQueryServiceTests {
 
     @Test
     void normalizeShouldFormatStatusAndPeriodType() {
-        ReportFilterDTO filters = new ReportFilterDTO();
+        FinancialReportFilterDTO filters = new FinancialReportFilterDTO();
         filters.setStatus(" paid ");
         filters.setPeriodType("payment-date");
 
-        ReportFilterDTO normalized = service.normalize(filters);
+        FinancialReportFilterDTO normalized = service.normalize(filters);
 
         Assertions.assertSame(filters, normalized);
         Assertions.assertEquals("PAID", normalized.getStatus());
@@ -52,11 +51,11 @@ class ReportQueryServiceTests {
 
     @Test
     void normalizeShouldUseDefaultsWhenValuesAreBlank() {
-        ReportFilterDTO filters = new ReportFilterDTO();
+        FinancialReportFilterDTO filters = new FinancialReportFilterDTO();
         filters.setStatus(" ");
         filters.setPeriodType(" ");
 
-        ReportFilterDTO normalized = service.normalize(filters);
+        FinancialReportFilterDTO normalized = service.normalize(filters);
 
         Assertions.assertEquals("ALL", normalized.getStatus());
         Assertions.assertEquals("DUE_DATE", normalized.getPeriodType());
@@ -64,7 +63,7 @@ class ReportQueryServiceTests {
 
     @Test
     void copyShouldCopyAllFields() {
-        ReportFilterDTO filters = new ReportFilterDTO();
+        FinancialReportFilterDTO filters = new FinancialReportFilterDTO();
         filters.setSearch("teste");
         filters.setStartDate(LocalDate.of(2026, 1, 1));
         filters.setEndDate(LocalDate.of(2026, 12, 31));
@@ -78,7 +77,7 @@ class ReportQueryServiceTests {
         filters.setMaximumAmount(new BigDecimal("100.00"));
         filters.setYear(2026);
 
-        ReportFilterDTO copy = service.copy(filters);
+        FinancialReportFilterDTO copy = service.copy(filters);
 
         Assertions.assertNotSame(filters, copy);
         Assertions.assertEquals(filters.getSearch(), copy.getSearch());
@@ -97,7 +96,7 @@ class ReportQueryServiceTests {
 
     @Test
     void findReceivablesShouldCallRepositoryWithFilterValues() {
-        ReportFilterDTO filters = new ReportFilterDTO();
+        FinancialReportFilterDTO filters = new FinancialReportFilterDTO();
         filters.setSearch(" teste ");
         filters.setStartDate(LocalDate.of(2026, 1, 1));
         filters.setEndDate(LocalDate.of(2026, 1, 31));
@@ -133,7 +132,7 @@ class ReportQueryServiceTests {
 
     @Test
     void findPayablesShouldUseDisabledValuesWhenFiltersAreEmpty() {
-        ReportFilterDTO filters = new ReportFilterDTO();
+        FinancialReportFilterDTO filters = new FinancialReportFilterDTO();
         filters.setStatus("ALL");
         filters.setPeriodType("DUE_DATE");
         List<Payable> expected = List.of(new Payable());
@@ -163,7 +162,7 @@ class ReportQueryServiceTests {
 
     @Test
     void findReceivablesShouldUseDisabledValuesWhenFiltersAreEmpty() {
-        ReportFilterDTO filters = new ReportFilterDTO();
+        FinancialReportFilterDTO filters = new FinancialReportFilterDTO();
         filters.setSearch(" ");
         filters.setStatus("ALL");
         filters.setPeriodType("DUE_DATE");

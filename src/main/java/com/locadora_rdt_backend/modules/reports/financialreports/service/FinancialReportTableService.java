@@ -21,14 +21,14 @@ import static com.locadora_rdt_backend.shared.reports.ReportTableSupport.text;
 import static com.locadora_rdt_backend.shared.reports.ReportTableSupport.valueOrZero;
 
 @Service
-public class ReportTableService {
+public class FinancialReportTableService {
 
     private static final BigDecimal ZERO = BigDecimal.ZERO;
 
-    private final ReportCalculationService calculationService;
+    private final FinancialReportCalculationService calculationService;
     private final Clock clock;
 
-    public ReportTableService(ReportCalculationService calculationService, Clock clock) {
+    public FinancialReportTableService(FinancialReportCalculationService calculationService, Clock clock) {
         this.calculationService = calculationService;
         this.clock = clock;
     }
@@ -95,13 +95,13 @@ public class ReportTableService {
     public ReportData summaryReport(
             String title,
             String firstColumn,
-            Map<String, ReportCalculationService.SummaryValues> grouped
+            Map<String, FinancialReportCalculationService.SummaryValues> grouped
     ) {
         List<String> columns = Arrays.asList(firstColumn, "Quantidade", "Total", "Total pago/recebido", "Em aberto");
         List<Map<String, ?>> rows = new ArrayList<>();
 
-        for (Map.Entry<String, ReportCalculationService.SummaryValues> entry : grouped.entrySet()) {
-            ReportCalculationService.SummaryValues values = entry.getValue();
+        for (Map.Entry<String, FinancialReportCalculationService.SummaryValues> entry : grouped.entrySet()) {
+            FinancialReportCalculationService.SummaryValues values = entry.getValue();
             rows.add(row(
                     entry.getKey(),
                     String.valueOf(values.getQuantity()),

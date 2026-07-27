@@ -2,8 +2,8 @@ package com.locadora_rdt_backend.tests.modules.reports.financialreports.service;
 
 import com.locadora_rdt_backend.modules.financial.payables.model.Payable;
 import com.locadora_rdt_backend.modules.financial.receivables.model.Receivable;
-import com.locadora_rdt_backend.modules.reports.financialreports.service.ReportCalculationService;
-import com.locadora_rdt_backend.modules.reports.financialreports.service.ReportTableService;
+import com.locadora_rdt_backend.modules.reports.financialreports.service.FinancialReportCalculationService;
+import com.locadora_rdt_backend.modules.reports.financialreports.service.FinancialReportTableService;
 import com.locadora_rdt_backend.modules.organization.customers.model.Customer;
 import com.locadora_rdt_backend.modules.organization.employees.model.Employee;
 import com.locadora_rdt_backend.modules.organization.suppliers.model.Supplier;
@@ -20,11 +20,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-class ReportTableServiceTests {
+class FinancialReportTableServiceTests {
 
-    private final ReportCalculationService calculationService = new ReportCalculationService();
+    private final FinancialReportCalculationService calculationService = new FinancialReportCalculationService();
     private final Clock clock = Clock.fixed(Instant.parse("2026-07-07T00:00:00Z"), ZoneOffset.UTC);
-    private final ReportTableService service = new ReportTableService(calculationService, clock);
+    private final FinancialReportTableService service = new FinancialReportTableService(calculationService, clock);
 
     @Test
     void receivablesReportShouldCreateRowsAndTotal() throws Exception {
@@ -75,7 +75,7 @@ class ReportTableServiceTests {
 
     @Test
     void summaryReportShouldCreateSummaryRows() throws Exception {
-        Map<String, ReportCalculationService.SummaryValues> grouped = new LinkedHashMap<>();
+        Map<String, FinancialReportCalculationService.SummaryValues> grouped = new LinkedHashMap<>();
         grouped.put("Cliente A", calculationService.groupReceivablesByCustomer(
                 List.of(receivable(true, LocalDate.of(2026, 7, 1)))
         ).get("Sem cliente"));

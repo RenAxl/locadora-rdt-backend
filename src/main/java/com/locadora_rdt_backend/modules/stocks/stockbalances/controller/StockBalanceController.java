@@ -8,10 +8,13 @@ import com.locadora_rdt_backend.shared.web.ControllerResponseBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
+import static com.locadora_rdt_backend.modules.stocks.stockbalances.constants.StockBalanceAuthorizationExpressions.STOCKBALANCES_READ;
+import static com.locadora_rdt_backend.modules.stocks.stockbalances.constants.StockBalanceAuthorizationExpressions.STOCKBALANCES_WRITE;
 
 @RestController
 @RequestMapping("/inventory/stock-balances")
@@ -23,6 +26,7 @@ public class StockBalanceController {
         this.service = service;
     }
 
+    @PreAuthorize(STOCKBALANCES_READ)
     @GetMapping
     public ResponseEntity<Page<StockBalanceDTO>> findAllPaged(
             @RequestParam(value = "name", defaultValue = "") String name,
@@ -38,18 +42,21 @@ public class StockBalanceController {
         return ResponseEntity.ok(list);
     }
 
+    @PreAuthorize(STOCKBALANCES_READ)
     @GetMapping("/{id}")
     public ResponseEntity<StockBalanceDetailsDTO> findById(@PathVariable Long id) {
         StockBalanceDetailsDTO dto = service.findById(id);
         return ResponseEntity.ok(dto);
     }
 
+    @PreAuthorize(STOCKBALANCES_READ)
     @GetMapping("/item/{itemId}")
     public ResponseEntity<StockBalanceDetailsDTO> findByItemId(@PathVariable Long itemId) {
         StockBalanceDetailsDTO dto = service.findByItemId(itemId);
         return ResponseEntity.ok(dto);
     }
 
+    @PreAuthorize(STOCKBALANCES_WRITE)
     @PatchMapping("/{id}/minimum")
     public ResponseEntity<StockBalanceDTO> updateMinimum(
             @PathVariable Long id,

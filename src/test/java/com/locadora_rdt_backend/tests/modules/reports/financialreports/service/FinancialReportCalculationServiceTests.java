@@ -4,8 +4,8 @@ import com.locadora_rdt_backend.modules.organization.customers.model.Customer;
 import com.locadora_rdt_backend.modules.organization.employees.model.Employee;
 import com.locadora_rdt_backend.modules.financial.payables.model.Payable;
 import com.locadora_rdt_backend.modules.financial.receivables.model.Receivable;
-import com.locadora_rdt_backend.modules.reports.financialreports.dto.ReportComparisonDTO;
-import com.locadora_rdt_backend.modules.reports.financialreports.service.ReportCalculationService;
+import com.locadora_rdt_backend.modules.reports.financialreports.dto.FinancialReportComparisonDTO;
+import com.locadora_rdt_backend.modules.reports.financialreports.service.FinancialReportCalculationService;
 import com.locadora_rdt_backend.modules.organization.suppliers.model.Supplier;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -16,9 +16,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
-class ReportCalculationServiceTests {
+class FinancialReportCalculationServiceTests {
 
-    private final ReportCalculationService service = new ReportCalculationService();
+    private final FinancialReportCalculationService service = new FinancialReportCalculationService();
 
     @Test
     void shouldSumTotalsAndPaidTotals() {
@@ -61,7 +61,7 @@ class ReportCalculationServiceTests {
         Payable payable = payable("50.00", false);
         payable.setCreatedAt(Instant.parse("2026-03-11T00:00:00Z"));
 
-        List<ReportComparisonDTO.ReportComparisonMonthDTO> months =
+        List<FinancialReportComparisonDTO.ReportComparisonMonthDTO> months =
                 service.monthlyComparison(List.of(receivable), List.of(payable), "CREATED_DATE");
 
         Assertions.assertEquals(new BigDecimal("100.00"), months.get(2).getReceivableTotal());
@@ -75,7 +75,7 @@ class ReportCalculationServiceTests {
         Payable payable = payable("50.00", true);
         payable.setPaymentDate(LocalDate.of(2026, 4, 11));
 
-        List<ReportComparisonDTO.ReportComparisonMonthDTO> months =
+        List<FinancialReportComparisonDTO.ReportComparisonMonthDTO> months =
                 service.monthlyComparison(List.of(receivable), List.of(payable), "PAYMENT_DATE");
 
         Assertions.assertEquals(new BigDecimal("100.00"), months.get(3).getReceivableTotal());
@@ -91,7 +91,7 @@ class ReportCalculationServiceTests {
         payable.setCreatedAt(null);
         payable.setDueDate(LocalDate.of(2026, 5, 2));
 
-        List<ReportComparisonDTO.ReportComparisonMonthDTO> months =
+        List<FinancialReportComparisonDTO.ReportComparisonMonthDTO> months =
                 service.monthlyComparison(List.of(receivable), List.of(payable), "CREATED_DATE");
 
         Assertions.assertEquals(new BigDecimal("100.00"), months.get(4).getReceivableTotal());
@@ -105,7 +105,7 @@ class ReportCalculationServiceTests {
         Payable payable = payable("50.00", false);
         payable.setDueDate(null);
 
-        List<ReportComparisonDTO.ReportComparisonMonthDTO> months =
+        List<FinancialReportComparisonDTO.ReportComparisonMonthDTO> months =
                 service.monthlyComparison(List.of(receivable), List.of(payable), "DUE_DATE");
 
         Assertions.assertEquals(BigDecimal.ZERO, months.get(0).getReceivableTotal());
@@ -129,11 +129,11 @@ class ReportCalculationServiceTests {
         employee.setName("Funcionário A");
         employeePayable.setEmployee(employee);
 
-        Map<String, ReportCalculationService.SummaryValues> customers =
+        Map<String, FinancialReportCalculationService.SummaryValues> customers =
                 service.groupReceivablesByCustomer(List.of(receivable));
-        Map<String, ReportCalculationService.SummaryValues> suppliers =
+        Map<String, FinancialReportCalculationService.SummaryValues> suppliers =
                 service.groupPayablesBySupplier(List.of(supplierPayable));
-        Map<String, ReportCalculationService.SummaryValues> employees =
+        Map<String, FinancialReportCalculationService.SummaryValues> employees =
                 service.groupPayablesByEmployee(List.of(employeePayable));
 
         Assertions.assertEquals(1, customers.get("Cliente A").getQuantity());
@@ -148,11 +148,11 @@ class ReportCalculationServiceTests {
         Payable supplierPayable = payable("50.00", false);
         Payable employeePayable = payable("30.00", false);
 
-        Map<String, ReportCalculationService.SummaryValues> customers =
+        Map<String, FinancialReportCalculationService.SummaryValues> customers =
                 service.groupReceivablesByCustomer(List.of(receivable));
-        Map<String, ReportCalculationService.SummaryValues> suppliers =
+        Map<String, FinancialReportCalculationService.SummaryValues> suppliers =
                 service.groupPayablesBySupplier(List.of(supplierPayable));
-        Map<String, ReportCalculationService.SummaryValues> employees =
+        Map<String, FinancialReportCalculationService.SummaryValues> employees =
                 service.groupPayablesByEmployee(List.of(employeePayable));
 
         Assertions.assertTrue(customers.containsKey("Sem cliente"));

@@ -80,11 +80,33 @@ INSERT INTO tb_permission (name, group_name) VALUES
 
                                                  ('RENTAL_TYPES_READ',          'RENTAL_TYPES'),
                                                  ('RENTAL_TYPES_WRITE',          'RENTAL_TYPES'),
-                                                 ('RENTAL_TYPES_DELETE',          'RENTAL_TYPES');
+                                                 ('RENTAL_TYPES_DELETE',          'RENTAL_TYPES'),
 
+                                                 ('FINANCIALREPORTS_READ',          'FINANCIALREPORTS'),
 
+                                                 ('INVENTORYREPORTS_READ',          'INVENTORYREPORTS'),
 
+                                                 ('FINANCIALSETTINGS_READ',          'FINANCIALSETTINGS'),
+                                                 ('FINANCIALSETTINGS_WRITE',          'FINANCIALSETTINGS'),
 
+                                                 ('SYSTEMSETTINGS_READ',          'SYSTEMSETTINGS'),
+                                                 ('SYSTEMSETTINGS_WRITE',          'SYSTEMSETTINGS'),
+
+                                                 ('CATEGORIES_READ',          'CATEGORIES'),
+                                                 ('CATEGORIES_WRITE',         'CATEGORIES'),
+                                                 ('CATEGORIES_DELETE',        'CATEGORIES'),
+
+                                                 ('ITEMS_READ',          'ITEMS'),
+                                                 ('ITEMS_WRITE',         'ITEMS'),
+                                                 ('ITEMS_DELETE',        'ITEMS'),
+
+                                                 ('STOCKBALANCES_READ',          'STOCKBALANCES'),
+                                                 ('STOCKBALANCES_WRITE',         'STOCKBALANCES'),
+                                                 ('STOCKBALANCES_DELETE',        'STOCKBALANCES'),
+
+                                                 ('STOCKMOVEMENTS_READ',          'STOCKMOVEMENTS'),
+                                                 ('STOCKMOVEMENTS_WRITE',         'STOCKMOVEMENTS'),
+                                                 ('STOCKMOVEMENTS_DELETE',        'STOCKMOVEMENTS');
 
 
 INSERT INTO tb_user_role (user_id, role_id) VALUES
@@ -107,7 +129,11 @@ INSERT INTO tb_role_permission (role_id, permission_id) VALUES
                                                             (1, 29), (1, 30), (1, 31), (1, 32),
                                                             (1, 33),  (1, 34), (1, 35), (1, 36),
                                                             (1, 37),  (1, 38), (1, 39), (1, 40),
-                                                            (1, 41), (1, 42), (1, 43);
+                                                            (1, 41), (1, 42), (1, 43), (1, 44),
+                                                            (1, 45), (1, 46), (1, 47), (1, 48),
+                                                            (1, 49), (1, 50), (1, 51), (1, 52),
+                                                            (1, 53), (1, 54), (1, 55), (1, 56),
+                                                            (1, 57), (1, 58);
 
 INSERT INTO tb_role_permission (role_id, permission_id) VALUES
                                                             (2, 1),

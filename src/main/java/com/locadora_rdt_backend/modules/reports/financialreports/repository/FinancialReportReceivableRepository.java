@@ -1,6 +1,6 @@
 package com.locadora_rdt_backend.modules.reports.financialreports.repository;
 
-import com.locadora_rdt_backend.modules.financial.payables.model.Payable;
+import com.locadora_rdt_backend.modules.financial.receivables.model.Receivable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -9,19 +9,16 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-public interface ReportPayableRepository extends JpaRepository<Payable, Long> {
+public interface FinancialReportReceivableRepository extends JpaRepository<Receivable, Long> {
 
     @Query(
-            value = "SELECT r.* FROM tb_payable r "
-                    + "LEFT JOIN tb_supplier s ON s.id = r.supplier_id "
-                    + "LEFT JOIN tb_employee e ON e.id = r.employee_id "
+            value = "SELECT r.* FROM tb_receivable r "
+                    + "LEFT JOIN tb_customer c ON c.id = r.customer_id "
                     + "WHERE (:search IS NULL "
                     + "OR LOWER(COALESCE(r.description, '')) LIKE LOWER(CONCAT('%', :search, '%')) "
                     + "OR LOWER(COALESCE(r.reference, '')) LIKE LOWER(CONCAT('%', :search, '%')) "
-                    + "OR LOWER(COALESCE(s.name, '')) LIKE LOWER(CONCAT('%', :search, '%')) "
-                    + "OR LOWER(COALESCE(e.name, '')) LIKE LOWER(CONCAT('%', :search, '%'))) "
-                    + "AND (:supplierId <= 0 OR r.supplier_id = :supplierId) "
-                    + "AND (:employeeId <= 0 OR r.employee_id = :employeeId) "
+                    + "OR LOWER(COALESCE(c.name, '')) LIKE LOWER(CONCAT('%', :search, '%'))) "
+                    + "AND (:customerId <= 0 OR r.customer_id = :customerId) "
                     + "AND (:paymentMethodId <= 0 OR r.payment_method_id = :paymentMethodId) "
                     + "AND (:minimumAmount < 0 OR r.amount >= :minimumAmount) "
                     + "AND (:maximumAmount < 0 OR r.amount <= :maximumAmount) "
@@ -42,7 +39,7 @@ public interface ReportPayableRepository extends JpaRepository<Payable, Long> {
                     + "ORDER BY r.id DESC",
             nativeQuery = true
     )
-    List<Payable> findForReports(
+    List<Receivable> findForReports(
             @Param("search") String search,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
@@ -50,8 +47,7 @@ public interface ReportPayableRepository extends JpaRepository<Payable, Long> {
             @Param("hasEndDate") Boolean hasEndDate,
             @Param("status") String status,
             @Param("periodType") String periodType,
-            @Param("supplierId") Long supplierId,
-            @Param("employeeId") Long employeeId,
+            @Param("customerId") Long customerId,
             @Param("paymentMethodId") Long paymentMethodId,
             @Param("minimumAmount") BigDecimal minimumAmount,
             @Param("maximumAmount") BigDecimal maximumAmount

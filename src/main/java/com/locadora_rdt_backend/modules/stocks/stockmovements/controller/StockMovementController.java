@@ -7,9 +7,14 @@ import com.locadora_rdt_backend.shared.web.ControllerResponseBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+
+import static com.locadora_rdt_backend.modules.financial.receivables.constants.ReceivableAuthorizationExpressions.RECEIVABLES_READ;
+import static com.locadora_rdt_backend.modules.stocks.stockmovements.constants.StockMovementAuthorizationExpressions.STOCKMOVEMENTS_READ;
+import static com.locadora_rdt_backend.modules.stocks.stockmovements.constants.StockMovementAuthorizationExpressions.STOCKMOVEMENTS_WRITE;
 
 @RestController
 @RequestMapping("/inventory/stock-movements")
@@ -21,6 +26,7 @@ public class StockMovementController {
         this.service = service;
     }
 
+    @PreAuthorize(STOCKMOVEMENTS_READ)
     @GetMapping
     public ResponseEntity<Page<StockMovementDTO>> findAllPaged(
             @RequestParam(value = "name", defaultValue = "") String name,
@@ -36,12 +42,14 @@ public class StockMovementController {
         return ResponseEntity.ok(list);
     }
 
+    @PreAuthorize(STOCKMOVEMENTS_READ)
     @GetMapping("/{id}")
     public ResponseEntity<StockMovementDTO> findById(@PathVariable Long id) {
         StockMovementDTO dto = service.findById(id);
         return ResponseEntity.ok(dto);
     }
 
+    @PreAuthorize(STOCKMOVEMENTS_WRITE)
     @PostMapping
     public ResponseEntity<StockMovementDTO> insert(@Valid @RequestBody StockMovementInsertDTO dto) {
         StockMovementDTO result = service.insert(dto);

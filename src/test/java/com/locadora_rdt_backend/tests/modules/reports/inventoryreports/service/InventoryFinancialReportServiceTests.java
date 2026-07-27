@@ -17,7 +17,7 @@ import org.mockito.Mockito;
 
 import java.util.List;
 
-class InventoryReportServiceTests {
+class InventoryFinancialReportServiceTests {
 
     private InventoryReportQueryService queryService;
     private InventoryReportTableService tableService;

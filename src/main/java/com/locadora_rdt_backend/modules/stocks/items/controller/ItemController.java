@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -27,6 +28,9 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.util.List;
 
+import static com.locadora_rdt_backend.modules.stocks.items.constants.ItemAuthorizationExpressions.*;
+
+
 @RestController
 @RequestMapping("/inventory/items")
 public class ItemController {
@@ -39,6 +43,7 @@ public class ItemController {
         this.service = service;
     }
 
+    @PreAuthorize(ITEMS_READ)
     @GetMapping
     public ResponseEntity<Page<ItemDTO>> findAllPaged(
             @RequestParam(value = "name", defaultValue = "") String name,
@@ -54,12 +59,14 @@ public class ItemController {
         return ResponseEntity.ok(list);
     }
 
+    @PreAuthorize(ITEMS_READ)
     @GetMapping("/{id}")
     public ResponseEntity<ItemDetailsDTO> findById(@PathVariable Long id) {
         ItemDetailsDTO dto = service.findById(id);
         return ResponseEntity.ok(dto);
     }
 
+    @PreAuthorize(ITEMS_WRITE)
     @PostMapping
     public ResponseEntity<ItemDTO> insert(@Valid @RequestBody ItemInsertDTO dto) {
         ItemDTO result = service.insert(dto);
@@ -67,6 +74,7 @@ public class ItemController {
         return ControllerResponseBuilder.created(result.getId(), result);
     }
 
+    @PreAuthorize(ITEMS_WRITE)
     @PutMapping("/{id}")
     public ResponseEntity<ItemDTO> update(
             @PathVariable Long id,
@@ -76,6 +84,7 @@ public class ItemController {
         return ResponseEntity.ok(result);
     }
 
+    @PreAuthorize(ITEMS_WRITE)
     @PutMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> updateImage(
             @PathVariable Long id,
@@ -85,6 +94,7 @@ public class ItemController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize(ITEMS_READ)
     @GetMapping("/{id}/image")
     public ResponseEntity<byte[]> getImage(@PathVariable Long id) {
         Item entity = service.findEntityById(id);
@@ -92,18 +102,21 @@ public class ItemController {
         return BinaryResponseBuilder.media(entity.getImage(), DEFAULT_IMAGE_CONTENT_TYPE);
     }
 
+    @PreAuthorize(ITEMS_DELETE)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize(ITEMS_DELETE)
     @DeleteMapping("/all")
     public ResponseEntity<Void> deleteAll(@RequestBody List<Long> ids) {
         service.deleteAll(ids);
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize(ITEMS_WRITE)
     @PatchMapping("/{id}/active")
     public ResponseEntity<Void> changeActive(
             @PathVariable Long id,

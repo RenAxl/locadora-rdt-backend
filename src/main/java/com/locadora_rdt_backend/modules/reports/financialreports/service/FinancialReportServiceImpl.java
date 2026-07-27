@@ -2,9 +2,9 @@ package com.locadora_rdt_backend.modules.reports.financialreports.service;
 
 import com.locadora_rdt_backend.modules.financial.payables.model.Payable;
 import com.locadora_rdt_backend.modules.financial.receivables.model.Receivable;
-import com.locadora_rdt_backend.modules.reports.financialreports.dto.ReportComparisonDTO;
-import com.locadora_rdt_backend.modules.reports.financialreports.dto.ReportFilterDTO;
-import com.locadora_rdt_backend.modules.reports.financialreports.model.ReportType;
+import com.locadora_rdt_backend.modules.reports.financialreports.dto.FinancialReportComparisonDTO;
+import com.locadora_rdt_backend.modules.reports.financialreports.dto.FinancialReportFilterDTO;
+import com.locadora_rdt_backend.modules.reports.financialreports.model.FinancialReportType;
 import com.locadora_rdt_backend.shared.reports.JasperReportGenerator;
 import com.locadora_rdt_backend.shared.reports.ReportData;
 import com.locadora_rdt_backend.shared.reports.ReportFileDTO;
@@ -18,18 +18,18 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Service
-public class ReportServiceImpl implements ReportService {
+public class FinancialReportServiceImpl implements FinancialReportService {
 
-    private final ReportQueryService queryService;
-    private final ReportCalculationService calculationService;
-    private final ReportTableService tableService;
+    private final FinancialReportQueryService queryService;
+    private final FinancialReportCalculationService calculationService;
+    private final FinancialReportTableService tableService;
     private final JasperReportGenerator jasperReportGenerator;
     private final Clock clock;
 
-    public ReportServiceImpl(
-            ReportQueryService queryService,
-            ReportCalculationService calculationService,
-            ReportTableService tableService,
+    public FinancialReportServiceImpl(
+            FinancialReportQueryService queryService,
+            FinancialReportCalculationService calculationService,
+            FinancialReportTableService tableService,
             JasperReportGenerator jasperReportGenerator,
             Clock clock
     ) {
@@ -42,12 +42,12 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     @Transactional(readOnly = true)
-    public ReportFileDTO generate(String reportTypeValue, String formatValue, ReportFilterDTO filters) {
-        ReportType reportType = ReportType.from(reportTypeValue);
+    public ReportFileDTO generate(String reportTypeValue, String formatValue, FinancialReportFilterDTO filters) {
+        FinancialReportType financialReportType = FinancialReportType.from(reportTypeValue);
         ReportFormat format = ReportFormat.from(formatValue);
-        ReportFilterDTO normalizedFilters = queryService.normalize(filters);
+        FinancialReportFilterDTO normalizedFilters = queryService.normalize(filters);
 
-        ReportData data = buildReportData(reportType, normalizedFilters);
+        ReportData data = buildReportData(financialReportType, normalizedFilters);
 
         byte[] content = jasperReportGenerator.generate(
                 data.getTitle(),
@@ -56,17 +56,17 @@ public class ReportServiceImpl implements ReportService {
                 format
         );
 
-        String fileName = reportType.name().toLowerCase() + "." + format.getExtension();
+        String fileName = financialReportType.name().toLowerCase() + "." + format.getExtension();
         return new ReportFileDTO(fileName, format.getContentType(), content);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ReportComparisonDTO comparison(ReportFilterDTO filters) {
-        ReportFilterDTO normalizedFilters = queryService.normalize(filters);
+    public FinancialReportComparisonDTO comparison(FinancialReportFilterDTO filters) {
+        FinancialReportFilterDTO normalizedFilters = queryService.normalize(filters);
         int year = normalizedFilters.getYear() == null ? LocalDate.now(clock).getYear() : normalizedFilters.getYear();
 
-        ReportFilterDTO comparisonFilters = queryService.copy(normalizedFilters);
+        FinancialReportFilterDTO comparisonFilters = queryService.copy(normalizedFilters);
         comparisonFilters.setStartDate(LocalDate.of(year, 1, 1));
         comparisonFilters.setEndDate(LocalDate.of(year, 12, 31));
 
@@ -76,7 +76,7 @@ public class ReportServiceImpl implements ReportService {
         BigDecimal receivableTotal = calculationService.sumReceivables(receivables);
         BigDecimal payableTotal = calculationService.sumPayables(payables);
 
-        return new ReportComparisonDTO(
+        return new FinancialReportComparisonDTO(
                 receivableTotal,
                 payableTotal,
                 receivableTotal.subtract(payableTotal),
@@ -87,24 +87,24 @@ public class ReportServiceImpl implements ReportService {
         );
     }
 
-    private ReportData buildReportData(ReportType type, ReportFilterDTO filters) {
-        if (type == ReportType.RECEIVABLES) {
+    private ReportData buildReportData(FinancialReportType type, FinancialReportFilterDTO filters) {
+        if (type == FinancialReportType.RECEIVABLES) {
             List<Receivable> items = queryService.findReceivables(filters);
             return tableService.receivablesReport(items);
         }
 
-        if (type == ReportType.PAYABLES) {
+        if (type == FinancialReportType.PAYABLES) {
             List<Payable> items = queryService.findPayables(filters);
             return tableService.payablesReport(items);
         }
 
-        if (type == ReportType.FINANCIAL) {
+        if (type == FinancialReportType.FINANCIAL) {
             List<Receivable> receivables = queryService.findReceivables(filters);
             List<Payable> payables = queryService.findPayables(filters);
             return tableService.financialReport(receivables, payables);
         }
 
-        if (type == ReportType.SUMMARY_CUSTOMER) {
+        if (type == FinancialReportType.SUMMARY_CUSTOMER) {
             List<Receivable> items = queryService.findReceivables(filters);
             return tableService.summaryReport(
                     "Relatório Sintético por Cliente",
@@ -113,7 +113,7 @@ public class ReportServiceImpl implements ReportService {
             );
         }
 
-        if (type == ReportType.SUMMARY_SUPPLIER) {
+        if (type == FinancialReportType.SUMMARY_SUPPLIER) {
             List<Payable> items = queryService.findPayables(filters);
             return tableService.summaryReport(
                     "Relatório Sintético por Fornecedor",
@@ -122,7 +122,7 @@ public class ReportServiceImpl implements ReportService {
             );
         }
 
-        if (type == ReportType.SUMMARY_EMPLOYEE) {
+        if (type == FinancialReportType.SUMMARY_EMPLOYEE) {
             List<Payable> items = queryService.findPayables(filters);
             return tableService.summaryReport(
                     "Relatório Sintético por Funcionário",
@@ -134,10 +134,10 @@ public class ReportServiceImpl implements ReportService {
         return annualBalanceReport(filters);
     }
 
-    private ReportData annualBalanceReport(ReportFilterDTO filters) {
+    private ReportData annualBalanceReport(FinancialReportFilterDTO filters) {
         int year = filters.getYear() == null ? LocalDate.now(clock).getYear() : filters.getYear();
 
-        ReportFilterDTO annualFilters = queryService.copy(filters);
+        FinancialReportFilterDTO annualFilters = queryService.copy(filters);
         annualFilters.setStatus("PAID");
         annualFilters.setPeriodType("PAYMENT_DATE");
         annualFilters.setStartDate(LocalDate.of(year, 1, 1));

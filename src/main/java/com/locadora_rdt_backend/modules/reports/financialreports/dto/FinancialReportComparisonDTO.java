@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReportComparisonDTO implements Serializable {
+public class FinancialReportComparisonDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private BigDecimal receivableTotal;
@@ -16,10 +16,10 @@ public class ReportComparisonDTO implements Serializable {
     private Integer year;
     private List<ReportComparisonMonthDTO> months = new ArrayList<>();
 
-    public ReportComparisonDTO() {
+    public FinancialReportComparisonDTO() {
     }
 
-    public ReportComparisonDTO(
+    public FinancialReportComparisonDTO(
             BigDecimal receivableTotal,
             BigDecimal payableTotal,
             BigDecimal balance,

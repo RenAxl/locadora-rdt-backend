@@ -2,7 +2,7 @@ package com.locadora_rdt_backend.modules.reports.financialreports.service;
 
 import com.locadora_rdt_backend.modules.financial.payables.model.Payable;
 import com.locadora_rdt_backend.modules.financial.receivables.model.Receivable;
-import com.locadora_rdt_backend.modules.reports.financialreports.dto.ReportComparisonDTO;
+import com.locadora_rdt_backend.modules.reports.financialreports.dto.FinancialReportComparisonDTO;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -17,7 +17,7 @@ import java.util.Map;
 import static com.locadora_rdt_backend.shared.reports.ReportTableSupport.valueOrZero;
 
 @Service
-public class ReportCalculationService {
+public class FinancialReportCalculationService {
 
     private static final BigDecimal ZERO = BigDecimal.ZERO;
 
@@ -91,15 +91,15 @@ public class ReportCalculationService {
         return total;
     }
 
-    public List<ReportComparisonDTO.ReportComparisonMonthDTO> monthlyComparison(
+    public List<FinancialReportComparisonDTO.ReportComparisonMonthDTO> monthlyComparison(
             List<Receivable> receivables,
             List<Payable> payables,
             String periodType
     ) {
-        List<ReportComparisonDTO.ReportComparisonMonthDTO> months = new ArrayList<>();
+        List<FinancialReportComparisonDTO.ReportComparisonMonthDTO> months = new ArrayList<>();
 
         for (Month month : Month.values()) {
-            months.add(new ReportComparisonDTO.ReportComparisonMonthDTO(
+            months.add(new FinancialReportComparisonDTO.ReportComparisonMonthDTO(
                     month.getValue(),
                     shortMonthName(month),
                     sumReceivablesByMonth(receivables, month.getValue(), periodType),

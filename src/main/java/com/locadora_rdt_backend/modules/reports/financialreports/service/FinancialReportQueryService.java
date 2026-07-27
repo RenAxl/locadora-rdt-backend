@@ -2,9 +2,9 @@ package com.locadora_rdt_backend.modules.reports.financialreports.service;
 
 import com.locadora_rdt_backend.modules.financial.payables.model.Payable;
 import com.locadora_rdt_backend.modules.financial.receivables.model.Receivable;
-import com.locadora_rdt_backend.modules.reports.financialreports.dto.ReportFilterDTO;
-import com.locadora_rdt_backend.modules.reports.financialreports.repository.ReportPayableRepository;
-import com.locadora_rdt_backend.modules.reports.financialreports.repository.ReportReceivableRepository;
+import com.locadora_rdt_backend.modules.reports.financialreports.dto.FinancialReportFilterDTO;
+import com.locadora_rdt_backend.modules.reports.financialreports.repository.FinancialReportPayableRepository;
+import com.locadora_rdt_backend.modules.reports.financialreports.repository.FinancialReportReceivableRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,20 +16,20 @@ import static com.locadora_rdt_backend.shared.reports.ReportTableSupport.normali
 import static com.locadora_rdt_backend.shared.reports.ReportTableSupport.trimToNull;
 
 @Service
-public class ReportQueryService {
+public class FinancialReportQueryService {
 
-    private final ReportReceivableRepository receivableRepository;
-    private final ReportPayableRepository payableRepository;
+    private final FinancialReportReceivableRepository receivableRepository;
+    private final FinancialReportPayableRepository payableRepository;
 
-    public ReportQueryService(
-            ReportReceivableRepository receivableRepository,
-            ReportPayableRepository payableRepository
+    public FinancialReportQueryService(
+            FinancialReportReceivableRepository receivableRepository,
+            FinancialReportPayableRepository payableRepository
     ) {
         this.receivableRepository = receivableRepository;
         this.payableRepository = payableRepository;
     }
 
-    public List<Receivable> findReceivables(ReportFilterDTO filters) {
+    public List<Receivable> findReceivables(FinancialReportFilterDTO filters) {
         return receivableRepository.findForReports(
                 trimToNull(filters.getSearch()),
                 dateFilterOrDisabled(filters.getStartDate()),
@@ -45,7 +45,7 @@ public class ReportQueryService {
         );
     }
 
-    public List<Payable> findPayables(ReportFilterDTO filters) {
+    public List<Payable> findPayables(FinancialReportFilterDTO filters) {
         return payableRepository.findForReports(
                 trimToNull(filters.getSearch()),
                 dateFilterOrDisabled(filters.getStartDate()),
@@ -62,15 +62,15 @@ public class ReportQueryService {
         );
     }
 
-    public ReportFilterDTO normalize(ReportFilterDTO filters) {
-        ReportFilterDTO normalized = filters == null ? new ReportFilterDTO() : filters;
+    public FinancialReportFilterDTO normalize(FinancialReportFilterDTO filters) {
+        FinancialReportFilterDTO normalized = filters == null ? new FinancialReportFilterDTO() : filters;
         normalized.setStatus(normalizeCode(normalized.getStatus(), "ALL"));
         normalized.setPeriodType(normalizeCode(normalized.getPeriodType(), "DUE_DATE"));
         return normalized;
     }
 
-    public ReportFilterDTO copy(ReportFilterDTO source) {
-        ReportFilterDTO copy = new ReportFilterDTO();
+    public FinancialReportFilterDTO copy(FinancialReportFilterDTO source) {
+        FinancialReportFilterDTO copy = new FinancialReportFilterDTO();
         copy.setSearch(source.getSearch());
         copy.setStartDate(source.getStartDate());
         copy.setEndDate(source.getEndDate());

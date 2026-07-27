@@ -1,6 +1,6 @@
 package com.locadora_rdt_backend.modules.reports.financialreports.model;
 
-public enum ReportType {
+public enum FinancialReportType {
     RECEIVABLES,
     PAYABLES,
     FINANCIAL,
@@ -9,14 +9,14 @@ public enum ReportType {
     SUMMARY_EMPLOYEE,
     ANNUAL_BALANCE;
 
-    public static ReportType from(String value) {
+    public static FinancialReportType from(String value) {
         if (value == null) {
             throw new IllegalArgumentException("Tipo do relatório não informado.");
         }
 
         String normalized = value.trim().replace("-", "_").toUpperCase();
 
-        for (ReportType type : values()) {
+        for (FinancialReportType type : values()) {
             if (type.name().equals(normalized)) {
                 return type;
             }
