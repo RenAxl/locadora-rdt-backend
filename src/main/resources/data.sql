@@ -223,16 +223,16 @@ INSERT INTO tb_employee (
 
 INSERT INTO tb_supplier (version, name, trade_name, company_name, cnpj, street, number, complement, neighborhood, city, state, zip_code, email, phone_number, image_data, image_content_type, created_at, updated_at, created_by, updated_by)
 VALUES
-    (0, 'Fornecedor de Veículos Premium', 'Premium Motors', 'Premium Motors LTDA', '12345678000101', 'Av. Amazonas', '1000', NULL, 'Centro', 'Belo Horizonte', 'MG', '30100-000', '[contato@premiummotors.com.br](mailto:contato@premiummotors.com.br)', '3133331001', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
-    (0, 'Auto Peças Brasil', 'AP Brasil', 'Auto Peças Brasil LTDA', '12345678000102', 'Rua dos Andradas', '250', NULL, 'Centro', 'Belo Horizonte', 'MG', '30120-000', '[vendas@apbrasil.com.br](mailto:vendas@apbrasil.com.br)', '3133331002', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
-    (0, 'Loca Pneus', 'Loca Pneus', 'Loca Pneus Comércio LTDA', '12345678000103', 'Av. Cristiano Machado', '4500', NULL, 'União', 'Belo Horizonte', 'MG', '31160-000', '[contato@locapneus.com.br](mailto:contato@locapneus.com.br)', '3133331003', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
-    (0, 'Lubrificantes Gerais', 'Lub Gerais', 'Lubrificantes Gerais LTDA', '12345678000104', 'Rua Tupis', '800', NULL, 'Centro', 'Belo Horizonte', 'MG', '30190-000', '[comercial@lubgerais.com.br](mailto:comercial@lubgerais.com.br)', '3133331004', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
-    (0, 'Baterias Energia', 'Energia Baterias', 'Energia Baterias S.A.', '12345678000105', 'Av. Antônio Carlos', '1500', NULL, 'Cachoeirinha', 'Belo Horizonte', 'MG', '31210-000', '[vendas@energiabaterias.com.br](mailto:vendas@energiabaterias.com.br)', '3133331005', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
-    (0, 'Oficina Mecânica Central', 'Mecânica Central', 'Oficina Mecânica Central LTDA', '12345678000106', 'Rua Espírito Santo', '900', NULL, 'Centro', 'Belo Horizonte', 'MG', '30160-000', '[contato@mecanicacentral.com.br](mailto:contato@mecanicacentral.com.br)', '3133331006', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
-    (0, 'Vidros Automotivos BH', 'Vidros BH', 'Vidros Automotivos BH LTDA', '12345678000107', 'Av. Tereza Cristina', '2100', NULL, 'Calafate', 'Belo Horizonte', 'MG', '30411-000', '[atendimento@vidrosbh.com.br](mailto:atendimento@vidrosbh.com.br)', '3133331007', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
-    (0, 'Seguradora Protege', 'Protege Seguros', 'Protege Seguros S.A.', '12345678000108', 'Av. Afonso Pena', '3500', NULL, 'Funcionários', 'Belo Horizonte', 'MG', '30130-000', '[contato@protegeseguros.com.br](mailto:contato@protegeseguros.com.br)', '3133331008', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
-    (0, 'Higienização Express', 'Express Clean', 'Express Clean Serviços LTDA', '12345678000109', 'Rua Goiás', '1200', NULL, 'Savassi', 'Belo Horizonte', 'MG', '30190-000', '[comercial@expressclean.com.br](mailto:comercial@expressclean.com.br)', '3133331009', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
-    (0, 'Tecnologia Veicular', 'Tech Car', 'Tech Car Tecnologia LTDA', '12345678000110', 'Av. Raja Gabaglia', '5000', NULL, 'Santa Lúcia', 'Belo Horizonte', 'MG', '30360-000', '[contato@techcar.com.br](mailto:contato@techcar.com.br)', '3133331010', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL);
+    (0, 'Fornecedor de Veículos Premium', 'Premium Motors', 'Premium Motors LTDA', '12345678000101', 'Av. Amazonas', '1000', NULL, 'Centro', 'Belo Horizonte', 'MG', '30100-000', 'contato@premiummotors.com.br', '3133331001', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Auto Peças Brasil', 'AP Brasil', 'Auto Peças Brasil LTDA', '12345678000102', 'Rua dos Andradas', '250', NULL, 'Centro', 'Belo Horizonte', 'MG', '30120-000', 'vendas@apbrasil.com.br', '3133331002', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Loca Pneus', 'Loca Pneus', 'Loca Pneus Comércio LTDA', '12345678000103', 'Av. Cristiano Machado', '4500', NULL, 'União', 'Belo Horizonte', 'MG', '31160-000', 'contato@locapneus.com.br', '3133331003', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Lubrificantes Gerais', 'Lub Gerais', 'Lubrificantes Gerais LTDA', '12345678000104', 'Rua Tupis', '800', NULL, 'Centro', 'Belo Horizonte', 'MG', '30190-000', 'comercial@lubgerais.com.br', '3133331004', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Baterias Energia', 'Energia Baterias', 'Energia Baterias S.A.', '12345678000105', 'Av. Antônio Carlos', '1500', NULL, 'Cachoeirinha', 'Belo Horizonte', 'MG', '31210-000', 'vendas@energiabaterias.com.br', '3133331005', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Oficina Mecânica Central', 'Mecânica Central', 'Oficina Mecânica Central LTDA', '12345678000106', 'Rua Espírito Santo', '900', NULL, 'Centro', 'Belo Horizonte', 'MG', '30160-000', 'contato@mecanicacentral.com.br', '3133331006', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Vidros Automotivos BH', 'Vidros BH', 'Vidros Automotivos BH LTDA', '12345678000107', 'Av. Tereza Cristina', '2100', NULL, 'Calafate', 'Belo Horizonte', 'MG', '30411-000', 'atendimento@vidrosbh.com.br', '3133331007', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Seguradora Protege', 'Protege Seguros', 'Protege Seguros S.A.', '12345678000108', 'Av. Afonso Pena', '3500', NULL, 'Funcionários', 'Belo Horizonte', 'MG', '30130-000', 'contato@protegeseguros.com.br', '3133331008', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Higienização Express', 'Express Clean', 'Express Clean Serviços LTDA', '12345678000109', 'Rua Goiás', '1200', NULL, 'Savassi', 'Belo Horizonte', 'MG', '30190-000', 'comercial@expressclean.com.br', '3133331009', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL),
+    (0, 'Tecnologia Veicular', 'Tech Car', 'Tech Car Tecnologia LTDA', '12345678000110', 'Av. Raja Gabaglia', '5000', NULL, 'Santa Lúcia', 'Belo Horizonte', 'MG', '30360-000', 'contato@techcar.com.br', '3133331010', NULL, NULL, CURRENT_TIMESTAMP, NULL, 'SYSTEM', NULL);
 
 
 INSERT INTO tb_payment_method
@@ -291,18 +291,18 @@ WHERE NOT EXISTS (
 
 INSERT INTO tb_receivable
 (description, customer_id, amount, due_date, payment_date, created_date, created_at, updated_at,
- payment_method_id, payment_frequency_id, note, file_name, status, reference, reference_id,
+ payment_method_id, payment_frequency_id, frequency_id, note, file_name, status, reference, reference_id,
  late_fee, late_interest, discount, fee, subtotal, created_by, updated_by, paid_by, paid, remaining_balance)
 VALUES
-    ('Locação Acessório 01', 1, 45.90, '2026-07-05', '2026-07-03', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 1, 1, 'Pago antes do vencimento.', 'receipt_001.pdf', 'PAID', 'RENTAL', 1001, 0.00, 0.00, 5.00, 0.00, 40.90, 1, NULL, 2, TRUE, 0.00),
+    ('Locação Acessório 01', 1, 45.90, '2026-07-05', '2026-07-03', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 1, 1, 1, 'Pago antes do vencimento.', 'receipt_001.pdf', 'PAID', 'RENTAL', 1001, 0.00, 0.00, 5.00, 0.00, 40.90, 1, NULL, 2, TRUE, 0.00),
 
-    ('Locação Game 01', 2, 59.90, '2026-07-10', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 2, 1, 'Aguardando pagamento.', NULL, 'PENDING', 'RENTAL', 1002, 0.00, 0.00, 0.00, 0.00, 0.00, 1, NULL, NULL, FALSE, 59.90),
+    ('Locação Game 01', 2, 59.90, '2026-07-10', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 2, 1, 1, 'Aguardando pagamento.', NULL, 'PENDING', 'RENTAL', 1002, 0.00, 0.00, 0.00, 0.00, 0.00, 1, NULL, NULL, FALSE, 59.90),
 
-    ('Locação Game 02', 3, 99.90, '2026-07-15', '2026-07-15', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 3, 2, 'Pago com cartão de débito.', 'receipt_003.pdf', 'PAID', 'MEMBERSHIP', 1003, 0.00, 0.00, 0.00, 1.49, 101.39, 1, NULL, 2, TRUE, 0.00),
+    ('Locação Game 02', 3, 99.90, '2026-07-15', '2026-07-15', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 3, 2, 2, 'Pago com cartão de débito.', 'receipt_003.pdf', 'PAID', 'MEMBERSHIP', 1003, 0.00, 0.00, 0.00, 1.49, 101.39, 1, NULL, 2, TRUE, 0.00),
 
-    ('Locação Game 03', 2, 35.00, '2026-07-08', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 1, 1, 'Cliente notificado.', NULL, 'PENDING', 'LATE_FEE', 1004, 5.00, 1.50, 0.00, 0.00, 0.00, 1, NULL, NULL, FALSE, 35.00),
+    ('Locação Game 03', 2, 35.00, '2026-07-08', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 1, 1, 1, 'Cliente notificado.', NULL, 'PENDING', 'LATE_FEE', 1004, 5.00, 1.50, 0.00, 0.00, 0.00, 1, NULL, NULL, FALSE, 35.00),
 
-    ('Locação Acessório 02', 1, 25.00, '2026-07-12', '2026-07-12', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 4, 1, 'Pagamento com cartão de crédito.', 'receipt_005.pdf', 'PAID', 'RESERVATION', 1005, 0.00, 0.00, 2.00, 0.87, 23.87, 1, NULL, 2, TRUE, 0.00);
+    ('Locação Acessório 02', 1, 25.00, '2026-07-12', '2026-07-12', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 4, 1, 1, 'Pagamento com cartão de crédito.', 'receipt_005.pdf', 'PAID', 'RESERVATION', 1005, 0.00, 0.00, 2.00, 0.87, 23.87, 1, NULL, 2, TRUE, 0.00);
 
 
 INSERT INTO tb_payable (description, amount, due_date, payment_date, created_date, created_at, updated_at, note, file_name, status, reference, reference_id, late_fee, late_interest, discount, fee, subtotal, paid, remaining_balance, residual, canceled, supplier_id, employee_id, payment_method_id, payment_frequency_id, frequency_id, created_by, updated_by, paid_by, parent_payable_id) VALUES
