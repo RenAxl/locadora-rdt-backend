@@ -77,15 +77,13 @@ class EvolutionWhatsAppServiceTests {
     }
 
     @Test
-    void disabledServiceShouldRejectSending() {
+    void disabledServiceShouldNotInterruptSending() {
         LoggingWhatsAppService disabledService = new LoggingWhatsAppService();
 
-        Assertions.assertThrows(
-                IllegalStateException.class,
+        Assertions.assertDoesNotThrow(
                 () -> disabledService.sendDocument("31999999999", new byte[]{1}, "recibo.pdf", "Recibo")
         );
-        Assertions.assertThrows(
-                IllegalStateException.class,
+        Assertions.assertDoesNotThrow(
                 () -> disabledService.sendText("31999999999", "Mensagem")
         );
     }

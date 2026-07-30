@@ -1,7 +1,7 @@
 package com.locadora_rdt_backend.tests.modules.rental.service;
 
 import com.locadora_rdt_backend.modules.organization.customers.model.Customer;
-import com.locadora_rdt_backend.modules.financial.payment.methods.model.PaymentMethod;
+import com.locadora_rdt_backend.modules.financial.payment_methods.model.PaymentMethod;
 import com.locadora_rdt_backend.modules.stocks.items.model.Item;
 import com.locadora_rdt_backend.modules.rentals.rental.model.Rental;
 import com.locadora_rdt_backend.modules.rentals.rental.model.RentalItem;

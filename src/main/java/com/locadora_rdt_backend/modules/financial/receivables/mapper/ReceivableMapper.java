@@ -1,8 +1,8 @@
 package com.locadora_rdt_backend.modules.financial.receivables.mapper;
 
 import com.locadora_rdt_backend.modules.organization.customers.model.Customer;
-import com.locadora_rdt_backend.modules.financial.payment.frequencies.model.PaymentFrequency;
-import com.locadora_rdt_backend.modules.financial.payment.methods.model.PaymentMethod;
+import com.locadora_rdt_backend.modules.financial.payment_frequencies.model.PaymentFrequency;
+import com.locadora_rdt_backend.modules.financial.payment_methods.model.PaymentMethod;
 import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableDTO;
 import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableDetailsDTO;
 import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableSaveDTO;

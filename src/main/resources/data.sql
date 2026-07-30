@@ -3,9 +3,9 @@ INSERT INTO tb_user
 VALUES
     ('Renan Teste 01', 'renandt30@gmail.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '5531982331518', 'Avenida do Contorno', '8000', NULL, 'Savassi', 'Belo Horizonte', 'MG', '30664-790', NULL, NULL, '2025-01-10T09:00:00Z', NULL, 'SYSTEM', NULL),
 
-    ('Thayana Teste 02', 'thayanarm@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31982357166', 'Avenida Afonso Pena', '1500', NULL, 'Centro', 'Belo Horizonte', 'MG', '30130-003', NULL, NULL, '2025-01-11T10:15:00Z', NULL, 'SYSTEM', NULL),
+    ('Thayana Teste 02', 'thayanarm@hotmail.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31982357166', 'Avenida Afonso Pena', '1500', NULL, 'Centro', 'Belo Horizonte', 'MG', '30130-003', NULL, NULL, '2025-01-11T10:15:00Z', NULL, 'SYSTEM', NULL),
 
-    ('Bruno Costa', 'bruno.costa@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990003', 'Av. Amazonas', '300', NULL, NULL, 'Belo Horizonte', 'MG', NULL, NULL, NULL, '2025-01-12T11:30:00Z', NULL, 'SYSTEM', NULL),
+    ('Bruno Costa', 'bruno.costa@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990003', 'Av. Amazonas', '300', NULL, 'Centro', 'Belo Horizonte', 'MG', '30180-001', NULL, NULL, '2025-01-12T11:30:00Z', NULL, 'SYSTEM', NULL),
 
     ('Carla Mendes', 'carla.mendes@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', true,  '31999990004', 'Rua Gama', '400', NULL, NULL, 'Belo Horizonte', 'MG', NULL, NULL, NULL, '2025-01-13T14:45:00Z', NULL, 'SYSTEM', NULL),
 
@@ -51,8 +51,8 @@ INSERT INTO tb_permission (name, group_name) VALUES
                                                  ('EMPLOYEES_DELETE',        'EMPLOYEES'),
 
                                                  ('PAYABLES_READ',          'PAYABLES'),
-                                                 ('PAYABLE_WRITE',         'PAYABLES'),
-                                                 ('PAYABLE_DELETE',        'PAYABLES'),
+                                                 ('PAYABLES_WRITE',         'PAYABLES'),
+                                                 ('PAYABLES_DELETE',        'PAYABLES'),
 
                                                  ('RECEIVABLES_READ',          'RECEIVABLES'),
                                                  ('RECEIVABLES_WRITE',         'RECEIVABLES'),
