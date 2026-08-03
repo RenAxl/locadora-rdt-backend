@@ -42,7 +42,7 @@ public class CategoryController {
         this.service = service;
     }
 
-    @PreAuthorize(CATEGORIES_READ)
+    @PreAuthorize(CATEGORIES_READ + " or " + CLIENTS_CATEGORIES_READ)
     @GetMapping
     public ResponseEntity<Page<CategoryDTO>> findAllPaged(
             @RequestParam(value = "name", defaultValue = "") String name,

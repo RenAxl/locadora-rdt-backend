@@ -13,4 +13,7 @@ public final class RentalTypeAuthorizationExpressions {
 
     public static final String RENTAL_TYPES_DELETE =
             "hasAuthority('RENTAL_TYPES_DELETE')";
+
+    public static final String CLIENTS_RENTAL_TYPES_READ =
+            "hasAuthority('CLIENTS_RENTAL_TYPES_READ')";
 }
