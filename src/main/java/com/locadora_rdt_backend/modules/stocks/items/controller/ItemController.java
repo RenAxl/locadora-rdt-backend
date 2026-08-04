@@ -43,7 +43,7 @@ public class ItemController {
         this.service = service;
     }
 
-    @PreAuthorize(ITEMS_READ + " or " + CLIENTS_ITEMS_READ)
+    @PreAuthorize(ITEMS_READ + " or " + CUSTOMERS_ITEMS_READ)
     @GetMapping
     public ResponseEntity<Page<ItemDTO>> findAllPaged(
             @RequestParam(value = "name", defaultValue = "") String name,

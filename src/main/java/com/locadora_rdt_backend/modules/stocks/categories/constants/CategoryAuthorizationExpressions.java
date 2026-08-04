@@ -8,8 +8,8 @@ public final class CategoryAuthorizationExpressions {
     public static final String CATEGORIES_READ =
             "hasAuthority('CATEGORIES_READ')";
 
-    public static final String CLIENTS_CATEGORIES_READ =
-            "hasAuthority('CLIENTS_CATEGORIES_READ')";
+    public static final String CUSTOMERS_CATEGORIES_READ =
+            "hasAuthority('CUSTOMERS_CATEGORIES_READ')";
 
     public static final String CATEGORIES_WRITE =
             "hasAuthority('CATEGORIES_WRITE')";

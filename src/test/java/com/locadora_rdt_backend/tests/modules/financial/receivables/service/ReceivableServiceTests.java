@@ -156,6 +156,10 @@ class ReceivableServiceTests {
         rental.setRemainingAmount(new BigDecimal("95.00"));
         Mockito.when(authenticationFacade.getAuthenticatedUsername()).thenReturn(user.getEmail());
         Mockito.when(userRepository.findByEmail(user.getEmail())).thenReturn(user);
+        paymentFrequency.setFrequency("À vista");
+        paymentFrequency.setDays(0);
+        Mockito.when(paymentFrequencyRepository.findByFrequencyIgnoreCase("À vista"))
+                .thenReturn(Optional.of(paymentFrequency));
 
         service.createFromRental(rental);
 
@@ -172,6 +176,8 @@ class ReceivableServiceTests {
         Assertions.assertEquals(BigDecimal.ZERO, saved.getRemainingBalance());
         Assertions.assertSame(customer, saved.getCustomer());
         Assertions.assertSame(paymentMethod, saved.getPaymentMethod());
+        Assertions.assertSame(paymentFrequency, saved.getPaymentFrequency());
+        Assertions.assertSame(paymentFrequency, saved.getFrequency());
     }
 
     @Test

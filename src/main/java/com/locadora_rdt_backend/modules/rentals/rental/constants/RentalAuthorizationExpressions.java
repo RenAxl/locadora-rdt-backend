@@ -13,5 +13,8 @@ public final class RentalAuthorizationExpressions {
 
     public static final String RENTALS_DELETE =
             "hasAuthority('RENTALS_DELETE')";
+
+    public static final String CUSTOMER_RENTALS =
+            "hasAuthority('CUSTOMER_RENTALS')";
 }
 

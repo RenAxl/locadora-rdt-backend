@@ -18,6 +18,7 @@ import java.util.List;
 import com.locadora_rdt_backend.modules.organization.customers.dto.CustomerDTO;
 
 import static com.locadora_rdt_backend.modules.rentals.rental.constants.RentalAuthorizationExpressions.*;
+import static com.locadora_rdt_backend.modules.stocks.items.constants.ItemAuthorizationExpressions.CUSTOMERS_ITEMS_READ;
 
 @RestController
 @RequestMapping("/rentals")
@@ -51,19 +52,19 @@ public class RentalController {
     @GetMapping("/{id}")
     public ResponseEntity<RentalDetailsDTO> findById(@PathVariable Long id) { return ResponseEntity.ok(service.findById(id)); }
 
-    @PreAuthorize(RENTALS_READ)
+    @PreAuthorize(RENTALS_READ + " or " + CUSTOMER_RENTALS)
     @GetMapping("/current-customer")
     public ResponseEntity<CustomerDTO> findCurrentCustomer() {
         return ResponseEntity.ok(service.findCurrentCustomer());
     }
 
-    @PreAuthorize(RENTALS_WRITE)
+    @PreAuthorize(RENTALS_WRITE + " or " + CUSTOMER_RENTALS)
     @PostMapping("/shipping/calculate")
     public ResponseEntity<ShippingPriceDTO> calculateShipping(@Valid @RequestBody ShippingCalculationDTO dto) {
         return ResponseEntity.ok(shippingService.calculate(dto));
     }
 
-    @PreAuthorize(RENTALS_WRITE)
+    @PreAuthorize(RENTALS_WRITE + " or " + CUSTOMER_RENTALS)
     @PostMapping
     public ResponseEntity<RentalDTO> insert(@Valid @RequestBody RentalSaveDTO dto) {
         RentalDTO result = service.insert(dto);
@@ -92,25 +93,25 @@ public class RentalController {
         return ResponseEntity.ok(service.cancel(id));
     }
 
-    @PreAuthorize(RENTALS_READ)
+    @PreAuthorize(RENTALS_READ + " or " + CUSTOMER_RENTALS)
     @GetMapping("/availability/items/{itemId}")
     public ResponseEntity<ItemAvailabilityDTO> findAvailability(@PathVariable Long itemId) {
         return ResponseEntity.ok(service.findAvailability(itemId));
     }
 
-    @PreAuthorize(RENTALS_READ)
+    @PreAuthorize(RENTALS_READ + " or " + CUSTOMER_RENTALS)
     @GetMapping("/availability/items/{itemId}/units")
     public ResponseEntity<List<ItemUnitDTO>> findAvailableUnits(@PathVariable Long itemId) {
         return ResponseEntity.ok(service.findAvailableUnits(itemId));
     }
 
-    @PreAuthorize(RENTALS_READ)
+    @PreAuthorize(RENTALS_READ + " or " + CUSTOMER_RENTALS)
     @GetMapping("/availability/items/{itemId}/all-units")
     public ResponseEntity<List<ItemUnitDTO>> findItemUnits(@PathVariable Long itemId) {
         return ResponseEntity.ok(service.findItemUnits(itemId));
     }
 
-    @PreAuthorize(RENTALS_READ)
+    @PreAuthorize(RENTALS_READ + " or " + CUSTOMER_RENTALS)
     @GetMapping("/{id}/units")
     public ResponseEntity<List<RentalItemUnitDTO>> findRentalUnits(@PathVariable Long id) {
         return ResponseEntity.ok(service.findRentalUnits(id));

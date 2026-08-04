@@ -48,6 +48,7 @@ public class ReceivableServiceImpl implements ReceivableService {
     private static final BigDecimal FILTER_AMOUNT_DISABLED = BigDecimal.valueOf(-1);
     private static final LocalDate FILTER_DATE_DISABLED = LocalDate.of(1970, 1, 1);
     private static final long FILTER_ID_DISABLED = -1L;
+    private static final String CASH_PAYMENT_FREQUENCY = "À vista";
 
     private final ReceivableRepository repository;
     private final ReceivableMapper mapper;
@@ -170,6 +171,7 @@ public class ReceivableServiceImpl implements ReceivableService {
         entity.setPaymentDate(paymentDate);
         entity.setCustomer(rental.getCustomer());
         entity.setPaymentMethod(rental.getPaymentMethod());
+        entity.setPaymentFrequency(findCashPaymentFrequency());
         entity.setReference("RENTAL");
         entity.setReferenceId(rental.getId());
         entity.setNote("Conta gerada automaticamente na baixa da locação.");
@@ -618,6 +620,13 @@ public class ReceivableServiceImpl implements ReceivableService {
         }
 
         return optionalPaymentFrequency.get();
+    }
+
+    private PaymentFrequency findCashPaymentFrequency() {
+        return paymentFrequencyRepository.findByFrequencyIgnoreCase(CASH_PAYMENT_FREQUENCY)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Frequência de pagamento à vista não encontrada."
+                ));
     }
 
     private User getAuthenticatedUser() {

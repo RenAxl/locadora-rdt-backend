@@ -36,7 +36,7 @@ public class RentalTypeController {
         this.service = service;
     }
 
-    @PreAuthorize(RENTAL_TYPES_READ + " or " + CLIENTS_RENTAL_TYPES_READ)
+    @PreAuthorize(RENTAL_TYPES_READ + " or " + CUSTOMERS_RENTAL_TYPES_READ)
     @GetMapping
     public ResponseEntity<Page<RentalTypeDTO>> findAllPaged(
             @RequestParam(value = "name", defaultValue = "") String name,

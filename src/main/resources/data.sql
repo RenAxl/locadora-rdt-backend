@@ -27,6 +27,8 @@ INSERT INTO tb_permission (name, group_name) VALUES
                                                  ('USER_READ',          'USERS'),
                                                  ('USER_WRITE',         'USERS'),
                                                  ('USER_DELETE',        'USERS'),
+                                                 ('USER_PROFILE_READ',          'USERS'),
+                                                 ('USER_PROFILE_WRITE',          'USERS'),
 
                                                  ('ROLE_READ',          'ROLES'),
                                                  ('ROLE_WRITE',         'ROLES'),
@@ -77,11 +79,14 @@ INSERT INTO tb_permission (name, group_name) VALUES
                                                  ('RENTALS_READ',          'RENTALS'),
                                                  ('RENTALS_WRITE',         'RENTALS'),
                                                  ('RENTALS_DELETE',        'RENTALS'),
+                                                 ('CUSTOMER_RENTALS',        'RENTALS'),
+
+                                                 ('RENTALS_HISTORY_READ',          'RENTALS_HISTORY'),
 
                                                  ('RENTAL_TYPES_READ',          'RENTAL_TYPES'),
                                                  ('RENTAL_TYPES_WRITE',          'RENTAL_TYPES'),
                                                  ('RENTAL_TYPES_DELETE',          'RENTAL_TYPES'),
-                                                 ('CLIENTS_RENTAL_TYPES_READ',          'RENTAL_TYPES'),
+                                                 ('CUSTOMERS_RENTAL_TYPES_READ',          'RENTAL_TYPES'),
 
                                                  ('FINANCIALREPORTS_READ',          'FINANCIALREPORTS'),
 
@@ -96,12 +101,12 @@ INSERT INTO tb_permission (name, group_name) VALUES
                                                  ('CATEGORIES_READ',          'CATEGORIES'),
                                                  ('CATEGORIES_WRITE',         'CATEGORIES'),
                                                  ('CATEGORIES_DELETE',        'CATEGORIES'),
-                                                 ('CLIENTS_CATEGORIES_READ',          'CATEGORIES'),
+                                                 ('CUSTOMERS_CATEGORIES_READ',          'CATEGORIES'),
 
                                                  ('ITEMS_READ',          'ITEMS'),
                                                  ('ITEMS_WRITE',         'ITEMS'),
                                                  ('ITEMS_DELETE',        'ITEMS'),
-                                                 ('CLIENTS_ITEMS_READ',        'ITEMS'),
+                                                 ('CUSTOMERS_ITEMS_READ',        'ITEMS'),
 
                                                  ('STOCKBALANCES_READ',          'STOCKBALANCES'),
                                                  ('STOCKBALANCES_WRITE',         'STOCKBALANCES'),
@@ -137,7 +142,8 @@ INSERT INTO tb_role_permission (role_id, permission_id) VALUES
                                                             (1, 49), (1, 50), (1, 51), (1, 52),
                                                             (1, 53), (1, 54), (1, 55), (1, 56),
                                                             (1, 57), (1, 58), (1, 59), (1, 60),
-                                                            (1, 61);
+                                                            (1, 61), (1, 62), (1, 63), (1, 64),
+                                                            (1, 65);
 
 INSERT INTO tb_role_permission (role_id, permission_id) VALUES
                                                             (2, 1),

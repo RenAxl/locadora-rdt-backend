@@ -9,11 +9,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PaymentFrequencyRepository extends JpaRepository<PaymentFrequency, Long> {
 
     @Query("select paymentFrequency from PaymentFrequency paymentFrequency where lower(paymentFrequency.frequency) like lower(concat('%', ?1, '%'))")
     Page<PaymentFrequency> find(String frequency, Pageable pageable);
+
+    Optional<PaymentFrequency> findByFrequencyIgnoreCase(String frequency);
 
     @Modifying
     @Query("DELETE FROM PaymentFrequency paymentFrequency WHERE paymentFrequency.id IN :ids")

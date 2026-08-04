@@ -42,17 +42,6 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/customer-accounts").permitAll()
                 .antMatchers(HttpMethod.POST, "/customer-accounts/create-password").permitAll()
                 .antMatchers(HttpMethod.POST, "/customer-accounts/resend-activation").permitAll()
-
-                .antMatchers("/users/me", "/users/me/**").authenticated()
-
-                .antMatchers(HttpMethod.GET, USERS_ENDPOINT)
-                .hasAnyAuthority(
-                        "USER_READ",
-                        USER_WRITE,
-                        "USER_DELETE",
-                        "USER_STATUS_CHANGE"
-                )
-                .antMatchers(HttpMethod.POST, USERS_ENDPOINT).hasAuthority(USER_WRITE)
                 .anyRequest().authenticated()
                 .and()
                 .csrf().disable()
