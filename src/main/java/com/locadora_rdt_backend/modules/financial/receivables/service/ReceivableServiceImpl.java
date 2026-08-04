@@ -6,10 +6,10 @@ import com.locadora_rdt_backend.infrastructure.security.AuthenticationFacade;
 import com.locadora_rdt_backend.modules.financial.receivables.constants.ReceivableErrorMessages;
 import com.locadora_rdt_backend.modules.organization.customers.model.Customer;
 import com.locadora_rdt_backend.modules.organization.customers.repository.CustomerRepository;
-import com.locadora_rdt_backend.modules.financial.payment.frequencies.model.PaymentFrequency;
-import com.locadora_rdt_backend.modules.financial.payment.frequencies.repository.PaymentFrequencyRepository;
-import com.locadora_rdt_backend.modules.financial.payment.methods.model.PaymentMethod;
-import com.locadora_rdt_backend.modules.financial.payment.methods.repository.PaymentMethodRepository;
+import com.locadora_rdt_backend.modules.financial.payment_frequencies.model.PaymentFrequency;
+import com.locadora_rdt_backend.modules.financial.payment_frequencies.repository.PaymentFrequencyRepository;
+import com.locadora_rdt_backend.modules.financial.payment_methods.model.PaymentMethod;
+import com.locadora_rdt_backend.modules.financial.payment_methods.repository.PaymentMethodRepository;
 import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableDetailsDTO;
 import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableDTO;
 import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableFilterDTO;
@@ -48,6 +48,7 @@ public class ReceivableServiceImpl implements ReceivableService {
     private static final BigDecimal FILTER_AMOUNT_DISABLED = BigDecimal.valueOf(-1);
     private static final LocalDate FILTER_DATE_DISABLED = LocalDate.of(1970, 1, 1);
     private static final long FILTER_ID_DISABLED = -1L;
+    private static final String CASH_PAYMENT_FREQUENCY = "À vista";
 
     private final ReceivableRepository repository;
     private final ReceivableMapper mapper;
@@ -170,6 +171,7 @@ public class ReceivableServiceImpl implements ReceivableService {
         entity.setPaymentDate(paymentDate);
         entity.setCustomer(rental.getCustomer());
         entity.setPaymentMethod(rental.getPaymentMethod());
+        entity.setPaymentFrequency(findCashPaymentFrequency());
         entity.setReference("RENTAL");
         entity.setReferenceId(rental.getId());
         entity.setNote("Conta gerada automaticamente na baixa da locação.");
@@ -618,6 +620,13 @@ public class ReceivableServiceImpl implements ReceivableService {
         }
 
         return optionalPaymentFrequency.get();
+    }
+
+    private PaymentFrequency findCashPaymentFrequency() {
+        return paymentFrequencyRepository.findByFrequencyIgnoreCase(CASH_PAYMENT_FREQUENCY)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Frequência de pagamento à vista não encontrada."
+                ));
     }
 
     private User getAuthenticatedUser() {

@@ -5,10 +5,10 @@ import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
 import com.locadora_rdt_backend.infrastructure.security.AuthenticationFacade;
 import com.locadora_rdt_backend.modules.organization.customers.model.Customer;
 import com.locadora_rdt_backend.modules.organization.customers.repository.CustomerRepository;
-import com.locadora_rdt_backend.modules.financial.payment.frequencies.model.PaymentFrequency;
-import com.locadora_rdt_backend.modules.financial.payment.frequencies.repository.PaymentFrequencyRepository;
-import com.locadora_rdt_backend.modules.financial.payment.methods.model.PaymentMethod;
-import com.locadora_rdt_backend.modules.financial.payment.methods.repository.PaymentMethodRepository;
+import com.locadora_rdt_backend.modules.financial.payment_frequencies.model.PaymentFrequency;
+import com.locadora_rdt_backend.modules.financial.payment_frequencies.repository.PaymentFrequencyRepository;
+import com.locadora_rdt_backend.modules.financial.payment_methods.model.PaymentMethod;
+import com.locadora_rdt_backend.modules.financial.payment_methods.repository.PaymentMethodRepository;
 import com.locadora_rdt_backend.modules.settings.financialsettings.model.FinancialSetting;
 import com.locadora_rdt_backend.modules.settings.financialsettings.repository.FinancialSettingRepository;
 import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableDTO;
@@ -156,6 +156,10 @@ class ReceivableServiceTests {
         rental.setRemainingAmount(new BigDecimal("95.00"));
         Mockito.when(authenticationFacade.getAuthenticatedUsername()).thenReturn(user.getEmail());
         Mockito.when(userRepository.findByEmail(user.getEmail())).thenReturn(user);
+        paymentFrequency.setFrequency("À vista");
+        paymentFrequency.setDays(0);
+        Mockito.when(paymentFrequencyRepository.findByFrequencyIgnoreCase("À vista"))
+                .thenReturn(Optional.of(paymentFrequency));
 
         service.createFromRental(rental);
 
@@ -172,6 +176,8 @@ class ReceivableServiceTests {
         Assertions.assertEquals(BigDecimal.ZERO, saved.getRemainingBalance());
         Assertions.assertSame(customer, saved.getCustomer());
         Assertions.assertSame(paymentMethod, saved.getPaymentMethod());
+        Assertions.assertSame(paymentFrequency, saved.getPaymentFrequency());
+        Assertions.assertSame(paymentFrequency, saved.getFrequency());
     }
 
     @Test

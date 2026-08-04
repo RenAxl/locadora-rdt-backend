@@ -1,8 +1,8 @@
 package com.locadora_rdt_backend.modules.financial.receivables.model;
 
 import com.locadora_rdt_backend.modules.organization.customers.model.Customer;
-import com.locadora_rdt_backend.modules.financial.payment.frequencies.model.PaymentFrequency;
-import com.locadora_rdt_backend.modules.financial.payment.methods.model.PaymentMethod;
+import com.locadora_rdt_backend.modules.financial.payment_frequencies.model.PaymentFrequency;
+import com.locadora_rdt_backend.modules.financial.payment_methods.model.PaymentMethod;
 import com.locadora_rdt_backend.modules.identity.users.model.User;
 
 import javax.persistence.*;

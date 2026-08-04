@@ -24,8 +24,8 @@ import com.locadora_rdt_backend.modules.rentals.rental.repository.RentalItemUnit
 import com.locadora_rdt_backend.modules.rentals.rental.repository.RentalStatusHistoryRepository;
 import com.locadora_rdt_backend.modules.rentals.rentaltypes.model.RentalType;
 import com.locadora_rdt_backend.modules.rentals.rentaltypes.repository.RentalTypeRepository;
-import com.locadora_rdt_backend.modules.financial.payment.methods.model.PaymentMethod;
-import com.locadora_rdt_backend.modules.financial.payment.methods.repository.PaymentMethodRepository;
+import com.locadora_rdt_backend.modules.financial.payment_methods.model.PaymentMethod;
+import com.locadora_rdt_backend.modules.financial.payment_methods.repository.PaymentMethodRepository;
 import com.locadora_rdt_backend.modules.financial.receivables.service.ReceivableService;
 import com.locadora_rdt_backend.infrastructure.whatsapp.service.WhatsAppService;
 import com.locadora_rdt_backend.modules.identity.users.model.User;

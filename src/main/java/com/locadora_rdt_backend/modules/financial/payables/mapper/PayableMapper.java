@@ -2,8 +2,8 @@ package com.locadora_rdt_backend.modules.financial.payables.mapper;
 
 import com.locadora_rdt_backend.modules.organization.suppliers.model.Supplier;
 import com.locadora_rdt_backend.modules.organization.employees.model.Employee;
-import com.locadora_rdt_backend.modules.financial.payment.frequencies.model.PaymentFrequency;
-import com.locadora_rdt_backend.modules.financial.payment.methods.model.PaymentMethod;
+import com.locadora_rdt_backend.modules.financial.payment_frequencies.model.PaymentFrequency;
+import com.locadora_rdt_backend.modules.financial.payment_methods.model.PaymentMethod;
 import com.locadora_rdt_backend.modules.financial.payables.dto.PayableDTO;
 import com.locadora_rdt_backend.modules.financial.payables.dto.PayableDetailsDTO;
 import com.locadora_rdt_backend.modules.financial.payables.dto.PayableSaveDTO;
