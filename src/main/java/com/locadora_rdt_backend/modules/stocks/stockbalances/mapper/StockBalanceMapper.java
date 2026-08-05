@@ -63,6 +63,10 @@ public class StockBalanceMapper {
         dto.setAvailableQuantity(available);
         dto.setMinimumQuantity(minimum);
         dto.setLowStock(available <= minimum);
+        dto.setCreatedAt(entity.getCreatedAt());
+        dto.setUpdatedAt(entity.getUpdatedAt());
+        dto.setCreatedBy(entity.getCreatedBy());
+        dto.setUpdatedBy(entity.getUpdatedBy());
     }
 
     private Integer zeroIfNull(Integer value) {

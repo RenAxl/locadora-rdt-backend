@@ -1,6 +1,7 @@
 package com.locadora_rdt_backend.modules.stocks.stockbalances.dto;
 
 import java.io.Serializable;
+import java.time.Instant;
 
 public class StockBalanceDTO implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -14,6 +15,10 @@ public class StockBalanceDTO implements Serializable {
     private Integer availableQuantity;
     private Integer minimumQuantity;
     private Boolean lowStock;
+    private Instant createdAt;
+    private Instant updatedAt;
+    private String createdBy;
+    private String updatedBy;
 
     public StockBalanceDTO() {
     }
@@ -54,6 +59,22 @@ public class StockBalanceDTO implements Serializable {
         return lowStock;
     }
 
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public String getUpdatedBy() {
+        return updatedBy;
+    }
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -88,5 +109,21 @@ public class StockBalanceDTO implements Serializable {
 
     public void setLowStock(Boolean lowStock) {
         this.lowStock = lowStock;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
     }
 }
