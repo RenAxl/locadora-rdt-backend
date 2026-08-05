@@ -155,6 +155,15 @@ public class PayableServiceImpl implements PayableService {
     @Transactional
     public PayableDTO update(Long id, PayableUpdateDTO dto) {
         Payable entity = findEntity(id);
+
+        if (Boolean.TRUE.equals(entity.getPaid())) {
+            throw new IllegalArgumentException(PayableErrorMessages.PAID_PAYABLE_CANNOT_BE_UPDATED);
+        }
+
+        if (Boolean.TRUE.equals(entity.getCanceled())) {
+            throw new IllegalArgumentException(PayableErrorMessages.CANCELED_PAYABLE_CANNOT_BE_UPDATED);
+        }
+
         boolean wasPartiallyPaid = isPartiallyPaid(entity);
         BigDecimal previousRemainingBalance = entity.getRemainingBalance();
         LocalDate previousPaymentDate = entity.getPaymentDate();
@@ -367,6 +376,10 @@ public class PayableServiceImpl implements PayableService {
     private void validatePayment(Payable entity, PayablePaymentDTO dto, BigDecimal paymentAmount) {
         if (Boolean.TRUE.equals(entity.getPaid())) {
             throw new IllegalArgumentException("Conta já está paga.");
+        }
+
+        if (Boolean.TRUE.equals(entity.getCanceled())) {
+            throw new IllegalArgumentException(PayableErrorMessages.CANCELED_PAYABLE_CANNOT_BE_PAID);
         }
 
         if (paymentAmount.compareTo(ZERO) <= 0) {

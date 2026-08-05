@@ -42,6 +42,8 @@ public class PayableDTO implements Serializable {
     private String paymentFrequency;
     private Long createdById;
     private String createdByName;
+    private Long updatedById;
+    private String updatedByName;
     private Long paidById;
     private String paidByName;
 
@@ -182,6 +184,14 @@ public class PayableDTO implements Serializable {
 
     public String getCreatedByName() {
         return createdByName;
+    }
+
+    public Long getUpdatedById() {
+        return updatedById;
+    }
+
+    public String getUpdatedByName() {
+        return updatedByName;
     }
 
     public Long getPaidById() {
@@ -326,6 +336,14 @@ public class PayableDTO implements Serializable {
 
     public void setCreatedByName(String createdByName) {
         this.createdByName = createdByName;
+    }
+
+    public void setUpdatedById(Long updatedById) {
+        this.updatedById = updatedById;
+    }
+
+    public void setUpdatedByName(String updatedByName) {
+        this.updatedByName = updatedByName;
     }
 
     public void setPaidById(Long paidById) {

@@ -186,9 +186,17 @@ public class ReceivableServiceImpl implements ReceivableService {
     @Override
     @Transactional
     public ReceivableDTO update(Long id, ReceivableUpdateDTO dto) {
-        validateCustomerOrDescription(dto);
-
         Receivable entity = findEntity(id);
+
+        if (Boolean.TRUE.equals(entity.getPaid())) {
+            throw new IllegalArgumentException(ReceivableErrorMessages.PAID_RECEIVABLE_CANNOT_BE_UPDATED);
+        }
+
+        if (Boolean.TRUE.equals(entity.getCanceled())) {
+            throw new IllegalArgumentException(ReceivableErrorMessages.CANCELED_RECEIVABLE_CANNOT_BE_UPDATED);
+        }
+
+        validateCustomerOrDescription(dto);
         boolean wasPartiallyPaid = isPartiallyPaid(entity);
         BigDecimal previousRemainingBalance = entity.getRemainingBalance();
         LocalDate previousPaymentDate = entity.getPaymentDate();
@@ -440,6 +448,10 @@ public class ReceivableServiceImpl implements ReceivableService {
     private void validatePayment(Receivable entity, ReceivablePaymentDTO dto, BigDecimal paymentAmount) {
         if (Boolean.TRUE.equals(entity.getPaid())) {
             throw new IllegalArgumentException("Conta já está paga.");
+        }
+
+        if (Boolean.TRUE.equals(entity.getCanceled())) {
+            throw new IllegalArgumentException(ReceivableErrorMessages.CANCELED_RECEIVABLE_CANNOT_BE_PAID);
         }
 
         if (paymentAmount.compareTo(ZERO) <= 0) {

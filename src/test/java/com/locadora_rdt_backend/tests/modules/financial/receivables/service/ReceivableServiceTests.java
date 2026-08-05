@@ -468,6 +468,36 @@ class ReceivableServiceTests {
     }
 
     @Test
+    void updateShouldThrowWhenReceivableIsPaid() {
+        ReceivableUpdateDTO updateDTO = saveDTO(new ReceivableUpdateDTO());
+        entity.setPaid(true);
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(entity));
+
+        IllegalArgumentException exception = Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> service.update(1L, updateDTO)
+        );
+
+        Assertions.assertEquals("Conta a receber paga não pode ser atualizada.", exception.getMessage());
+        Mockito.verify(mapper, Mockito.never()).updateEntity(entity, updateDTO);
+    }
+
+    @Test
+    void updateShouldThrowWhenReceivableIsCanceled() {
+        ReceivableUpdateDTO updateDTO = saveDTO(new ReceivableUpdateDTO());
+        entity.setCanceled(true);
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(entity));
+
+        IllegalArgumentException exception = Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> service.update(1L, updateDTO)
+        );
+
+        Assertions.assertEquals("Conta a receber cancelada não pode ser atualizada.", exception.getMessage());
+        Mockito.verify(mapper, Mockito.never()).updateEntity(entity, updateDTO);
+    }
+
+    @Test
     void deleteShouldRemoveExistingReceivable() {
         Mockito.when(repository.findById(1L)).thenReturn(Optional.of(entity));
 
@@ -644,6 +674,10 @@ class ReceivableServiceTests {
         Assertions.assertThrows(IllegalArgumentException.class, () -> service.pay(1L, paymentDTO(BigDecimal.ONE)));
 
         entity.setPaid(false);
+        entity.setCanceled(true);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> service.pay(1L, paymentDTO(BigDecimal.ONE)));
+
+        entity.setCanceled(false);
         Assertions.assertThrows(IllegalArgumentException.class, () -> service.pay(1L, paymentDTO(BigDecimal.ZERO)));
         Assertions.assertThrows(IllegalArgumentException.class, () -> service.pay(1L, paymentDTO(new BigDecimal("100.00"))));
     }

@@ -460,6 +460,36 @@ class PayableServiceTests {
     }
 
     @Test
+    void updateShouldThrowWhenPayableIsPaid() {
+        PayableUpdateDTO updateDTO = saveDTO(new PayableUpdateDTO());
+        entity.setPaid(true);
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(entity));
+
+        IllegalArgumentException exception = Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> service.update(1L, updateDTO)
+        );
+
+        Assertions.assertEquals("Conta a pagar paga não pode ser atualizada.", exception.getMessage());
+        Mockito.verify(mapper, Mockito.never()).updateEntity(entity, updateDTO);
+    }
+
+    @Test
+    void updateShouldThrowWhenPayableIsCanceled() {
+        PayableUpdateDTO updateDTO = saveDTO(new PayableUpdateDTO());
+        entity.setCanceled(true);
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(entity));
+
+        IllegalArgumentException exception = Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> service.update(1L, updateDTO)
+        );
+
+        Assertions.assertEquals("Conta a pagar cancelada não pode ser atualizada.", exception.getMessage());
+        Mockito.verify(mapper, Mockito.never()).updateEntity(entity, updateDTO);
+    }
+
+    @Test
     void deleteShouldRemoveExistingPayable() {
         Mockito.when(repository.findById(1L)).thenReturn(Optional.of(entity));
 
@@ -636,6 +666,10 @@ class PayableServiceTests {
         Assertions.assertThrows(IllegalArgumentException.class, () -> service.pay(1L, paymentDTO(BigDecimal.ONE)));
 
         entity.setPaid(false);
+        entity.setCanceled(true);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> service.pay(1L, paymentDTO(BigDecimal.ONE)));
+
+        entity.setCanceled(false);
         Assertions.assertThrows(IllegalArgumentException.class, () -> service.pay(1L, paymentDTO(BigDecimal.ZERO)));
         Assertions.assertThrows(IllegalArgumentException.class, () -> service.pay(1L, paymentDTO(new BigDecimal("100.00"))));
     }
