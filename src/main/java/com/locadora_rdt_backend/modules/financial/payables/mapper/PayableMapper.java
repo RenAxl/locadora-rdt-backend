@@ -54,6 +54,7 @@ public class PayableMapper {
         copyPaymentMethod(entity.getPaymentMethod(), dto);
         copyPaymentFrequency(entity.getPaymentFrequency(), dto);
         copyCreatedBy(entity.getCreatedBy(), dto);
+        copyUpdatedBy(entity.getUpdatedBy(), dto);
         copyPaidBy(entity.getPaidBy(), dto);
 
     }
@@ -127,6 +128,15 @@ public class PayableMapper {
 
         dto.setPaidById(paidBy.getId());
         dto.setPaidByName(paidBy.getName());
+    }
+
+    private void copyUpdatedBy(User updatedBy, PayableDTO dto) {
+        if (updatedBy == null) {
+            return;
+        }
+
+        dto.setUpdatedById(updatedBy.getId());
+        dto.setUpdatedByName(updatedBy.getName());
     }
 
     private String trimToNull(String value) {

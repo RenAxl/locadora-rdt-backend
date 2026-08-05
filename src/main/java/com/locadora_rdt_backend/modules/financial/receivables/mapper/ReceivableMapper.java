@@ -52,6 +52,7 @@ public class ReceivableMapper {
         copyPaymentMethod(entity.getPaymentMethod(), dto);
         copyPaymentFrequency(entity.getPaymentFrequency(), dto);
         copyCreatedBy(entity.getCreatedBy(), dto);
+        copyUpdatedBy(entity.getUpdatedBy(), dto);
         copyPaidBy(entity.getPaidBy(), dto);
 
     }
@@ -116,6 +117,15 @@ public class ReceivableMapper {
 
         dto.setPaidById(paidBy.getId());
         dto.setPaidByName(paidBy.getName());
+    }
+
+    private void copyUpdatedBy(User updatedBy, ReceivableDTO dto) {
+        if (updatedBy == null) {
+            return;
+        }
+
+        dto.setUpdatedById(updatedBy.getId());
+        dto.setUpdatedByName(updatedBy.getName());
     }
 
     private String trimToNull(String value) {
