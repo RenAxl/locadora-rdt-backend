@@ -9,6 +9,8 @@ import com.locadora_rdt_backend.modules.stocks.items.model.Item;
 import com.locadora_rdt_backend.modules.stocks.items.repository.ItemRepository;
 import com.locadora_rdt_backend.modules.stocks.stockbalances.model.StockBalance;
 import com.locadora_rdt_backend.modules.stocks.stockbalances.repository.StockBalanceRepository;
+import com.locadora_rdt_backend.modules.stocks.stockmovements.model.StockMovement;
+import com.locadora_rdt_backend.modules.stocks.stockmovements.repository.StockMovementRepository;
 import com.locadora_rdt_backend.modules.rentals.rental.dto.*;
 import com.locadora_rdt_backend.modules.rentals.rental.mapper.RentalMapper;
 import com.locadora_rdt_backend.modules.rentals.rental.model.Rental;
@@ -51,6 +53,9 @@ public class RentalServiceImpl implements RentalService {
     private static final String DELIVERED = "DELIVERED";
     private static final String AVAILABLE = "AVAILABLE";
     private static final String RESERVED = "RESERVED";
+    private static final String RESERVE_MOVEMENT = "RESERVE";
+    private static final String RETURN_MOVEMENT = "RETURN";
+    private static final String CANCELLATION_MOVEMENT = "CANCELLATION";
     private static final BigDecimal ZERO = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
     private static final Instant FIRST_DATE = Instant.parse("1900-01-01T00:00:00Z");
     private static final Instant LAST_DATE = Instant.parse("2999-12-31T23:59:59Z");
@@ -64,6 +69,7 @@ public class RentalServiceImpl implements RentalService {
     private final RentalTypeRepository rentalTypeRepository;
     private final ItemRepository inventoryItemRepository;
     private final StockBalanceRepository stockBalanceRepository;
+    private final StockMovementRepository stockMovementRepository;
     private final RentalMapper mapper;
     private final RentalFinancialCalculator financialCalculator;
     private final PaymentMethodRepository paymentMethodRepository;
@@ -78,6 +84,7 @@ public class RentalServiceImpl implements RentalService {
             RentalStatusHistoryRepository statusHistoryRepository,
             CustomerRepository customerRepository, RentalTypeRepository rentalTypeRepository,
             ItemRepository inventoryItemRepository, StockBalanceRepository stockBalanceRepository,
+            StockMovementRepository stockMovementRepository,
             RentalMapper mapper, RentalFinancialCalculator financialCalculator,
             PaymentMethodRepository paymentMethodRepository, RentalDocumentPdfService documentPdfService,
             WhatsAppService whatsAppService, AuthenticationFacade authenticationFacade,
@@ -91,6 +98,7 @@ public class RentalServiceImpl implements RentalService {
         this.rentalTypeRepository = rentalTypeRepository;
         this.inventoryItemRepository = inventoryItemRepository;
         this.stockBalanceRepository = stockBalanceRepository;
+        this.stockMovementRepository = stockMovementRepository;
         this.mapper = mapper;
         this.financialCalculator = financialCalculator;
         this.paymentMethodRepository = paymentMethodRepository;
@@ -188,6 +196,8 @@ public class RentalServiceImpl implements RentalService {
         }
         for (RentalItem rentalItem : items) {
             reserveUnits(rentalItem);
+            registerStockMovement(savedRental, rentalItem, RESERVE_MOVEMENT,
+                    "Reserva realizada pela locação.");
         }
         registerHistory(savedRental, null, RENTED, "Locação realizada e unidades reservadas.");
         sendRentalOnTheWayMessage(savedRental, items);
@@ -255,6 +265,8 @@ public class RentalServiceImpl implements RentalService {
         List<RentalItem> rentalItems = itemRepository.findByRentalIdOrderById(id);
         for (RentalItem rentalItem : rentalItems) {
             synchronizeStockBalance(rentalItem.getItem().getId());
+            registerStockMovement(rental, rentalItem, RETURN_MOVEMENT,
+                    "Devolução realizada na baixa da locação.");
         }
 
         RentalDTO financialValues = new RentalDTO();
@@ -295,7 +307,7 @@ public class RentalServiceImpl implements RentalService {
     @Transactional(readOnly = true)
     public ItemAvailabilityDTO findAvailability(Long itemId) {
         Item item = findActiveItem(itemId);
-        long availableQuantity = itemUnitRepository.countByItemIdAndStatusAndActiveTrue(itemId, AVAILABLE);
+        long availableQuantity = itemUnitRepository.countAvailableForRental(itemId);
         ItemAvailabilityDTO dto = new ItemAvailabilityDTO();
         dto.setItemId(item.getId());
         dto.setItemName(item.getName());
@@ -309,7 +321,7 @@ public class RentalServiceImpl implements RentalService {
     @Transactional(readOnly = true)
     public List<ItemUnitDTO> findAvailableUnits(Long itemId) {
         findActiveItem(itemId);
-        List<ItemUnit> units = itemUnitRepository.findByItemIdAndStatusAndActiveTrueOrderByAssetCode(itemId, AVAILABLE);
+        List<ItemUnit> units = itemUnitRepository.findAvailableForRental(itemId);
         List<ItemUnitDTO> result = new ArrayList<>();
         for (ItemUnit unit : units) {
             result.add(toItemUnitDTO(unit));
@@ -460,10 +472,47 @@ public class RentalServiceImpl implements RentalService {
     @Transactional
     public void delete(Long id) {
         Rental rental = findEntity(id);
-        requireDraft(rental);
+        List<RentalItem> rentalItems = itemRepository.findByRentalIdOrderById(id);
+        List<RentalItemUnit> linkedUnits = rentalItemUnitRepository.findByRentalItemRentalIdOrderById(id);
+        String username = authenticationFacade.getAuthenticatedUsername();
+
+        for (RentalItemUnit linkedUnit : linkedUnits) {
+            ItemUnit itemUnit = linkedUnit.getItemUnit();
+            itemUnit.setStatus(AVAILABLE);
+            itemUnit.setUpdatedBy(username);
+            itemUnitRepository.save(itemUnit);
+        }
+        itemUnitRepository.flush();
+
+        rentalItemUnitRepository.deleteByRentalItemRentalId(id);
+        rentalItemUnitRepository.flush();
         itemRepository.deleteByRentalId(id);
         statusHistoryRepository.deleteByRentalId(id);
         repository.delete(rental);
+        repository.flush();
+
+        Set<Long> itemIds = new HashSet<>();
+        for (RentalItem rentalItem : rentalItems) {
+            itemIds.add(rentalItem.getItem().getId());
+            registerStockMovement(rental, rentalItem, CANCELLATION_MOVEMENT,
+                    "Cancelamento realizado pela exclusão da locação.");
+        }
+        for (Long itemId : itemIds) {
+            synchronizeStockBalance(itemId);
+        }
+        stockBalanceRepository.flush();
+    }
+
+    private void registerStockMovement(Rental rental, RentalItem rentalItem, String type, String reason) {
+        StockMovement movement = new StockMovement();
+        movement.setItem(rentalItem.getItem());
+        movement.setType(type);
+        movement.setQuantity(rentalItem.getQuantity());
+        movement.setReason(reason);
+        movement.setReferenceType("RENTAL");
+        movement.setReferenceId(rental.getId());
+        movement.setCreatedBy(authenticationFacade.getAuthenticatedUsername());
+        stockMovementRepository.save(movement);
     }
 
     private void fillRental(Rental rental, RentalSaveDTO dto, boolean newRental) {

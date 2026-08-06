@@ -10,6 +10,14 @@ import org.springframework.data.repository.query.Param;
 import java.time.Instant;
 
 public interface RentalRepository extends JpaRepository<Rental, Long> {
+    long countByStatus(String status);
+
+    long countByStatusAndExpectedReturnDateBefore(String status, Instant date);
+
+    long countByStatusAndActualReturnDateBetween(String status, Instant start, Instant end);
+
+    long countByRentalDateBetween(Instant start, Instant end);
+
     @Query(
             value = "SELECT rental.* " +
                     "FROM tb_rental rental " +

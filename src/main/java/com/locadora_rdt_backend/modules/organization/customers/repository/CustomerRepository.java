@@ -14,6 +14,8 @@ import java.util.List;
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
 
+    long countByActiveTrue();
+
     @Query("select customer from Customer customer where customer.name like %?1%")
     Page<Customer> find(String name, Pageable pageable);
 

@@ -11,6 +11,8 @@ import com.locadora_rdt_backend.modules.stocks.items.model.Item;
 import com.locadora_rdt_backend.modules.stocks.items.repository.ItemRepository;
 import com.locadora_rdt_backend.modules.stocks.stockbalances.model.StockBalance;
 import com.locadora_rdt_backend.modules.stocks.stockbalances.repository.StockBalanceRepository;
+import com.locadora_rdt_backend.modules.stocks.stockmovements.repository.StockMovementRepository;
+import com.locadora_rdt_backend.modules.stocks.stockmovements.model.StockMovement;
 import com.locadora_rdt_backend.modules.rentals.rental.dto.RentalDTO;
 import com.locadora_rdt_backend.modules.financial.receivables.service.ReceivableService;
 import com.locadora_rdt_backend.modules.rentals.rental.dto.RentalDetailsDTO;
@@ -71,6 +73,7 @@ class RentalServiceTests {
     @Mock private RentalTypeRepository rentalTypeRepository;
     @Mock private ItemRepository inventoryItemRepository;
     @Mock private StockBalanceRepository stockBalanceRepository;
+    @Mock private StockMovementRepository stockMovementRepository;
     @Mock private RentalMapper mapper;
     @Mock private RentalFinancialCalculator financialCalculator;
     @Mock private RentalDocumentPdfService documentPdfService;
@@ -253,6 +256,13 @@ class RentalServiceTests {
         Assertions.assertEquals("user@email.com", savedRental.getCreatedBy());
         Assertions.assertEquals(existingId, result.getId());
         Mockito.verify(itemRepository).save(Mockito.any(RentalItem.class));
+        ArgumentCaptor<StockMovement> movementCaptor = ArgumentCaptor.forClass(StockMovement.class);
+        Mockito.verify(stockMovementRepository).save(movementCaptor.capture());
+        StockMovement movement = movementCaptor.getValue();
+        Assertions.assertEquals("RESERVE", movement.getType());
+        Assertions.assertEquals(2, movement.getQuantity());
+        Assertions.assertEquals("RENTAL", movement.getReferenceType());
+        Assertions.assertEquals(existingId, movement.getReferenceId());
         Mockito.verify(whatsAppService).sendText(
                 "31999999999",
                 "🚚 *Seu pedido está a caminho!*\n\n"
@@ -507,18 +517,38 @@ class RentalServiceTests {
     }
 
     @Test
-    void deleteShouldRejectRentedRental() {
+    void deleteShouldRemoveRentedRental() {
         Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(rental));
+        Mockito.when(itemRepository.findByRentalIdOrderById(existingId)).thenReturn(Collections.emptyList());
+        Mockito.when(rentalItemUnitRepository.findByRentalItemRentalIdOrderById(existingId))
+                .thenReturn(Collections.emptyList());
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> service.delete(existingId));
+        service.delete(existingId);
+
+        Mockito.verify(rentalItemUnitRepository).deleteByRentalItemRentalId(existingId);
+        Mockito.verify(itemRepository).deleteByRentalId(existingId);
+        Mockito.verify(statusHistoryRepository).deleteByRentalId(existingId);
+        Mockito.verify(repository).delete(rental);
+        Mockito.verify(itemUnitRepository).flush();
+        Mockito.verify(stockBalanceRepository).flush();
     }
 
     @Test
-    void deleteShouldThrowWhenRentalIsNotDraft() {
+    void deleteShouldRemoveDeliveredRental() {
         rental.setStatus("DELIVERED");
         Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(rental));
+        Mockito.when(itemRepository.findByRentalIdOrderById(existingId)).thenReturn(Collections.emptyList());
+        Mockito.when(rentalItemUnitRepository.findByRentalItemRentalIdOrderById(existingId))
+                .thenReturn(Collections.emptyList());
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> service.delete(existingId));
+        service.delete(existingId);
+
+        Mockito.verify(rentalItemUnitRepository).deleteByRentalItemRentalId(existingId);
+        Mockito.verify(itemRepository).deleteByRentalId(existingId);
+        Mockito.verify(statusHistoryRepository).deleteByRentalId(existingId);
+        Mockito.verify(repository).delete(rental);
+        Mockito.verify(itemUnitRepository).flush();
+        Mockito.verify(stockBalanceRepository).flush();
     }
 
     @Test

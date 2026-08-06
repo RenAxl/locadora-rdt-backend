@@ -13,4 +13,6 @@ public interface RentalItemUnitRepository extends JpaRepository<RentalItemUnit, 
     long countByRentalItemIdAndStatusIn(Long rentalItemId, List<RentalItemUnitStatus> statuses);
 
     boolean existsByItemUnitIdAndStatusIn(Long itemUnitId, List<RentalItemUnitStatus> statuses);
+
+    void deleteByRentalItemRentalId(Long rentalId);
 }
