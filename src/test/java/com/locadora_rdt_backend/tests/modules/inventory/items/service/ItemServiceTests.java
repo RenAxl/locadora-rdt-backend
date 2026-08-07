@@ -389,6 +389,7 @@ class ItemServiceTests {
         service.updateImage(existingId, file);
 
         Assertions.assertArrayEquals(new byte[]{1}, item.getImage());
+        Assertions.assertEquals("image/png", item.getImageContentType());
         Assertions.assertEquals("admin", item.getUpdatedBy());
         Mockito.verify(repository).save(item);
     }

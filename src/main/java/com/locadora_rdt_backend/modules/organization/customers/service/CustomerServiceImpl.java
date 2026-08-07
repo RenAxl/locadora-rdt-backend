@@ -77,7 +77,7 @@ public class CustomerServiceImpl implements CustomerService {
             return mapper.toDTO(entity);
 
         } catch (EntityNotFoundException e) {
-            throw new ResourceNotFoundException("Id not found " + id);
+            throw new ResourceNotFoundException(CustomerErrorMessages.ID_NOT_FOUND + id);
         }
     }
 
@@ -87,7 +87,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .orElseThrow(() -> new ResourceNotFoundException(CustomerErrorMessages.CUSTOMER_NOT_FOUND));
 
         ImageUploadSupport.validatePhoto(file);
-        entity.setPhoto(ImageUploadSupport.readBytes(file, "Falha ao ler bytes do arquivo."));
+        entity.setPhoto(ImageUploadSupport.readBytes(file, CustomerErrorMessages.IMAGE_READ_ERROR));
         entity.setPhotoContentType(file.getContentType());
         entity.setUpdatedBy(authenticationFacade.getAuthenticatedUsername());
 
@@ -108,7 +108,7 @@ public class CustomerServiceImpl implements CustomerService {
         try {
             repository.deleteById(id);
         } catch (EmptyResultDataAccessException e) {
-            throw new ResourceNotFoundException("Id not found " + id);
+            throw new ResourceNotFoundException(CustomerErrorMessages.ID_NOT_FOUND + id);
         }
     }
 
@@ -116,7 +116,7 @@ public class CustomerServiceImpl implements CustomerService {
     public void deleteAll(List<Long> ids) {
 
         if (ids == null || ids.isEmpty()) {
-            throw new IllegalArgumentException("Lista de ids vazia");
+            throw new IllegalArgumentException(CustomerErrorMessages.EMPTY_ID_LIST);
         }
 
         List<Long> existingIds = repository.findAllById(ids)
@@ -126,7 +126,7 @@ public class CustomerServiceImpl implements CustomerService {
 
 
         if (existingIds.size() != ids.size()) {
-            throw new ResourceNotFoundException("Um ou mais IDs não existem");
+            throw new ResourceNotFoundException(CustomerErrorMessages.ONE_OR_MORE_IDS_NOT_FOUND);
         }
 
         repository.deleteAllByIds(ids);
@@ -138,11 +138,11 @@ public class CustomerServiceImpl implements CustomerService {
             int updated = repository.updateActiveById(id, active);
 
             if (updated == 0) {
-                throw new ResourceNotFoundException("Id not found " + id);
+                throw new ResourceNotFoundException(CustomerErrorMessages.ID_NOT_FOUND + id);
             }
 
         } catch (DataAccessException e) {
-            throw new DatabaseException("Error changing customer status.");
+            throw new DatabaseException(CustomerErrorMessages.CHANGE_ACTIVE_STATUS_ERROR);
         }
     }
 

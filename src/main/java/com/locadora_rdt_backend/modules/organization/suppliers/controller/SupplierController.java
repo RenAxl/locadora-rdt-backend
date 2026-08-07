@@ -18,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 
-import static com.locadora_rdt_backend.modules.organization.suppliers.constants.SupplierAuthorizationExpressions.*;
+import static com.locadora_rdt_backend.shared.constants.PermissionConstants.*;
 
 @RestController
 @RequestMapping("/suppliers")

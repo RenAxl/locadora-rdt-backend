@@ -22,6 +22,7 @@ public class ItemMapper {
         dto.setDescription(entity.getDescription());
         dto.setPrice(entity.getPrice());
         dto.setActive(entity.getActive());
+        dto.setImageContentType(entity.getImageContentType());
         dto.setCategory(toCategoryDTO(entity));
 
         return dto;
@@ -39,6 +40,7 @@ public class ItemMapper {
         dto.setDescription(entity.getDescription());
         dto.setPrice(entity.getPrice());
         dto.setActive(entity.getActive());
+        dto.setImageContentType(entity.getImageContentType());
         dto.setCreatedAt(entity.getCreatedAt());
         dto.setUpdatedAt(entity.getUpdatedAt());
         dto.setCreatedBy(entity.getCreatedBy());
@@ -80,7 +82,8 @@ public class ItemMapper {
         return new CategoryDTO(
                 entity.getCategory().getId(),
                 entity.getCategory().getName(),
-                entity.getCategory().getActive()
+                entity.getCategory().getActive(),
+                entity.getCategory().getImageContentType()
         );
     }
 

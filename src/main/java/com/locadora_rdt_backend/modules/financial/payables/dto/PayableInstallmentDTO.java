@@ -1,5 +1,6 @@
 package com.locadora_rdt_backend.modules.financial.payables.dto;
 
+import com.locadora_rdt_backend.modules.financial.payables.constants.PayableValidationConstants;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -8,8 +9,11 @@ import java.time.LocalDate;
 public class PayableInstallmentDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @NotNull(message = "Informe a quantidade de parcelas")
-    @Min(value = 2, message = "O parcelamento deve ter pelo menos duas parcelas")
+    @NotNull(message = PayableValidationConstants.INSTALLMENTS_REQUIRED)
+    @Min(
+            value = PayableValidationConstants.MINIMUM_INSTALLMENTS,
+            message = PayableValidationConstants.MINIMUM_INSTALLMENTS_REQUIRED
+    )
     private Integer installments;
 
     private LocalDate firstDueDate;

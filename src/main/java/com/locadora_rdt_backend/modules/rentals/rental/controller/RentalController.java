@@ -17,8 +17,7 @@ import java.time.Instant;
 import java.util.List;
 import com.locadora_rdt_backend.modules.organization.customers.dto.CustomerDTO;
 
-import static com.locadora_rdt_backend.modules.rentals.rental.constants.RentalAuthorizationExpressions.*;
-import static com.locadora_rdt_backend.modules.stocks.items.constants.ItemAuthorizationExpressions.CUSTOMERS_ITEMS_READ;
+import static com.locadora_rdt_backend.shared.constants.PermissionConstants.*;
 
 @RestController
 @RequestMapping("/rentals")

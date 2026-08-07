@@ -13,8 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
-import static com.locadora_rdt_backend.modules.settings.financialsettings.constants.FinancialSettingsAuthorizationExpressions.FINANCIALSETTINGS_READ;
-import static com.locadora_rdt_backend.modules.settings.financialsettings.constants.FinancialSettingsAuthorizationExpressions.FINANCIALSETTINGS_WRITE;
+import static com.locadora_rdt_backend.shared.constants.PermissionConstants.*;
 
 @RestController
 @RequestMapping("/financial-settings")

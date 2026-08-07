@@ -28,14 +28,11 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.util.List;
 
-import static com.locadora_rdt_backend.modules.stocks.items.constants.ItemAuthorizationExpressions.*;
-
+import static com.locadora_rdt_backend.shared.constants.PermissionConstants.*;
 
 @RestController
 @RequestMapping("/inventory/items")
 public class ItemController {
-
-    private static final String DEFAULT_IMAGE_CONTENT_TYPE = "image/png";
 
     private final ItemService service;
 
@@ -99,7 +96,7 @@ public class ItemController {
     public ResponseEntity<byte[]> getImage(@PathVariable Long id) {
         Item entity = service.findEntityById(id);
 
-        return BinaryResponseBuilder.media(entity.getImage(), DEFAULT_IMAGE_CONTENT_TYPE);
+        return BinaryResponseBuilder.media(entity.getImage(), entity.getImageContentType());
     }
 
     @PreAuthorize(ITEMS_DELETE)

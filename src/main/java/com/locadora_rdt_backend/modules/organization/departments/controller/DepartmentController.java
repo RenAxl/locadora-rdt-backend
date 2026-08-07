@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-import static com.locadora_rdt_backend.modules.organization.departments.constants.DepartmentAuthorizationExpressions.*;
+import static com.locadora_rdt_backend.shared.constants.PermissionConstants.*;
 
 @RestController
 @RequestMapping(value = "/departments")

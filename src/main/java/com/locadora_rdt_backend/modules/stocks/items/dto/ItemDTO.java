@@ -14,6 +14,7 @@ public class ItemDTO implements Serializable {
     private CategoryDTO category;
     private BigDecimal price;
     private Boolean active;
+    private String imageContentType;
 
     public ItemDTO() {
         // Required by frameworks and serializers.
@@ -43,6 +44,10 @@ public class ItemDTO implements Serializable {
         return active;
     }
 
+    public String getImageContentType() {
+        return imageContentType;
+    }
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -65,5 +70,9 @@ public class ItemDTO implements Serializable {
 
     public void setActive(Boolean active) {
         this.active = active;
+    }
+
+    public void setImageContentType(String imageContentType) {
+        this.imageContentType = imageContentType;
     }
 }

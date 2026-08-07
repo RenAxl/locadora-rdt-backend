@@ -1,5 +1,6 @@
 package com.locadora_rdt_backend.modules.financial.payables.dto;
 
+import com.locadora_rdt_backend.modules.financial.payables.constants.PayableValidationConstants;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -9,8 +10,11 @@ import java.time.LocalDate;
 public class PayablePaymentDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @NotNull(message = "Informe o valor da baixa")
-    @DecimalMin(value = "0.01", message = "Valor de baixa deve ser maior que zero")
+    @NotNull(message = PayableValidationConstants.PAYMENT_AMOUNT_REQUIRED)
+    @DecimalMin(
+            value = PayableValidationConstants.MINIMUM_AMOUNT,
+            message = PayableValidationConstants.PAYMENT_AMOUNT_MUST_BE_POSITIVE
+    )
     private BigDecimal paymentAmount;
 
     private LocalDate paymentDate;
@@ -85,4 +89,3 @@ public class PayablePaymentDTO implements Serializable {
         this.discount = discount;
     }
 }
-

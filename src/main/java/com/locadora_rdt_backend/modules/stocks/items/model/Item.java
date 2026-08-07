@@ -40,6 +40,9 @@ public class Item implements Serializable {
     @Column(name = "image_data", columnDefinition = "BYTEA")
     private byte[] image;
 
+    @Column(name = "image_content_type")
+    private String imageContentType;
+
     @Column(nullable = false)
     private Boolean active;
 
@@ -101,6 +104,10 @@ public class Item implements Serializable {
         return image;
     }
 
+    public String getImageContentType() {
+        return imageContentType;
+    }
+
     public Boolean getActive() {
         return active;
     }
@@ -147,6 +154,10 @@ public class Item implements Serializable {
 
     public void setImage(byte[] image) {
         this.image = image;
+    }
+
+    public void setImageContentType(String imageContentType) {
+        this.imageContentType = imageContentType;
     }
 
     public void setActive(Boolean active) {

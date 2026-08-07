@@ -16,6 +16,7 @@ public class ItemDetailsDTO implements Serializable {
     private CategoryDTO category;
     private BigDecimal price;
     private Boolean active;
+    private String imageContentType;
     private Instant createdAt;
     private Instant updatedAt;
     private String createdBy;
@@ -51,6 +52,10 @@ public class ItemDetailsDTO implements Serializable {
 
     public Boolean getActive() {
         return active;
+    }
+
+    public String getImageContentType() {
+        return imageContentType;
     }
 
     public Instant getCreatedAt() {
@@ -95,6 +100,10 @@ public class ItemDetailsDTO implements Serializable {
 
     public void setActive(Boolean active) {
         this.active = active;
+    }
+
+    public void setImageContentType(String imageContentType) {
+        this.imageContentType = imageContentType;
     }
 
     public void setCreatedAt(Instant createdAt) {

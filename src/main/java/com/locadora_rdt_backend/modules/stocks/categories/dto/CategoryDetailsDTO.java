@@ -10,6 +10,7 @@ public class CategoryDetailsDTO implements Serializable {
     private Long version;
     private String name;
     private Boolean active;
+    private String imageContentType;
     private Instant createdAt;
     private Instant updatedAt;
     private String createdBy;
@@ -33,6 +34,10 @@ public class CategoryDetailsDTO implements Serializable {
 
     public Boolean getActive() {
         return active;
+    }
+
+    public String getImageContentType() {
+        return imageContentType;
     }
 
     public Instant getCreatedAt() {
@@ -65,6 +70,10 @@ public class CategoryDetailsDTO implements Serializable {
 
     public void setActive(Boolean active) {
         this.active = active;
+    }
+
+    public void setImageContentType(String imageContentType) {
+        this.imageContentType = imageContentType;
     }
 
     public void setCreatedAt(Instant createdAt) {

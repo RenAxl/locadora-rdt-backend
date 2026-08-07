@@ -25,6 +25,12 @@ import com.locadora_rdt_backend.modules.financial.receivables.repository.Receiva
 import com.locadora_rdt_backend.modules.financial.receivables.service.ReceivableDocumentPdfService;
 import com.locadora_rdt_backend.modules.financial.receivables.service.ReceivableFilterNormalizer;
 import com.locadora_rdt_backend.modules.financial.receivables.service.ReceivableFinancialCalculator;
+import com.locadora_rdt_backend.modules.financial.receivables.service.ReceivableDocumentService;
+import com.locadora_rdt_backend.modules.financial.receivables.service.ReceivableInstallmentService;
+import com.locadora_rdt_backend.modules.financial.receivables.service.ReceivablePaymentService;
+import com.locadora_rdt_backend.modules.financial.receivables.service.ReceivableRelationService;
+import com.locadora_rdt_backend.modules.financial.receivables.service.ReceivableRentalService;
+import com.locadora_rdt_backend.modules.financial.receivables.service.ReceivableReportService;
 import com.locadora_rdt_backend.modules.financial.receivables.service.ReceivableServiceImpl;
 import com.locadora_rdt_backend.modules.rentals.rental.model.Rental;
 import com.locadora_rdt_backend.modules.identity.users.model.User;
@@ -95,18 +101,40 @@ class ReceivableServiceTests {
     void setUp() {
         clock = Clock.fixed(Instant.parse("2026-07-06T12:00:00Z"), ZoneId.of("America/Sao_Paulo"));
         ReceivableFinancialCalculator financialCalculator = new ReceivableFinancialCalculator(financialSettingRepository, clock);
+        ReceivableFilterNormalizer filterNormalizer = new ReceivableFilterNormalizer();
+        ReceivableRelationService relationService = new ReceivableRelationService(
+                customerRepository,
+                paymentMethodRepository,
+                paymentFrequencyRepository
+        );
+        ReceivablePaymentService paymentService = new ReceivablePaymentService(
+                repository, mapper, relationService, financialCalculator, authenticationFacade, userRepository, clock
+        );
+        ReceivableInstallmentService installmentService = new ReceivableInstallmentService(
+                repository, mapper, financialCalculator, authenticationFacade, userRepository
+        );
+        ReceivableReportService reportService = new ReceivableReportService(
+                repository, filterNormalizer, financialCalculator
+        );
+        ReceivableDocumentService documentService = new ReceivableDocumentService(
+                new ReceivableDocumentPdfService(financialCalculator, clock)
+        );
+        ReceivableRentalService rentalService = new ReceivableRentalService(
+                repository, relationService, financialCalculator, authenticationFacade, userRepository, clock
+        );
         service = new ReceivableServiceImpl(
                 repository,
                 mapper,
-                customerRepository,
-                paymentMethodRepository,
-                paymentFrequencyRepository,
                 userRepository,
                 authenticationFacade,
-                new ReceivableFilterNormalizer(),
+                filterNormalizer,
                 financialCalculator,
-                new ReceivableDocumentPdfService(financialCalculator, clock),
-                clock
+                relationService,
+                paymentService,
+                installmentService,
+                reportService,
+                documentService,
+                rentalService
         );
 
         entity = new Receivable();

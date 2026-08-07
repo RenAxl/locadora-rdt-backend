@@ -13,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-import static com.locadora_rdt_backend.modules.organization.employees.constants.EmployeeAuthorizationExpressions.*;
+import static com.locadora_rdt_backend.shared.constants.PermissionConstants.*;
 
 @RestController
 @RequestMapping("/employees/{employeeId}/files")

@@ -11,8 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 
-import static com.locadora_rdt_backend.modules.settings.systemsettings.constants.SystemSettingsAuthorizationExpressions.SYSTEMSETTINGS_READ;
-import static com.locadora_rdt_backend.modules.settings.systemsettings.constants.SystemSettingsAuthorizationExpressions.SYSTEMSETTINGS_WRITE;
+import static com.locadora_rdt_backend.shared.constants.PermissionConstants.*;
 
 @RestController
 @RequestMapping("/system-settings")

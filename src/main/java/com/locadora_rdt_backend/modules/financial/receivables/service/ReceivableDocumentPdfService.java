@@ -21,16 +21,15 @@ import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.time.Clock;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
+
+import static com.locadora_rdt_backend.modules.financial.receivables.constants.ReceivableConstants.ZERO;
+import static com.locadora_rdt_backend.modules.financial.receivables.constants.ReceivableDocumentConstants.BRAZIL;
+import static com.locadora_rdt_backend.modules.financial.receivables.constants.ReceivableDocumentConstants.DARK_BLUE;
+import static com.locadora_rdt_backend.modules.financial.receivables.constants.ReceivableDocumentConstants.DATE_FORMATTER;
+import static com.locadora_rdt_backend.modules.financial.receivables.constants.ReceivableDocumentConstants.EMPTY_VALUE;
 
 @Service
 public class ReceivableDocumentPdfService {
-
-    private static final BigDecimal ZERO = BigDecimal.ZERO;
-    private static final Locale BRAZIL = new Locale("pt", "BR");
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-    private static final Color DARK_BLUE = new Color(13, 42, 77);
 
     private final ReceivableFinancialCalculator financialCalculator;
     private final Clock clock;
@@ -182,12 +181,12 @@ public class ReceivableDocumentPdfService {
         addDetail(details, "Status", "Pago");
         addDetail(details, "Vencimento", formatDate(entity.getDueDate()));
         addDetail(details, "Pagamento", formatDate(entity.getPaymentDate()));
-        String paymentMethodName = "-";
+        String paymentMethodName = EMPTY_VALUE;
         if (entity.getPaymentMethod() != null) {
             paymentMethodName = nullToDash(entity.getPaymentMethod().getName());
         }
 
-        String paymentFrequencyName = "-";
+        String paymentFrequencyName = EMPTY_VALUE;
         if (entity.getPaymentFrequency() != null) {
             paymentFrequencyName = nullToDash(entity.getPaymentFrequency().getFrequency());
         }
@@ -197,7 +196,7 @@ public class ReceivableDocumentPdfService {
             subtotal = entity.getSubtotal();
         }
 
-        String paidByName = "-";
+        String paidByName = EMPTY_VALUE;
         if (entity.getPaidBy() != null) {
             paidByName = nullToDash(entity.getPaidBy().getName());
         }
@@ -272,7 +271,7 @@ public class ReceivableDocumentPdfService {
 
     private String getCustomerName(Receivable entity) {
         if (entity.getCustomer() == null) {
-            return "-";
+            return EMPTY_VALUE;
         }
 
         return nullToDash(entity.getCustomer().getName());
@@ -280,7 +279,7 @@ public class ReceivableDocumentPdfService {
 
     private String getCustomerCpf(Receivable entity) {
         if (entity.getCustomer() == null) {
-            return "-";
+            return EMPTY_VALUE;
         }
 
         return nullToDash(entity.getCustomer().getCpf());
@@ -288,7 +287,7 @@ public class ReceivableDocumentPdfService {
 
     private String getPaymentMethodName(Receivable entity) {
         if (entity.getPaymentMethod() == null) {
-            return "-";
+            return EMPTY_VALUE;
         }
 
         return nullToDash(entity.getPaymentMethod().getName());
@@ -296,7 +295,7 @@ public class ReceivableDocumentPdfService {
 
     private String getPaidByName(Receivable entity) {
         if (entity.getPaidBy() == null) {
-            return "-";
+            return EMPTY_VALUE;
         }
 
         return nullToDash(entity.getPaidBy().getName());
@@ -308,7 +307,7 @@ public class ReceivableDocumentPdfService {
 
     private String formatDate(LocalDate date) {
         if (date == null) {
-            return "-";
+            return EMPTY_VALUE;
         }
 
         return date.format(DATE_FORMATTER);
@@ -316,11 +315,11 @@ public class ReceivableDocumentPdfService {
 
     private String nullToDash(String value) {
         if (value == null) {
-            return "-";
+            return EMPTY_VALUE;
         }
 
         if (value.trim().isEmpty()) {
-            return "-";
+            return EMPTY_VALUE;
         }
 
         return value.trim();

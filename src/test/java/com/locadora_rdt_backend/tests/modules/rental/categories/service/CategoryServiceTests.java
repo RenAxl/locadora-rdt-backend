@@ -324,6 +324,7 @@ class CategoryServiceTests {
         service.updateImage(existingId, file);
 
         Assertions.assertArrayEquals(new byte[]{1}, category.getImage());
+        Assertions.assertEquals("image/png", category.getImageContentType());
         Assertions.assertEquals("admin", category.getUpdatedBy());
         Mockito.verify(repository).save(category);
     }

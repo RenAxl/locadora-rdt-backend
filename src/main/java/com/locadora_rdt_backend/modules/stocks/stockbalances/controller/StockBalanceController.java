@@ -13,8 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-import static com.locadora_rdt_backend.modules.stocks.stockbalances.constants.StockBalanceAuthorizationExpressions.STOCKBALANCES_READ;
-import static com.locadora_rdt_backend.modules.stocks.stockbalances.constants.StockBalanceAuthorizationExpressions.STOCKBALANCES_WRITE;
+import static com.locadora_rdt_backend.shared.constants.PermissionConstants.*;
 
 @RestController
 @RequestMapping("/inventory/stock-balances")

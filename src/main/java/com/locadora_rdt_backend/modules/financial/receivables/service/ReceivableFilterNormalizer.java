@@ -4,6 +4,8 @@ import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableFilt
 import com.locadora_rdt_backend.modules.financial.receivables.model.ReceivableStatus;
 import org.springframework.stereotype.Component;
 
+import static com.locadora_rdt_backend.modules.financial.receivables.constants.ReceivableConstants.*;
+
 @Component
 public class ReceivableFilterNormalizer {
 
@@ -41,7 +43,7 @@ public class ReceivableFilterNormalizer {
 
         String value = status.trim().toUpperCase();
 
-        if ("OPEN".equals(value)) {
+        if (STATUS_OPEN.equals(value)) {
             return ReceivableStatus.PENDING.name();
         }
 
@@ -74,73 +76,73 @@ public class ReceivableFilterNormalizer {
 
     private String normalizePeriodType(String periodType) {
         if (periodType == null || periodType.trim().isEmpty()) {
-            return "DUE_DATE";
+            return PERIOD_DUE_DATE;
         }
 
         String value = periodType.trim().toUpperCase();
 
-        if ("DUE".equals(value)) {
-            return "DUE_DATE";
+        if (PERIOD_DUE.equals(value)) {
+            return PERIOD_DUE_DATE;
         }
 
-        if ("PAYMENT".equals(value)) {
-            return "PAYMENT_DATE";
+        if (PERIOD_PAYMENT.equals(value)) {
+            return PERIOD_PAYMENT_DATE;
         }
 
-        if ("CREATED".equals(value)) {
-            return "CREATED_DATE";
+        if (PERIOD_CREATED.equals(value)) {
+            return PERIOD_CREATED_DATE;
         }
 
-        if ("DUE_DATE".equals(value)) {
+        if (PERIOD_DUE_DATE.equals(value)) {
             return value;
         }
 
-        if ("PAYMENT_DATE".equals(value)) {
+        if (PERIOD_PAYMENT_DATE.equals(value)) {
             return value;
         }
 
-        if ("CREATED_DATE".equals(value)) {
+        if (PERIOD_CREATED_DATE.equals(value)) {
             return value;
         }
 
-        return "DUE_DATE";
+        return PERIOD_DUE_DATE;
     }
 
     private String normalizeOrderBy(String orderBy) {
         if (orderBy == null || orderBy.trim().isEmpty()) {
-            return "dueDate";
+            return ORDER_BY_DUE_DATE;
         }
 
         String value = orderBy.trim();
-        if ("dueDate".equals(value)) {
+        if (ORDER_BY_DUE_DATE.equals(value)) {
             return value;
         }
 
-        if ("paymentDate".equals(value)) {
+        if (ORDER_BY_PAYMENT_DATE.equals(value)) {
             return value;
         }
 
-        if ("createdDate".equals(value)) {
+        if (ORDER_BY_CREATED_DATE.equals(value)) {
             return value;
         }
 
-        if ("amount".equals(value)) {
+        if (ORDER_BY_AMOUNT.equals(value)) {
             return value;
         }
 
-        if ("description".equals(value)) {
+        if (ORDER_BY_DESCRIPTION.equals(value)) {
             return value;
         }
 
-        return "dueDate";
+        return ORDER_BY_DUE_DATE;
     }
 
     private String normalizeDirection(String direction) {
-        if ("DESC".equalsIgnoreCase(direction)) {
-            return "DESC";
+        if (DIRECTION_DESC.equalsIgnoreCase(direction)) {
+            return DIRECTION_DESC;
         }
 
-        return "ASC";
+        return DIRECTION_ASC;
     }
 
     private Long normalizeId(Long id) {

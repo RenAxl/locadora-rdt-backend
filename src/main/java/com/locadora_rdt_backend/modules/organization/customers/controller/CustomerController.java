@@ -20,7 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.util.List;
 
-import static com.locadora_rdt_backend.modules.financial.receivables.constants.ReceivableAuthorizationExpressions.*;
+import static com.locadora_rdt_backend.shared.constants.PermissionConstants.*;
 
 @Tag(name = "Customers", description = "Endpoints for customer management")
 @RestController
@@ -33,7 +33,7 @@ public class CustomerController {
         this.service = service;
     }
 
-    @PreAuthorize(RECEIVABLES_READ)
+    @PreAuthorize(CUSTOMERS_READ)
     @GetMapping
     public ResponseEntity<Page<CustomerDTO>> findAllPaged(
             @RequestParam(value = "name", defaultValue = "") String name,
@@ -48,14 +48,14 @@ public class CustomerController {
         return ResponseEntity.ok(list);
     }
 
-    @PreAuthorize(RECEIVABLES_READ)
+    @PreAuthorize(CUSTOMERS_READ)
     @GetMapping("/{id}")
     public ResponseEntity<CustomerDetailsDTO> findById(@PathVariable Long id) {
         CustomerDetailsDTO dto = service.findById(id);
         return ResponseEntity.ok(dto);
     }
 
-    @PreAuthorize(RECEIVABLES_WRITE)
+    @PreAuthorize(CUSTOMERS_WRITE)
     @PostMapping
     public ResponseEntity<CustomerDTO> insert(@Valid @RequestBody CustomerInsertDTO dto) {
         CustomerDTO result = service.insert(dto);
@@ -63,7 +63,7 @@ public class CustomerController {
         return ControllerResponseBuilder.created(result.getId(), result);
     }
 
-    @PreAuthorize(RECEIVABLES_WRITE)
+    @PreAuthorize(CUSTOMERS_WRITE)
     @PutMapping("/{id}")
     public ResponseEntity<CustomerDTO> update(
             @PathVariable Long id,
@@ -73,7 +73,7 @@ public class CustomerController {
         return ResponseEntity.ok(customerDto);
     }
 
-    @PreAuthorize(RECEIVABLES_WRITE)
+    @PreAuthorize(CUSTOMERS_WRITE)
     @PutMapping(value = "/{id}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> updatePhoto(
             @PathVariable Long id,
@@ -83,7 +83,7 @@ public class CustomerController {
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize(RECEIVABLES_READ)
+    @PreAuthorize(CUSTOMERS_READ)
     @GetMapping("/{id}/photo")
     public ResponseEntity<byte[]> getPhoto(@PathVariable Long id) {
         Customer entity = service.findEntityById(id);
@@ -91,21 +91,21 @@ public class CustomerController {
         return BinaryResponseBuilder.media(entity.getPhoto(), entity.getPhotoContentType());
     }
 
-    @PreAuthorize(RECEIVABLES_DELETE)
+    @PreAuthorize(CUSTOMERS_DELETE)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize(RECEIVABLES_DELETE)
+    @PreAuthorize(CUSTOMERS_DELETE)
     @DeleteMapping("/all")
     public ResponseEntity<Void> deleteAll(@RequestBody List<Long> ids) {
         service.deleteAll(ids);
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize(RECEIVABLES_WRITE)
+    @PreAuthorize(CUSTOMERS_WRITE)
     @PatchMapping("/{id}/active")
     public ResponseEntity<Void> changeActive(@PathVariable Long id, @RequestBody boolean active) {
         service.changeActiveStatus(id, active);

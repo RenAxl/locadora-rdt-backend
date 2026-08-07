@@ -1,5 +1,6 @@
 package com.locadora_rdt_backend.modules.financial.payables.dto;
 
+import com.locadora_rdt_backend.modules.financial.payables.constants.PayableValidationConstants;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -11,15 +12,22 @@ import java.time.LocalDate;
 public class PayableSaveDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @NotBlank(message = "Descrição é obrigatória")
-    @Size(min = 3, max = 120, message = "Descrição deve ter entre 3 e 120 caracteres")
+    @NotBlank(message = PayableValidationConstants.DESCRIPTION_REQUIRED)
+    @Size(
+            min = PayableValidationConstants.DESCRIPTION_MIN_LENGTH,
+            max = PayableValidationConstants.DESCRIPTION_MAX_LENGTH,
+            message = PayableValidationConstants.DESCRIPTION_LENGTH
+    )
     private String description;
 
-    @NotNull(message = "Valor é obrigatório")
-    @DecimalMin(value = "0.01", message = "O valor deve ser maior que zero")
+    @NotNull(message = PayableValidationConstants.AMOUNT_REQUIRED)
+    @DecimalMin(
+            value = PayableValidationConstants.MINIMUM_AMOUNT,
+            message = PayableValidationConstants.AMOUNT_MUST_BE_POSITIVE
+    )
     private BigDecimal amount;
 
-    @NotNull(message = "Vencimento é obrigatório")
+    @NotNull(message = PayableValidationConstants.DUE_DATE_REQUIRED)
     private LocalDate dueDate;
     private LocalDate paymentDate;
 

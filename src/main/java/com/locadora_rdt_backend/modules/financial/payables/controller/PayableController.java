@@ -1,5 +1,6 @@
 package com.locadora_rdt_backend.modules.financial.payables.controller;
 
+import com.locadora_rdt_backend.modules.financial.payables.constants.PayableConstants;
 import com.locadora_rdt_backend.modules.financial.payables.dto.PayableDetailsDTO;
 import com.locadora_rdt_backend.modules.financial.payables.dto.PayableDTO;
 import com.locadora_rdt_backend.modules.financial.payables.dto.PayableFilterDTO;
@@ -30,7 +31,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-import static com.locadora_rdt_backend.modules.financial.payables.constants.PayableAuthorizationExpressions.*;
+import static com.locadora_rdt_backend.shared.constants.PermissionConstants.*;
 
 @RestController
 @RequestMapping("/payables")
@@ -49,8 +50,8 @@ public class PayableController {
             @RequestParam(value = "search", required = false) String search,
             @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @RequestParam(value = "status", defaultValue = "all") String status,
-            @RequestParam(value = "dateType", defaultValue = "due") String dateType,
+            @RequestParam(value = "status", defaultValue = PayableConstants.STATUS_ALL) String status,
+            @RequestParam(value = "dateType", defaultValue = PayableConstants.PERIOD_DUE) String dateType,
             @RequestParam(value = "periodType", required = false) String periodType,
             @RequestParam(value = "supplierId", required = false) Long supplierId,
             @RequestParam(value = "employeeId", required = false) Long employeeId,
@@ -58,10 +59,10 @@ public class PayableController {
             @RequestParam(value = "paymentFrequencyId", required = false) Long paymentFrequencyId,
             @RequestParam(value = "minimumAmount", required = false) BigDecimal minimumAmount,
             @RequestParam(value = "maximumAmount", required = false) BigDecimal maximumAmount,
-            @RequestParam(value = "page", defaultValue = "0") Integer page,
-            @RequestParam(value = "linesPerPage", defaultValue = "10") Integer linesPerPage,
-            @RequestParam(value = "direction", defaultValue = "ASC") String direction,
-            @RequestParam(value = "orderBy", defaultValue = "dueDate") String orderBy
+            @RequestParam(value = "page", defaultValue = PayableConstants.DEFAULT_PAGE) Integer page,
+            @RequestParam(value = "linesPerPage", defaultValue = PayableConstants.DEFAULT_LINES_PER_PAGE) Integer linesPerPage,
+            @RequestParam(value = "direction", defaultValue = PayableConstants.DIRECTION_ASC) String direction,
+            @RequestParam(value = "orderBy", defaultValue = PayableConstants.ORDER_BY_DUE_DATE) String orderBy
     ) {
         PageRequest pageRequest = PageRequest.of(page, linesPerPage);
         PayableFilterDTO filters = new PayableFilterDTO();
@@ -137,8 +138,8 @@ public class PayableController {
             @RequestParam(value = "description", defaultValue = "") String description,
             @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @RequestParam(value = "status", defaultValue = "all") String status,
-            @RequestParam(value = "dateType", defaultValue = "due") String dateType
+            @RequestParam(value = "status", defaultValue = PayableConstants.STATUS_ALL) String status,
+            @RequestParam(value = "dateType", defaultValue = PayableConstants.PERIOD_DUE) String dateType
     ) {
         return ResponseEntity.ok(service.report(description, startDate, endDate, status, dateType));
     }

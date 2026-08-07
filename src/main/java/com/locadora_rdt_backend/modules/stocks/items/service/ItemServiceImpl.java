@@ -117,6 +117,7 @@ public class ItemServiceImpl implements ItemService {
 
         ImageUploadSupport.validatePhoto(file);
         entity.setImage(ImageUploadSupport.readBytes(file, "Falha ao ler bytes do arquivo."));
+        entity.setImageContentType(file.getContentType());
         entity.setUpdatedBy(authenticationFacade.getAuthenticatedUsername());
 
         repository.save(entity);

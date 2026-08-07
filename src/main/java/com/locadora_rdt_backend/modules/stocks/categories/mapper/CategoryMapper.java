@@ -18,7 +18,8 @@ public class CategoryMapper {
         return new CategoryDTO(
                 entity.getId(),
                 entity.getName(),
-                entity.getActive()
+                entity.getActive(),
+                entity.getImageContentType()
         );
     }
 
@@ -32,6 +33,7 @@ public class CategoryMapper {
         dto.setVersion(entity.getVersion());
         dto.setName(entity.getName());
         dto.setActive(entity.getActive());
+        dto.setImageContentType(entity.getImageContentType());
         dto.setCreatedAt(entity.getCreatedAt());
         dto.setUpdatedAt(entity.getUpdatedAt());
         dto.setCreatedBy(entity.getCreatedBy());

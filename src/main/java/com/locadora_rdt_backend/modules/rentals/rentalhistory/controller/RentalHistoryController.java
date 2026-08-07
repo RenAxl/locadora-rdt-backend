@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import static com.locadora_rdt_backend.modules.rentals.rentalhistory.constants.RentalHistoryAuthorizationExpressions.*;
+import static com.locadora_rdt_backend.shared.constants.PermissionConstants.RENTALS_HISTORY_READ;
 
 @RestController
 @RequestMapping("/rental-history")

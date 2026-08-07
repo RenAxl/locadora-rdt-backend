@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static com.locadora_rdt_backend.modules.reports.financialreports.constants.FinancialReportsAuthorizationExpressions.FINANCIALREPORTS_READ;
+import static com.locadora_rdt_backend.shared.constants.PermissionConstants.FINANCIALREPORTS_READ;
 
 @RestController
 @RequestMapping("/reports/financial-reports")

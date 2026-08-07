@@ -12,9 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-import static com.locadora_rdt_backend.modules.financial.receivables.constants.ReceivableAuthorizationExpressions.RECEIVABLES_READ;
-import static com.locadora_rdt_backend.modules.stocks.stockmovements.constants.StockMovementAuthorizationExpressions.STOCKMOVEMENTS_READ;
-import static com.locadora_rdt_backend.modules.stocks.stockmovements.constants.StockMovementAuthorizationExpressions.STOCKMOVEMENTS_WRITE;
+import static com.locadora_rdt_backend.shared.constants.PermissionConstants.*;
 
 @RestController
 @RequestMapping("/inventory/stock-movements")

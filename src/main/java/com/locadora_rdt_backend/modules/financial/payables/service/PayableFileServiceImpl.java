@@ -1,6 +1,7 @@
 package com.locadora_rdt_backend.modules.financial.payables.service;
 
 import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
+import com.locadora_rdt_backend.modules.financial.payables.constants.PayableErrorMessages;
 import com.locadora_rdt_backend.modules.financial.payables.dto.PayableFileDTO;
 import com.locadora_rdt_backend.modules.financial.payables.dto.PayableFileViewDTO;
 import com.locadora_rdt_backend.modules.financial.payables.model.Payable;
@@ -81,13 +82,13 @@ public class PayableFileServiceImpl implements PayableFileService {
         Optional<PayableFile> optionalFile = fileRepository.findById(fileId);
 
         if (optionalFile.isEmpty()) {
-            throw new ResourceNotFoundException("Arquivo não encontrado. Id: " + fileId);
+            throw new ResourceNotFoundException(PayableErrorMessages.FILE_NOT_FOUND + fileId);
         }
 
         PayableFile entity = optionalFile.get();
 
         if (!entity.getPayable().getId().equals(payableId)) {
-            throw new ResourceNotFoundException("Arquivo não pertence à conta informada.");
+            throw new ResourceNotFoundException(PayableErrorMessages.FILE_DOES_NOT_BELONG_TO_PAYABLE);
         }
 
         return entity;
@@ -97,7 +98,9 @@ public class PayableFileServiceImpl implements PayableFileService {
         Optional<Payable> optionalPayable = payableRepository.findById(payableId);
 
         if (optionalPayable.isEmpty()) {
-            throw new ResourceNotFoundException("Conta a pagar não encontrada. Id: " + payableId);
+            throw new ResourceNotFoundException(
+                    PayableErrorMessages.PAYABLE_NOT_FOUND + PayableErrorMessages.ID_COMPLEMENT + payableId
+            );
         }
 
         return optionalPayable.get();

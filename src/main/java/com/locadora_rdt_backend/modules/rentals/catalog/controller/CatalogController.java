@@ -16,13 +16,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import static com.locadora_rdt_backend.modules.rentals.catalog.constants.CatalogAuthorizationExpressions.CATALOG_READ;
+import static com.locadora_rdt_backend.shared.constants.PermissionConstants.CATALOG_READ;
+
 
 @RestController
 @RequestMapping("/catalog")
 public class CatalogController {
-
-    private static final String DEFAULT_IMAGE_CONTENT_TYPE = "image/png";
 
     private final CatalogService service;
 
@@ -58,6 +57,6 @@ public class CatalogController {
     public ResponseEntity<byte[]> getImage(@PathVariable Long id) {
         Item entity = service.findEntityById(id);
 
-        return BinaryResponseBuilder.media(entity.getImage(), DEFAULT_IMAGE_CONTENT_TYPE);
+        return BinaryResponseBuilder.media(entity.getImage(), entity.getImageContentType());
     }
 }

@@ -13,8 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static com.locadora_rdt_backend.modules.reports.inventoryreports.constants.InventoryReportsAuthorizationExpressions.*;
-
+import static com.locadora_rdt_backend.shared.constants.PermissionConstants.INVENTORYREPORTS_READ;
 
 @RestController
 @RequestMapping("/reports/inventory-reports")

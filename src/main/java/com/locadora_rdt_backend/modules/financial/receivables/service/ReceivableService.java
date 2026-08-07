@@ -15,15 +15,17 @@ import org.springframework.data.domain.PageRequest;
 import java.time.LocalDate;
 import java.util.List;
 
+import static com.locadora_rdt_backend.modules.financial.receivables.constants.ReceivableConstants.*;
+
 public interface ReceivableService {
 
     default Page<ReceivableDTO> findAllPaged(String description, PageRequest pageRequest) {
         ReceivableFilterDTO filters = new ReceivableFilterDTO();
         filters.setSearch(description);
-        filters.setStatus("ALL");
-        filters.setPeriodType("DUE_DATE");
-        filters.setOrderBy("dueDate");
-        filters.setDirection("ASC");
+        filters.setStatus(STATUS_ALL);
+        filters.setPeriodType(PERIOD_DUE_DATE);
+        filters.setOrderBy(ORDER_BY_DUE_DATE);
+        filters.setDirection(DIRECTION_ASC);
         return findAllPaged(filters, pageRequest);
     }
 

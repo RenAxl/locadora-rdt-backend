@@ -106,6 +106,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         ImageUploadSupport.validatePhoto(file);
         entity.setImage(ImageUploadSupport.readBytes(file, "Falha ao ler bytes do arquivo."));
+        entity.setImageContentType(file.getContentType());
         entity.setUpdatedBy(authenticationFacade.getAuthenticatedUsername());
 
         repository.save(entity);

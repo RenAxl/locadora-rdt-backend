@@ -24,6 +24,7 @@ public class ItemFactory {
         item.setCategory(category);
         item.setPrice(new BigDecimal("120.00"));
         item.setImage(new byte[]{1});
+        item.setImageContentType("image/png");
         item.setActive(true);
         item.setCreatedAt(Instant.now());
         item.setUpdatedAt(Instant.now());
@@ -39,6 +40,7 @@ public class ItemFactory {
         dto.setDescription(item.getDescription());
         dto.setPrice(item.getPrice());
         dto.setActive(item.getActive());
+        dto.setImageContentType(item.getImageContentType());
         dto.setCategory(CategoryFactory.createCategoryDTO(item.getCategory()));
         return dto;
     }
@@ -51,6 +53,7 @@ public class ItemFactory {
         dto.setDescription(item.getDescription());
         dto.setPrice(item.getPrice());
         dto.setActive(item.getActive());
+        dto.setImageContentType(item.getImageContentType());
         dto.setCreatedAt(item.getCreatedAt());
         dto.setUpdatedAt(item.getUpdatedAt());
         dto.setCreatedBy(item.getCreatedBy());

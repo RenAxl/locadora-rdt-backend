@@ -1,5 +1,6 @@
 package com.locadora_rdt_backend.modules.financial.payables.service;
 
+import com.locadora_rdt_backend.modules.financial.payables.constants.PayableConstants;
 import com.locadora_rdt_backend.modules.settings.financialsettings.model.FinancialSetting;
 import com.locadora_rdt_backend.modules.settings.financialsettings.repository.FinancialSettingRepository;
 import com.locadora_rdt_backend.modules.financial.payables.dto.PayableDTO;
@@ -15,8 +16,6 @@ import java.time.temporal.ChronoUnit;
 
 @Component
 public class PayableFinancialCalculator {
-
-    private static final BigDecimal ZERO = BigDecimal.ZERO;
 
     private final FinancialSettingRepository financialSettingRepository;
     private final Clock clock;
@@ -43,20 +42,20 @@ public class PayableFinancialCalculator {
         if (hasPaymentRecord(entity)) {
             paidAmount = valueOrZero(entity.getSubtotal());
         } else {
-            paidAmount = ZERO;
+            paidAmount = PayableConstants.ZERO;
         }
 
-        if (amount.compareTo(ZERO) > 0 && paidAmount.compareTo(amount) >= 0) {
-            return ZERO;
+        if (amount.compareTo(PayableConstants.ZERO) > 0 && paidAmount.compareTo(amount) >= 0) {
+            return PayableConstants.ZERO;
         }
 
-        if (paidAmount.compareTo(ZERO) > 0 && paidAmount.compareTo(amount) < 0) {
+        if (paidAmount.compareTo(PayableConstants.ZERO) > 0 && paidAmount.compareTo(amount) < 0) {
             return amount.subtract(paidAmount);
         }
 
         BigDecimal remaining = entity.getRemainingBalance();
 
-        if (remaining != null && remaining.compareTo(ZERO) > 0 && remaining.compareTo(amount) < 0) {
+        if (remaining != null && remaining.compareTo(PayableConstants.ZERO) > 0 && remaining.compareTo(amount) < 0) {
             return remaining;
         }
 
@@ -64,8 +63,8 @@ public class PayableFinancialCalculator {
     }
 
     public void fillLateCharges(Payable entity, PayableDTO dto) {
-        BigDecimal amount = valueOrZero(entity.getAmount()).setScale(2, RoundingMode.HALF_UP);
-        BigDecimal openAmount = getOpenAmount(entity).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal amount = valueOrZero(entity.getAmount()).setScale(PayableConstants.MONEY_SCALE, RoundingMode.HALF_UP);
+        BigDecimal openAmount = getOpenAmount(entity).setScale(PayableConstants.MONEY_SCALE, RoundingMode.HALF_UP);
         if (Boolean.TRUE.equals(entity.getPaid())) {
             dto.setCurrentAmountWithLateCharges(amount);
         } else {
@@ -73,8 +72,8 @@ public class PayableFinancialCalculator {
         }
 
         dto.setOverdueDays(0L);
-        dto.setCalculatedLateInterest(ZERO.setScale(2, RoundingMode.HALF_UP));
-        dto.setCalculatedLateFee(ZERO.setScale(2, RoundingMode.HALF_UP));
+        dto.setCalculatedLateInterest(PayableConstants.ZERO.setScale(PayableConstants.MONEY_SCALE, RoundingMode.HALF_UP));
+        dto.setCalculatedLateFee(PayableConstants.ZERO.setScale(PayableConstants.MONEY_SCALE, RoundingMode.HALF_UP));
 
         if (!isOverdueOpenPayable(entity)) {
             return;
@@ -87,21 +86,21 @@ public class PayableFinancialCalculator {
         BigDecimal lateFee = percentageOf(openAmount, setting.getDefaultLateFeePercent());
         BigDecimal lateInterest = percentageOf(openAmount, setting.getDefaultLateInterestPercent())
                 .multiply(BigDecimal.valueOf(overdueDays))
-                .setScale(2, RoundingMode.HALF_UP);
+                .setScale(PayableConstants.MONEY_SCALE, RoundingMode.HALF_UP);
 
         dto.setOverdueDays(overdueDays);
         dto.setCalculatedLateInterest(lateInterest);
         dto.setCalculatedLateFee(lateFee);
         BigDecimal amountWithLateCharges = openAmount.add(lateInterest);
         amountWithLateCharges = amountWithLateCharges.add(lateFee);
-        amountWithLateCharges = amountWithLateCharges.setScale(2, RoundingMode.HALF_UP);
+        amountWithLateCharges = amountWithLateCharges.setScale(PayableConstants.MONEY_SCALE, RoundingMode.HALF_UP);
 
         dto.setCurrentAmountWithLateCharges(amountWithLateCharges);
     }
 
     public BigDecimal valueOrZero(BigDecimal value) {
         if (value == null) {
-            return ZERO;
+            return PayableConstants.ZERO;
         }
 
         return value;
@@ -124,12 +123,16 @@ public class PayableFinancialCalculator {
             return false;
         }
 
-        return getOpenAmount(entity).compareTo(ZERO) > 0;
+        return getOpenAmount(entity).compareTo(PayableConstants.ZERO) > 0;
     }
 
     private BigDecimal percentageOf(BigDecimal amount, BigDecimal percent) {
         BigDecimal value = amount.multiply(valueOrZero(percent));
-        return value.divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+        return value.divide(
+                PayableConstants.PERCENT_DIVISOR,
+                PayableConstants.MONEY_SCALE,
+                RoundingMode.HALF_UP
+        );
     }
 
     private boolean hasPaymentRecord(Payable entity) {

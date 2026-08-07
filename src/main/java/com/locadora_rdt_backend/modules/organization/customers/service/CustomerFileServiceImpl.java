@@ -1,6 +1,7 @@
 package com.locadora_rdt_backend.modules.organization.customers.service;
 
 import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
+import com.locadora_rdt_backend.modules.organization.customers.constants.CustomerErrorMessages;
 import com.locadora_rdt_backend.modules.organization.customers.dto.CustomerFileDTO;
 import com.locadora_rdt_backend.modules.organization.customers.dto.CustomerFileViewDTO;
 import com.locadora_rdt_backend.modules.organization.customers.model.Customer;
@@ -74,10 +75,12 @@ public class CustomerFileServiceImpl implements CustomerFileService {
         getCustomerById(customerId);
 
         CustomerFile entity = customerFileRepository.findById(fileId)
-                .orElseThrow(() -> new ResourceNotFoundException("Arquivo não encontrado. Id: " + fileId));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        CustomerErrorMessages.FILE_NOT_FOUND_WITH_ID + fileId
+                ));
 
         if (!entity.getCustomer().getId().equals(customerId)) {
-            throw new ResourceNotFoundException("Arquivo não pertence ao cliente informado.");
+            throw new ResourceNotFoundException(CustomerErrorMessages.FILE_DOES_NOT_BELONG_TO_CUSTOMER);
         }
 
         return entity;
@@ -90,6 +93,8 @@ public class CustomerFileServiceImpl implements CustomerFileService {
 
     private Customer getCustomerById(Long customerId) {
         return customerRepository.findById(customerId)
-                .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado. Id: " + customerId));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        CustomerErrorMessages.CUSTOMER_NOT_FOUND_WITH_ID + customerId
+                ));
     }
 }

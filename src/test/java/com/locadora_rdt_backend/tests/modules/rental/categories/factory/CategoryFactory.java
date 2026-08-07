@@ -16,6 +16,7 @@ public class CategoryFactory {
         category.setName("Consoles");
         category.setActive(true);
         category.setImage(new byte[]{1});
+        category.setImageContentType("image/png");
         category.setCreatedAt(Instant.now());
         category.setUpdatedAt(Instant.now());
         category.setCreatedBy("admin");
@@ -39,7 +40,8 @@ public class CategoryFactory {
         return new CategoryDTO(
                 category.getId(),
                 category.getName(),
-                category.getActive()
+                category.getActive(),
+                category.getImageContentType()
         );
     }
 
@@ -48,6 +50,7 @@ public class CategoryFactory {
         dto.setId(category.getId());
         dto.setName(category.getName());
         dto.setActive(category.getActive());
+        dto.setImageContentType(category.getImageContentType());
         dto.setCreatedAt(category.getCreatedAt());
         dto.setUpdatedAt(category.getUpdatedAt());
         dto.setCreatedBy(category.getCreatedBy());

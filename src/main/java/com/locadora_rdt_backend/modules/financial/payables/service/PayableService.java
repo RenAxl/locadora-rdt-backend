@@ -1,5 +1,6 @@
 package com.locadora_rdt_backend.modules.financial.payables.service;
 
+import com.locadora_rdt_backend.modules.financial.payables.constants.PayableConstants;
 import com.locadora_rdt_backend.modules.financial.payables.dto.PayableDTO;
 import com.locadora_rdt_backend.modules.financial.payables.dto.PayableDetailsDTO;
 import com.locadora_rdt_backend.modules.financial.payables.dto.PayableFilterDTO;
@@ -19,10 +20,10 @@ public interface PayableService {
     default Page<PayableDTO> findAllPaged(String description, PageRequest pageRequest) {
         PayableFilterDTO filters = new PayableFilterDTO();
         filters.setSearch(description);
-        filters.setStatus("ALL");
-        filters.setPeriodType("DUE_DATE");
-        filters.setOrderBy("dueDate");
-        filters.setDirection("ASC");
+        filters.setStatus(PayableConstants.STATUS_ALL);
+        filters.setPeriodType(PayableConstants.PERIOD_DUE_DATE);
+        filters.setOrderBy(PayableConstants.ORDER_BY_DUE_DATE);
+        filters.setDirection(PayableConstants.DIRECTION_ASC);
         return findAllPaged(filters, pageRequest);
     }
 

@@ -26,6 +26,10 @@ import com.locadora_rdt_backend.modules.financial.payables.model.Payable;
 import com.locadora_rdt_backend.modules.financial.payables.repository.PayableRepository;
 import com.locadora_rdt_backend.modules.financial.payables.service.PayableFilterNormalizer;
 import com.locadora_rdt_backend.modules.financial.payables.service.PayableFinancialCalculator;
+import com.locadora_rdt_backend.modules.financial.payables.service.PayableInstallmentService;
+import com.locadora_rdt_backend.modules.financial.payables.service.PayablePaymentService;
+import com.locadora_rdt_backend.modules.financial.payables.service.PayableRelationService;
+import com.locadora_rdt_backend.modules.financial.payables.service.PayableReportService;
 import com.locadora_rdt_backend.modules.financial.payables.service.PayableServiceImpl;
 import com.locadora_rdt_backend.modules.identity.users.model.User;
 import com.locadora_rdt_backend.modules.identity.users.repository.UserRepository;
@@ -99,18 +103,45 @@ class PayableServiceTests {
     void setUp() {
         clock = Clock.fixed(Instant.parse("2026-07-06T12:00:00Z"), ZoneId.of("America/Sao_Paulo"));
         PayableFinancialCalculator financialCalculator = new PayableFinancialCalculator(financialSettingRepository, clock);
-        service = new PayableServiceImpl(
-                repository,
-                mapper,
+        PayableFilterNormalizer filterNormalizer = new PayableFilterNormalizer();
+        PayableRelationService relationService = new PayableRelationService(
                 supplierRepository,
                 employeeRepository,
                 paymentMethodRepository,
-                paymentFrequencyRepository,
+                paymentFrequencyRepository
+        );
+        PayablePaymentService paymentService = new PayablePaymentService(
+                repository,
+                mapper,
+                relationService,
+                financialCalculator,
+                authenticationFacade,
+                userRepository,
+                clock
+        );
+        PayableInstallmentService installmentService = new PayableInstallmentService(
+                repository,
+                mapper,
+                financialCalculator,
+                authenticationFacade,
+                userRepository
+        );
+        PayableReportService reportService = new PayableReportService(
+                repository,
+                filterNormalizer,
+                financialCalculator
+        );
+        service = new PayableServiceImpl(
+                repository,
+                mapper,
                 userRepository,
                 authenticationFacade,
-                new PayableFilterNormalizer(),
+                filterNormalizer,
                 financialCalculator,
-                clock
+                relationService,
+                paymentService,
+                installmentService,
+                reportService
         );
 
         entity = new Payable();

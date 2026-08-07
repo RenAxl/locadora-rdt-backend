@@ -1,6 +1,7 @@
 package com.locadora_rdt_backend.modules.financial.receivables.service;
 
 import com.locadora_rdt_backend.common.exception.ResourceNotFoundException;
+import com.locadora_rdt_backend.modules.financial.receivables.constants.ReceivableErrorMessages;
 import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableFileDTO;
 import com.locadora_rdt_backend.modules.financial.receivables.dto.ReceivableFileViewDTO;
 import com.locadora_rdt_backend.modules.financial.receivables.model.Receivable;
@@ -81,13 +82,13 @@ public class ReceivableFileServiceImpl implements ReceivableFileService {
         Optional<ReceivableFile> optionalFile = fileRepository.findById(fileId);
 
         if (optionalFile.isEmpty()) {
-            throw new ResourceNotFoundException("Arquivo não encontrado. Id: " + fileId);
+            throw new ResourceNotFoundException(ReceivableErrorMessages.FILE_NOT_FOUND + fileId);
         }
 
         ReceivableFile entity = optionalFile.get();
 
         if (!entity.getReceivable().getId().equals(receivableId)) {
-            throw new ResourceNotFoundException("Arquivo não pertence à conta informada.");
+            throw new ResourceNotFoundException(ReceivableErrorMessages.FILE_DOES_NOT_BELONG_TO_RECEIVABLE);
         }
 
         return entity;
@@ -97,7 +98,11 @@ public class ReceivableFileServiceImpl implements ReceivableFileService {
         Optional<Receivable> optionalReceivable = receivableRepository.findById(receivableId);
 
         if (optionalReceivable.isEmpty()) {
-            throw new ResourceNotFoundException("Conta a receber não encontrada. Id: " + receivableId);
+            throw new ResourceNotFoundException(
+                    ReceivableErrorMessages.RECEIVABLE_NOT_FOUND
+                            + ReceivableErrorMessages.ID_COMPLEMENT
+                            + receivableId
+            );
         }
 
         return optionalReceivable.get();

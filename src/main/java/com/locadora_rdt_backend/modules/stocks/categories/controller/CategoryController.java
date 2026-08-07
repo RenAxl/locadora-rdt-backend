@@ -28,14 +28,12 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.util.List;
 
-import static com.locadora_rdt_backend.modules.stocks.categories.constants.CategoryAuthorizationExpressions.*;
+import static com.locadora_rdt_backend.shared.constants.PermissionConstants.*;
 
 @RestController
 @RequestMapping("/rental/categories")
 public class CategoryController {
-
-    private static final String DEFAULT_IMAGE_CONTENT_TYPE = "image/png";
-
+    
     private final CategoryService service;
 
     public CategoryController(CategoryService service) {
@@ -98,7 +96,7 @@ public class CategoryController {
     public ResponseEntity<byte[]> getImage(@PathVariable Long id) {
         Category entity = service.findEntityById(id);
 
-        return BinaryResponseBuilder.media(entity.getImage(), DEFAULT_IMAGE_CONTENT_TYPE);
+        return BinaryResponseBuilder.media(entity.getImage(), entity.getImageContentType());
     }
 
     @PreAuthorize(CATEGORIES_DELETE)

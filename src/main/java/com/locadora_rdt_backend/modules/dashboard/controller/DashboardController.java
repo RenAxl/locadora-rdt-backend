@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static com.locadora_rdt_backend.modules.organization.employees.constants.EmployeeAuthorizationExpressions.EMPLOYEES_READ;
+import static com.locadora_rdt_backend.shared.constants.PermissionConstants.EMPLOYEES_READ;
 
 @RestController
 @RequestMapping("/dashboard")
